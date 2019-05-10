@@ -4,6 +4,7 @@
 #include "scanner.h"
 #include "ast.h"
 #include "memory.h"
+#include "object.h"
 
 typedef struct {
     Token current;
@@ -12,13 +13,13 @@ typedef struct {
 } Parser;
 
 static Parser parser;
-static Chunk* compilingChunk;
 
 typedef enum {
     PREC_NONE,
     PREC_ASSIGNMENT,
     PREC_TERM,
     PREC_FACTOR,
+    PREC_UNARY, // almost sure
     PREC_GROUPING
 } Precedence;
 
@@ -37,6 +38,10 @@ static void error(const char* errorMessage) {
     parser.hadError = true;
 }
 
+static bool check(TokenType type) {
+    return parser.current.type == type;
+}
+
 static void advance() {
     parser.previous = parser.current;
     parser.current = scanToken();
@@ -46,7 +51,7 @@ static void advance() {
 }
 
 static void consume(TokenType type, const char* errorMessage) {
-    if (parser.current.type == type) {
+    if (check(type)) {
         advance();
         return;
     }
@@ -54,7 +59,15 @@ static void consume(TokenType type, const char* errorMessage) {
 }
 
 static bool match(TokenType type) {
-    if (parser.current.type == type) {
+    if (check(type)) {
+        advance();
+        return true;
+    }
+    return false;
+}
+
+static bool matchNext(TokenType type) {
+    if (peekNextToken().type == type) {
         advance();
         return true;
     }
@@ -70,8 +83,7 @@ static AstNode* binary(AstNode* leftNode) {
     
     AstNode* rightNode = parsePrecedence(precedence + 1);
     
-    AstNodeBinary* node = allocate(sizeof(AstNodeBinary));
-    node->base.type = AST_NODE_BINARY;
+    AstNodeBinary* node = ALLOCATE_AST_NODE(AstNodeBinary, AST_NODE_BINARY);
     node->operator = operator;
     node->leftOperand = leftNode;
     node->rightOperand = rightNode;
@@ -79,12 +91,26 @@ static AstNode* binary(AstNode* leftNode) {
     return (AstNode*) node;
 }
 
+static AstNode* identifier() {
+    ObjectString* name = copyString(parser.previous.start, parser.previous.length);
+    AstNodeVariable* node = ALLOCATE_AST_NODE(AstNodeVariable, AST_NODE_VARIABLE);
+    node->name = name;
+    return (AstNode*) node;
+}
+
 static AstNode* number() {
     double number = strtod(parser.previous.start, NULL);
-    AstNodeConstant* node = allocate(sizeof(AstNodeConstant));
-    node->base.type = AST_NODE_CONSTANT;
-    node->value = number;
-    
+    AstNodeConstant* node = ALLOCATE_AST_NODE(AstNodeConstant, AST_NODE_CONSTANT);
+    node->value = MAKE_VALUE_NUMBER(number);
+    return (AstNode*) node;
+}
+
+static AstNode* string() {
+    const char* theString = parser.previous.start + 1;
+    ObjectString* objString = copyString(theString, parser.previous.length - 2);
+    Value value = MAKE_VALUE_OBJECT(objString);
+    AstNodeConstant* node = ALLOCATE_AST_NODE(AstNodeConstant, AST_NODE_CONSTANT);
+    node->value = value;
     return (AstNode*) node;
 }
 
@@ -94,12 +120,18 @@ static AstNode* grouping() {
     return node;
 }
 
+static AstNode* unary() {
+    AstNodeUnary* node = ALLOCATE_AST_NODE(AstNodeUnary, AST_NODE_UNARY);
+    node->operand = parsePrecedence(PREC_UNARY); // so-called right associativity
+    return (AstNode*) node;
+}
+
 static ParseRule rules[] = {
-    {NULL, NULL, PREC_NONE},           // TOKEN_IDENTIFIER
+    {identifier, NULL, PREC_NONE},           // TOKEN_IDENTIFIER
     {number, NULL, PREC_NONE},         // TOKEN_NUMBER
-    {number, NULL, PREC_NONE},         // TOKEN_STRING
+    {string, NULL, PREC_NONE},         // TOKEN_STRING
     {NULL, binary, PREC_TERM},         // TOKEN_PLUS
-    {NULL, binary, PREC_TERM},         // TOKEN_MINUS
+    {unary, binary, PREC_TERM},         // TOKEN_MINUS
     {NULL, binary, PREC_FACTOR},       // TOKEN_STAR
     {NULL, binary, PREC_FACTOR},       // TOKEN_SLASH
     {NULL, NULL, PREC_NONE},     // TOKEN_EQUAL
@@ -113,6 +145,7 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_BANG_EQUAL
     {NULL, NULL, PREC_NONE},     // TOKEN_GREATER_EQUAL
     {NULL, NULL, PREC_NONE},     // TOKEN_LESS_EQUAL
+    {NULL, NULL, PREC_NONE},     // TOKEN_PRINT
     {NULL, NULL, PREC_NONE},     // TOKEN_END
     {NULL, NULL, PREC_NONE},     // TOKEN_IF
     {NULL, NULL, PREC_NONE},     // TOKEN_ELSE
@@ -144,37 +177,62 @@ static AstNode* parsePrecedence(Precedence precedence) {
     return node;
 }
 
+static AstNode* assignmentStatement() {
+    ObjectString* name = copyString(parser.previous.start, parser.previous.length);
+    consume(TOKEN_EQUAL, "Expected '=' after variable name in assignment.");
+    AstNode* value = parsePrecedence(PREC_ASSIGNMENT);
+    
+    AstNodeAssignment* node = ALLOCATE_AST_NODE(AstNodeAssignment, AST_NODE_ASSIGNMENT);
+    node->name = name;
+    node->value = value;
+    
+    return (AstNode*) node;
+}
+
 static ParseRule getRule(TokenType type) {
     // return pointer? nah
     return rules[type];
 }
 
-static AstNode* declarations() {
-    // Currently only math statements
-    return parsePrecedence(PREC_ASSIGNMENT);
+static AstNode* statements() {
+    AstNodeStatements* statementsNode = newAstNodeStatements();
+    
+    while (!check(TOKEN_EOF)) {
+        if (match(TOKEN_NEWLINE)) {
+            continue;
+        }
+        
+        if (check(TOKEN_IDENTIFIER) && matchNext(TOKEN_EQUAL)) {
+            AstNode* assignmentNode = assignmentStatement();
+            writePointerArray(&statementsNode->statements, assignmentNode);
+        } else {
+            AstNode* expressionNode = parsePrecedence(PREC_ASSIGNMENT);
+            writePointerArray(&statementsNode->statements, expressionNode);
+        }
+        
+        if (!check(TOKEN_EOF)) {
+            // Allowing omitting the newline at the end of the program
+            consume(TOKEN_NEWLINE, "Expected newline after statement.");
+        }
+        
+        // Checking for errors on statement boundaries
+        if (parser.hadError) {
+            // TODO: Proper compiler error propagations and such
+            fprintf(stderr, "Compiler exits with errors.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    
+    return (AstNode*) statementsNode;
 }
 
 AstNode* parse(const char* source) {
     initScanner(source);
-    // compilingChunk = chunk;
     
     advance();
     parser.hadError = false;
     
-    AstNode* node = declarations();
+    AstNode* node = statements();
     
     return node;
-    
-    // for (;;) {
-        // Token token = scanToken();
-        // printf("Type: %d, text: '%.*s'\n", token.type, token.length, token.start);
-        
-        // if (token.type == TOKEN_EOF) {
-            // break;
-        // }
-        // if (token.type == TOKEN_ERROR) {
-            // fprintf(stderr, "%s\n", token.start);
-            // break;
-        // }
-    // }
 }

@@ -14,7 +14,7 @@ typedef enum {
     TOKEN_BANG_EQUAL, TOKEN_GREATER_EQUAL, TOKEN_LESS_EQUAL,
     
     // Alphabetic symbols
-    TOKEN_END, TOKEN_IF, TOKEN_ELSE, TOKEN_FUNC, TOKEN_AND, TOKEN_OR,
+    TOKEN_PRINT, TOKEN_END, TOKEN_IF, TOKEN_ELSE, TOKEN_FUNC, TOKEN_AND, TOKEN_OR,
     
     // Special tokens
     TOKEN_EOF, TOKEN_ERROR
@@ -28,6 +28,7 @@ typedef struct {
 } Token;
 
 void initScanner(const char* source);
+Token peekNextToken();
 Token scanToken();
 
 #endif

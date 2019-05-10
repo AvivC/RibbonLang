@@ -42,6 +42,22 @@ void disassembleChunk(Chunk* chunk) {
                 offset = simpleInstruction("OP_MULTIPLY", offset);
                 break;
             }
+            case OP_NEGATE: {
+                offset = simpleInstruction("OP_NEGATE", offset);
+                break;
+            }
+            case OP_LOAD_VARIABLE: {
+                offset = constantInstruction("OP_LOAD_VARIABLE", chunk, offset);
+                break;
+            }
+            case OP_SET_VARIABLE: {
+                offset = constantInstruction("OP_SET_VARIABLE", chunk, offset);
+                break;
+            }
+            case OP_RETURN: {
+                offset = simpleInstruction("OP_RETURN", offset);
+                break;
+            }
             default:
                 printf("Weird opcode.\n");
         }

@@ -14,7 +14,7 @@ void writeChunk(Chunk* chunk, uint8_t byte) {
     if (chunk->count == chunk->capacity) {
         int oldCapacity = chunk->capacity;
         chunk->capacity = GROW_CAPACITY(oldCapacity);
-        chunk->code = reallocate(chunk->code, oldCapacity, chunk->capacity);
+        chunk->code = reallocate(chunk->code, oldCapacity, chunk->capacity, "Chunk code array");
         // DEBUG_PRINT("Chunk grew. Old Capacity: %d. New capacity: %d.", oldCapacity , chunk->capacity);
     }
     
@@ -22,7 +22,8 @@ void writeChunk(Chunk* chunk, uint8_t byte) {
 }
 
 void freeChunk(Chunk* chunk) {
-    deallocate(chunk->code, chunk->capacity * sizeof(uint8_t)); // the sizeof is probably stupid
+    deallocate(chunk->code, chunk->capacity * sizeof(uint8_t), "Chunk code buffer"); // the sizeof is probably stupid
+    freeValueArray(&chunk->constants);
     initChunk(chunk);
 }
 

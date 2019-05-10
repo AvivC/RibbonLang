@@ -60,14 +60,14 @@ static Token errorToken(const char* message) {
 }
 
 static bool checkToken(const char* text) {
-    return strncmp(scanner.start, text, scanner.current - scanner.start) == 0;
+    int tokenLength = scanner.current - scanner.start;
+    return (strlen(text) == tokenLength) && (strncmp(scanner.start, text, tokenLength) == 0);
 }
 
 static Token parseIdentifier() {
     while (isAlpha(current()) || isDigit(current())) {
         advance();
     }
-    
     if (checkToken("end")) {
         return makeToken(TOKEN_END);
     } else if (checkToken("if")) {
@@ -100,7 +100,7 @@ static Token parseNumber() {
 }
 
 static Token parseString() {
-    while (current() != '"' && isEndOfCode(current())) {
+    while (current() != '"' && !isEndOfCode(current())) {
         advance();
     }
     
@@ -110,6 +110,7 @@ static Token parseString() {
     
     advance(); // Skip ending '"'
     
+    printf("***%c***\n", current());
     return makeToken(TOKEN_STRING);
 }
 
@@ -123,6 +124,17 @@ static void skipWhitespace() {
 void initScanner(const char* source) {
     scanner.start = source;
     scanner.current = source;
+}
+
+Token peekNextToken() {
+    // TODO: This approach is pretty awkward and can cause bugs later. Needs refactoring.
+    
+    const char* oldStart = scanner.start;
+    const char* oldCurrent = scanner.current;
+    Token token = scanToken();
+    scanner.start = oldStart;
+    scanner.current = oldCurrent;
+    return token;
 }
 
 Token scanToken() {

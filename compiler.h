@@ -2,7 +2,8 @@
 #define plane_compiler_h
 
 #include "chunk.h"
+#include "ast.h"
 
-void compileSource(const char* source, Chunk* chunk);
+void compile(AstNode* node, Chunk* chunk);
 
 #endif

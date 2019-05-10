@@ -2,6 +2,7 @@
 #include "parser.h"
 #include "chunk.h"
 #include "ast.h"
+#include "value.h"
 
 static void compileTree(AstNode* node, Chunk* chunk) {
     AstNodeType nodeType = node->type;
@@ -31,24 +32,58 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         case AST_NODE_CONSTANT: {
             AstNodeConstant* nodeConstant = (AstNodeConstant*) node;
             
-            double number = nodeConstant->value;
-            Value value;
-            value.type = VALUE_NUMBER;
-            value.as.number = number;
-            
-            int constantIndex = addConstant(chunk, value);
+            int constantIndex = addConstant(chunk, nodeConstant->value);
             
             writeChunk(chunk, OP_CONSTANT);
             writeChunk(chunk, (uint8_t) constantIndex);
             
             break;
         }
+        
+        case AST_NODE_UNARY: {
+            AstNodeUnary* nodeUnary = (AstNodeUnary*) node;
+            compileTree(nodeUnary->operand, chunk);
+            writeChunk(chunk, OP_NEGATE);
+            break;
+        }
+        
+        case AST_NODE_VARIABLE: {
+            AstNodeVariable* nodeVariable = (AstNodeVariable*) node;
+            
+            Value nameValue = MAKE_VALUE_OBJECT(nodeVariable->name);
+            int constantIndex = addConstant(chunk, nameValue);
+            
+            writeChunk(chunk, OP_LOAD_VARIABLE);
+            writeChunk(chunk, constantIndex);
+            break;
+        }
+        
+        case AST_NODE_ASSIGNMENT: {
+            AstNodeAssignment* nodeAssignment = (AstNodeAssignment*) node;
+            
+            compileTree(nodeAssignment->value, chunk);
+            
+            Value nameValue = MAKE_VALUE_OBJECT(nodeAssignment->name);
+            int constantIndex = addConstant(chunk, nameValue);
+            
+            writeChunk(chunk, OP_SET_VARIABLE);
+            writeChunk(chunk, constantIndex);
+            break;
+        }
+        
+        case AST_NODE_STATEMENTS: {
+            AstNodeStatements* nodeStatements = (AstNodeStatements*) node;
+            for (int i = 0; i < nodeStatements->statements.count; i++) {
+                printf("Compiling statement: index %d out of %d\n", i, nodeStatements->statements.count);
+                compileTree((AstNode*) nodeStatements->statements.values[i], chunk);
+            }
+            
+            break;
+        }
     }
-    
 }
 
-void compileSource(const char* source, Chunk* chunk) {
-    AstNode* node = parse(source);
+void compile(AstNode* node, Chunk* chunk) {
     compileTree(node, chunk);
     writeChunk(chunk, OP_RETURN); // temporary
 }
