@@ -33,8 +33,13 @@ ObjectString* takeString(char* chars, int length) {
     return newObjectString(chars, length);
 }
 
+bool cstringsEqual(const char* a, const char* b) {
+    // Assuming NULL-terminated strings
+    return strcmp(a, b) == 0;
+}
+
 bool stringsEqual(ObjectString* a, ObjectString* b) {
-    return (a->length == b->length) && (strcmp(a->chars, b->chars) == 0);
+    return (a->length == b->length) && (cstringsEqual(a->chars, b->chars));
 }
 
 // void freeObject(Object* o) {

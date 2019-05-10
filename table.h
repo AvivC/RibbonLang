@@ -8,7 +8,7 @@
 // typedef ObjectString_t ObjectString;
 
 typedef struct {
-    struct ObjectString* key;
+    const char* key;
     Value value;
 } Entry;
 
@@ -22,6 +22,9 @@ typedef struct {
 void initTable(Table* table);
 void setTable(Table* table, struct ObjectString* key, Value value); // TODO: report success or failure
 bool getTable(Table* table, struct ObjectString* key, Value* out);
+
+void setTableCStringKey(Table* table, const char* key, Value value); // TODO: report success or failure
+bool getTableCStringKey(Table* table, const char* key, Value* out);
 
 void printTable(Table* table); // temp - for debugging
 

@@ -6,7 +6,7 @@
 
 #define MAX_LOAD_FACTOR 0.75
 
-bool stringsEqual(ObjectString* a, ObjectString* b);
+bool cstringsEqual(ObjectString* a, ObjectString* b);
 
 static unsigned long hashString(const char* chars) {  // maybe should be unsigned char*?
     unsigned long hash = 5381;
@@ -19,12 +19,12 @@ static unsigned long hashString(const char* chars) {  // maybe should be unsigne
     return hash;
 }
 
-static Entry* findEntry(Table* table, ObjectString* key, bool settingValue) {
+static Entry* findEntry(Table* table, const char* key, bool settingValue) {
     if (table->capacity == 0) {
         DEBUG_PRINT("Illegal state: table capacity is 0.");
     }
     
-    unsigned long hash = hashString(key->chars);
+    unsigned long hash = hashString(key);
     // if table->capacity == 0 we have Undefined Behavior. Outer functions should guard against that
     int slot = hash % table->capacity;
     
@@ -34,7 +34,7 @@ static Entry* findEntry(Table* table, ObjectString* key, bool settingValue) {
     }
     
     Entry* entry = &table->entries[slot];
-    while (entry->key != NULL && !stringsEqual(entry->key, key)) {
+    while (entry->key != NULL && !cstringsEqual(entry->key, key)) {
         if (settingValue) {
             table->collisionsCounter++;
         }
@@ -84,11 +84,15 @@ void initTable(Table* table) {
 }
 
 void setTable(Table* table, ObjectString* key, Value value) {
+    setTableCStringKey(table, key->chars, value);
+}
+
+void setTableCStringKey(Table* table, const char* key, Value value) {
     if (table->count + 1 > table->capacity * MAX_LOAD_FACTOR) {
         growTable(table);
     }
     
-    DEBUG_PRINT("Finding entry '%s' in hash table.", key->chars);
+    DEBUG_PRINT("Finding entry '%s' in hash table.", key);
     Entry* entry = findEntry(table, key, true);
     if (entry->key == NULL) {
         table->count++;
@@ -98,6 +102,10 @@ void setTable(Table* table, ObjectString* key, Value value) {
 }
 
 bool getTable(Table* table, ObjectString* key, Value* out) {
+    return getTableCStringKey(table, key->chars, out);
+}
+
+bool getTableCStringKey(Table* table, const char* key, Value* out) {
     if (table->entries == NULL) {
         return false;
     }
@@ -116,7 +124,7 @@ void printTable(Table* table) {
     
     for (int i = 0; i < table->capacity; i ++) {
         Entry* entry = &table->entries[i];
-        char* key = entry->key == NULL ? "null" : entry->key->chars;
+        char* key = entry->key == NULL ? "null" : entry->key;
         double value = entry->value.as.number;
         printf("%d = [Key: %s, Value: %f]\n", i, key, value);
     }

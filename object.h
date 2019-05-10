@@ -23,6 +23,7 @@ ObjectString* copyString(const char* string, int length);
 ObjectString* takeString(char* chars, int length);
 
 bool stringsEqual(ObjectString* a, ObjectString* b);
+bool cstringsEqual(const char* a, const char* b);
 
 void freeObject(Object* object);
 
