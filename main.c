@@ -11,6 +11,7 @@
 #include "value.h"
 #include "object.h"
 #include "vm.h"
+#include "memory.h"
 
 static char* readFile(const char* path) {
     FILE* file = fopen(path, "rb");
@@ -55,7 +56,8 @@ int main(int argc, char* argv[]) {
     }
     
     printf("Starting CPlane!\n\n");
-    
+
+    initMemoryManager();
     Chunk chunk;
     initChunk(&chunk);
     AstNode* ast = parse(source);
@@ -89,6 +91,20 @@ int main(int argc, char* argv[]) {
     
     freeTree(ast);
     free(source);
+    
+    size_t allocatedMemory = getAllocatedMemory();
+    if (allocatedMemory == 0) {
+        DEBUG_PRINT("\n*******\nAll memory freed.\n*******");
+    } else {
+        DEBUG_PRINT("\n*******\nAllocated memory is %d, not 0!\n*******", allocatedMemory);
+    }
+    
+    size_t numAllocations = getAllocationsCount();
+    if (numAllocations == 0) {
+        DEBUG_PRINT("\n*******\nAll allocations freed.\n*******");
+    } else {
+        DEBUG_PRINT("\n*******\nNumber of allocations which have not been freed is %d, not 0!\n*******", numAllocations);
+    }
     
     return 0; 
 }
