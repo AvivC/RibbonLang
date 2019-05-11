@@ -1,3 +1,6 @@
+#ifndef plane_vm_h
+#define plane_vm_h
+
 #include "chunk.h"
 
 typedef enum {
@@ -8,3 +11,5 @@ typedef enum {
 
 void initVM(Chunk* chunk);
 InterpretResult interpret();
+
+#endif

@@ -6,9 +6,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define DEBUG_TRACE_EXECUTION 1
+#define DEBUG_TRACE_EXECUTION 0
 
-#define DEBUG 1
+#define DEBUG 0
 
 #if DEBUG
     #define DEBUG_PRINT(...) do { \

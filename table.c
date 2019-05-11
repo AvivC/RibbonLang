@@ -6,7 +6,8 @@
 
 #define MAX_LOAD_FACTOR 0.75
 
-bool cstringsEqual(ObjectString* a, ObjectString* b);
+bool cstringsEqual(const char* a, const char* b);
+bool stringsEqual(ObjectString* a, ObjectString* b);
 
 static unsigned long hashString(const char* chars) {  // maybe should be unsigned char*?
     unsigned long hash = 5381;
@@ -83,10 +84,6 @@ void initTable(Table* table) {
     table->entries = NULL;
 }
 
-void setTable(Table* table, ObjectString* key, Value value) {
-    setTableCStringKey(table, key->chars, value);
-}
-
 void setTableCStringKey(Table* table, const char* key, Value value) {
     if (table->count + 1 > table->capacity * MAX_LOAD_FACTOR) {
         growTable(table);
@@ -101,8 +98,8 @@ void setTableCStringKey(Table* table, const char* key, Value value) {
     entry->value = value;
 }
 
-bool getTable(Table* table, ObjectString* key, Value* out) {
-    return getTableCStringKey(table, key->chars, out);
+void setTable(Table* table, struct ObjectString* key, Value value) {
+    setTableCStringKey(table, key->chars, value);
 }
 
 bool getTableCStringKey(Table* table, const char* key, Value* out) {
@@ -118,13 +115,17 @@ bool getTableCStringKey(Table* table, const char* key, Value* out) {
     return true;
 }
 
+bool getTable(Table* table, struct ObjectString* key, Value* out) {
+    return getTableCStringKey(table, key->chars, out);
+}
+
 void printTable(Table* table) {
     printf("Printing table\n");
     printf("Capacity: %d \nCount: %d \nCollisions: %d \nData: \n\n", table->capacity, table->count, table->collisionsCounter);
     
     for (int i = 0; i < table->capacity; i ++) {
         Entry* entry = &table->entries[i];
-        char* key = entry->key == NULL ? "null" : entry->key;
+        const char* key = entry->key == NULL ? "null" : entry->key;
         double value = entry->value.as.number;
         printf("%d = [Key: %s, Value: %f]\n", i, key, value);
     }

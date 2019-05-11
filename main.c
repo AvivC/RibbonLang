@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
     
-    printf("Starting CPlane!\n\n");
+    DEBUG_PRINT("Starting CPlane!\n\n");
 
     initMemoryManager();
     Chunk chunk;
@@ -81,9 +81,10 @@ int main(int argc, char* argv[]) {
             disassembleChunk(&chunk);
             printf("\n");
         }
+        
+        printf("================\n\n");
     }
     
-    printf("==== Executing ====\n\n");
     initVM(&chunk);
     InterpretResult result = interpret();
     

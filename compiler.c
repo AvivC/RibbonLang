@@ -74,7 +74,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         case AST_NODE_STATEMENTS: {
             AstNodeStatements* nodeStatements = (AstNodeStatements*) node;
             for (int i = 0; i < nodeStatements->statements.count; i++) {
-                printf("Compiling statement: index %d out of %d\n", i, nodeStatements->statements.count);
+                DEBUG_PRINT("Compiling statement: index %d out of %d\n", i, nodeStatements->statements.count);
                 compileTree((AstNode*) nodeStatements->statements.values[i], chunk);
             }
             

@@ -3,9 +3,6 @@
 
 #include "common.h"
 #include "value.h"
-// #include "object.h"
-
-// typedef ObjectString_t ObjectString;
 
 typedef struct {
     const char* key;
@@ -19,7 +16,10 @@ typedef struct {
     int collisionsCounter; // for debugging
 } Table;
 
+struct ObjectString;
+
 void initTable(Table* table);
+
 void setTable(Table* table, struct ObjectString* key, Value value); // TODO: report success or failure
 bool getTable(Table* table, struct ObjectString* key, Value* out);
 
