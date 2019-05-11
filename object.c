@@ -21,7 +21,7 @@ static ObjectString* newObjectString(char* chars, int length) {
 ObjectString* copyString(const char* string, int length) {
     DEBUG_PRINT("Allocating string buffer '%.*s' of length %d.", length, string, length);
     
-    char* chars = allocate(sizeof(char) * length + 1, "Destination string-copy buffer");
+    char* chars = allocate(sizeof(char) * length + 1, "Object string buffer");
     memcpy(chars, string, length);
     chars[length] = '\0';
     
