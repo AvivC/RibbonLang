@@ -92,7 +92,7 @@ InterpretResult interpret() {
         
         switch (opcode) {
             case OP_CONSTANT: {
-                DEBUG_PRINT("OP_CONSTANT");
+                DEBUG_TRACE("OP_CONSTANT");
                 int constantIndex = READ_BYTE();
                 Value constant = vm.chunk->constants.values[constantIndex];
                 push(constant);
@@ -100,37 +100,38 @@ InterpretResult interpret() {
             }
             
             case OP_ADD: {
-                DEBUG_PRINT("OP_ADD");
+                DEBUG_TRACE("OP_ADD");
                 BINARY_OPERATION(+);
                 break;
             }
             
             case OP_SUBTRACT: {
-                DEBUG_PRINT("OP_SUBTRACT");
+                DEBUG_TRACE("OP_SUBTRACT");
                 BINARY_OPERATION(-);
                 break;
             }
             
             case OP_MULTIPLY: {
-                DEBUG_PRINT("OP_MULTIPLY");
+                DEBUG_TRACE("OP_MULTIPLY");
                 BINARY_OPERATION(*);
                 break;
             }
             
             case OP_DIVIDE: {
-                DEBUG_PRINT("OP_DIVIDE");
+                DEBUG_TRACE("OP_DIVIDE");
                 BINARY_OPERATION(/);
                 break;
             }
             
             case OP_RETURN: {
-                DEBUG_PRINT("OP_RETURN");
+                DEBUG_TRACE("OP_RETURN");
                 printValue(pop());
+                printf("\n"); // Temporary?
                 return INTERPRET_SUCCESS;
             }
             
             case OP_NEGATE: {
-                DEBUG_PRINT("OP_NEGATE");
+                DEBUG_TRACE("OP_NEGATE");
                 Value operand = pop();
                 Value result;
                 result.type = VALUE_NUMBER;
@@ -140,7 +141,7 @@ InterpretResult interpret() {
             }
             
             case OP_LOAD_VARIABLE: {
-                DEBUG_PRINT("OP_LOAD_VARIABLE");
+                DEBUG_TRACE("OP_LOAD_VARIABLE");
                 int constantIndex = READ_BYTE();
                 ObjectString* name = OBJECT_AS_STRING(vm.chunk->constants.values[constantIndex].as.object);
                 Value value;
@@ -155,7 +156,7 @@ InterpretResult interpret() {
             }
             
             case OP_SET_VARIABLE: {
-                DEBUG_PRINT("OP_SET_VARIABLE");
+                DEBUG_TRACE("OP_SET_VARIABLE");
                 int constantIndex = READ_BYTE();
                 ObjectString* name = OBJECT_AS_STRING(vm.chunk->constants.values[constantIndex].as.object);
                 Value value = pop();

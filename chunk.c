@@ -14,8 +14,7 @@ void writeChunk(Chunk* chunk, uint8_t byte) {
     if (chunk->count == chunk->capacity) {
         int oldCapacity = chunk->capacity;
         chunk->capacity = GROW_CAPACITY(oldCapacity);
-        chunk->code = reallocate(chunk->code, oldCapacity, chunk->capacity, "Chunk code array");
-        // DEBUG_PRINT("Chunk grew. Old Capacity: %d. New capacity: %d.", oldCapacity , chunk->capacity);
+        chunk->code = reallocate(chunk->code, oldCapacity, chunk->capacity, "Chunk code buffer");
     }
     
     chunk->code[chunk->count++] = byte;

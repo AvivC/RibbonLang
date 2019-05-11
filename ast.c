@@ -5,6 +5,15 @@
 #include "object.h"
 #include "value.h"
 
+const char* AST_NODE_TYPE_NAMES[] = {
+    "AST_NODE_CONSTANT",
+    "AST_NODE_BINARY",
+    "AST_NODE_UNARY",
+    "AST_NODE_VARIABLE",
+    "AST_NODE_ASSIGNMENT",
+    "AST_NODE_STATEMENTS",
+};
+
 static void printNestingString(int nesting) {
     for (int i = 0; i < nesting; i++) {
         printf("    ");
@@ -94,30 +103,29 @@ void printTree(AstNode* tree) {
 }
 
 static void freeNode(AstNode* node, int nesting) {
+    const char* deallocationString = AST_NODE_TYPE_NAMES[node->type];
+    
     switch (node->type) {
         case AST_NODE_CONSTANT: {
             AstNodeConstant* nodeConstant = (AstNodeConstant*) node;
             printNestingString(nesting);
-            // printf("Deallocating AstNodeConstant.\n");
             if (nodeConstant->value.type == VALUE_OBJECT) {
                 freeObject(nodeConstant->value.as.object);
             }
-            deallocate(nodeConstant, sizeof(AstNodeConstant), "AstNodeConstant");
+            deallocate(nodeConstant, sizeof(AstNodeConstant), deallocationString);
             break;
         }
         
         case AST_NODE_VARIABLE: {
             AstNodeVariable* nodeVariable = (AstNodeVariable*) node;
             printNestingString(nesting);
-            // printf("Deallocating AstNodeConstant.\n");
             freeObject((Object*) nodeVariable->name);
-            deallocate(nodeVariable, sizeof(AstNodeVariable), "AstNodeVariable");
+            deallocate(nodeVariable, sizeof(AstNodeVariable), deallocationString);
             break;
         }
         
         case AST_NODE_BINARY: {
             printNestingString(nesting);
-            // printf("Starting cleanup on AstNodeBinary.\n");
             AstNodeBinary* nodeBinary = (AstNodeBinary*) node;
             
             const char* operator = NULL;
@@ -133,22 +141,19 @@ static void freeNode(AstNode* node, int nesting) {
             freeNode(nodeBinary->rightOperand, nesting + 1);
             
             printNestingString(nesting);
-            // printf("Deallocating AstNodeBinary: %s.\n", operator);
-            deallocate(nodeBinary, sizeof(AstNodeBinary), "AstNodeBinary");
+            deallocate(nodeBinary, sizeof(AstNodeBinary), deallocationString);
             
             break;
         }
         
         case AST_NODE_UNARY: {
             printNestingString(nesting);
-            // printf("Starting cleanup on AstNodeUnary.\n");
             AstNodeUnary* nodeUnary = (AstNodeUnary*) node;
             
             freeNode(nodeUnary->operand, nesting + 1);
             
             printNestingString(nesting);
-            // printf("Deallocating AstNodeUnary.\n");
-            deallocate(nodeUnary, sizeof(AstNodeUnary), "AstNodeUnary");
+            deallocate(nodeUnary, sizeof(AstNodeUnary), deallocationString);
             
             break;
         }
@@ -161,7 +166,7 @@ static void freeNode(AstNode* node, int nesting) {
             freeNode(nodeAssingment->value, nesting + 1);
             
             printNestingString(nesting);
-            deallocate(nodeAssingment, sizeof(AstNodeAssignment), "AstNodeAssignment");
+            deallocate(nodeAssingment, sizeof(AstNodeAssignment), deallocationString);
             
             break;
         }
@@ -169,17 +174,14 @@ static void freeNode(AstNode* node, int nesting) {
         case AST_NODE_STATEMENTS: {
             AstNodeStatements* nodeStatements = (AstNodeStatements*) node;
             for (int i = 0; i < nodeStatements->statements.count; i++) {
-                freeNode((AstNode*) nodeStatements->statements.values + 1, nesting + 1);
+                freeNode((AstNode*) nodeStatements->statements.values[i], nesting + 1);
             }
+            
+            freePointerArray(&nodeStatements->statements);
+            deallocate(nodeStatements, sizeof(AstNodeStatements), deallocationString);
             
             break;
         }
-        
-        // default: {
-            // printNestingString(nesting);
-            // printf("Unrecognized AstNodeType when freeing AST.\n");
-            // break;
-        // }
     }
 }
 
@@ -195,7 +197,7 @@ AstNodeStatements* newAstNodeStatements() {
 }
 
 AstNode* allocateAstNode(AstNodeType type, size_t size) {
-    AstNode* node = allocate(size, "Ast Node");
+    AstNode* node = allocate(size, AST_NODE_TYPE_NAMES[type]);
     node->type = type;
     return node;
 }

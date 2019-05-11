@@ -7,7 +7,6 @@
 #include "pointerarray.h"
 
 typedef enum {
-    // AST_NODE_VARIABLE,
     AST_NODE_CONSTANT,
     AST_NODE_BINARY,
     AST_NODE_UNARY,
@@ -15,6 +14,9 @@ typedef enum {
     AST_NODE_ASSIGNMENT,
     AST_NODE_STATEMENTS
 } AstNodeType;
+
+// for debugging purposes
+extern const char* AST_NODE_TYPE_NAMES[];
 
 typedef struct {
     AstNodeType type;

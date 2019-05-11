@@ -53,7 +53,7 @@ static void growTable(Table* table) {
     Entry* oldEntries = table->entries;
     
     table->capacity = GROW_CAPACITY(table->capacity);
-    table->entries = allocate(sizeof(Entry) * table->capacity, "Hash table");
+    table->entries = allocate(sizeof(Entry) * table->capacity, "Hash table array");
     
     DEBUG_PRINT("Old capacity: %d. New capacity: %d", oldCapacity, table->capacity);
     
@@ -74,7 +74,7 @@ static void growTable(Table* table) {
     }
     
     DEBUG_PRINT("Deallocating old table array.");
-    deallocate(oldEntries, sizeof(Entry) * oldCapacity, "hash table array");
+    deallocate(oldEntries, sizeof(Entry) * oldCapacity, "Hash table array");
 }
 
 void initTable(Table* table) {

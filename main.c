@@ -42,70 +42,79 @@ static char* readFile(const char* path) {
     return buffer;
 }
 
+static void printStructures(int argc, char* argv[], Chunk* chunk, AstNode* ast) {
+    bool showBytecode = ((argc == 3) && (strncmp(argv[2], "-asm", 4) == 0))
+                        || ((argc == 4) && ((strncmp(argv[2], "-asm", 4) == 0) || strncmp(argv[3], "-asm", 4) == 0));
+    
+    bool showTree = ((argc == 3) && (strncmp(argv[2], "-tree", 5) == 0))
+                    || ((argc == 4) && ((strncmp(argv[2], "-tree", 5) == 0) || strncmp(argv[3], "-tree", 5) == 0));
+    
+    if (showTree) {
+        printf("==== AST ====\n\n");
+        printTree(ast);
+        printf("\n");
+    }
+    
+    if (showBytecode) {
+        printf("==== Bytecode ====\n\n");
+        disassembleChunk(chunk);
+        printf("\n");
+    }
+    
+    printf("================\n\n");
+}
+
+static void printMemoryDiagnostic() {
+    printAllocationsBuffer();
+    
+    size_t allocatedMemory = getAllocatedMemory();
+    if (allocatedMemory == 0) {
+        DEBUG_IMPORTANT_PRINT("\n*******\nAll memory freed.\n*******");
+    } else {
+        DEBUG_IMPORTANT_PRINT("\n*******\nAllocated memory is %d, not 0!\n*******", allocatedMemory);
+    }
+    
+    size_t numAllocations = getAllocationsCount();
+    if (numAllocations == 0) {
+        DEBUG_IMPORTANT_PRINT("\n*******\nAll allocations freed.\n*******");
+    } else {
+        DEBUG_IMPORTANT_PRINT("\n*******\nNumber of allocations which have not been freed is %d, not 0!\n*******", numAllocations);
+    }
+}
+
 int main(int argc, char* argv[]) {
     
     if (argc < 2 || argc > 4) {
         fprintf(stderr, "Usage: plane <file> [-asm] [-tree]");
         return -1;
     }
-    const char* filePath = argv[1];
-    char* source = readFile(filePath);
     
+    char* source = readFile(argv[1]);
     if (source == NULL) {
         return -1;
     }
     
     DEBUG_PRINT("Starting CPlane!\n\n");
 
-    initMemoryManager();
     Chunk chunk;
     initChunk(&chunk);
     AstNode* ast = parse(source);
     compile(ast, &chunk);
     
     if (argc > 2) {
-        bool showBytecode = ((argc == 3) && (strncmp(argv[2], "-asm", 4) == 0))
-                        || ((argc == 4) && ((strncmp(argv[2], "-asm", 4) == 0) || strncmp(argv[3], "-asm", 4) == 0));
-        
-        bool showTree = ((argc == 3) && (strncmp(argv[2], "-tree", 5) == 0))
-                        || ((argc == 4) && ((strncmp(argv[2], "-tree", 5) == 0) || strncmp(argv[3], "-tree", 5) == 0));
-        
-        if (showTree) {
-            printf("==== AST ====\n\n");
-            printTree(ast);
-            printf("\n");
-        }
-        
-        if (showBytecode) {
-            printf("==== Bytecode ====\n\n");
-            disassembleChunk(&chunk);
-            printf("\n");
-        }
-        
-        printf("================\n\n");
+        printStructures(argc, argv, &chunk, ast);
     }
     
     initVM(&chunk);
     InterpretResult result = interpret();
     
-    printf("\n");
-    
     freeTree(ast);
+    freeVM();
     free(source);
     
-    size_t allocatedMemory = getAllocatedMemory();
-    if (allocatedMemory == 0) {
-        DEBUG_PRINT("\n*******\nAll memory freed.\n*******");
-    } else {
-        DEBUG_PRINT("\n*******\nAllocated memory is %d, not 0!\n*******", allocatedMemory);
-    }
-    
-    size_t numAllocations = getAllocationsCount();
-    if (numAllocations == 0) {
-        DEBUG_PRINT("\n*******\nAll allocations freed.\n*******");
-    } else {
-        DEBUG_PRINT("\n*******\nNumber of allocations which have not been freed is %d, not 0!\n*******", numAllocations);
-    }
+    #if DEBUG_IMPORTANT
+    printMemoryDiagnostic();
+    #endif
     
     return 0; 
 }

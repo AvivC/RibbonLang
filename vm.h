@@ -10,6 +10,7 @@ typedef enum {
 } InterpretResult;
 
 void initVM(Chunk* chunk);
+void freeVM();
 InterpretResult interpret();
 
 #endif
