@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include "debug.h"
+#include "object.h"
 #include "value.h"
 
 static int constantInstruction(const char* name, Chunk* chunk, int offset) {
     int constantIndex = chunk->code[offset + 1];
     Value constant = chunk->constants.values[constantIndex];
     
-    printf("%-15s '", name);
+    printf("%-30s '", name);
     printValue(constant);
     printf("'\n");
     
@@ -14,7 +15,7 @@ static int constantInstruction(const char* name, Chunk* chunk, int offset) {
 }
 
 static int simpleInstruction(const char* name, int offset) {
-    printf("%-15s\n", name);
+    printf("%s\n", name);
     return offset + 1;
 }
 
@@ -60,6 +61,15 @@ void disassembleChunk(Chunk* chunk) {
             }
             default:
                 printf("Weird opcode.\n");
+        }
+    }
+    
+    for (int i = 0; i < chunk->constants.count; i++) {
+        Value constant = chunk->constants.values[i];
+        if (constant.type == VALUE_OBJECT && constant.as.object->type == OBJECT_FUNCTION) {
+            printf("\nInner function [index %d]:\n", i);
+            ObjectFunction* funcObj = (ObjectFunction*) constant.as.object;
+            disassembleChunk(&funcObj->chunk);
         }
     }
 }
