@@ -6,6 +6,7 @@
 #include "value.h"
 #include "object.h"
 #include "memory.h"
+#include "table.h"
 
 #define STACK_MAX 256  // TODO: review this. maybe grow dynamically?
 
@@ -48,6 +49,7 @@ void initVM(Chunk* chunk) {
 
 void freeVM() {
     freeChunk(vm.chunk);
+    freeTable(&vm.globals);
 }
 
 InterpretResult interpret() {

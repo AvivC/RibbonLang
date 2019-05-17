@@ -130,3 +130,8 @@ void printTable(Table* table) {
         printf("%d = [Key: %s, Value: %f]\n", i, key, value);
     }
 }
+
+void freeTable(Table* table) {
+    deallocate(table->entries, sizeof(Entry) * table->capacity, "Hash table array");
+    initTable(table);
+}

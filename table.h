@@ -26,6 +26,8 @@ bool getTable(Table* table, struct ObjectString* key, Value* out);
 void setTableCStringKey(Table* table, const char* key, Value value); // TODO: report success or failure
 bool getTableCStringKey(Table* table, const char* key, Value* out);
 
+void freeTable(Table* table);
+
 void printTable(Table* table); // temp - for debugging
 
 #endif
