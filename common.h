@@ -9,8 +9,8 @@
 
 #define DEBUG_TRACE_EXECUTION 0
 #define DEBUG 0
-#define DEBUG_IMPORTANT 1
-#define DEBUG_MEMORY 1
+#define DEBUG_IMPORTANT 1  // Pretty much always leave this on
+#define DEBUG_MEMORY 0
 
 #if DEBUG
     #define DEBUG_PRINT(...) do { \

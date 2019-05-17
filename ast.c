@@ -12,6 +12,7 @@ const char* AST_NODE_TYPE_NAMES[] = {
     "AST_NODE_VARIABLE",
     "AST_NODE_ASSIGNMENT",
     "AST_NODE_STATEMENTS",
+    "AST_NODE_FUNCTION",
 };
 
 static void printNestingString(int nesting) {
@@ -75,7 +76,7 @@ static void printNode(AstNode* node, int nesting) {
             AstNodeAssignment* nodeAssignment = (AstNodeAssignment*) node;
             printNestingString(nesting);
             printf("AST_NODE_ASSIGNMENT: ");
-            printValue(MAKE_VALUE_OBJECT(nodeAssignment->name));
+            printf("%.*s", nodeAssignment->length, nodeAssignment->name);
             printf("\n");
             printNestingString(nesting);
             printf("Value: \n");
@@ -90,6 +91,18 @@ static void printNode(AstNode* node, int nesting) {
             for (int i = 0; i < nodeStatements->statements.count; i++) {
                 printNode((AstNode*) nodeStatements->statements.values[i], nesting + 1);
             }
+            
+            break;
+        }
+        
+        case AST_NODE_FUNCTION: {
+            AstNodeFunction* nodeFunction = (AstNodeFunction*) node;
+            printf("AST_NODE_FUNCTION\n");
+            PointerArray* statements = &nodeFunction->statements->statements;
+            for (int i = 0; i < statements->count; i++) {
+                printNode((AstNode*) statements->values[i], nesting + 1);
+            }
+            // TODO: print parameters and such
             
             break;
         }
@@ -109,17 +122,12 @@ static void freeNode(AstNode* node, int nesting) {
         case AST_NODE_CONSTANT: {
             AstNodeConstant* nodeConstant = (AstNodeConstant*) node;
             printNestingString(nesting);
-            if (nodeConstant->value.type == VALUE_OBJECT) {
-                freeObject(nodeConstant->value.as.object);
-            }
             deallocate(nodeConstant, sizeof(AstNodeConstant), deallocationString);
             break;
         }
         
         case AST_NODE_VARIABLE: {
             AstNodeVariable* nodeVariable = (AstNodeVariable*) node;
-            printNestingString(nesting);
-            freeObject((Object*) nodeVariable->name);
             deallocate(nodeVariable, sizeof(AstNodeVariable), deallocationString);
             break;
         }
@@ -162,7 +170,7 @@ static void freeNode(AstNode* node, int nesting) {
             printNestingString(nesting);
             AstNodeAssignment* nodeAssingment = (AstNodeAssignment*) node;
             
-            freeObject((Object*) nodeAssingment->name);
+            // not freeing the cstring in the ast node because its part of the source code, to be freed later
             freeNode(nodeAssingment->value, nesting + 1);
             
             printNestingString(nesting);
@@ -179,6 +187,15 @@ static void freeNode(AstNode* node, int nesting) {
             
             freePointerArray(&nodeStatements->statements);
             deallocate(nodeStatements, sizeof(AstNodeStatements), deallocationString);
+            
+            break;
+        }
+        
+        case AST_NODE_FUNCTION: {
+            AstNodeFunction* nodeFunction = (AstNodeFunction*) node;
+            freeNode((AstNode*) nodeFunction->statements, nesting + 1);
+            deallocate(nodeFunction, sizeof(AstNodeFunction), deallocationString);
+            // TODO: free parameters and such
             
             break;
         }

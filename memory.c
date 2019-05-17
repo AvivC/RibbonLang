@@ -74,10 +74,7 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
             }
         
             if (!found) {
-                // FAIL("deallocate() didn't find an allocation marker to NULL-mark '%s'.", what);
-                printf("deallocate() didn't find an allocation marker to NULL-mark '%s', %p.\n", what, pointer);
-                printAllocationsBuffer();
-                FAIL("%s", "");
+                FAIL("deallocate() didn't find an allocation marker to NULL-mark '%s', %p.\n", what, pointer);
             }
         } else {
             // NULL pointer. Continue as usual
@@ -143,18 +140,18 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
 }
 
 void printAllocationsBuffer() {  // for debugging
-    DEBUG_MEMORY_PRINT("Allocations buffer:\n");
+    DEBUG_IMPORTANT_PRINT("\nAllocations buffer:\n");
 
     for (int i = 0; i < allocsBufferCount; i++) {
         Allocation allocation = allocations[i];
-        DEBUG_MEMORY_PRINT("[ %-3d: ", i);
-        DEBUG_MEMORY_PRINT("%p ", allocation.ptr);
-        DEBUG_MEMORY_PRINT(" | ");
-        DEBUG_MEMORY_PRINT("%-20s", allocation.name);
-        DEBUG_MEMORY_PRINT(" | ");
-        DEBUG_MEMORY_PRINT("%-15s", allocation.allocated ? "Allocated" : "Not allocated");
-        DEBUG_MEMORY_PRINT(" | ");
-        DEBUG_MEMORY_PRINT("Last allocated size: %-4" PRIuPTR, allocation.size);
-        DEBUG_MEMORY_PRINT("]\n");
+        DEBUG_IMPORTANT_PRINT("[ %-3d: ", i);
+        DEBUG_IMPORTANT_PRINT("%p ", allocation.ptr);
+        DEBUG_IMPORTANT_PRINT(" | ");
+        DEBUG_IMPORTANT_PRINT("%-20s", allocation.name);
+        DEBUG_IMPORTANT_PRINT(" | ");
+        DEBUG_IMPORTANT_PRINT("%-15s", allocation.allocated ? "Allocated" : "Not allocated");
+        DEBUG_IMPORTANT_PRINT(" | ");
+        DEBUG_IMPORTANT_PRINT("Last allocated size: %-4" PRIuPTR, allocation.size);
+        DEBUG_IMPORTANT_PRINT("]\n");
     }
 }

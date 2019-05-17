@@ -34,11 +34,11 @@ typedef struct {
 } ParseRule;
 
 static void error(const char* errorMessage) {
-    fprintf(stderr, "%s\n", errorMessage);
+    fprintf(stderr, "On line %d: %s\n", parser.current.lineNumber, errorMessage);
     parser.hadError = true;
 }
 
-static bool check(TokenType type) {
+static bool check(ScannerTokenType type) {
     return parser.current.type == type;
 }
 
@@ -50,7 +50,7 @@ static void advance() {
     }
 }
 
-static void consume(TokenType type, const char* errorMessage) {
+static void consume(ScannerTokenType type, const char* errorMessage) {
     if (check(type)) {
         advance();
         return;
@@ -58,7 +58,7 @@ static void consume(TokenType type, const char* errorMessage) {
     error(errorMessage);
 }
 
-static bool match(TokenType type) {
+static bool match(ScannerTokenType type) {
     if (check(type)) {
         advance();
         return true;
@@ -66,7 +66,7 @@ static bool match(TokenType type) {
     return false;
 }
 
-static bool matchNext(TokenType type) {
+static bool matchNext(ScannerTokenType type) {
     if (peekNextToken().type == type) {
         advance();
         return true;
@@ -75,10 +75,11 @@ static bool matchNext(TokenType type) {
 }
 
 static AstNode* parsePrecedence(Precedence precedence);
-static ParseRule getRule(TokenType type);
+static ParseRule getRule(ScannerTokenType type);
+static AstNode* statements();
 
 static AstNode* binary(AstNode* leftNode) {
-    TokenType operator = parser.previous.type;
+    ScannerTokenType operator = parser.previous.type;
     Precedence precedence = getRule(operator).precedence;
     
     AstNode* rightNode = parsePrecedence(precedence + 1);
@@ -92,9 +93,9 @@ static AstNode* binary(AstNode* leftNode) {
 }
 
 static AstNode* identifier() {
-    ObjectString* name = copyString(parser.previous.start, parser.previous.length);
     AstNodeVariable* node = ALLOCATE_AST_NODE(AstNodeVariable, AST_NODE_VARIABLE);
-    node->name = name;
+    node->name = parser.previous.start;
+    node->length = parser.previous.length;
     return (AstNode*) node;
 }
 
@@ -111,6 +112,14 @@ static AstNode* string() {
     Value value = MAKE_VALUE_OBJECT(objString);
     AstNodeConstant* node = ALLOCATE_AST_NODE(AstNodeConstant, AST_NODE_CONSTANT);
     node->value = value;
+    return (AstNode*) node;
+}
+
+static AstNode* function() {
+    AstNodeStatements* statementsNode = (AstNodeStatements*) statements();
+    consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of function.");
+    AstNodeFunction* node = ALLOCATE_AST_NODE(AstNodeFunction, AST_NODE_FUNCTION);
+    node->statements = statementsNode;
     return (AstNode*) node;
 }
 
@@ -140,6 +149,8 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_GREATER_THAN
     {grouping, NULL, PREC_GROUPING},     // TOKEN_LEFT_PAREN
     {NULL, NULL, PREC_NONE},     // TOKEN_RIGHT_PAREN
+    {function, NULL, PREC_NONE},     // TOKEN_LEFT_BRACE
+    {NULL, NULL, PREC_NONE},     // TOKEN_RIGHT_BRACE
     {NULL, NULL, PREC_NONE},     // TOKEN_COMMA
     {NULL, NULL, PREC_NONE},     // TOKEN_NEWLINE
     {NULL, NULL, PREC_NONE},     // TOKEN_BANG_EQUAL
@@ -178,18 +189,22 @@ static AstNode* parsePrecedence(Precedence precedence) {
 }
 
 static AstNode* assignmentStatement() {
-    ObjectString* name = copyString(parser.previous.start, parser.previous.length);
+    const char* variableName = parser.previous.start;
+    int variableLength = parser.previous.length;
+    
     consume(TOKEN_EQUAL, "Expected '=' after variable name in assignment.");
+    
     AstNode* value = parsePrecedence(PREC_ASSIGNMENT);
     
     AstNodeAssignment* node = ALLOCATE_AST_NODE(AstNodeAssignment, AST_NODE_ASSIGNMENT);
-    node->name = name;
+    node->name = variableName;
+    node->length = variableLength;
     node->value = value;
     
     return (AstNode*) node;
 }
 
-static ParseRule getRule(TokenType type) {
+static ParseRule getRule(ScannerTokenType type) {
     // return pointer? nah
     return rules[type];
 }
@@ -197,7 +212,7 @@ static ParseRule getRule(TokenType type) {
 static AstNode* statements() {
     AstNodeStatements* statementsNode = newAstNodeStatements();
     
-    while (!check(TOKEN_EOF)) {
+    while (!check(TOKEN_EOF) && !check(TOKEN_RIGHT_BRACE)) {
         if (match(TOKEN_NEWLINE)) {
             continue;
         }
@@ -210,8 +225,8 @@ static AstNode* statements() {
             writePointerArray(&statementsNode->statements, expressionNode);
         }
         
-        if (!check(TOKEN_EOF)) {
-            // Allowing omitting the newline at the end of the program
+        if (!check(TOKEN_EOF) && !check(TOKEN_RIGHT_BRACE)) {
+            // Allowing omitting the newline at the end of the function or program
             consume(TOKEN_NEWLINE, "Expected newline after statement.");
         }
         

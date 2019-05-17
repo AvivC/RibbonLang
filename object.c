@@ -1,21 +1,33 @@
 #include <string.h>
 
 #include "object.h"
+#include "vm.h"
 #include "value.h"
 #include "memory.h"
 
 // typedef ObjectString_t ObjectString;
 // typedef Object_t Object;
 
+static Object* allocateObject(size_t size, const char* what, ObjectType type) {
+    DEBUG_PRINT("Allocating object '%s' of length %d and type %d.", chars, length, type);
+    
+    Object* object = allocate(size, what);
+    object->type = type;    
+    object->next = vm.objects;
+    vm.objects = object;
+    initTable(&object->attributes);
+    
+    return object;
+}
+
 static ObjectString* newObjectString(char* chars, int length) {
     DEBUG_PRINT("Allocating string object '%s' of length %d.", chars, length);
     
-    ObjectString* object = allocate(sizeof(ObjectString), "ObjectString");
-    object->base.type = OBJECT_STRING;
-    // object->base.attributes = OBJECT_STRING;
-    object->chars = chars;
-    object->length = length;
-    return object;
+    ObjectString* objString = (ObjectString*) allocateObject(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
+    
+    objString->chars = chars;
+    objString->length = length;
+    return objString;
 }
 
 ObjectString* copyString(const char* string, int length) {
@@ -42,9 +54,12 @@ bool stringsEqual(ObjectString* a, ObjectString* b) {
     return (a->length == b->length) && (cstringsEqual(a->chars, b->chars));
 }
 
-// void freeObject(Object* o) {
-    // deallocate(o, sizeof(Object), "Base object");
-// }
+ObjectFunction* newObjectFunction(Chunk chunk) {
+    DEBUG_PRINT("Creating function object.");
+    ObjectFunction* objFunc = (ObjectFunction*) allocateObject(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
+    objFunc->chunk = chunk;
+    return objFunc;
+}
 
 void freeObject(Object* o) {
     switch (o->type) {
@@ -54,9 +69,31 @@ void freeObject(Object* o) {
             deallocate(string, sizeof(ObjectString), "ObjectString");
             return;
         }
+        case OBJECT_FUNCTION: {
+            ObjectFunction* func = (ObjectFunction*) o;
+            freeChunk(&func->chunk);
+            deallocate(func, sizeof(ObjectFunction), "ObjectFunction");
+            // TODO: deallocate parameters and such
+            return;
+        }
     }
     
     fprintf(stderr, "Weird object type when freeing.\n");
+}
+
+void printObject(Object* o) {
+    switch (o->type) {
+        case OBJECT_STRING: {
+            printf("%s", OBJECT_AS_STRING(o)->chars);
+            break;
+        }
+        case OBJECT_FUNCTION: {
+            // Currently functions hold no metadata about them, so just print the pointer
+            printf("<Function at %p>", o);
+            break;
+        }
+    }
+    
 }
 
 

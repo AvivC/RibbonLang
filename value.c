@@ -33,7 +33,7 @@ void printValue(Value value) {
             break;
         }
         case VALUE_OBJECT: {
-            printf("%s", OBJECT_AS_STRING(value.as.object)->chars);
+            printObject(value.as.object);
             break;
         }
         case VALUE_NIL: {

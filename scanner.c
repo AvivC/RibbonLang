@@ -7,6 +7,7 @@
 typedef struct {
     const char* start;
     const char* current;
+    int line;
     // TODO: add line numbers
 } Scanner;
 
@@ -16,9 +17,16 @@ static char current() {
     return *scanner.current;
 }
 
+static char peek() {
+    return *(scanner.current + 1);
+}
+
 static char advance() {
     char currentChar = current();
     scanner.current++;
+    if (currentChar == '\n') {
+        scanner.line++;
+    }
     return currentChar;
 }
 
@@ -43,11 +51,12 @@ static bool isDigit(char c) {
     return isdigit(c);
 }
 
-static Token makeToken(TokenType type) {
+static Token makeToken(ScannerTokenType type) {
     Token token;
     token.type = type;
     token.start = scanner.start;
     token.length = scanner.current - scanner.start;
+    token.lineNumber = scanner.line;
     return token;
 }
 
@@ -90,7 +99,8 @@ static Token parseNumber() {
         advance();
     }
     
-    if (current() == '.') {
+    if (current() == '.' && isDigit(peek())) {
+        advance();
         while(isDigit(current())) {
             advance();
         }
@@ -124,6 +134,7 @@ static void skipWhitespace() {
 void initScanner(const char* source) {
     scanner.start = source;
     scanner.current = source;
+    scanner.line = 1; // 1-based indexing for humans
 }
 
 Token peekNextToken() {
@@ -171,6 +182,8 @@ Token scanToken() {
         case '>': return (match('=') ? makeToken(TOKEN_GREATER_EQUAL) : makeToken(TOKEN_GREATER_THAN));
         case '(': return makeToken(TOKEN_LEFT_PAREN);
         case ')': return makeToken(TOKEN_RIGHT_PAREN);
+        case '{': return makeToken(TOKEN_LEFT_BRACE);
+        case '}': return makeToken(TOKEN_RIGHT_BRACE);
         case ',': return makeToken(TOKEN_COMMA);
         case '\n': return makeToken(TOKEN_NEWLINE);
     }

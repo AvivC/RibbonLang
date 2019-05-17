@@ -2,7 +2,6 @@
 #define plane_ast_h
 
 #include "scanner.h"
-#include "object.h"
 #include "value.h"
 #include "pointerarray.h"
 
@@ -12,7 +11,8 @@ typedef enum {
     AST_NODE_UNARY,
     AST_NODE_VARIABLE,
     AST_NODE_ASSIGNMENT,
-    AST_NODE_STATEMENTS
+    AST_NODE_STATEMENTS,
+    AST_NODE_FUNCTION
 } AstNodeType;
 
 // for debugging purposes
@@ -29,7 +29,8 @@ typedef struct {
 
 typedef struct {
     AstNode base;
-    ObjectString* name;
+    const char* name;
+    int length;
 } AstNodeVariable;
 
 typedef struct {
@@ -39,14 +40,15 @@ typedef struct {
 
 typedef struct {
     AstNode base;
-    TokenType operator;
+    ScannerTokenType operator;
     AstNode* leftOperand;
     AstNode* rightOperand;
 } AstNodeBinary;
 
 typedef struct {
     AstNode base;
-    ObjectString* name;
+    const char* name;
+    int length;
     AstNode* value;
 } AstNodeAssignment;
 
@@ -54,6 +56,12 @@ typedef struct {
     AstNode base;
     PointerArray statements;
 } AstNodeStatements;
+
+typedef struct {
+    AstNode base;
+    AstNodeStatements* statements;
+    // TODO: parameters
+} AstNodeFunction;
 
 void printTree(AstNode* tree);
 void freeTree(AstNode* node);

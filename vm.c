@@ -8,22 +8,12 @@
 #include "memory.h"
 #include "table.h"
 
-#define STACK_MAX 256  // TODO: review this. maybe grow dynamically?
-
-typedef struct {
-    uint8_t* ip;
-    Chunk* chunk;
-    Value* stackTop;
-    Value stack[STACK_MAX];
-    Table globals;
-} VM;
-
-static VM vm;
+VM vm;
 
 static void push(Value value) {
     #if DEBUG
         if (vm.stackTop - vm.stack == STACK_MAX) {
-            DEBUG_PRINT("STACK OVERFLOW!");
+            FAIL("STACK OVERFLOW!");
         }
     #endif
     *vm.stackTop = value;
@@ -33,7 +23,7 @@ static void push(Value value) {
 static Value pop() {
     #if DEBUG
         if (vm.stackTop == vm.stack) {
-            DEBUG_PRINT("STACK UNDERFLOW!");
+            FAIL("STACK UNDERFLOW!");
         }
     #endif
     vm.stackTop--;
@@ -50,6 +40,11 @@ void initVM(Chunk* chunk) {
 void freeVM() {
     freeChunk(vm.chunk);
     freeTable(&vm.globals);
+    while (vm.objects != NULL) {
+        Object* next = vm.objects->next;
+        freeObject(vm.objects);
+        vm.objects = next;
+    }
 }
 
 InterpretResult interpret() {

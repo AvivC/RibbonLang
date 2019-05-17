@@ -1,5 +1,6 @@
 #include "compiler.h"
 #include "parser.h"
+#include "object.h"
 #include "chunk.h"
 #include "ast.h"
 #include "value.h"
@@ -11,7 +12,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         case AST_NODE_BINARY: {
             AstNodeBinary* nodeBinary = (AstNodeBinary*) node;
             
-            TokenType operator = nodeBinary->operator;
+            ScannerTokenType operator = nodeBinary->operator;
             AstNode* leftOperand = nodeBinary->leftOperand;
             AstNode* rightOperand = nodeBinary->rightOperand;
             
@@ -50,7 +51,8 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         case AST_NODE_VARIABLE: {
             AstNodeVariable* nodeVariable = (AstNodeVariable*) node;
             
-            Value nameValue = MAKE_VALUE_OBJECT(nodeVariable->name);
+            ObjectString* stringObj = copyString(nodeVariable->name, nodeVariable->length);
+            Value nameValue = MAKE_VALUE_OBJECT(stringObj);
             int constantIndex = addConstant(chunk, nameValue);
             
             writeChunk(chunk, OP_LOAD_VARIABLE);
@@ -63,7 +65,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             
             compileTree(nodeAssignment->value, chunk);
             
-            Value nameValue = MAKE_VALUE_OBJECT(nodeAssignment->name);
+            Value nameValue = MAKE_VALUE_OBJECT(copyString(nodeAssignment->name, nodeAssignment->length));
             int constantIndex = addConstant(chunk, nameValue);
             
             writeChunk(chunk, OP_SET_VARIABLE);
@@ -77,6 +79,22 @@ static void compileTree(AstNode* node, Chunk* chunk) {
                 DEBUG_PRINT("Compiling statement: index %d out of %d\n", i, nodeStatements->statements.count);
                 compileTree((AstNode*) nodeStatements->statements.values[i], chunk);
             }
+            
+            break;
+        }
+        
+        case AST_NODE_FUNCTION: {
+            AstNodeFunction* nodeFunction = (AstNodeFunction*) node;
+            
+            Chunk functionChunk;
+            initChunk(&functionChunk);
+            compileTree((AstNode*) nodeFunction->statements, &functionChunk);
+            ObjectFunction* objFunc = newObjectFunction(functionChunk);
+            Value objFuncConstant = MAKE_VALUE_OBJECT(objFunc);
+            int constantIndex = addConstant(chunk, objFuncConstant);
+            
+            writeChunk(chunk, OP_CONSTANT);
+            writeChunk(chunk, (uint8_t) constantIndex);
             
             break;
         }

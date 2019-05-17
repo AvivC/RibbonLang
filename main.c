@@ -65,13 +65,14 @@ static void printStructures(int argc, char* argv[], Chunk* chunk, AstNode* ast) 
 }
 
 static void printMemoryDiagnostic() {
-    printAllocationsBuffer();
+    bool problem = false;
     
     size_t allocatedMemory = getAllocatedMemory();
     if (allocatedMemory == 0) {
         DEBUG_IMPORTANT_PRINT("\n*******\nAll memory freed.\n*******");
     } else {
         DEBUG_IMPORTANT_PRINT("\n*******\nAllocated memory is %d, not 0!\n*******", allocatedMemory);
+        problem = true;
     }
     
     size_t numAllocations = getAllocationsCount();
@@ -79,6 +80,11 @@ static void printMemoryDiagnostic() {
         DEBUG_IMPORTANT_PRINT("\n*******\nAll allocations freed.\n*******");
     } else {
         DEBUG_IMPORTANT_PRINT("\n*******\nNumber of allocations which have not been freed is %d, not 0!\n*******", numAllocations);
+        problem = true;
+    }
+    
+    if (problem) {
+        printAllocationsBuffer();
     }
 }
 
