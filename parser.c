@@ -123,6 +123,14 @@ static AstNode* function() {
     return (AstNode*) node;
 }
 
+static AstNode* call(AstNode* leftNode) {
+    // TODO: add arguments and such
+    consume(TOKEN_RIGHT_PAREN, "Expected ')' after function call.");
+    AstNodeCall* node = ALLOCATE_AST_NODE(AstNodeCall, AST_NODE_CALL);
+    node->callTarget = leftNode;
+    return (AstNode*) node;
+}
+
 static AstNode* grouping() {
     AstNode* node = parsePrecedence(PREC_ASSIGNMENT);
     consume(TOKEN_RIGHT_PAREN, "Expected closing ')' after grouped expression.");
@@ -147,7 +155,7 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_BANG
     {NULL, NULL, PREC_NONE},     // TOKEN_LESS_THAN
     {NULL, NULL, PREC_NONE},     // TOKEN_GREATER_THAN
-    {grouping, NULL, PREC_GROUPING},     // TOKEN_LEFT_PAREN
+    {grouping, call, PREC_GROUPING},     // TOKEN_LEFT_PAREN
     {NULL, NULL, PREC_NONE},     // TOKEN_RIGHT_PAREN
     {function, NULL, PREC_NONE},     // TOKEN_LEFT_BRACE
     {NULL, NULL, PREC_NONE},     // TOKEN_RIGHT_BRACE

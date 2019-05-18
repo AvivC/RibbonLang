@@ -55,6 +55,10 @@ void disassembleChunk(Chunk* chunk) {
                 offset = constantInstruction("OP_SET_VARIABLE", chunk, offset);
                 break;
             }
+            case OP_CALL: {
+                offset = simpleInstruction("OP_CALL", offset);
+                break;
+            }
             case OP_RETURN: {
                 offset = simpleInstruction("OP_RETURN", offset);
                 break;

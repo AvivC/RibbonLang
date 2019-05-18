@@ -12,7 +12,8 @@ typedef enum {
     AST_NODE_VARIABLE,
     AST_NODE_ASSIGNMENT,
     AST_NODE_STATEMENTS,
-    AST_NODE_FUNCTION
+    AST_NODE_FUNCTION,
+    AST_NODE_CALL
 } AstNodeType;
 
 // for debugging purposes
@@ -62,6 +63,12 @@ typedef struct {
     AstNodeStatements* statements;
     // TODO: parameters
 } AstNodeFunction;
+
+typedef struct {
+    AstNode base;
+    AstNode* callTarget;
+    // TODO: parameters
+} AstNodeCall;
 
 void printTree(AstNode* tree);
 void freeTree(AstNode* node);
