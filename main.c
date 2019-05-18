@@ -14,10 +14,14 @@
 #include "memory.h"
 
 static char* readFile(const char* path) {
+    // TODO: read relative / absolute paths, etc. Currently only relative to the CWD (which changes in the test runner, etc.)
+    
     FILE* file = fopen(path, "rb");
     
     if (file == NULL) {
-        fprintf(stderr, "Couldn't open file.\n");
+        fprintf(stderr, "Couldn't open file '%s'. Error:\n'", path);
+        perror("fopen");
+        fprintf(stderr, "'\n");
         return NULL;
     }
     
@@ -65,6 +69,8 @@ static void printStructures(int argc, char* argv[], Chunk* chunk, AstNode* ast) 
 }
 
 static void printMemoryDiagnostic() {
+    printf("\n======== Memory diagnostics ========");
+    
     bool problem = false;
     
     size_t allocatedMemory = getAllocatedMemory();
@@ -86,9 +92,12 @@ static void printMemoryDiagnostic() {
     if (problem) {
         printAllocationsBuffer();
     }
+    
+    printf("\n======== End memory diagnostics ========\n");
 }
 
 int main(int argc, char* argv[]) {
+    printf("\n");
     
     if (argc < 2 || argc > 4) {
         fprintf(stderr, "Usage: plane <file> [-asm] [-tree]");

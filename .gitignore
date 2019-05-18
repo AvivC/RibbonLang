@@ -1,1 +1,5 @@
 *.exe
+.pytest_cache/
+python/tester/venv/
+python/tester/.idea/
+python/tester/__pycache__/
