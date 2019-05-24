@@ -164,7 +164,9 @@ InterpretResult interpret() {
             case OP_CALL: {
                 ObjectFunction* function = (ObjectFunction*) pop().as.object;
                 // TODO: implement explicit call-stack
+				
                 uint8_t* currentIp = vm.ip;
+				
                 vm.ip = function->chunk.code;
                 interpret();
                 vm.ip = currentIp;

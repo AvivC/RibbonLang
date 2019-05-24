@@ -1,6 +1,8 @@
 @echo off
 cls
 
+setlocal EnableDelayedExpansion	
+
 echo Starting Build-Test-Run cycle
 
 echo Building...
@@ -11,12 +13,12 @@ if %errorlevel%==0 (
     
     call test.bat
     
-    if %errorlevel%==0 (
-        echo Tests successful. Executing interpreter.
+    if !errorlevel!==0 (
+		echo Tests successful. Executing interpreter.
         call run.bat
-    ) else (
-        echo Tests failed.
-    )
+	) else (
+		echo Tests failed.
+	)
 ) else (
     echo Build failed.
 )
