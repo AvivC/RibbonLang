@@ -1,10 +1,6 @@
 #ifndef plane_value_h
 #define plane_value_h
 
-// #include "object.h"
-
-// typedef Object_t Object;
-
 typedef enum {
     VALUE_NUMBER,
     VALUE_OBJECT,

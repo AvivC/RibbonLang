@@ -15,10 +15,14 @@ typedef enum {
 #define STACK_MAX 256  // TODO: review this. maybe grow dynamically?
 
 typedef struct {
+
+} StackFrame;
+
+typedef struct {
     uint8_t* ip;
     Chunk* chunk;
     Value* stackTop;
-    Value stack[STACK_MAX];
+    Value evalStack[STACK_MAX];
     Table globals;
     Object* objects;
 } VM;

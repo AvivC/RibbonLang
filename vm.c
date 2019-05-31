@@ -12,7 +12,7 @@ VM vm;
 
 static void push(Value value) {
     #if DEBUG
-        if (vm.stackTop - vm.stack == STACK_MAX) {
+        if (vm.stackTop - vm.evalStack == STACK_MAX) {
             FAIL("STACK OVERFLOW!");
         }
     #endif
@@ -22,7 +22,7 @@ static void push(Value value) {
 
 static Value pop() {
     #if DEBUG
-        if (vm.stackTop == vm.stack) {
+        if (vm.stackTop == vm.evalStack) {
             FAIL("STACK UNDERFLOW!");
         }
     #endif
@@ -33,7 +33,7 @@ static Value pop() {
 void initVM(Chunk* chunk) {
     vm.ip = chunk->code;
     vm.chunk = chunk;
-    vm.stackTop = vm.stack;
+    vm.stackTop = vm.evalStack;
     initTable(&vm.globals);
 }
 
@@ -77,7 +77,7 @@ InterpretResult interpret() {
     
     for (;;) {
         #if DEBUG_TRACE_EXECUTION
-        for (Value* value = vm.stack; value - vm.stackTop; value++) {
+        for (Value* value = vm.evalStack; value - vm.stackTop; value++) {
             printf("[ ");
             printValue(*value);
             printf(" ]");
