@@ -4,3 +4,9 @@
 python/tester/venv/
 python/tester/.idea/
 python/tester/__pycache__/
+Debug/
+CMakeLists.txt.user
+.vscode/
+.settings/
+.project
+.cproject
