@@ -110,21 +110,8 @@ InterpretResult interpret(Chunk* baseChunk) {
 	vm.ip = baseChunk->code;
 
     for (;;) {
-        #if DEBUG_TRACE_EXECUTION
-			printf("IP: %p\n", vm.ip);
-			bool stackEmpty = vm.evalStack == vm.stackTop;
-			if (stackEmpty) {
-				printf("[ ]");
-			} else {
-				for (Value* value = vm.evalStack; value < vm.stackTop; value++) {
-					printf("[ ");
-					printValue(*value);
-					printf(" ]");
-				}
-			}
-			printf("\n");
-        #endif
-        
+    	DEBUG_TRACE("IP: %p\n", vm.ip);
+
         uint8_t opcode = READ_BYTE();
         
         switch (opcode) {
@@ -229,7 +216,20 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
         }
 
-        DEBUG_TRACE("\n\n");
+		#if DEBUG_TRACE_EXECUTION
+        	printf("\n");
+			bool stackEmpty = vm.evalStack == vm.stackTop;
+			if (stackEmpty) {
+				printf("[ ]");
+			} else {
+				for (Value* value = vm.evalStack; value < vm.stackTop; value++) {
+					printf("[ ");
+					printValue(*value);
+					printf(" ]");
+				}
+			}
+			printf("\n\n");
+        #endif
     }
     
     #undef READ_BYTE
