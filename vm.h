@@ -13,24 +13,30 @@ typedef enum {
 } InterpretResult;
 
 #define STACK_MAX 256  // TODO: review this. maybe grow dynamically?
+#define CALL_STACK_MAX 256  // TODO: review this. maybe grow dynamically?
 
 typedef struct {
-
+	uint8_t* returnAddress;
+	ObjectFunction* objFunc;
 } StackFrame;
 
 typedef struct {
     uint8_t* ip;
-    Chunk* chunk;
+
     Value* stackTop;
     Value evalStack[STACK_MAX];
+
+    StackFrame* callStackTop;
+    StackFrame callStack[CALL_STACK_MAX];
+
     Table globals;
     Object* objects;
 } VM;
 
 extern VM vm;
 
-void initVM(Chunk* chunk);
-void freeVM();
-InterpretResult interpret();
+void initVM(void);
+void freeVM(void);
+InterpretResult interpret(Chunk* chunk);
 
 #endif

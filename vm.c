@@ -10,6 +10,24 @@
 
 VM vm;
 
+static StackFrame currentFrame() {
+	return *(vm.callStackTop - 1);
+}
+
+static Chunk* currentChunk() {
+	return &currentFrame().objFunc->chunk;
+}
+
+static void pushFrame(StackFrame frame) {
+	*vm.callStackTop = frame;
+	vm.callStackTop++;
+}
+
+static StackFrame popFrame() {
+	vm.callStackTop--;
+	return *vm.callStackTop;
+}
+
 static void push(Value value) {
     #if DEBUG
         if (vm.stackTop - vm.evalStack == STACK_MAX) {
@@ -30,15 +48,25 @@ static Value pop() {
     return *vm.stackTop;
 }
 
-void initVM(Chunk* chunk) {
-    vm.ip = chunk->code;
-    vm.chunk = chunk;
+static Value peek() {
+	return *(vm.stackTop - 1);
+}
+
+static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc) {
+	StackFrame frame;
+	frame.returnAddress = returnAddress;
+	frame.objFunc = objFunc;
+	return frame;
+}
+
+void initVM() {
+    vm.ip = NULL;
     vm.stackTop = vm.evalStack;
+    vm.callStackTop = vm.callStack;
     initTable(&vm.globals);
 }
 
 void freeVM() {
-    freeChunk(vm.chunk);
     freeTable(&vm.globals);
     while (vm.objects != NULL) {
         Object* next = vm.objects->next;
@@ -47,7 +75,7 @@ void freeVM() {
     }
 }
 
-InterpretResult interpret() {
+InterpretResult interpret(Chunk* baseChunk) {
     #define READ_BYTE() (*vm.ip++)
     #define BINARY_OPERATION(op) do { \
         Value b = pop(); \
@@ -74,15 +102,27 @@ InterpretResult interpret() {
         } \
         push(result); \
     } while(false)
-    
+
+	ObjectFunction* baseObjFunc = newObjectFunction(*baseChunk);
+	StackFrame baseFrame = newStackFrame(NULL, baseObjFunc);
+	pushFrame(baseFrame);
+
+	vm.ip = baseChunk->code;
+
     for (;;) {
         #if DEBUG_TRACE_EXECUTION
-        for (Value* value = vm.evalStack; value - vm.stackTop; value++) {
-            printf("[ ");
-            printValue(*value);
-            printf(" ]");
-        }
-        printf("\n");
+			printf("IP: %p\n", vm.ip);
+			bool stackEmpty = vm.evalStack == vm.stackTop;
+			if (stackEmpty) {
+				printf("[ ]");
+			} else {
+				for (Value* value = vm.evalStack; value < vm.stackTop; value++) {
+					printf("[ ");
+					printValue(*value);
+					printf(" ]");
+				}
+			}
+			printf("\n");
         #endif
         
         uint8_t opcode = READ_BYTE();
@@ -91,7 +131,7 @@ InterpretResult interpret() {
             case OP_CONSTANT: {
                 DEBUG_TRACE("OP_CONSTANT");
                 int constantIndex = READ_BYTE();
-                Value constant = vm.chunk->constants.values[constantIndex];
+                Value constant = currentChunk()->constants.values[constantIndex];
                 push(constant);
                 break;
             }
@@ -122,9 +162,19 @@ InterpretResult interpret() {
             
             case OP_RETURN: {
                 DEBUG_TRACE("OP_RETURN");
-                printValue(pop());
-                printf("\n"); // Temporary?
-                return INTERPRET_SUCCESS;
+
+                printf("\n"); // Temporary
+                printValue(pop()); // Temporary
+                printf("\n"); // Temporary
+
+                StackFrame frame = popFrame();
+
+                if (frame.returnAddress == NULL) {
+                	return INTERPRET_SUCCESS;
+                }
+
+				vm.ip = frame.returnAddress;
+                break;
             }
             
             case OP_NEGATE: {
@@ -140,7 +190,7 @@ InterpretResult interpret() {
             case OP_LOAD_VARIABLE: {
                 DEBUG_TRACE("OP_LOAD_VARIABLE");
                 int constantIndex = READ_BYTE();
-                ObjectString* name = OBJECT_AS_STRING(vm.chunk->constants.values[constantIndex].as.object);
+                ObjectString* name = OBJECT_AS_STRING(currentChunk()->constants.values[constantIndex].as.object);
                 Value value;
                 bool success = getTable(&vm.globals, name, &value);
                 
@@ -155,24 +205,31 @@ InterpretResult interpret() {
             case OP_SET_VARIABLE: {
                 DEBUG_TRACE("OP_SET_VARIABLE");
                 int constantIndex = READ_BYTE();
-                ObjectString* name = OBJECT_AS_STRING(vm.chunk->constants.values[constantIndex].as.object);
+                ObjectString* name = OBJECT_AS_STRING(currentChunk()->constants.values[constantIndex].as.object);
                 Value value = pop();
                 setTable(&vm.globals, name, value);
                 break;
             }
             
             case OP_CALL: {
-                ObjectFunction* function = (ObjectFunction*) pop().as.object;
-                // TODO: implement explicit call-stack
-				
-                uint8_t* currentIp = vm.ip;
-				
+            	DEBUG_TRACE("OP_CALL");
+
+            	// peek() and pop() as separate steps, so the GC doesn't collect the ObjectFunction
+            	// before we have managed to put it on the call stack.
+            	// In the "current" implementation this shouldn't be possible because GC will run
+            	// in the same thread, between opcode instructions, but this should make the code survive
+            	// GC even if it runs in a different thread or something...
+            	// Following this logic, the same approach should be taken everywhere in the interpreter loop, which it isn't...
+
+                ObjectFunction* function = (ObjectFunction*) peek().as.object;
+                pushFrame(newStackFrame(vm.ip, function));
+                pop(); // Pop the function object
                 vm.ip = function->chunk.code;
-                interpret();
-                vm.ip = currentIp;
                 break;
             }
         }
+
+        DEBUG_TRACE("\n\n");
     }
     
     #undef READ_BYTE

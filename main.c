@@ -120,8 +120,8 @@ int main(int argc, char* argv[]) {
         printStructures(argc, argv, &chunk, ast);
     }
     
-    initVM(&chunk);
-    InterpretResult result = interpret();
+    initVM();
+    InterpretResult result = interpret(&chunk);
     
     freeTree(ast);
     freeVM();

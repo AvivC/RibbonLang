@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define DEBUG_TRACE_EXECUTION 0
+#define DEBUG_TRACE_EXECUTION 1
 #define DEBUG 0
 #define DEBUG_IMPORTANT 1  // Pretty much always leave this on
 #define DEBUG_MEMORY 0

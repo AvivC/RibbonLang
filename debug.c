@@ -7,15 +7,15 @@ static int constantInstruction(const char* name, Chunk* chunk, int offset) {
     int constantIndex = chunk->code[offset + 1];
     Value constant = chunk->constants.values[constantIndex];
     
-    printf("%-30s '", name);
+    printf("%p %-30s '", chunk->code + offset, name);
     printValue(constant);
     printf("'\n");
     
     return offset + 2;
 }
 
-static int simpleInstruction(const char* name, int offset) {
-    printf("%s\n", name);
+static int simpleInstruction(const char* name, Chunk* chunk, int offset) {
+    printf("%p %s\n", chunk->code + offset, name);
     return offset + 1;
 }
 
@@ -28,23 +28,23 @@ void disassembleChunk(Chunk* chunk) {
                 break;
             }
             case OP_ADD: {
-                offset = simpleInstruction("OP_ADD", offset);
+                offset = simpleInstruction("OP_ADD", chunk, offset);
                 break;
             }
             case OP_SUBTRACT: {
-                offset = simpleInstruction("OP_SUBTRACT", offset);
+                offset = simpleInstruction("OP_SUBTRACT", chunk, offset);
                 break;
             }
             case OP_DIVIDE: {
-                offset = simpleInstruction("OP_DIVIDE", offset);
+                offset = simpleInstruction("OP_DIVIDE", chunk, offset);
                 break;
             }
             case OP_MULTIPLY: {
-                offset = simpleInstruction("OP_MULTIPLY", offset);
+                offset = simpleInstruction("OP_MULTIPLY", chunk, offset);
                 break;
             }
             case OP_NEGATE: {
-                offset = simpleInstruction("OP_NEGATE", offset);
+                offset = simpleInstruction("OP_NEGATE", chunk, offset);
                 break;
             }
             case OP_LOAD_VARIABLE: {
@@ -56,15 +56,13 @@ void disassembleChunk(Chunk* chunk) {
                 break;
             }
             case OP_CALL: {
-                offset = simpleInstruction("OP_CALL", offset);
+                offset = simpleInstruction("OP_CALL", chunk, offset);
                 break;
             }
             case OP_RETURN: {
-                offset = simpleInstruction("OP_RETURN", offset);
+                offset = simpleInstruction("OP_RETURN", chunk, offset);
                 break;
             }
-            default:
-                printf("Weird opcode.\n");
         }
     }
     
