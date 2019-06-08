@@ -38,6 +38,7 @@ static ObjectString* newObjectString(char* chars, int length) {
 }
 
 ObjectString* copyString(const char* string, int length) {
+	// argument length should not include the null-terminator
     DEBUG_PRINT("Allocating string buffer '%.*s' of length %d.", length, string, length);
     
     char* chars = allocate(sizeof(char) * length + 1, "Object string buffer");
@@ -61,10 +62,19 @@ bool stringsEqual(ObjectString* a, ObjectString* b) {
     return (a->length == b->length) && (cstringsEqual(a->chars, b->chars));
 }
 
-ObjectFunction* newObjectFunction(Chunk chunk) {
-    DEBUG_PRINT("Creating function object.");
+ObjectFunction* newUserObjectFunction(Chunk chunk) {
+    DEBUG_PRINT("Creating user function object.");
     ObjectFunction* objFunc = (ObjectFunction*) allocateObject(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
+    objFunc->isNative = false;
     objFunc->chunk = chunk;
+    return objFunc;
+}
+
+ObjectFunction* newNativeObjectFunction(void (*nativeFunction)(void)) {
+    DEBUG_PRINT("Creating native function object.");
+    ObjectFunction* objFunc = (ObjectFunction*) allocateObject(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
+    objFunc->isNative = true;
+    objFunc->nativeFunction = nativeFunction;
     return objFunc;
 }
 
@@ -81,7 +91,9 @@ void freeObject(Object* o) {
         }
         case OBJECT_FUNCTION: {
             ObjectFunction* func = (ObjectFunction*) o;
-            freeChunk(&func->chunk);
+            if (!func->isNative) {
+            	freeChunk(&func->chunk);
+            }
             deallocate(func, sizeof(ObjectFunction), "ObjectFunction");
             // TODO: deallocate parameters and such
             DEBUG_OBJECTS("Freed ObjectFunction");
@@ -100,7 +112,11 @@ void printObject(Object* o) {
             break;
         }
         case OBJECT_FUNCTION: {
-            printf("<Function at %p>", o);
+        	if (OBJECT_AS_FUNCTION(o)->isNative) {
+        		printf("<Native function at %p>", o);
+        	} else {
+        		printf("<Function at %p>", o);
+        	}
             break;
         }
     }

@@ -89,7 +89,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             Chunk functionChunk;
             initChunk(&functionChunk);
             compile((AstNode*) nodeFunction->statements, &functionChunk); // calling compile() and not compileTree(), because it ends with OP_RETURN
-            ObjectFunction* objFunc = newObjectFunction(functionChunk);
+            ObjectFunction* objFunc = newUserObjectFunction(functionChunk);
             Value objFuncConstant = MAKE_VALUE_OBJECT(objFunc);
             int constantIndex = addConstant(chunk, objFuncConstant);
             

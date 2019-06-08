@@ -7,6 +7,7 @@
 #include "object.h"
 #include "memory.h"
 #include "table.h"
+#include "builtins.h"
 
 #define INITIAL_GC_THRESHOLD 4
 
@@ -128,22 +129,33 @@ static void resetStacks(void) {
 	vm.callStackTop = vm.callStack;
 }
 
+static void setBuiltinGlobals(void) {
+	ObjectFunction* printFunction = newNativeObjectFunction(builtinPrint);
+	ObjectString* printFuncName = copyString("print", 5);
+	setTable(&vm.globals, printFuncName, MAKE_VALUE_OBJECT(printFunction));
+}
+
 void initVM(void) {
     vm.ip = NULL;
 
 	resetStacks();
-    initTable(&vm.globals);
-
     vm.numObjects = 0;
     vm.maxObjects = INITIAL_GC_THRESHOLD;
     vm.allowGC = false;
+
+    initTable(&vm.globals);
+    setBuiltinGlobals();
 }
 
 void freeVM(void) {
 	resetStacks();
 	freeTable(&vm.globals);
 	gc();
-	initVM();
+
+    vm.ip = NULL;
+    vm.numObjects = 0;
+    vm.maxObjects = INITIAL_GC_THRESHOLD;
+    vm.allowGC = false;
 }
 
 InterpretResult interpret(Chunk* baseChunk) {
@@ -174,7 +186,7 @@ InterpretResult interpret(Chunk* baseChunk) {
         push(result); \
     } while(false)
 
-	ObjectFunction* baseObjFunc = newObjectFunction(*baseChunk);
+	ObjectFunction* baseObjFunc = newUserObjectFunction(*baseChunk);
 	StackFrame baseFrame = newStackFrame(NULL, baseObjFunc);
 	pushFrame(baseFrame);
 	vm.allowGC = true;
@@ -286,9 +298,13 @@ InterpretResult interpret(Chunk* baseChunk) {
             	// Following this logic, the same approach should be taken everywhere in the interpreter loop, which it isn't...
 
                 ObjectFunction* function = (ObjectFunction*) peek().as.object;
-                pushFrame(newStackFrame(vm.ip, function));
-                pop(); // Pop the function object
-                vm.ip = function->chunk.code;
+                if (function->isNative) {
+                	function->nativeFunction();
+                } else {
+					pushFrame(newStackFrame(vm.ip, function));
+					pop();
+					vm.ip = function->chunk.code;
+                }
                 break;
             }
 

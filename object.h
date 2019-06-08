@@ -25,14 +25,18 @@ typedef struct ObjectString {
 
 typedef struct ObjectFunction {
     Object base;
-    Chunk chunk;
-    // TODO: parameters and such
+    bool isNative;
+    union {
+    	void (*nativeFunction)(void);
+    	Chunk chunk;
+    };
 } ObjectFunction;
 
 ObjectString* copyString(const char* string, int length);
 ObjectString* takeString(char* chars, int length);
 
-ObjectFunction* newObjectFunction(Chunk chunk);
+ObjectFunction* newUserObjectFunction(Chunk chunk);
+ObjectFunction* newNativeObjectFunction(void (*nativeFunction)(void));
 
 bool cstringsEqual(const char* a, const char* b);
 bool stringsEqual(ObjectString* a, ObjectString* b);
