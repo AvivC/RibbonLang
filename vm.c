@@ -85,7 +85,7 @@ static void gcMark(void) {
 }
 
 static void gcSweep(void) {
-	Object** current = vm.objects;
+	Object** current = &vm.objects;
 	while (*current != NULL) {
 		if ((*current)->reachable) {
 			(*current)->reachable = false;
@@ -112,11 +112,14 @@ void initVM(void) {
 
 void freeVM(void) {
     freeTable(&vm.globals);
-    while (vm.objects != NULL) {
-        Object* next = vm.objects->next;
-        freeObject(vm.objects);
-        vm.objects = next;
-    }
+
+    gc();
+
+//    while (vm.objects != NULL) {
+//        Object* next = vm.objects->next;
+//        freeObject(vm.objects);
+//        vm.objects = next;
+//    }
 }
 
 InterpretResult interpret(Chunk* baseChunk) {
