@@ -14,6 +14,7 @@ typedef struct Object {
     ObjectType type;
     struct Object* next;
     Table attributes;
+    bool reachable;
 } Object;
 
 typedef struct ObjectString {

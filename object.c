@@ -14,6 +14,7 @@ static Object* allocateObject(size_t size, const char* what, ObjectType type) {
     Object* object = allocate(size, what);
     object->type = type;    
     object->next = vm.objects;
+    object->reachable = false;
     vm.objects = object;
     initTable(&object->attributes);
     

@@ -22,7 +22,7 @@ static unsigned long hashString(const char* chars) {  // maybe should be unsigne
 
 static Entry* findEntry(Table* table, const char* key, bool settingValue) {
     if (table->capacity == 0) {
-        DEBUG_PRINT("Illegal state: table capacity is 0.");
+        FAIL("Illegal state: table capacity is 0.");
     }
     
     unsigned long hash = hashString(key);

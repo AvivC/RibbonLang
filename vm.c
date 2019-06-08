@@ -10,11 +10,11 @@
 
 VM vm;
 
-static StackFrame currentFrame() {
+static StackFrame currentFrame(void) {
 	return *(vm.callStackTop - 1);
 }
 
-static Chunk* currentChunk() {
+static Chunk* currentChunk(void) {
 	return &currentFrame().objFunc->chunk;
 }
 
@@ -23,7 +23,7 @@ static void pushFrame(StackFrame frame) {
 	vm.callStackTop++;
 }
 
-static StackFrame popFrame() {
+static StackFrame popFrame(void) {
 	vm.callStackTop--;
 	return *vm.callStackTop;
 }
@@ -38,7 +38,7 @@ static void push(Value value) {
     vm.stackTop++;
 }
 
-static Value pop() {
+static Value pop(void) {
     #if DEBUG
         if (vm.stackTop == vm.evalStack) {
             FAIL("STACK UNDERFLOW!");
@@ -48,7 +48,7 @@ static Value pop() {
     return *vm.stackTop;
 }
 
-static Value peek() {
+static Value peek(void) {
 	return *(vm.stackTop - 1);
 }
 
@@ -59,14 +59,58 @@ static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc)
 	return frame;
 }
 
-void initVM() {
+static void gcMark(void) {
+	// TODO: Recursively free all object attributes of the freed objects
+
+	for (Value* value = vm.evalStack; value != vm.stackTop; value++) {
+		if (value->type == VALUE_OBJECT) {
+			value->as.object->reachable = true;
+		}
+	}
+
+	for (StackFrame* frame = vm.callStack; frame != vm.callStackTop; frame++) {
+		frame->objFunc->base.reachable = true;
+	}
+
+	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
+	// many entries are likely to be empty
+	for (int i = 0; i < vm.globals.capacity; i++) {
+		Entry* entry = &vm.globals.entries[i];
+		if (entry->value.type == VALUE_OBJECT) {
+			entry->value.as.object->reachable = true;
+		}
+	}
+
+	// TODO: Scan more things which will be added later, such as local variable Tables
+}
+
+static void gcSweep(void) {
+	Object** current = vm.objects;
+	while (*current != NULL) {
+		if ((*current)->reachable) {
+			(*current)->reachable = false;
+			current = &((*current)->next);
+		} else {
+			Object* unreachable = *current;
+			*current = unreachable->next;
+			freeObject(unreachable);
+		}
+	}
+}
+
+static void gc(void) {
+	gcMark();
+	gcSweep();
+}
+
+void initVM(void) {
     vm.ip = NULL;
     vm.stackTop = vm.evalStack;
     vm.callStackTop = vm.callStack;
     initTable(&vm.globals);
 }
 
-void freeVM() {
+void freeVM(void) {
     freeTable(&vm.globals);
     while (vm.objects != NULL) {
         Object* next = vm.objects->next;
