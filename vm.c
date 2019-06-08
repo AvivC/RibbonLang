@@ -8,6 +8,8 @@
 #include "memory.h"
 #include "table.h"
 
+#define INITIAL_GC_THRESHOLD 4
+
 VM vm;
 
 static StackFrame currentFrame(void) {
@@ -64,12 +66,20 @@ static void gcMark(void) {
 
 	for (Value* value = vm.evalStack; value != vm.stackTop; value++) {
 		if (value->type == VALUE_OBJECT) {
-			value->as.object->reachable = true;
+			value->as.object->isReachable = true;
 		}
 	}
 
 	for (StackFrame* frame = vm.callStack; frame != vm.callStackTop; frame++) {
-		frame->objFunc->base.reachable = true;
+		frame->objFunc->base.isReachable = true;
+
+		// TODO: Iterate constants every gc() - probably wasteful, constants being always constant
+		ValueArray constants = frame->objFunc->chunk.constants;
+		for (int i = 0; i < constants.count; i++) {
+			if (constants.values[i].type == VALUE_OBJECT) {
+				constants.values[i].as.object->isReachable = true;
+			}
+		}
 	}
 
 	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
@@ -77,7 +87,7 @@ static void gcMark(void) {
 	for (int i = 0; i < vm.globals.capacity; i++) {
 		Entry* entry = &vm.globals.entries[i];
 		if (entry->value.type == VALUE_OBJECT) {
-			entry->value.as.object->reachable = true;
+			entry->value.as.object->isReachable = true;
 		}
 	}
 
@@ -87,8 +97,8 @@ static void gcMark(void) {
 static void gcSweep(void) {
 	Object** current = &vm.objects;
 	while (*current != NULL) {
-		if ((*current)->reachable) {
-			(*current)->reachable = false;
+		if ((*current)->isReachable) {
+			(*current)->isReachable = false;
 			current = &((*current)->next);
 		} else {
 			Object* unreachable = *current;
@@ -98,28 +108,42 @@ static void gcSweep(void) {
 	}
 }
 
-static void gc(void) {
-	gcMark();
-	gcSweep();
+void gc(void) {
+	if (vm.allowGC) {
+		DEBUG_OBJECTS("GC Running. numObjects: %d. maxObjects: %d", vm.numObjects, vm.maxObjects);
+
+		gcMark();
+		gcSweep();
+
+		vm.maxObjects = vm.numObjects * 2;
+
+		DEBUG_OBJECTS("GC Finished. numObjects: %d. maxObjects: %d", vm.numObjects, vm.maxObjects);
+	} else {
+		DEBUG_OBJECTS("GC should run, but vm.allowGC is still false.");
+	}
+}
+
+static void resetStacks(void) {
+	vm.stackTop = vm.evalStack;
+	vm.callStackTop = vm.callStack;
 }
 
 void initVM(void) {
     vm.ip = NULL;
-    vm.stackTop = vm.evalStack;
-    vm.callStackTop = vm.callStack;
+
+	resetStacks();
     initTable(&vm.globals);
+
+    vm.numObjects = 0;
+    vm.maxObjects = INITIAL_GC_THRESHOLD;
+    vm.allowGC = false;
 }
 
 void freeVM(void) {
-    freeTable(&vm.globals);
-
-    gc();
-
-//    while (vm.objects != NULL) {
-//        Object* next = vm.objects->next;
-//        freeObject(vm.objects);
-//        vm.objects = next;
-//    }
+	resetStacks();
+	freeTable(&vm.globals);
+	gc();
+	initVM();
 }
 
 InterpretResult interpret(Chunk* baseChunk) {
@@ -135,7 +159,7 @@ InterpretResult interpret(Chunk* baseChunk) {
         } else if (a.type == VALUE_OBJECT && b.type == VALUE_OBJECT) { \
             ObjectString* aString = OBJECT_AS_STRING(a.as.object); \
             ObjectString* bString = OBJECT_AS_STRING(b.as.object); \
-            char* buffer = allocate(aString->length + bString->length + 1, "Concatenated string"); \
+            char* buffer = allocate(aString->length + bString->length + 1, "Object string buffer"); \
             memcpy(buffer, aString->chars, aString->length); \
             memcpy(buffer + aString->length, bString->chars, bString->length); \
             int stringLength = aString->length + bString->length; \
@@ -153,13 +177,16 @@ InterpretResult interpret(Chunk* baseChunk) {
 	ObjectFunction* baseObjFunc = newObjectFunction(*baseChunk);
 	StackFrame baseFrame = newStackFrame(NULL, baseObjFunc);
 	pushFrame(baseFrame);
+	vm.allowGC = true;
 
 	vm.ip = baseChunk->code;
 
     for (;;) {
-    	DEBUG_TRACE("IP: %p\n", vm.ip);
+    	DEBUG_TRACE("IP: %p", vm.ip);
+    	DEBUG_TRACE("numObjects: %d", vm.numObjects);
+    	DEBUG_TRACE("maxObjects: %d", vm.maxObjects);
 
-        uint8_t opcode = READ_BYTE();
+    	uint8_t opcode = READ_BYTE();
         
         switch (opcode) {
             case OP_CONSTANT: {
@@ -197,20 +224,23 @@ InterpretResult interpret(Chunk* baseChunk) {
             case OP_RETURN: {
                 DEBUG_TRACE("OP_RETURN");
 
-                printf("\n"); // Temporary
-                printValue(pop()); // Temporary
-                printf("\n"); // Temporary
-
                 StackFrame frame = popFrame();
-
-                if (frame.returnAddress == NULL) {
+                bool atBaseFrame = frame.returnAddress == NULL;
+                if (atBaseFrame) {
                 	return INTERPRET_SUCCESS;
+                } else {
+                	vm.ip = frame.returnAddress;
                 }
 
-				vm.ip = frame.returnAddress;
                 break;
             }
             
+            case OP_POP: {
+            	DEBUG_TRACE("OP_POP");
+            	pop();
+            	break;
+            }
+
             case OP_NEGATE: {
                 DEBUG_TRACE("OP_NEGATE");
                 Value operand = pop();
@@ -261,6 +291,10 @@ InterpretResult interpret(Chunk* baseChunk) {
                 vm.ip = function->chunk.code;
                 break;
             }
+
+            default: {
+            	FAIL("Unknown opcode: %d", opcode);
+            }
         }
 
 		#if DEBUG_TRACE_EXECUTION
@@ -281,4 +315,6 @@ InterpretResult interpret(Chunk* baseChunk) {
     
     #undef READ_BYTE
     #undef BINARY_OPERATION
+
+    return INTERPRET_RUNTIME_ERROR;
 }

@@ -30,7 +30,11 @@ typedef struct {
     StackFrame callStack[CALL_STACK_MAX];
 
     Table globals;
+
     Object* objects;
+    int numObjects;
+    int maxObjects;
+    bool allowGC;
 } VM;
 
 extern VM vm;
@@ -38,5 +42,7 @@ extern VM vm;
 void initVM(void);
 void freeVM(void);
 InterpretResult interpret(Chunk* chunk);
+
+void gc(void);
 
 #endif

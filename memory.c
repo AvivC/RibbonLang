@@ -53,14 +53,14 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
     if (newSize == 0) {
         // Deallocation
         
-        DEBUG_MEMORY_PRINT("Attempting to deallocate %d bytes, for '%s' at '%p'.\n", oldSize, what, pointer);
+        DEBUG_MEMORY("Attempting to deallocate %d bytes, for '%s' at '%p'.", oldSize, what, pointer);
         
         if (pointer != NULL) {
             bool found = false;
             for (int i = 0; i < allocsBufferCount; i++) {
                 if (sameAllocation(pointer, what, allocations[i])) {
                     if (allocations[i].allocated) {
-                        DEBUG_MEMORY_PRINT("Marked '%s' as deallocated.\n", allocations[i].name);
+                        DEBUG_MEMORY("Marked '%s' as deallocated.", allocations[i].name);
                         allocations[i].allocated = false;
                         allocations[i].ptr = NULL;
                         found = true;
@@ -69,19 +69,20 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
                         FAIL("Found matching allocation, but it's already freed.");
                     }
                 } else if (samePointerDifferentName(pointer, what, allocations[i])) {
-                    FAIL("An existing allocation has a pointer matching the searched one, but different name.");
+                    FAIL("An existing allocation has a pointer matching the searched one, but different name ('%s' != '%s')"
+                    		, what, allocations[i].name);
                 }
             }
         
             if (!found) {
-                FAIL("deallocate() didn't find an allocation marker to NULL-mark '%s', %p.\n", what, pointer);
+                FAIL("deallocate() didn't find an allocation marker to NULL-mark '%s', %p.", what, pointer);
             }
         } else {
             // NULL pointer. Continue as usual
-            DEBUG_MEMORY_PRINT("Freeing NULL pointer. Should be okay.\n");
+            DEBUG_MEMORY("Freeing NULL pointer. Should be okay.");
         }
         
-        DEBUG_MEMORY_PRINT("Freeing '%s' ('%p') and %d bytes.\n", what, pointer, oldSize);
+        DEBUG_MEMORY("Freeing '%s' ('%p') and %d bytes.", what, pointer, oldSize);
         free(pointer); // realloc() shouldn't be called with 0 size
         allocatedMemory -= oldSize;
         return NULL;
@@ -90,7 +91,7 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
     if (oldSize == 0) {
         // New allocation
         
-        DEBUG_MEMORY_PRINT("Attempting to allocate %d bytes for '%s'.\n", newSize, what);
+        DEBUG_MEMORY("Attempting to allocate %d bytes for '%s'.", newSize, what);
         
         if (allocsBufferCount + 1 > allocsBufferCapacity) {
             allocsBufferCapacity = GROW_CAPACITY(allocsBufferCapacity);
@@ -100,7 +101,7 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
             }
         }
         
-        DEBUG_MEMORY_PRINT("Allocating for '%s' %d bytes.\n", what, newSize);
+        DEBUG_MEMORY("Allocating for '%s' %d bytes.", what, newSize);
         pointer = realloc(pointer, newSize); // realloc() with NULL is equal to malloc()
         allocations[allocsBufferCount++] = (Allocation) {.name = what, .size = newSize, .ptr = pointer, .allocated = true};
         allocatedMemory += newSize;
@@ -109,11 +110,11 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
     
     // Reallocation
     
-    DEBUG_MEMORY_PRINT("Attemtping to reallocate for '%s' %d bytes instead of %d bytes.\n", what, newSize, oldSize);
+    DEBUG_MEMORY("Attempting to reallocate for '%s' %d bytes instead of %d bytes.", what, newSize, oldSize);
     void* newpointer = realloc(pointer, newSize);
     
     if (newpointer == NULL) {
-        FAIL("Reallocation of '%s' failed!\n", what);
+        FAIL("Reallocation of '%s' failed!", what);
         return NULL;
     }
     
@@ -140,14 +141,14 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
 }
 
 void printAllocationsBuffer() {  // for debugging
-    DEBUG_IMPORTANT_PRINT("\nAllocations buffer:\n");
+    DEBUG_IMPORTANT_PRINT("\nAllocations buffer:");
 
     for (int i = 0; i < allocsBufferCount; i++) {
         Allocation allocation = allocations[i];
         DEBUG_IMPORTANT_PRINT("[ %-3d: ", i);
         DEBUG_IMPORTANT_PRINT("%p ", allocation.ptr);
         DEBUG_IMPORTANT_PRINT(" | ");
-        DEBUG_IMPORTANT_PRINT("%-20s", allocation.name);
+        DEBUG_IMPORTANT_PRINT("%-25s", allocation.name);
         DEBUG_IMPORTANT_PRINT(" | ");
         DEBUG_IMPORTANT_PRINT("%-15s", allocation.allocated ? "Allocated" : "Not allocated");
         DEBUG_IMPORTANT_PRINT(" | ");

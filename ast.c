@@ -14,6 +14,7 @@ const char* AST_NODE_TYPE_NAMES[] = {
     "AST_NODE_STATEMENTS",
     "AST_NODE_FUNCTION",
     "AST_NODE_CALL",
+    "AST_NODE_EXPR_STATEMENT",
 };
 
 static void printNestingString(int nesting) {
@@ -118,6 +119,14 @@ static void printNode(AstNode* node, int nesting) {
             
             break;
         }
+
+        case AST_NODE_EXPR_STATEMENT: {
+        	AstNodeExprStatement* nodeExprStatement = (AstNodeExprStatement*) node;
+			printNestingString(nesting);
+			printf("AST_NODE_EXPR_STATEMENT\n");
+			printNode((AstNode*) nodeExprStatement->expression, nesting + 1);
+			break;
+		}
     }
     
     printf("\n");
@@ -133,7 +142,7 @@ static void freeNode(AstNode* node, int nesting) {
     switch (node->type) {
         case AST_NODE_CONSTANT: {
             AstNodeConstant* nodeConstant = (AstNodeConstant*) node;
-            printNestingString(nesting);
+//            printNestingString(nesting);
             deallocate(nodeConstant, sizeof(AstNodeConstant), deallocationString);
             break;
         }
@@ -145,7 +154,7 @@ static void freeNode(AstNode* node, int nesting) {
         }
         
         case AST_NODE_BINARY: {
-            printNestingString(nesting);
+//            printNestingString(nesting);
             AstNodeBinary* nodeBinary = (AstNodeBinary*) node;
             
             const char* operator = NULL;
@@ -160,32 +169,32 @@ static void freeNode(AstNode* node, int nesting) {
             freeNode(nodeBinary->leftOperand, nesting + 1);
             freeNode(nodeBinary->rightOperand, nesting + 1);
             
-            printNestingString(nesting);
+//            printNestingString(nesting);
             deallocate(nodeBinary, sizeof(AstNodeBinary), deallocationString);
             
             break;
         }
         
         case AST_NODE_UNARY: {
-            printNestingString(nesting);
+//            printNestingString(nesting);
             AstNodeUnary* nodeUnary = (AstNodeUnary*) node;
             
             freeNode(nodeUnary->operand, nesting + 1);
             
-            printNestingString(nesting);
+//            printNestingString(nesting);
             deallocate(nodeUnary, sizeof(AstNodeUnary), deallocationString);
             
             break;
         }
         
         case AST_NODE_ASSIGNMENT: {
-            printNestingString(nesting);
+//            printNestingString(nesting);
             AstNodeAssignment* nodeAssingment = (AstNodeAssignment*) node;
             
             // not freeing the cstring in the ast node because its part of the source code, to be freed later
             freeNode(nodeAssingment->value, nesting + 1);
             
-            printNestingString(nesting);
+//            printNestingString(nesting);
             deallocate(nodeAssingment, sizeof(AstNodeAssignment), deallocationString);
             
             break;
@@ -219,11 +228,18 @@ static void freeNode(AstNode* node, int nesting) {
             // TODO: free parameters and such
             break;
         }
+
+        case AST_NODE_EXPR_STATEMENT: {
+            AstNodeExprStatement* nodeExprStatement = (AstNodeExprStatement*) node;
+            freeNode((AstNode*) nodeExprStatement->expression, nesting + 1);
+            deallocate(nodeExprStatement, sizeof(AstNodeExprStatement), deallocationString);
+            break;
+        }
     }
 }
 
 void freeTree(AstNode* node) {
-    DEBUG_PRINT("Freeing AST.");
+    DEBUG_PRINT("Freeing AST");
     freeNode(node, 0);
 }
 
@@ -231,6 +247,13 @@ AstNodeStatements* newAstNodeStatements() {
     AstNodeStatements* node = ALLOCATE_AST_NODE(AstNodeStatements, AST_NODE_STATEMENTS);
     initPointerArray(&node->statements);
     return node;
+}
+
+AstNodeExprStatement* newAstNodeExprStatement(AstNode* expression) {
+	AstNodeExprStatement* node = ALLOCATE_AST_NODE(AstNodeExprStatement, AST_NODE_EXPR_STATEMENT);
+	node->expression = expression;
+	return node;
+
 }
 
 AstNode* allocateAstNode(AstNodeType type, size_t size) {

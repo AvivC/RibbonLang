@@ -196,7 +196,7 @@ static AstNode* parsePrecedence(Precedence precedence) {
     return node;
 }
 
-static AstNode* assignmentStatement() {
+static AstNodeAssignment* assignmentStatement() {
     const char* variableName = parser.previous.start;
     int variableLength = parser.previous.length;
     
@@ -209,12 +209,15 @@ static AstNode* assignmentStatement() {
     node->length = variableLength;
     node->value = value;
     
-    return (AstNode*) node;
+    return node;
 }
 
 static ParseRule getRule(ScannerTokenType type) {
-    // return pointer? nah
     return rules[type];
+}
+
+static AstNodeExprStatement* expressionStatement() {
+	return newAstNodeExprStatement(parsePrecedence(PREC_ASSIGNMENT));
 }
 
 static AstNode* statements() {
@@ -225,16 +228,19 @@ static AstNode* statements() {
             continue;
         }
         
+        AstNode* childNode = NULL;
+
         if (check(TOKEN_IDENTIFIER) && matchNext(TOKEN_EQUAL)) {
-            AstNode* assignmentNode = assignmentStatement();
-            writePointerArray(&statementsNode->statements, assignmentNode);
+            childNode = (AstNode*) assignmentStatement();
         } else {
-            AstNode* expressionNode = parsePrecedence(PREC_ASSIGNMENT);
-            writePointerArray(&statementsNode->statements, expressionNode);
+			childNode = (AstNode*) expressionStatement();
         }
-        
-        if (!check(TOKEN_EOF) && !check(TOKEN_RIGHT_BRACE)) {
-            // Allowing omitting the newline at the end of the function or program
+
+        writePointerArray(&statementsNode->statements, childNode);
+
+		int endOfBlock = check(TOKEN_EOF) || check(TOKEN_RIGHT_BRACE);
+		if (!endOfBlock) {
+            // Allow omitting the newline at the end of the function or program
             consume(TOKEN_NEWLINE, "Expected newline after statement.");
         }
         

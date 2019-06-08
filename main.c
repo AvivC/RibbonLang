@@ -111,6 +111,9 @@ int main(int argc, char* argv[]) {
     
     DEBUG_PRINT("Starting CPlane!\n\n");
 
+    // Must first init the VM, because some parts of the compiler depend on it
+    initVM();
+
     Chunk chunk;
     initChunk(&chunk);
     AstNode* ast = parse(source);
@@ -120,7 +123,6 @@ int main(int argc, char* argv[]) {
         printStructures(argc, argv, &chunk, ast);
     }
     
-    initVM();
     InterpretResult result = interpret(&chunk);
     
     freeTree(ast);

@@ -1,20 +1,29 @@
 #include <string.h>
 
+#include "common.h"
 #include "object.h"
 #include "vm.h"
 #include "value.h"
 #include "memory.h"
 
 static Object* allocateObject(size_t size, const char* what, ObjectType type) {
-    DEBUG_PRINT("Allocating object '%s' of length %d and type %d.", chars, length, type);
-    
+	DEBUG_OBJECTS("Allocating object '%s' of size %d and type %d.", what, size, type);
+
+	// Possibly that vm.numObjects > vm.maxObjects if many objects were created during the compiling stage, where GC is disallowed
+    if (vm.numObjects >= vm.maxObjects) {
+    	gc();
+    }
+
     Object* object = allocate(size, what);
     object->type = type;    
+    object->isReachable = false;
     object->next = vm.objects;
-    object->reachable = false;
     vm.objects = object;
     initTable(&object->attributes);
     
+    vm.numObjects++;
+    DEBUG_OBJECTS("Incremented numObjects to %d", vm.numObjects);
+
     return object;
 }
 
@@ -60,23 +69,28 @@ ObjectFunction* newObjectFunction(Chunk chunk) {
 }
 
 void freeObject(Object* o) {
-    switch (o->type) {
+	ObjectType type = o->type;
+
+    switch (type) {
         case OBJECT_STRING: {
             ObjectString* string = (ObjectString*) o;
             deallocate(string->chars, string->length + 1, "Object string buffer");
             deallocate(string, sizeof(ObjectString), "ObjectString");
-            return;
+            DEBUG_OBJECTS("Freed ObjectString");
+            break;
         }
         case OBJECT_FUNCTION: {
             ObjectFunction* func = (ObjectFunction*) o;
             freeChunk(&func->chunk);
             deallocate(func, sizeof(ObjectFunction), "ObjectFunction");
             // TODO: deallocate parameters and such
-            return;
+            DEBUG_OBJECTS("Freed ObjectFunction");
+            break;
         }
     }
     
-    fprintf(stderr, "Weird object type when freeing.\n");
+    vm.numObjects--;
+    DEBUG_OBJECTS("Decremented numObjects to %d", vm.numObjects);
 }
 
 void printObject(Object* o) {
@@ -86,7 +100,6 @@ void printObject(Object* o) {
             break;
         }
         case OBJECT_FUNCTION: {
-            // Currently functions hold no metadata about them, so just print the pointer
             printf("<Function at %p>", o);
             break;
         }

@@ -24,7 +24,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
                 case TOKEN_MINUS: writeChunk(chunk, OP_SUBTRACT); break;
                 case TOKEN_STAR: writeChunk(chunk, OP_MULTIPLY); break;
                 case TOKEN_SLASH: writeChunk(chunk, OP_DIVIDE); break;
-                default: fprintf(stderr, "Weird operator type!\n"); break;
+                default: FAIL("Weird operator type"); break;
             }
             
             break;
@@ -106,6 +106,13 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             writeChunk(chunk, OP_CALL);
             
             break;
+        }
+
+        case AST_NODE_EXPR_STATEMENT: {
+        	AstNodeExprStatement* nodeExprStatement = (AstNodeExprStatement*) node;
+        	compileTree(nodeExprStatement->expression, chunk);
+        	writeChunk(chunk, OP_POP);
+        	break;
         }
     }
 }
