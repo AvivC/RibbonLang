@@ -5,9 +5,6 @@
 #include "value.h"
 #include "memory.h"
 
-// typedef ObjectString_t ObjectString;
-// typedef Object_t Object;
-
 static Object* allocateObject(size_t size, const char* what, ObjectType type) {
     DEBUG_PRINT("Allocating object '%s' of length %d and type %d.", chars, length, type);
     
