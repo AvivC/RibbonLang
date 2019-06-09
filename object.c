@@ -98,7 +98,6 @@ void freeObject(Object* o) {
 				freeChunk(&func->chunk);
 			}
             deallocate(func, sizeof(ObjectFunction), "ObjectFunction");
-            // TODO: deallocate parameters and such
             break;
         }
     }

@@ -1,2 +1,6 @@
-a = print
-a()	
+myfunc = {
+	print()
+	print()
+}
+
+myfunc()
