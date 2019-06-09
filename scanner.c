@@ -89,6 +89,8 @@ static Token parseIdentifier() {
         return makeToken(TOKEN_AND);
     } else if (checkToken("or")) {
         return makeToken(TOKEN_OR);
+    } else if (checkToken("return")) {
+    	return makeToken(TOKEN_RETURN);
     }
     
     return makeToken(TOKEN_IDENTIFIER);

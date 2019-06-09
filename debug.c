@@ -63,6 +63,10 @@ void disassembleChunk(Chunk* chunk) {
 				offset = simpleInstruction("OP_POP", chunk, offset);
 				break;
 			}
+            case OP_NIL: {
+				offset = simpleInstruction("OP_NIL", chunk, offset);
+				break;
+			}
             case OP_RETURN: {
                 offset = simpleInstruction("OP_RETURN", chunk, offset);
                 break;

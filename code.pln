@@ -1,6 +1,6 @@
 myfunc = {
-	print()
-	print()
+	"hello"
+	return 3
 }
 
-myfunc()
+a = myfunc()

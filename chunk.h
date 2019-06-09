@@ -15,6 +15,7 @@ typedef enum {
     OP_SET_VARIABLE,
     OP_CALL,
 	OP_POP,
+	OP_NIL,
     OP_RETURN
 } OP_CODE;
 

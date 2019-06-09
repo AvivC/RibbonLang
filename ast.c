@@ -15,11 +15,14 @@ const char* AST_NODE_TYPE_NAMES[] = {
     "AST_NODE_FUNCTION",
     "AST_NODE_CALL",
     "AST_NODE_EXPR_STATEMENT",
+	"AST_NODE_RETURN"
 };
 
 static void printNestingString(int nesting) {
-    for (int i = 0; i < nesting; i++) {
-        printf("    ");
+	printf("\n");
+	for (int i = 0; i < nesting; i++) {
+        printf(". . . . ");
+//        printf("    ");
     }
 }
 
@@ -68,9 +71,7 @@ static void printNode(AstNode* node, int nesting) {
         case AST_NODE_VARIABLE: {
             AstNodeVariable* nodeVariable = (AstNodeVariable*) node;
             printNestingString(nesting);
-            printf("AST_NODE_VARIABLE: ");
-            printValue(MAKE_VALUE_OBJECT(nodeVariable->name));
-            printf("\n");
+            printf("AST_NODE_VARIABLE: %.*s\n", nodeVariable->length, nodeVariable->name);
             break;
         }
         
@@ -78,12 +79,8 @@ static void printNode(AstNode* node, int nesting) {
             AstNodeAssignment* nodeAssignment = (AstNodeAssignment*) node;
             printNestingString(nesting);
             printf("AST_NODE_ASSIGNMENT: ");
-            printf("%.*s", nodeAssignment->length, nodeAssignment->name);
-            printf("\n");
-            printNestingString(nesting);
-            printf("Value: \n");
+            printf("%.*s\n", nodeAssignment->length, nodeAssignment->name);
             printNode(nodeAssignment->value, nesting + 1);
-            printf("\n");
             break;
         }
         
@@ -127,9 +124,17 @@ static void printNode(AstNode* node, int nesting) {
 			printNode((AstNode*) nodeExprStatement->expression, nesting + 1);
 			break;
 		}
+
+        case AST_NODE_RETURN: {
+			AstNodeReturn* nodeReturn = (AstNodeReturn*) node;
+			printNestingString(nesting);
+			printf("AST_NODE_RETURN\n");
+			printNode((AstNode*) nodeReturn->expression, nesting + 1);
+			break;
+		}
     }
     
-    printf("\n");
+//    printf("\n");
 }
 
 void printTree(AstNode* tree) {
@@ -142,7 +147,6 @@ static void freeNode(AstNode* node, int nesting) {
     switch (node->type) {
         case AST_NODE_CONSTANT: {
             AstNodeConstant* nodeConstant = (AstNodeConstant*) node;
-//            printNestingString(nesting);
             deallocate(nodeConstant, sizeof(AstNodeConstant), deallocationString);
             break;
         }
@@ -154,7 +158,6 @@ static void freeNode(AstNode* node, int nesting) {
         }
         
         case AST_NODE_BINARY: {
-//            printNestingString(nesting);
             AstNodeBinary* nodeBinary = (AstNodeBinary*) node;
             
             const char* operator = NULL;
@@ -169,32 +172,27 @@ static void freeNode(AstNode* node, int nesting) {
             freeNode(nodeBinary->leftOperand, nesting + 1);
             freeNode(nodeBinary->rightOperand, nesting + 1);
             
-//            printNestingString(nesting);
             deallocate(nodeBinary, sizeof(AstNodeBinary), deallocationString);
             
             break;
         }
         
         case AST_NODE_UNARY: {
-//            printNestingString(nesting);
             AstNodeUnary* nodeUnary = (AstNodeUnary*) node;
             
             freeNode(nodeUnary->operand, nesting + 1);
             
-//            printNestingString(nesting);
             deallocate(nodeUnary, sizeof(AstNodeUnary), deallocationString);
             
             break;
         }
         
         case AST_NODE_ASSIGNMENT: {
-//            printNestingString(nesting);
             AstNodeAssignment* nodeAssingment = (AstNodeAssignment*) node;
             
             // not freeing the cstring in the ast node because its part of the source code, to be freed later
             freeNode(nodeAssingment->value, nesting + 1);
             
-//            printNestingString(nesting);
             deallocate(nodeAssingment, sizeof(AstNodeAssignment), deallocationString);
             
             break;
@@ -235,6 +233,13 @@ static void freeNode(AstNode* node, int nesting) {
             deallocate(nodeExprStatement, sizeof(AstNodeExprStatement), deallocationString);
             break;
         }
+
+        case AST_NODE_RETURN: {
+			AstNodeReturn* nodeReturn = (AstNodeReturn*) node;
+			freeNode((AstNode*) nodeReturn->expression, nesting + 1);
+			deallocate(nodeReturn, sizeof(AstNodeReturn), deallocationString);
+			break;
+		}
     }
 }
 
@@ -253,7 +258,12 @@ AstNodeExprStatement* newAstNodeExprStatement(AstNode* expression) {
 	AstNodeExprStatement* node = ALLOCATE_AST_NODE(AstNodeExprStatement, AST_NODE_EXPR_STATEMENT);
 	node->expression = expression;
 	return node;
+}
 
+AstNodeReturn* newAstNodeReturn(AstNode* expression) {
+	AstNodeReturn* node = ALLOCATE_AST_NODE(AstNodeReturn, AST_NODE_RETURN);
+	node->expression = expression;
+	return node;
 }
 
 AstNode* allocateAstNode(AstNodeType type, size_t size) {

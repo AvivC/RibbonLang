@@ -247,6 +247,12 @@ InterpretResult interpret(Chunk* baseChunk) {
                 break;
             }
             
+            case OP_NIL: {
+            	DEBUG_TRACE("OP_NIL");
+            	push(MAKE_VALUE_NIL());
+            	break;
+            }
+
             case OP_RETURN: {
                 DEBUG_TRACE("OP_RETURN");
 

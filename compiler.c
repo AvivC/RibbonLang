@@ -114,10 +114,19 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         	writeChunk(chunk, OP_POP);
         	break;
         }
+
+        case AST_NODE_RETURN: {
+        	AstNodeReturn* nodeReturn = (AstNodeReturn*) node;
+        	compileTree(nodeReturn->expression, chunk);
+        	writeChunk(chunk, OP_RETURN);
+        	break;
+        }
     }
 }
 
+/* Compile a program or a function */
 void compile(AstNode* node, Chunk* chunk) {
     compileTree(node, chunk);
-    writeChunk(chunk, OP_RETURN); // temporary
+    writeChunk(chunk, OP_NIL);
+    writeChunk(chunk, OP_RETURN);
 }

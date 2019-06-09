@@ -24,7 +24,7 @@ typedef enum {
 } Precedence;
 
 
-typedef AstNode* (*PrefixFunction)();
+typedef AstNode* (*PrefixFunction)(void);
 typedef AstNode* (*InfixFunction)(AstNode* leftNode);
 
 typedef struct {
@@ -92,21 +92,25 @@ static AstNode* binary(AstNode* leftNode) {
     return (AstNode*) node;
 }
 
-static AstNode* identifier() {
+static AstNode* returnStatement(void) {
+	return (AstNode*) newAstNodeReturn(parsePrecedence(PREC_ASSIGNMENT));
+}
+
+static AstNode* identifier(void) {
     AstNodeVariable* node = ALLOCATE_AST_NODE(AstNodeVariable, AST_NODE_VARIABLE);
     node->name = parser.previous.start;
     node->length = parser.previous.length;
     return (AstNode*) node;
 }
 
-static AstNode* number() {
+static AstNode* number(void) {
     double number = strtod(parser.previous.start, NULL);
     AstNodeConstant* node = ALLOCATE_AST_NODE(AstNodeConstant, AST_NODE_CONSTANT);
     node->value = MAKE_VALUE_NUMBER(number);
     return (AstNode*) node;
 }
 
-static AstNode* string() {
+static AstNode* string(void) {
     const char* theString = parser.previous.start + 1;
     ObjectString* objString = copyString(theString, parser.previous.length - 2);
     Value value = MAKE_VALUE_OBJECT(objString);
@@ -115,7 +119,7 @@ static AstNode* string() {
     return (AstNode*) node;
 }
 
-static AstNode* function() {
+static AstNode* function(void) {
     AstNodeStatements* statementsNode = (AstNodeStatements*) statements();
     consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of function.");
     AstNodeFunction* node = ALLOCATE_AST_NODE(AstNodeFunction, AST_NODE_FUNCTION);
@@ -131,13 +135,13 @@ static AstNode* call(AstNode* leftNode) {
     return (AstNode*) node;
 }
 
-static AstNode* grouping() {
+static AstNode* grouping(void) {
     AstNode* node = parsePrecedence(PREC_ASSIGNMENT);
     consume(TOKEN_RIGHT_PAREN, "Expected closing ')' after grouped expression.");
     return node;
 }
 
-static AstNode* unary() {
+static AstNode* unary(void) {
     AstNodeUnary* node = ALLOCATE_AST_NODE(AstNodeUnary, AST_NODE_UNARY);
     node->operand = parsePrecedence(PREC_UNARY); // so-called right associativity
     return (AstNode*) node;
@@ -171,6 +175,7 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_FUNC
     {NULL, NULL, PREC_NONE},     // TOKEN_AND
     {NULL, NULL, PREC_NONE},     // TOKEN_OR
+    {NULL, NULL, PREC_NONE},     // TOKEN_RETURN
     {NULL, NULL, PREC_NONE},           // TOKEN_EOF
     {NULL, NULL, PREC_NONE}            // TOKEN_ERROR
 };
@@ -232,6 +237,8 @@ static AstNode* statements() {
 
         if (check(TOKEN_IDENTIFIER) && matchNext(TOKEN_EQUAL)) {
             childNode = (AstNode*) assignmentStatement();
+        } else if (match(TOKEN_RETURN)) {
+        	childNode = (AstNode*) returnStatement();
         } else {
 			childNode = (AstNode*) expressionStatement();
         }
