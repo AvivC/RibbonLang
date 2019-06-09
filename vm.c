@@ -192,7 +192,7 @@ InterpretResult interpret(Chunk* baseChunk) {
              \
              \
         } else { \
-            fprintf(stderr, "Connecting wrong stuff.\n"); \
+            result = MAKE_VALUE_NIL(); \
         } \
         push(result); \
     } while(false)

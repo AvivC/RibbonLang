@@ -1,6 +1,9 @@
+otherfunc = {
+	return 10
+}
+
 myfunc = {
-	"hello"
-	return 3
+	return otherfunc() * 2
 }
 
 a = myfunc()
