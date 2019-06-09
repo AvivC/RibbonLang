@@ -1,8 +1,2 @@
-print()
-print()
-print()
-print()
-print()
-print()
-print()
-print()
+a = print
+a()	

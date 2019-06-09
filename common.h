@@ -46,7 +46,6 @@
 
 #if DEBUG_TRACE_EXECUTION
     #define DEBUG_TRACE(...) do { \
-            fprintf (stderr, "TRACE: "); \
             fprintf (stderr, __VA_ARGS__); \
             fprintf (stderr, "\n"); \
         } while (false)

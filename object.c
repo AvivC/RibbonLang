@@ -9,7 +9,7 @@
 static Object* allocateObject(size_t size, const char* what, ObjectType type) {
 	DEBUG_OBJECTS("Allocating object '%s' of size %d and type %d.", what, size, type);
 
-	// Possibly that vm.numObjects > vm.maxObjects if many objects were created during the compiling stage, where GC is disallowed
+	// Possible that vm.numObjects > vm.maxObjects if many objects were created during the compiling stage, where GC is disallowed
     if (vm.numObjects >= vm.maxObjects) {
     	gc();
     }
@@ -84,19 +84,21 @@ void freeObject(Object* o) {
     switch (type) {
         case OBJECT_STRING: {
             ObjectString* string = (ObjectString*) o;
+            DEBUG_OBJECTS("Freeing ObjectString '%s'", string->chars);
             deallocate(string->chars, string->length + 1, "Object string buffer");
             deallocate(string, sizeof(ObjectString), "ObjectString");
-            DEBUG_OBJECTS("Freed ObjectString");
             break;
         }
         case OBJECT_FUNCTION: {
             ObjectFunction* func = (ObjectFunction*) o;
-            if (!func->isNative) {
-            	freeChunk(&func->chunk);
-            }
+            if (func->isNative) {
+				DEBUG_OBJECTS("Freeing native ObjectFunction");
+			} else {
+				DEBUG_OBJECTS("Freeing user ObjectFunction");
+				freeChunk(&func->chunk);
+			}
             deallocate(func, sizeof(ObjectFunction), "ObjectFunction");
             // TODO: deallocate parameters and such
-            DEBUG_OBJECTS("Freed ObjectFunction");
             break;
         }
     }
@@ -122,5 +124,22 @@ void printObject(Object* o) {
     }
     
 }
+
+// For debugging
+void printAllObjects(void) {
+	if (vm.objects != NULL) {
+		printf("All live objects:\n");
+		int counter = 0;
+		for (Object* object = vm.objects; object != NULL; object = object->next) {
+			printf("%-2d | Type: %d | isReachable: %d | Print: ", counter, object->type, object->isReachable);
+			printObject(object);
+			printf("\n");
+			counter++;
+		}
+	} else {
+		printf("No live objects.\n");
+	}
+}
+
 
 

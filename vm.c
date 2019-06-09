@@ -62,25 +62,37 @@ static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc)
 	return frame;
 }
 
+static void gcMarkObject(Object* object) {
+	if (object->isReachable) {
+		// Avoid circular connection problems
+		return;
+	}
+
+	// TODO: Scan attributes recursively
+
+	object->isReachable = true;
+
+	if (object->type == OBJECT_FUNCTION && !OBJECT_AS_FUNCTION(object)->isNative) {
+		ValueArray constants = OBJECT_AS_FUNCTION(object)->chunk.constants;
+		for (int i = 0; i < constants.count; i++) {
+			if (constants.values[i].type == VALUE_OBJECT) {
+				gcMarkObject(constants.values[i].as.object);
+			}
+		}
+	}
+}
+
 static void gcMark(void) {
 	// TODO: Recursively free all object attributes of the freed objects
 
 	for (Value* value = vm.evalStack; value != vm.stackTop; value++) {
 		if (value->type == VALUE_OBJECT) {
-			value->as.object->isReachable = true;
+			gcMarkObject(value->as.object);
 		}
 	}
 
 	for (StackFrame* frame = vm.callStack; frame != vm.callStackTop; frame++) {
-		frame->objFunc->base.isReachable = true;
-
-		// TODO: Iterate constants every gc() - probably wasteful, constants being always constant
-		ValueArray constants = frame->objFunc->chunk.constants;
-		for (int i = 0; i < constants.count; i++) {
-			if (constants.values[i].type == VALUE_OBJECT) {
-				constants.values[i].as.object->isReachable = true;
-			}
-		}
+		gcMarkObject((Object*) frame->objFunc);
 	}
 
 	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
@@ -88,7 +100,7 @@ static void gcMark(void) {
 	for (int i = 0; i < vm.globals.capacity; i++) {
 		Entry* entry = &vm.globals.entries[i];
 		if (entry->value.type == VALUE_OBJECT) {
-			entry->value.as.object->isReachable = true;
+			gcMarkObject(entry->value.as.object);
 		}
 	}
 
@@ -131,8 +143,7 @@ static void resetStacks(void) {
 
 static void setBuiltinGlobals(void) {
 	ObjectFunction* printFunction = newNativeObjectFunction(builtinPrint);
-	ObjectString* printFuncName = copyString("print", 5);
-	setTable(&vm.globals, printFuncName, MAKE_VALUE_OBJECT(printFunction));
+	setTableCStringKey(&vm.globals, "print", MAKE_VALUE_OBJECT(printFunction));
 }
 
 void initVM(void) {
@@ -150,7 +161,7 @@ void initVM(void) {
 void freeVM(void) {
 	resetStacks();
 	freeTable(&vm.globals);
-	gc();
+	gc(); // TODO: probably move one line up
 
     vm.ip = NULL;
     vm.numObjects = 0;
@@ -190,10 +201,13 @@ InterpretResult interpret(Chunk* baseChunk) {
 	StackFrame baseFrame = newStackFrame(NULL, baseObjFunc);
 	pushFrame(baseFrame);
 	vm.allowGC = true;
-
 	vm.ip = baseChunk->code;
+	gc(); // Cleanup unused objects the compiler created
 
-    for (;;) {
+	DEBUG_TRACE("Starting interpreter loop.");
+	bool runLoop = true;
+    while (runLoop) {
+		DEBUG_TRACE("\n--------------------------\n");
     	DEBUG_TRACE("IP: %p", vm.ip);
     	DEBUG_TRACE("numObjects: %d", vm.numObjects);
     	DEBUG_TRACE("maxObjects: %d", vm.maxObjects);
@@ -239,7 +253,7 @@ InterpretResult interpret(Chunk* baseChunk) {
                 StackFrame frame = popFrame();
                 bool atBaseFrame = frame.returnAddress == NULL;
                 if (atBaseFrame) {
-                	return INTERPRET_SUCCESS;
+                	runLoop = false;
                 } else {
                 	vm.ip = frame.returnAddress;
                 }
@@ -300,11 +314,14 @@ InterpretResult interpret(Chunk* baseChunk) {
                 ObjectFunction* function = (ObjectFunction*) peek().as.object;
                 if (function->isNative) {
                 	function->nativeFunction();
+                	pop();
                 } else {
 					pushFrame(newStackFrame(vm.ip, function));
 					pop();
 					vm.ip = function->chunk.code;
                 }
+
+                push(MAKE_VALUE_NIL()); // Temporary: until functions return stuff
                 break;
             }
 
@@ -326,11 +343,15 @@ InterpretResult interpret(Chunk* baseChunk) {
 				}
 			}
 			printf("\n\n");
+			printAllObjects();
         #endif
     }
+
+    DEBUG_TRACE("\n--------------------------\n");
+	DEBUG_TRACE("Ended interpreter loop.");
     
     #undef READ_BYTE
     #undef BINARY_OPERATION
 
-    return INTERPRET_RUNTIME_ERROR;
+    return INTERPRET_SUCCESS;
 }

@@ -93,7 +93,11 @@ static void printMemoryDiagnostic() {
         printAllocationsBuffer();
     }
     
-    printf("\n======== End memory diagnostics ========\n");
+    printf("\n*******\n");
+    printAllObjects();
+    printf("*******\n");
+
+    printf("======== End memory diagnostics ========\n");
 }
 
 int main(int argc, char* argv[]) {
