@@ -61,14 +61,8 @@ static bool cmdArgExists(char** argv, int argc, const char* value) {
 }
 
 static void printStructures(int argc, char* argv[], Chunk* chunk, AstNode* ast) {
-//    bool showBytecode = ((argc == 3) && (strncmp(argv[2], "-asm", 4) == 0))
-//                        || ((argc == 4) && ((strncmp(argv[2], "-asm", 4) == 0) || strncmp(argv[3], "-asm", 4) == 0));
-//
     bool showBytecode = cmdArgExists(argv, argc, "-asm");
     bool showTree = cmdArgExists(argv, argc, "-tree");
-    
-//    bool showTree = ((argc == 3) && (strncmp(argv[2], "-tree", 5) == 0))
-//                    || ((argc == 4) && ((strncmp(argv[2], "-tree", 5) == 0) || strncmp(argv[3], "-tree", 5) == 0));
     
     if (showTree) {
         printf("==== AST ====\n\n");

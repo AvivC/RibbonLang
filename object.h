@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "table.h"
+#include "value.h"
 #include "chunk.h"
 
 typedef enum {
@@ -29,17 +30,17 @@ typedef struct ObjectFunction {
     int numParams;
     bool isNative;
     union {
-    	void (*nativeFunction)(void);
+    	void (*nativeFunction)(ValueArray);
     	Chunk chunk;
     };
 } ObjectFunction;
 
 ObjectString* copyString(const char* string, int length);
 ObjectString* takeString(char* chars, int length);
-ObjectString** createCopiedStringsArray(const char** strings, int num);
+ObjectString** createCopiedStringsArray(const char** strings, int num, const char* allocDescription);
 
 ObjectFunction* newUserObjectFunction(Chunk chunk, ObjectString** parameters, int numParams);
-ObjectFunction* newNativeObjectFunction(void (*nativeFunction)(void), ObjectString** parameters, int numParams);
+ObjectFunction* newNativeObjectFunction(void (*nativeFunction)(ValueArray), ObjectString** parameters, int numParams);
 
 bool cstringsEqual(const char* a, const char* b);
 bool stringsEqual(ObjectString* a, ObjectString* b);

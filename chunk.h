@@ -24,7 +24,6 @@ typedef struct {
     ValueArray constants;
     int capacity;
     int count;
-    // TODO: add line numbers
 } Chunk;
 
 void initChunk(Chunk* chunk);

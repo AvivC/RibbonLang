@@ -53,8 +53,8 @@ ObjectString* takeString(char* chars, int length) {
     return newObjectString(chars, length);
 }
 
-ObjectString** createCopiedStringsArray(const char** strings, int num) {
-	ObjectString** array = allocate(sizeof(ObjectString*) * num, "ObjectString* array");
+ObjectString** createCopiedStringsArray(const char** strings, int num, const char* allocDescription) {
+	ObjectString** array = allocate(sizeof(ObjectString*) * num, allocDescription);
 	for (int i = 0; i < num; i++) {
 		array[i] = copyString(strings[i], strlen(strings[i]));
 	}
@@ -85,7 +85,7 @@ ObjectFunction* newUserObjectFunction(Chunk chunk, ObjectString** parameters, in
     return objFunc;
 }
 
-ObjectFunction* newNativeObjectFunction(void (*nativeFunction)(void), ObjectString** parameters, int numParams) {
+ObjectFunction* newNativeObjectFunction(void (*nativeFunction)(ValueArray), ObjectString** parameters, int numParams) {
     DEBUG_PRINT("Creating native function object.");
     ObjectFunction* objFunc = newPartialObjectFunction(true, parameters, numParams);
     objFunc->nativeFunction = nativeFunction;

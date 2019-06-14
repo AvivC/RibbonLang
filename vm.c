@@ -104,7 +104,6 @@ static Value loadVariable(ObjectString* name) {
 
 static void gcMarkObject(Object* object) {
 	if (object->isReachable) {
-		// Avoid circular connection problems
 		return;
 	}
 
@@ -112,18 +111,20 @@ static void gcMarkObject(Object* object) {
 
 	object->isReachable = true;
 
-	if (object->type == OBJECT_FUNCTION && !OBJECT_AS_FUNCTION(object)->isNative) {
-		ObjectFunction* funcObj = OBJECT_AS_FUNCTION(object);
+	if (object->type == OBJECT_FUNCTION) {
+		ObjectFunction* objFunc = OBJECT_AS_FUNCTION(object);
 
-		ValueArray constants = funcObj->chunk.constants;
-		for (int i = 0; i < constants.count; i++) {
-			if (constants.values[i].type == VALUE_OBJECT) {
-				gcMarkObject(constants.values[i].as.object);
+		if (!objFunc->isNative) {
+			ValueArray constants = objFunc->chunk.constants;
+			for (int i = 0; i < constants.count; i++) {
+				if (constants.values[i].type == VALUE_OBJECT) {
+					gcMarkObject(constants.values[i].as.object);
+				}
 			}
 		}
 
-		for (int i = 0; i < funcObj->numParams; i++) {
-			gcMarkObject((Object*) funcObj->parameters[i]);
+		for (int i = 0; i < objFunc->numParams; i++) {
+			gcMarkObject((Object*) objFunc->parameters[i]);
 		}
 	}
 }
@@ -188,9 +189,30 @@ static void resetStacks(void) {
 }
 
 static void setBuiltinGlobals(void) {
-	ObjectString** printParams = createCopiedStringsArray((const char*[]) {}, 0);
-	ObjectFunction* printFunction = newNativeObjectFunction(builtinPrint, printParams, 0);
+	int numParams = 1;
+	ObjectString** printParams = createCopiedStringsArray((const char*[] ) {"text" }, numParams, "Parameters list");
+	ObjectFunction* printFunction = newNativeObjectFunction(builtinPrint, printParams, numParams);
 	setTableCStringKey(&vm.globals, "print", MAKE_VALUE_OBJECT(printFunction));
+}
+
+static void callUserFunction(ObjectFunction* function) {
+	StackFrame frame = newStackFrame(vm.ip, function);
+	for (int i = 0; i < function->numParams; i++) {
+		ObjectString* paramName = function->parameters[i];
+		Value argument = pop();
+		setTable(&frame.localVariables, paramName, argument);
+	}
+	pushFrame(frame);
+	vm.ip = function->chunk.code;
+}
+
+static void callNativeFunction(ObjectFunction* function) {
+	ValueArray arguments;
+	initValueArray(&arguments);
+	for (int i = 0; i < function->numParams; i++) {
+		writeValueArray(&arguments, pop());
+	}
+	function->nativeFunction(arguments);
 }
 
 void initVM(void) {
@@ -258,7 +280,10 @@ InterpretResult interpret(Chunk* baseChunk) {
 	} while(false)
 
 	pushFrame(makeBaseStackFrame(baseChunk));
+
 	vm.allowGC = true;
+	DEBUG_OBJECTS("Set vm.allowGC = true.");
+
 	vm.ip = baseChunk->code;
 	gc(); // Cleanup unused objects the compiler created
 
@@ -359,12 +384,9 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
             
             case OP_CALL: {
-            	// NOTE: GC may collect the function object when it's not on the stack? Consider these things.
-
             	int argCount = READ_BYTE();
 
                 if (peek().type != VALUE_OBJECT || (peek().type == VALUE_OBJECT && peek().as.object->type != OBJECT_FUNCTION)) {
-                	// TODO: Possibly better approach for error handling and such
                 	RUNTIME_ERROR("Illegal call target.");
                 	break;
                 }
@@ -372,25 +394,14 @@ InterpretResult interpret(Chunk* baseChunk) {
                 ObjectFunction* function = (ObjectFunction*) pop().as.object;
 
                 if (argCount != function->numParams) {
-                	// TODO: Actual runtime error mechanism
                 	RUNTIME_ERROR("Function called with %d arguments, needs %d.", argCount, function->numParams);
                 	break;
                 }
 
                 if (function->isNative) {
-                	// TODO: Pass arguments
-                	function->nativeFunction();
+                	callNativeFunction(function);
                 } else {
-                	StackFrame frame = newStackFrame(vm.ip, function);
-
-					for (int i = 0; i < function->numParams; i++) {
-						ObjectString* paramName = function->parameters[i];
-						Value argument = pop();
-						setTable(&frame.localVariables, paramName, argument);
-					}
-
-					pushFrame(frame);
-					vm.ip = function->chunk.code;
+                	callUserFunction(function);
                 }
 
                 break;
