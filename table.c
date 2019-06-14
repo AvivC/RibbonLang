@@ -120,14 +120,19 @@ bool getTable(Table* table, struct ObjectString* key, Value* out) {
 }
 
 void printTable(Table* table) {
-    printf("Capacity: %d \nCount: %d \nCollisions: %d \nData: \n\n", table->capacity, table->count, table->collisionsCounter);
+    printf("Capacity: %d \nCount: %d \nCollisions: %d \n", table->capacity, table->count, table->collisionsCounter);
     
-    for (int i = 0; i < table->capacity; i ++) {
-        Entry* entry = &table->entries[i];
-        const char* key = entry->key == NULL ? "null" : entry->key;
-        printf("%d = [Key: %s, Value: ", i, key);
-        printValue(entry->value);
-        printf("]\n");
+    if (table->capacity > 0) {
+    	printf("Data: \n");
+		for (int i = 0; i < table->capacity; i ++) {
+			Entry* entry = &table->entries[i];
+			const char* key = entry->key == NULL ? "null" : entry->key;
+			printf("%d = [Key: %s, Value: ", i, key);
+			printValue(entry->value);
+			printf("]\n");
+		}
+    } else {
+    	printf("Table is empty.\n");
     }
 }
 

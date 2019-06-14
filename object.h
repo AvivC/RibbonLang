@@ -24,13 +24,15 @@ typedef struct ObjectString {
     int length;
 } ObjectString;
 
+typedef Value (*NativeFunction)(ValueArray);
+
 typedef struct ObjectFunction {
     Object base;
     ObjectString** parameters;
     int numParams;
     bool isNative;
     union {
-    	void (*nativeFunction)(ValueArray);
+    	NativeFunction nativeFunction;
     	Chunk chunk;
     };
 } ObjectFunction;
@@ -40,7 +42,7 @@ ObjectString* takeString(char* chars, int length);
 ObjectString** createCopiedStringsArray(const char** strings, int num, const char* allocDescription);
 
 ObjectFunction* newUserObjectFunction(Chunk chunk, ObjectString** parameters, int numParams);
-ObjectFunction* newNativeObjectFunction(void (*nativeFunction)(ValueArray), ObjectString** parameters, int numParams);
+ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, ObjectString** parameters, int numParams);
 
 bool cstringsEqual(const char* a, const char* b);
 bool stringsEqual(ObjectString* a, ObjectString* b);

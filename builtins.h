@@ -3,6 +3,6 @@
 
 #include "value.h"
 
-void builtinPrint(ValueArray args);
+Value builtinPrint(ValueArray args);
 
 #endif

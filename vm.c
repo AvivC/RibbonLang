@@ -212,7 +212,8 @@ static void callNativeFunction(ObjectFunction* function) {
 	for (int i = 0; i < function->numParams; i++) {
 		writeValueArray(&arguments, pop());
 	}
-	function->nativeFunction(arguments);
+	push(function->nativeFunction(arguments));
+	freeValueArray(&arguments);
 }
 
 void initVM(void) {

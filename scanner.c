@@ -126,7 +126,6 @@ static Token parseString() {
     
     advance(); // Skip ending '"'
     
-    printf("***%c***\n", current());
     return makeToken(TOKEN_STRING);
 }
 

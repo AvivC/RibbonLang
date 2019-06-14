@@ -85,7 +85,7 @@ ObjectFunction* newUserObjectFunction(Chunk chunk, ObjectString** parameters, in
     return objFunc;
 }
 
-ObjectFunction* newNativeObjectFunction(void (*nativeFunction)(ValueArray), ObjectString** parameters, int numParams) {
+ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, ObjectString** parameters, int numParams) {
     DEBUG_PRINT("Creating native function object.");
     ObjectFunction* objFunc = newPartialObjectFunction(true, parameters, numParams);
     objFunc->nativeFunction = nativeFunction;

@@ -1,8 +1,1 @@
-a = { 
-	takes x to
-	result = x * 2 
-	return result
-}
-
-result = "thing"
-result = a(15)
+print("Hi!!!")
