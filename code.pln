@@ -1,3 +1,8 @@
-a = {takes x, y to return x * 2}
+a = { 
+	takes x to
+	result = x * 2 
+	return result
+}
 
+result = "thing"
 result = a(15)

@@ -5,5 +5,6 @@
 #include "chunk.h"
 
 void disassembleChunk(Chunk* chunk);
+int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset);
 
 #endif

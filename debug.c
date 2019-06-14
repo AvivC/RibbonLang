@@ -26,59 +26,67 @@ static int simpleInstruction(const char* name, Chunk* chunk, int offset) {
     return offset + 1;
 }
 
+int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
+	switch (opcode) {
+		case OP_CONSTANT: {
+			return constantInstruction("OP_CONSTANT", chunk, offset);
+			break;
+		}
+		case OP_ADD: {
+			return simpleInstruction("OP_ADD", chunk, offset);
+			break;
+		}
+		case OP_SUBTRACT: {
+			return simpleInstruction("OP_SUBTRACT", chunk, offset);
+			break;
+		}
+		case OP_DIVIDE: {
+			return simpleInstruction("OP_DIVIDE", chunk, offset);
+			break;
+		}
+		case OP_MULTIPLY: {
+			return simpleInstruction("OP_MULTIPLY", chunk, offset);
+			break;
+		}
+		case OP_NEGATE: {
+			return simpleInstruction("OP_NEGATE", chunk, offset);
+			break;
+		}
+		case OP_LOAD_VARIABLE: {
+			return constantInstruction("OP_LOAD_VARIABLE", chunk, offset);
+			break;
+		}
+		case OP_SET_VARIABLE: {
+			return constantInstruction("OP_SET_VARIABLE", chunk, offset);
+			break;
+		}
+		case OP_CALL: {
+			return singleOperandInstruction("OP_CALL", chunk, offset);
+			break;
+		}
+		case OP_POP: {
+			return simpleInstruction("OP_POP", chunk, offset);
+			break;
+		}
+		case OP_NIL: {
+			return simpleInstruction("OP_NIL", chunk, offset);
+			break;
+		}
+		case OP_RETURN: {
+			return simpleInstruction("OP_RETURN", chunk, offset);
+			break;
+		}
+		default: {
+			FAIL("Unknown opcode when disassembling: %d", opcode);
+			return -1;
+		}
+	}
+}
+
 void disassembleChunk(Chunk* chunk) {
     int offset = 0; 
     for (; offset < chunk->count; ) {
-        switch (chunk->code[offset]) {
-            case OP_CONSTANT: {
-                offset = constantInstruction("OP_CONSTANT", chunk, offset);
-                break;
-            }
-            case OP_ADD: {
-                offset = simpleInstruction("OP_ADD", chunk, offset);
-                break;
-            }
-            case OP_SUBTRACT: {
-                offset = simpleInstruction("OP_SUBTRACT", chunk, offset);
-                break;
-            }
-            case OP_DIVIDE: {
-                offset = simpleInstruction("OP_DIVIDE", chunk, offset);
-                break;
-            }
-            case OP_MULTIPLY: {
-                offset = simpleInstruction("OP_MULTIPLY", chunk, offset);
-                break;
-            }
-            case OP_NEGATE: {
-                offset = simpleInstruction("OP_NEGATE", chunk, offset);
-                break;
-            }
-            case OP_LOAD_VARIABLE: {
-                offset = constantInstruction("OP_LOAD_VARIABLE", chunk, offset);
-                break;
-            }
-            case OP_SET_VARIABLE: {
-                offset = constantInstruction("OP_SET_VARIABLE", chunk, offset);
-                break;
-            }
-            case OP_CALL: {
-                offset = singleOperandInstruction("OP_CALL", chunk, offset);
-                break;
-            }
-            case OP_POP: {
-				offset = simpleInstruction("OP_POP", chunk, offset);
-				break;
-			}
-            case OP_NIL: {
-				offset = simpleInstruction("OP_NIL", chunk, offset);
-				break;
-			}
-            case OP_RETURN: {
-                offset = simpleInstruction("OP_RETURN", chunk, offset);
-                break;
-            }
-        }
+		offset = disassembleInstruction(chunk->code[offset], chunk, offset);
     }
     
     for (int i = 0; i < chunk->constants.count; i++) {

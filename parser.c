@@ -75,6 +75,10 @@ static bool matchNext(ScannerTokenType type) {
     return false;
 }
 
+static void skipNewlines(void) {
+	while (match(TOKEN_NEWLINE));
+}
+
 static AstNode* parsePrecedence(Precedence precedence);
 static ParseRule getRule(ScannerTokenType type);
 static AstNode* statements();
@@ -121,6 +125,8 @@ static AstNode* string(void) {
 }
 
 static AstNode* function(void) {
+	skipNewlines();
+
 	PointerArray parameters;
 	initPointerArray(&parameters);
 

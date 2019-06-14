@@ -8,6 +8,7 @@
 #include "memory.h"
 #include "table.h"
 #include "builtins.h"
+#include "debug.h"
 
 #define INITIAL_GC_THRESHOLD 4
 
@@ -274,9 +275,12 @@ InterpretResult interpret(Chunk* baseChunk) {
 
     	uint8_t opcode = READ_BYTE();
         
+		#if DEBUG_TRACE_EXECUTION
+			disassembleInstruction(opcode, currentChunk(), vm.ip - 1 - currentChunk()->code);
+		#endif
+
         switch (opcode) {
             case OP_CONSTANT: {
-                DEBUG_TRACE("OP_CONSTANT");
                 int constantIndex = READ_BYTE();
                 Value constant = currentChunk()->constants.values[constantIndex];
                 push(constant);
@@ -284,37 +288,31 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
             
             case OP_ADD: {
-                DEBUG_TRACE("OP_ADD");
                 BINARY_OPERATION(+);
                 break;
             }
             
             case OP_SUBTRACT: {
-                DEBUG_TRACE("OP_SUBTRACT");
                 BINARY_OPERATION(-);
                 break;
             }
             
             case OP_MULTIPLY: {
-                DEBUG_TRACE("OP_MULTIPLY");
                 BINARY_OPERATION(*);
                 break;
             }
             
             case OP_DIVIDE: {
-                DEBUG_TRACE("OP_DIVIDE");
                 BINARY_OPERATION(/);
                 break;
             }
             
             case OP_NIL: {
-            	DEBUG_TRACE("OP_NIL");
             	push(MAKE_VALUE_NIL());
             	break;
             }
 
             case OP_RETURN: {
-                DEBUG_TRACE("OP_RETURN");
 
                 StackFrame frame = popFrame();
                 bool atBaseFrame = frame.returnAddress == NULL;
@@ -330,13 +328,11 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
             
             case OP_POP: {
-            	DEBUG_TRACE("OP_POP");
             	pop();
             	break;
             }
 
             case OP_NEGATE: {
-                DEBUG_TRACE("OP_NEGATE");
                 Value operand = pop();
                 Value result;
                 result.type = VALUE_NUMBER;
@@ -346,7 +342,6 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
             
             case OP_LOAD_VARIABLE: {
-                DEBUG_TRACE("OP_LOAD_VARIABLE");
 
                 int constantIndex = READ_BYTE();
                 ObjectString* name = OBJECT_AS_STRING(currentChunk()->constants.values[constantIndex].as.object);
@@ -356,7 +351,6 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
             
             case OP_SET_VARIABLE: {
-                DEBUG_TRACE("OP_SET_VARIABLE");
                 int constantIndex = READ_BYTE();
                 ObjectString* name = OBJECT_AS_STRING(currentChunk()->constants.values[constantIndex].as.object);
                 Value value = pop();
@@ -365,8 +359,6 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
             
             case OP_CALL: {
-            	DEBUG_TRACE("OP_CALL");
-
             	// NOTE: GC may collect the function object when it's not on the stack? Consider these things.
 
             	int argCount = READ_BYTE();
