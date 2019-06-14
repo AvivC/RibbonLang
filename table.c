@@ -120,14 +120,14 @@ bool getTable(Table* table, struct ObjectString* key, Value* out) {
 }
 
 void printTable(Table* table) {
-    printf("Printing table\n");
     printf("Capacity: %d \nCount: %d \nCollisions: %d \nData: \n\n", table->capacity, table->count, table->collisionsCounter);
     
     for (int i = 0; i < table->capacity; i ++) {
         Entry* entry = &table->entries[i];
         const char* key = entry->key == NULL ? "null" : entry->key;
-        double value = entry->value.as.number;
-        printf("%d = [Key: %s, Value: %f]\n", i, key, value);
+        printf("%d = [Key: %s, Value: ", i, key);
+        printValue(entry->value);
+        printf("]\n");
     }
 }
 

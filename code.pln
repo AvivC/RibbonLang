@@ -1,1 +1,3 @@
-{takes a,b to return 10}
+a = {takes x, y to return x * 2}
+
+result = a(15)

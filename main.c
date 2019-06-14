@@ -46,12 +46,29 @@ static char* readFile(const char* path) {
     return buffer;
 }
 
+static bool checkCmdArg(char** argv, int argc, int index, const char* value) {
+	return argc >= index + 1 && strncmp(argv[index], value, strlen(value)) == 0;
+}
+
+static bool cmdArgExists(char** argv, int argc, const char* value) {
+	for (int i = 0; i < argc; i++) {
+		if (checkCmdArg(argv, argc, i, value)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 static void printStructures(int argc, char* argv[], Chunk* chunk, AstNode* ast) {
-    bool showBytecode = ((argc == 3) && (strncmp(argv[2], "-asm", 4) == 0))
-                        || ((argc == 4) && ((strncmp(argv[2], "-asm", 4) == 0) || strncmp(argv[3], "-asm", 4) == 0));
+//    bool showBytecode = ((argc == 3) && (strncmp(argv[2], "-asm", 4) == 0))
+//                        || ((argc == 4) && ((strncmp(argv[2], "-asm", 4) == 0) || strncmp(argv[3], "-asm", 4) == 0));
+//
+    bool showBytecode = cmdArgExists(argv, argc, "-asm");
+    bool showTree = cmdArgExists(argv, argc, "-tree");
     
-    bool showTree = ((argc == 3) && (strncmp(argv[2], "-tree", 5) == 0))
-                    || ((argc == 4) && ((strncmp(argv[2], "-tree", 5) == 0) || strncmp(argv[3], "-tree", 5) == 0));
+//    bool showTree = ((argc == 3) && (strncmp(argv[2], "-tree", 5) == 0))
+//                    || ((argc == 4) && ((strncmp(argv[2], "-tree", 5) == 0) || strncmp(argv[3], "-tree", 5) == 0));
     
     if (showTree) {
         printf("==== AST ====\n\n");
@@ -103,8 +120,8 @@ static void printMemoryDiagnostic() {
 int main(int argc, char* argv[]) {
     printf("\n");
     
-    if (argc < 2 || argc > 4) {
-        fprintf(stderr, "Usage: plane <file> [-asm] [-tree]");
+    if (argc < 2 || argc > 5) {
+        fprintf(stderr, "Usage: plane <file> [[-asm] [-tree] [-dry]]");
         return -1;
     }
     
@@ -127,14 +144,21 @@ int main(int argc, char* argv[]) {
         printStructures(argc, argv, &chunk, ast);
     }
     
-    InterpretResult result = interpret(&chunk);
+    bool dryRun = checkCmdArg(argv, argc, 2, "-dry") || checkCmdArg(argv, argc, 3, "-dry") || checkCmdArg(argv, argc, 4, "-dry");
+    if (!dryRun) {
+    	InterpretResult result = interpret(&chunk);
+    }
     
     freeTree(ast);
     freeVM();
     free(source);
     
     #if DEBUG_IMPORTANT
-    printMemoryDiagnostic();
+    if (!dryRun) {
+    	// Dry running does no GC, so some things from the compiler aren't cleaned... So no point in printing diagnostics.
+    	// Not ideal, but leave this for now
+    	printMemoryDiagnostic();
+    }
     #endif
     
     return 0; 

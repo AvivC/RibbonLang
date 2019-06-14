@@ -18,6 +18,7 @@ typedef enum {
 typedef struct {
 	uint8_t* returnAddress;
 	ObjectFunction* objFunc;
+	Table localVariables;
 } StackFrame;
 
 typedef struct {

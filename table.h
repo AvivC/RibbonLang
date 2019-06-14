@@ -28,6 +28,6 @@ bool getTableCStringKey(Table* table, const char* key, Value* out);
 
 void freeTable(Table* table);
 
-void printTable(Table* table); // temp - for debugging
+void printTable(Table* table); /* for trace execution and debugging */
 
 #endif

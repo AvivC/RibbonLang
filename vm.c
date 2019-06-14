@@ -13,22 +13,12 @@
 
 VM vm;
 
-static StackFrame currentFrame(void) {
-	return *(vm.callStackTop - 1);
+static StackFrame* currentFrame(void) {
+	return vm.callStackTop - 1;
 }
 
 static Chunk* currentChunk(void) {
-	return &currentFrame().objFunc->chunk;
-}
-
-static void pushFrame(StackFrame frame) {
-	*vm.callStackTop = frame;
-	vm.callStackTop++;
-}
-
-static StackFrame popFrame(void) {
-	vm.callStackTop--;
-	return *vm.callStackTop;
+	return &currentFrame()->objFunc->chunk;
 }
 
 static void push(Value value) {
@@ -55,8 +45,15 @@ static Value peek(void) {
 	return *(vm.stackTop - 1);
 }
 
+static void initStackFrame(StackFrame* frame) {
+	frame->returnAddress = NULL;
+	frame->objFunc = NULL;
+	initTable(&frame->localVariables);
+}
+
 static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc) {
 	StackFrame frame;
+	initStackFrame(&frame);
 	frame.returnAddress = returnAddress;
 	frame.objFunc = objFunc;
 	return frame;
@@ -65,6 +62,43 @@ static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc)
 static StackFrame makeBaseStackFrame(Chunk* baseChunk) {
 	ObjectFunction* baseObjFunc = newUserObjectFunction(*baseChunk, NULL, 0);
 	return newStackFrame(NULL, baseObjFunc);
+}
+
+static void pushFrame(StackFrame frame) {
+	*vm.callStackTop = frame;
+	vm.callStackTop++;
+}
+
+static void freeStackFrame(StackFrame* frame) {
+	freeTable(&frame->localVariables);
+	initStackFrame(frame);
+}
+
+static StackFrame popFrame(void) {
+	vm.callStackTop--;
+	return *vm.callStackTop;
+}
+
+static bool isInFrame(void) {
+	return vm.callStackTop != vm.callStack;
+}
+
+static Value loadVariable(ObjectString* name) {
+	Value value;
+
+	for (StackFrame* frame = vm.callStackTop; frame > vm.callStack;) {
+		frame--;
+
+		if (getTable(&frame->localVariables, name, &value)) {
+			return value;
+		}
+	}
+
+	if (getTable(&vm.globals, name, &value)) {
+		return value;
+	}
+
+	return MAKE_VALUE_NIL();
 }
 
 static void gcMarkObject(Object* object) {
@@ -78,11 +112,17 @@ static void gcMarkObject(Object* object) {
 	object->isReachable = true;
 
 	if (object->type == OBJECT_FUNCTION && !OBJECT_AS_FUNCTION(object)->isNative) {
-		ValueArray constants = OBJECT_AS_FUNCTION(object)->chunk.constants;
+		ObjectFunction* funcObj = OBJECT_AS_FUNCTION(object);
+
+		ValueArray constants = funcObj->chunk.constants;
 		for (int i = 0; i < constants.count; i++) {
 			if (constants.values[i].type == VALUE_OBJECT) {
 				gcMarkObject(constants.values[i].as.object);
 			}
+		}
+
+		for (int i = 0; i < funcObj->numParams; i++) {
+			gcMarkObject((Object*) funcObj->parameters[i]);
 		}
 	}
 }
@@ -165,9 +205,13 @@ void initVM(void) {
 }
 
 void freeVM(void) {
+	for (StackFrame* frame = vm.callStack; frame != vm.callStackTop; frame++) {
+		freeStackFrame(frame);
+	}
 	resetStacks();
 	freeTable(&vm.globals);
-	gc(); // TODO: probably move one line up
+
+	gc(); // TODO: probably move upper
 
     vm.ip = NULL;
     vm.numObjects = 0;
@@ -209,6 +253,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 		fprintf(stderr, "\n"); \
 		runtimeErrorOccured = true; \
 		runLoop = false; \
+		/* Remember to break manually after using this macro! */ \
 	} while(false)
 
 	pushFrame(makeBaseStackFrame(baseChunk));
@@ -279,6 +324,8 @@ InterpretResult interpret(Chunk* baseChunk) {
                 	vm.ip = frame.returnAddress;
                 }
 
+                freeStackFrame(&frame);
+
                 break;
             }
             
@@ -300,16 +347,11 @@ InterpretResult interpret(Chunk* baseChunk) {
             
             case OP_LOAD_VARIABLE: {
                 DEBUG_TRACE("OP_LOAD_VARIABLE");
+
                 int constantIndex = READ_BYTE();
                 ObjectString* name = OBJECT_AS_STRING(currentChunk()->constants.values[constantIndex].as.object);
-                Value value;
-                bool success = getTable(&vm.globals, name, &value);
-                
-                if (success) {
-                    push(value);
-                } else {
-                    push(MAKE_VALUE_NIL()); // TODO: proper error handling
-                }
+                push(loadVariable(name));
+
                 break;
             }
             
@@ -318,7 +360,7 @@ InterpretResult interpret(Chunk* baseChunk) {
                 int constantIndex = READ_BYTE();
                 ObjectString* name = OBJECT_AS_STRING(currentChunk()->constants.values[constantIndex].as.object);
                 Value value = pop();
-                setTable(&vm.globals, name, value);
+                setTable(&currentFrame()->localVariables, name, value);
                 break;
             }
             
@@ -329,17 +371,33 @@ InterpretResult interpret(Chunk* baseChunk) {
 
             	int argCount = READ_BYTE();
 
+                if (peek().type != VALUE_OBJECT || (peek().type == VALUE_OBJECT && peek().as.object->type != OBJECT_FUNCTION)) {
+                	// TODO: Possibly better approach for error handling and such
+                	RUNTIME_ERROR("Illegal call target.");
+                	break;
+                }
+
                 ObjectFunction* function = (ObjectFunction*) pop().as.object;
 
                 if (argCount != function->numParams) {
                 	// TODO: Actual runtime error mechanism
                 	RUNTIME_ERROR("Function called with %d arguments, needs %d.", argCount, function->numParams);
+                	break;
                 }
 
                 if (function->isNative) {
+                	// TODO: Pass arguments
                 	function->nativeFunction();
                 } else {
-					pushFrame(newStackFrame(vm.ip, function));
+                	StackFrame frame = newStackFrame(vm.ip, function);
+
+					for (int i = 0; i < function->numParams; i++) {
+						ObjectString* paramName = function->parameters[i];
+						Value argument = pop();
+						setTable(&frame.localVariables, paramName, argument);
+					}
+
+					pushFrame(frame);
 					vm.ip = function->chunk.code;
                 }
 
@@ -363,8 +421,16 @@ InterpretResult interpret(Chunk* baseChunk) {
 					printf(" ]");
 				}
 			}
+			printf("\n\nLocal variables:\n");
+			if (isInFrame()) {
+				printTable(&currentFrame()->localVariables);
+			} else {
+				printf("No stack frames.");
+			}
 			printf("\n\n");
-			printAllObjects();
+			#if DEBUG_MEMORY_EXECUTION
+				printAllObjects();
+			#endif
         #endif
     }
 
