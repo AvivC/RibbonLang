@@ -62,6 +62,11 @@ static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc)
 	return frame;
 }
 
+static StackFrame makeBaseStackFrame(Chunk* baseChunk) {
+	ObjectFunction* baseObjFunc = newUserObjectFunction(*baseChunk, NULL, 0);
+	return newStackFrame(NULL, baseObjFunc);
+}
+
 static void gcMarkObject(Object* object) {
 	if (object->isReachable) {
 		// Avoid circular connection problems
@@ -142,7 +147,8 @@ static void resetStacks(void) {
 }
 
 static void setBuiltinGlobals(void) {
-	ObjectFunction* printFunction = newNativeObjectFunction(builtinPrint);
+	ObjectString** printParams = createCopiedStringsArray((const char*[]) {}, 0);
+	ObjectFunction* printFunction = newNativeObjectFunction(builtinPrint, printParams, 0);
 	setTableCStringKey(&vm.globals, "print", MAKE_VALUE_OBJECT(printFunction));
 }
 
@@ -197,15 +203,24 @@ InterpretResult interpret(Chunk* baseChunk) {
         push(result); \
     } while(false)
 
-	ObjectFunction* baseObjFunc = newUserObjectFunction(*baseChunk);
-	StackFrame baseFrame = newStackFrame(NULL, baseObjFunc);
-	pushFrame(baseFrame);
+	// TODO: Implement an actual runtime error mechanism. This is a placeholder.
+	#define RUNTIME_ERROR(...) do { \
+		fprintf(stderr, "Runtime error: " __VA_ARGS__); \
+		fprintf(stderr, "\n"); \
+		runtimeErrorOccured = true; \
+		runLoop = false; \
+	} while(false)
+
+	pushFrame(makeBaseStackFrame(baseChunk));
 	vm.allowGC = true;
 	vm.ip = baseChunk->code;
 	gc(); // Cleanup unused objects the compiler created
 
-	DEBUG_TRACE("Starting interpreter loop.");
 	bool runLoop = true;
+	bool runtimeErrorOccured = false;
+
+	DEBUG_TRACE("Starting interpreter loop.");
+
     while (runLoop) {
 		DEBUG_TRACE("\n--------------------------\n");
     	DEBUG_TRACE("IP: %p", vm.ip);
@@ -310,24 +325,24 @@ InterpretResult interpret(Chunk* baseChunk) {
             case OP_CALL: {
             	DEBUG_TRACE("OP_CALL");
 
-            	// peek() and pop() as separate steps, so the GC doesn't collect the ObjectFunction
-            	// before we have managed to put it on the call stack.
-            	// In the "current" implementation this shouldn't be possible because GC will run
-            	// in the same thread, between opcode instructions, but this should make the code survive
-            	// GC even if it runs in a different thread or something...
-            	// Following this logic, the same approach should be taken everywhere in the interpreter loop, which it isn't...
+            	// NOTE: GC may collect the function object when it's not on the stack? Consider these things.
 
-                ObjectFunction* function = (ObjectFunction*) peek().as.object;
+            	int argCount = READ_BYTE();
+
+                ObjectFunction* function = (ObjectFunction*) pop().as.object;
+
+                if (argCount != function->numParams) {
+                	// TODO: Actual runtime error mechanism
+                	RUNTIME_ERROR("Function called with %d arguments, needs %d.", argCount, function->numParams);
+                }
+
                 if (function->isNative) {
                 	function->nativeFunction();
-                	pop();
                 } else {
 					pushFrame(newStackFrame(vm.ip, function));
-					pop();
 					vm.ip = function->chunk.code;
                 }
 
-                push(MAKE_VALUE_NIL()); // Temporary: until functions return stuff
                 break;
             }
 
@@ -359,5 +374,5 @@ InterpretResult interpret(Chunk* baseChunk) {
     #undef READ_BYTE
     #undef BINARY_OPERATION
 
-    return INTERPRET_SUCCESS;
+    return runtimeErrorOccured ? INTERPRET_RUNTIME_ERROR : INTERPRET_SUCCESS;
 }

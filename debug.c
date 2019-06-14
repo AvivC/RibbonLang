@@ -3,11 +3,18 @@
 #include "object.h"
 #include "value.h"
 
+static int singleOperandInstruction(const char* name, Chunk* chunk, int offset) {
+    int operand = chunk->code[offset + 1];
+
+    printf("%p %-28s %d\n", chunk->code + offset, name, operand);
+    return offset + 2;
+}
+
 static int constantInstruction(const char* name, Chunk* chunk, int offset) {
     int constantIndex = chunk->code[offset + 1];
     Value constant = chunk->constants.values[constantIndex];
     
-    printf("%p %-30s '", chunk->code + offset, name);
+    printf("%p %-27s '", chunk->code + offset, name);
     printValue(constant);
     printf("'\n");
     
@@ -56,7 +63,7 @@ void disassembleChunk(Chunk* chunk) {
                 break;
             }
             case OP_CALL: {
-                offset = simpleInstruction("OP_CALL", chunk, offset);
+                offset = singleOperandInstruction("OP_CALL", chunk, offset);
                 break;
             }
             case OP_POP: {

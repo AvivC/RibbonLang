@@ -63,13 +63,13 @@ typedef struct {
 typedef struct {
     AstNode base;
     AstNodeStatements* statements;
-    // TODO: parameters
+    PointerArray parameters;
 } AstNodeFunction;
 
 typedef struct {
     AstNode base;
     AstNode* callTarget;
-    // TODO: parameters
+    PointerArray arguments;
 } AstNodeCall;
 
 typedef struct {
@@ -88,6 +88,8 @@ void freeTree(AstNode* node);
 AstNodeStatements* newAstNodeStatements();
 AstNodeExprStatement* newAstNodeExprStatement();
 AstNodeReturn* newAstNodeReturn(AstNode* expression);
+AstNodeCall* newAstNodeCall(AstNode* expression, PointerArray arguments);
+AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, PointerArray parameters);
 
 #define ALLOCATE_AST_NODE(type, tag) (type*) allocateAstNode(tag, sizeof(type))
 

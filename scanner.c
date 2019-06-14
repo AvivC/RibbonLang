@@ -8,7 +8,6 @@ typedef struct {
     const char* start;
     const char* current;
     int line;
-    // TODO: add line numbers
 } Scanner;
 
 static Scanner scanner;
@@ -77,6 +76,7 @@ static Token parseIdentifier() {
     while (isAlpha(current()) || isDigit(current())) {
         advance();
     }
+
     if (checkToken("end")) {
         return makeToken(TOKEN_END);
     } else if (checkToken("if")) {
@@ -91,6 +91,10 @@ static Token parseIdentifier() {
         return makeToken(TOKEN_OR);
     } else if (checkToken("return")) {
     	return makeToken(TOKEN_RETURN);
+    } else if (checkToken("takes")) {
+    	return makeToken(TOKEN_TAKES);
+    } else if (checkToken("to")) {
+    	return makeToken(TOKEN_TO);
     }
     
     return makeToken(TOKEN_IDENTIFIER);

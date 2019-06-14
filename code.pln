@@ -1,9 +1,1 @@
-otherfunc = {
-	return 10
-}
-
-myfunc = {
-	return otherfunc() * 2
-}
-
-a = myfunc()
+{takes a,b to return 10}

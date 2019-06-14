@@ -5,6 +5,7 @@
 #include "ast.h"
 #include "memory.h"
 #include "object.h"
+#include "pointerarray.h"
 
 typedef struct {
     Token current;
@@ -120,19 +121,37 @@ static AstNode* string(void) {
 }
 
 static AstNode* function(void) {
+	PointerArray parameters;
+	initPointerArray(&parameters);
+
+	if (match(TOKEN_TAKES)) {
+		do {
+			consume(TOKEN_IDENTIFIER, "Expected parameter name.");
+			writePointerArray(&parameters, copyString(parser.previous.start, parser.previous.length));
+		} while (match(TOKEN_COMMA));
+
+		consume(TOKEN_TO, "Expected 'to' at end of parameter list.");
+	}
+
     AstNodeStatements* statementsNode = (AstNodeStatements*) statements();
     consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of function.");
-    AstNodeFunction* node = ALLOCATE_AST_NODE(AstNodeFunction, AST_NODE_FUNCTION);
-    node->statements = statementsNode;
+
+    AstNodeFunction* node = newAstNodeFunction(statementsNode, parameters);
     return (AstNode*) node;
 }
 
 static AstNode* call(AstNode* leftNode) {
-    // TODO: add arguments and such
-    consume(TOKEN_RIGHT_PAREN, "Expected ')' after function call.");
-    AstNodeCall* node = ALLOCATE_AST_NODE(AstNodeCall, AST_NODE_CALL);
-    node->callTarget = leftNode;
-    return (AstNode*) node;
+	PointerArray arguments;
+	initPointerArray(&arguments);
+
+	while (!match(TOKEN_RIGHT_PAREN)) {
+		do {
+			AstNode* argument = parsePrecedence(PREC_ASSIGNMENT);
+			writePointerArray(&arguments, argument);
+		} while (match(TOKEN_COMMA));
+	}
+
+	return (AstNode*) newAstNodeCall(leftNode, arguments);
 }
 
 static AstNode* grouping(void) {

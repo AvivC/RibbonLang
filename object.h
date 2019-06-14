@@ -25,6 +25,8 @@ typedef struct ObjectString {
 
 typedef struct ObjectFunction {
     Object base;
+    ObjectString** parameters;
+    int numParams;
     bool isNative;
     union {
     	void (*nativeFunction)(void);
@@ -34,9 +36,10 @@ typedef struct ObjectFunction {
 
 ObjectString* copyString(const char* string, int length);
 ObjectString* takeString(char* chars, int length);
+ObjectString** createCopiedStringsArray(const char** strings, int num);
 
-ObjectFunction* newUserObjectFunction(Chunk chunk);
-ObjectFunction* newNativeObjectFunction(void (*nativeFunction)(void));
+ObjectFunction* newUserObjectFunction(Chunk chunk, ObjectString** parameters, int numParams);
+ObjectFunction* newNativeObjectFunction(void (*nativeFunction)(void), ObjectString** parameters, int numParams);
 
 bool cstringsEqual(const char* a, const char* b);
 bool stringsEqual(ObjectString* a, ObjectString* b);

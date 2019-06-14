@@ -89,7 +89,9 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             Chunk functionChunk;
             initChunk(&functionChunk);
             compile((AstNode*) nodeFunction->statements, &functionChunk); // calling compile() and not compileTree(), because it ends with OP_RETURN
-            ObjectFunction* objFunc = newUserObjectFunction(functionChunk);
+
+            ObjectString** parameters = (ObjectString**) pointerArrayToPlainArray(&nodeFunction->parameters, "Parameters list");
+            ObjectFunction* objFunc = newUserObjectFunction(functionChunk, parameters, nodeFunction->parameters.count);
             Value objFuncConstant = MAKE_VALUE_OBJECT(objFunc);
             int constantIndex = addConstant(chunk, objFuncConstant);
             
@@ -101,10 +103,16 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         
         case AST_NODE_CALL: {
             AstNodeCall* nodeCall = (AstNodeCall*) node;
+
+            for (int i = 0; i < nodeCall->arguments.count; i++) {
+            	AstNode* argument = nodeCall->arguments.values[i];
+				compileTree(argument, chunk);
+			}
+
             compileTree(nodeCall->callTarget, chunk);
-            
             writeChunk(chunk, OP_CALL);
-            
+			writeChunk(chunk, nodeCall->arguments.count);
+
             break;
         }
 

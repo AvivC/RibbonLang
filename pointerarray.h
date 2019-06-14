@@ -10,5 +10,6 @@ typedef struct {
 void initPointerArray(PointerArray* array);
 void writePointerArray(PointerArray* array, void* value);
 void freePointerArray(PointerArray* array);
+void** pointerArrayToPlainArray(PointerArray* array, const char* what);
 
 #endif

@@ -141,7 +141,7 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
 }
 
 void printAllocationsBuffer() {  // for debugging
-    DEBUG_IMPORTANT_PRINT("\nAllocations buffer:");
+    DEBUG_IMPORTANT_PRINT("\nAllocations buffer:\n");
 
     for (int i = 0; i < allocsBufferCount; i++) {
         Allocation allocation = allocations[i];

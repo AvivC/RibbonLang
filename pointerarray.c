@@ -1,3 +1,4 @@
+#include <string.h>
 #include <stdio.h>
 #include "pointerarray.h"
 #include "memory.h"
@@ -21,4 +22,10 @@ void writePointerArray(PointerArray* array, void* value) {
 void freePointerArray(PointerArray* array) {
     deallocate(array->values, sizeof(void*) * array->capacity, "Pointer array buffer");
     initPointerArray(array);
+}
+
+void** pointerArrayToPlainArray(PointerArray* array, const char* what) {
+	void** plainArray = allocate(sizeof(void*) * array->count, what);
+	memcpy(plainArray, array->values, array->count * sizeof(void*));
+	return plainArray;
 }

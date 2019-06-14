@@ -21,8 +21,7 @@ const char* AST_NODE_TYPE_NAMES[] = {
 static void printNestingString(int nesting) {
 	printf("\n");
 	for (int i = 0; i < nesting; i++) {
-        printf(". . . . ");
-//        printf("    ");
+        printf(". . ");
     }
 }
 
@@ -31,7 +30,7 @@ static void printNode(AstNode* node, int nesting) {
         case AST_NODE_CONSTANT: {
             AstNodeConstant* nodeConstant = (AstNodeConstant*) node;
             printNestingString(nesting);
-            printf("AST_NODE_CONSTANT: ");
+            printf("CONSTANT: ");
             printValue(nodeConstant->value);
             printf("\n");
             break;
@@ -50,7 +49,7 @@ static void printNode(AstNode* node, int nesting) {
             }
             
             printNestingString(nesting);
-            printf("AST_NODE_BINARY: %s\n", operator);
+            printf("BINARY: %s\n", operator);
             printNestingString(nesting);
             printf("Left:\n");
             printNode(nodeBinary->leftOperand, nesting + 1);
@@ -63,7 +62,7 @@ static void printNode(AstNode* node, int nesting) {
         case AST_NODE_UNARY: {
             AstNodeUnary* nodeUnary = (AstNodeUnary*) node;
             printNestingString(nesting);
-            printf("AST_NODE_UNARY\n");
+            printf("UNARY\n");
             printNode(nodeUnary->operand, nesting + 1);
             break;
         }
@@ -71,14 +70,14 @@ static void printNode(AstNode* node, int nesting) {
         case AST_NODE_VARIABLE: {
             AstNodeVariable* nodeVariable = (AstNodeVariable*) node;
             printNestingString(nesting);
-            printf("AST_NODE_VARIABLE: %.*s\n", nodeVariable->length, nodeVariable->name);
+            printf("VARIABLE: %.*s\n", nodeVariable->length, nodeVariable->name);
             break;
         }
         
         case AST_NODE_ASSIGNMENT: {
             AstNodeAssignment* nodeAssignment = (AstNodeAssignment*) node;
             printNestingString(nesting);
-            printf("AST_NODE_ASSIGNMENT: ");
+            printf("ASSIGNMENT: ");
             printf("%.*s\n", nodeAssignment->length, nodeAssignment->name);
             printNode(nodeAssignment->value, nesting + 1);
             break;
@@ -86,7 +85,7 @@ static void printNode(AstNode* node, int nesting) {
         
         case AST_NODE_STATEMENTS: {
             AstNodeStatements* nodeStatements = (AstNodeStatements*) node;
-            printf("AST_NODE_STATEMENTS\n");
+            printf("STATEMENTS\n");
             for (int i = 0; i < nodeStatements->statements.count; i++) {
                 printNode((AstNode*) nodeStatements->statements.values[i], nesting + 1);
             }
@@ -97,7 +96,7 @@ static void printNode(AstNode* node, int nesting) {
         case AST_NODE_FUNCTION: {
             AstNodeFunction* nodeFunction = (AstNodeFunction*) node;
             printNestingString(nesting);
-            printf("AST_NODE_FUNCTION\n");
+            printf("FUNCTION\n");
             PointerArray* statements = &nodeFunction->statements->statements;
             for (int i = 0; i < statements->count; i++) {
                 printNode((AstNode*) statements->values[i], nesting + 1);
@@ -110,9 +109,13 @@ static void printNode(AstNode* node, int nesting) {
         case AST_NODE_CALL: {
             AstNodeCall* nodeCall = (AstNodeCall*) node;
             printNestingString(nesting);
-            printf("AST_NODE_CALL\n");
+            printf("CALL\n");
             printNode((AstNode*) nodeCall->callTarget, nesting + 1);
-            // TODO: print parameters and such
+            printNestingString(nesting);
+            printf("Arguments:\n");
+            for (int i = 0; i < nodeCall->arguments.count; i++) {
+				printNode(nodeCall->arguments.values[i], nesting + 1);
+			}
             
             break;
         }
@@ -120,7 +123,7 @@ static void printNode(AstNode* node, int nesting) {
         case AST_NODE_EXPR_STATEMENT: {
         	AstNodeExprStatement* nodeExprStatement = (AstNodeExprStatement*) node;
 			printNestingString(nesting);
-			printf("AST_NODE_EXPR_STATEMENT\n");
+			printf("EXPR_STATEMENT\n");
 			printNode((AstNode*) nodeExprStatement->expression, nesting + 1);
 			break;
 		}
@@ -128,13 +131,11 @@ static void printNode(AstNode* node, int nesting) {
         case AST_NODE_RETURN: {
 			AstNodeReturn* nodeReturn = (AstNodeReturn*) node;
 			printNestingString(nesting);
-			printf("AST_NODE_RETURN\n");
+			printf("RETURN\n");
 			printNode((AstNode*) nodeReturn->expression, nesting + 1);
 			break;
 		}
     }
-    
-//    printf("\n");
 }
 
 void printTree(AstNode* tree) {
@@ -213,17 +214,19 @@ static void freeNode(AstNode* node, int nesting) {
         case AST_NODE_FUNCTION: {
             AstNodeFunction* nodeFunction = (AstNodeFunction*) node;
             freeNode((AstNode*) nodeFunction->statements, nesting + 1);
+            freePointerArray(&nodeFunction->parameters);
             deallocate(nodeFunction, sizeof(AstNodeFunction), deallocationString);
-            // TODO: free parameters and such
-            
             break;
         }
         
         case AST_NODE_CALL: {
             AstNodeCall* nodeCall = (AstNodeCall*) node;
             freeNode((AstNode*) nodeCall->callTarget, nesting + 1);
+            for (int i = 0; i < nodeCall->arguments.count; i++) {
+				freeNode(nodeCall->arguments.values[i], nesting + 1);
+			}
+            freePointerArray(&nodeCall->arguments);
             deallocate(nodeCall, sizeof(AstNodeCall), deallocationString);
-            // TODO: free parameters and such
             break;
         }
 
@@ -260,9 +263,23 @@ AstNodeExprStatement* newAstNodeExprStatement(AstNode* expression) {
 	return node;
 }
 
+AstNodeCall* newAstNodeCall(AstNode* callTarget, PointerArray arguments) {
+	AstNodeCall* node = ALLOCATE_AST_NODE(AstNodeCall, AST_NODE_CALL);
+	node->callTarget = callTarget;
+	node->arguments = arguments;
+	return node;
+}
+
 AstNodeReturn* newAstNodeReturn(AstNode* expression) {
 	AstNodeReturn* node = ALLOCATE_AST_NODE(AstNodeReturn, AST_NODE_RETURN);
 	node->expression = expression;
+	return node;
+}
+
+AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, PointerArray parameters) {
+	AstNodeFunction* node = ALLOCATE_AST_NODE(AstNodeFunction, AST_NODE_FUNCTION);
+	node->statements = statements;
+	node->parameters = parameters;
 	return node;
 }
 
