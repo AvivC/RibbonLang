@@ -18,6 +18,9 @@ static Parser parser;
 typedef enum {
     PREC_NONE,
     PREC_ASSIGNMENT,
+    PREC_OR,
+    PREC_AND,
+    PREC_COMPARISON,
     PREC_TERM,
     PREC_FACTOR,
     PREC_UNARY, // almost sure
@@ -172,6 +175,18 @@ static AstNode* unary(void) {
     return (AstNode*) node;
 }
 
+static AstNode* boolean(void) {
+	bool booleanValue;
+	if (parser.previous.type == TOKEN_TRUE) {
+		booleanValue = true;
+	} else if (parser.previous.type == TOKEN_FALSE) {
+		booleanValue = false;
+	} else {
+		FAIL("Illegal literal identified as boolean.");
+	}
+	return (AstNode*) newAstNodeConstant(MAKE_VALUE_BOOLEAN(booleanValue));
+}
+
 static ParseRule rules[] = {
     {identifier, NULL, PREC_NONE},           // TOKEN_IDENTIFIER
     {number, NULL, PREC_NONE},         // TOKEN_NUMBER
@@ -182,25 +197,30 @@ static ParseRule rules[] = {
     {NULL, binary, PREC_FACTOR},       // TOKEN_SLASH
     {NULL, NULL, PREC_NONE},     // TOKEN_EQUAL
     {NULL, NULL, PREC_NONE},     // TOKEN_BANG
-    {NULL, NULL, PREC_NONE},     // TOKEN_LESS_THAN
-    {NULL, NULL, PREC_NONE},     // TOKEN_GREATER_THAN
+    {NULL, binary, PREC_COMPARISON},     // TOKEN_LESS_THAN
+    {NULL, binary, PREC_COMPARISON},     // TOKEN_GREATER_THAN
     {grouping, call, PREC_GROUPING},     // TOKEN_LEFT_PAREN
     {NULL, NULL, PREC_NONE},     // TOKEN_RIGHT_PAREN
     {function, NULL, PREC_NONE},     // TOKEN_LEFT_BRACE
     {NULL, NULL, PREC_NONE},     // TOKEN_RIGHT_BRACE
     {NULL, NULL, PREC_NONE},     // TOKEN_COMMA
     {NULL, NULL, PREC_NONE},     // TOKEN_NEWLINE
-    {NULL, NULL, PREC_NONE},     // TOKEN_BANG_EQUAL
-    {NULL, NULL, PREC_NONE},     // TOKEN_GREATER_EQUAL
-    {NULL, NULL, PREC_NONE},     // TOKEN_LESS_EQUAL
+    {NULL, binary, PREC_COMPARISON},     // TOKEN_EQUAL_EQUAL
+    {NULL, binary, PREC_COMPARISON},     // TOKEN_BANG_EQUAL
+    {NULL, binary, PREC_COMPARISON},     // TOKEN_GREATER_EQUAL
+    {NULL, binary, PREC_COMPARISON},     // TOKEN_LESS_EQUAL
     {NULL, NULL, PREC_NONE},     // TOKEN_PRINT
     {NULL, NULL, PREC_NONE},     // TOKEN_END
     {NULL, NULL, PREC_NONE},     // TOKEN_IF
     {NULL, NULL, PREC_NONE},     // TOKEN_ELSE
     {NULL, NULL, PREC_NONE},     // TOKEN_FUNC
+    {NULL, NULL, PREC_NONE},     // TOKEN_TAKES
+    {NULL, NULL, PREC_NONE},     // TOKEN_TO
     {NULL, NULL, PREC_NONE},     // TOKEN_AND
     {NULL, NULL, PREC_NONE},     // TOKEN_OR
     {NULL, NULL, PREC_NONE},     // TOKEN_RETURN
+    {boolean, NULL, PREC_NONE},     // TOKEN_TRUE
+    {boolean, NULL, PREC_NONE},     // TOKEN_FALSE
     {NULL, NULL, PREC_NONE},           // TOKEN_EOF
     {NULL, NULL, PREC_NONE}            // TOKEN_ERROR
 };
@@ -211,6 +231,7 @@ static AstNode* parsePrecedence(Precedence precedence) {
     advance(); // always assume the previous token is the "acting operator"
     ParseRule prefixRule = getRule(parser.previous.type);
     if (prefixRule.prefix == NULL) {
+    	printf("\n%d\n", parser.previous.type);
         error("Expecting a prefix operator."); // TODO: better message
         return NULL;
     }

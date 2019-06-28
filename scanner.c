@@ -95,6 +95,10 @@ static Token parseIdentifier() {
     	return makeToken(TOKEN_TAKES);
     } else if (checkToken("to")) {
     	return makeToken(TOKEN_TO);
+    } else if (checkToken("true")) {
+    	return makeToken(TOKEN_TRUE);
+    } else if (checkToken("false")) {
+    	return makeToken(TOKEN_FALSE);
     }
     
     return makeToken(TOKEN_IDENTIFIER);
@@ -181,7 +185,7 @@ Token scanToken() {
         case '-': return makeToken(TOKEN_MINUS);
         case '*': return makeToken(TOKEN_STAR);
         case '/': return makeToken(TOKEN_SLASH);
-        case '=': return makeToken(TOKEN_EQUAL);
+        case '=': return (match('=') ? makeToken(TOKEN_EQUAL_EQUAL) : makeToken(TOKEN_EQUAL));
         case '!': return (match('=') ? makeToken(TOKEN_BANG_EQUAL) : makeToken(TOKEN_BANG));
         case '<': return (match('=') ? makeToken(TOKEN_LESS_EQUAL) : makeToken(TOKEN_LESS_THAN));
         case '>': return (match('=') ? makeToken(TOKEN_GREATER_EQUAL) : makeToken(TOKEN_GREATER_THAN));

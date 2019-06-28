@@ -29,3 +29,38 @@ expect
     -4.5
     -4.5
 end
+
+test bool_expression
+    print(5 > 10)
+    print(5 < 10)
+    print(5 == 10)
+    print(5 != 10)
+
+    print(10 == 10)
+    print(10 != 10)
+    print(10 < 10)
+    print(10 > 10)
+    print(10 >= 10)
+
+    print("hello" == "hello")
+    print("hello" != "hello")
+
+    print(true == true)
+    print(true != false)
+    print(true != true)
+expect
+    false
+    true
+    false
+    true
+    true
+    false
+    false
+    false
+    true
+    true
+    false
+    true
+    true
+    false
+end

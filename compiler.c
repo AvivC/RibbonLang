@@ -24,6 +24,12 @@ static void compileTree(AstNode* node, Chunk* chunk) {
                 case TOKEN_MINUS: writeChunk(chunk, OP_SUBTRACT); break;
                 case TOKEN_STAR: writeChunk(chunk, OP_MULTIPLY); break;
                 case TOKEN_SLASH: writeChunk(chunk, OP_DIVIDE); break;
+                case TOKEN_GREATER_THAN: writeChunk(chunk, OP_GREATER_THAN); break;
+                case TOKEN_LESS_THAN: writeChunk(chunk, OP_LESS_THAN); break;
+                case TOKEN_GREATER_EQUAL: writeChunk(chunk, OP_GREATER_EQUAL); break;
+                case TOKEN_LESS_EQUAL: writeChunk(chunk, OP_LESS_EQUAL); break;
+                case TOKEN_EQUAL_EQUAL: writeChunk(chunk, OP_EQUAL); break;
+                case TOKEN_BANG_EQUAL: writeChunk(chunk, OP_EQUAL); writeChunk(chunk, OP_NEGATE); break;
                 default: FAIL("Weird operator type"); break;
             }
             

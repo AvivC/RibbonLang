@@ -2,7 +2,8 @@ import sys
 import os
 import subprocess
 import uuid
-from collections import namedtuple
+import itertools
+
 
 TEST_FILE_SUFFIX = '.test'
 DEFAULT_TESTS_DIR = 'tests'
@@ -97,12 +98,28 @@ def _run_test_file(absolute_path):
         else:
             all_success = False
             print(f'FAILURE')
-            print('=== Expected ===')
-            print(expect_output)
-            print('==============')
-            print('=== Actual ===')
-            print(output)
-            print('==============')
+            print()
+            print('Ln. %-14s  | Actual' % 'Expected')
+            print()
+            for i, (expected_line, actual_line) in enumerate(itertools.zip_longest(expect_output.splitlines(), output.splitlines())):
+                if expected_line is None:
+                    expected_line = '<no more lines>'
+                if actual_line is None:
+                    actual_line = '<no more lines>'
+                print('%-3d %-15s | %-15s' % (i, expected_line, actual_line), end='')
+                if not expected_line == actual_line:
+                    print('[DIFF]')
+                else:
+                    print()
+            #
+            # print('=== Expected ===')
+            # for i, line in enumerate(expect_output.splitlines()):
+            #     print('%-3d %s' % (i, line))
+            # print('==============')
+            # print('=== Actual ===')
+            # for i, line in enumerate(output.splitlines()):
+            #     print('%-3d %s' % (i, line))
+            # print('==============')
 
     return all_success
 

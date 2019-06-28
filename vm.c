@@ -245,7 +245,7 @@ void freeVM(void) {
 
 InterpretResult interpret(Chunk* baseChunk) {
     #define READ_BYTE() (*vm.ip++)
-    #define BINARY_OPERATION(op) do { \
+    #define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
         Value a = pop(); \
         Value result; \
@@ -314,25 +314,116 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
             
             case OP_ADD: {
-                BINARY_OPERATION(+);
+                BINARY_MATH_OP(+);
                 break;
             }
             
             case OP_SUBTRACT: {
-                BINARY_OPERATION(-);
+                BINARY_MATH_OP(-);
                 break;
             }
             
             case OP_MULTIPLY: {
-                BINARY_OPERATION(*);
+                BINARY_MATH_OP(*);
                 break;
             }
             
             case OP_DIVIDE: {
-                BINARY_OPERATION(/);
+                BINARY_MATH_OP(/);
                 break;
             }
             
+            case OP_LESS_THAN: {
+        		Value b = pop();
+        		Value a = pop();
+
+        		int compare = 0;
+        		if (!compareValues(a, b, &compare)) {
+        			RUNTIME_ERROR("Unable to compare two values.");
+        			break;
+        		}
+        		if (compare == -1) {
+        			push(MAKE_VALUE_BOOLEAN(true));
+        		} else {
+        			push(MAKE_VALUE_BOOLEAN(false));
+        		}
+
+            	break;
+            }
+
+            case OP_GREATER_THAN: {
+        		Value b = pop();
+        		Value a = pop();
+
+        		int compare = 0;
+        		if (!compareValues(a, b, &compare)) {
+        			RUNTIME_ERROR("Unable to compare two values.");
+        			break;
+        		}
+        		if (compare == 1) {
+        			push(MAKE_VALUE_BOOLEAN(true));
+        		} else {
+        			push(MAKE_VALUE_BOOLEAN(false));
+        		}
+
+            	break;
+            }
+
+            case OP_LESS_EQUAL: {
+        		Value b = pop();
+        		Value a = pop();
+
+        		int compare = 0;
+        		if (!compareValues(a, b, &compare)) {
+        			RUNTIME_ERROR("Unable to compare two values.");
+        			break;
+        		}
+        		if (compare == -1 || compare == 0) {
+        			push(MAKE_VALUE_BOOLEAN(true));
+        		} else {
+        			push(MAKE_VALUE_BOOLEAN(false));
+        		}
+
+            	break;
+            }
+
+            case OP_GREATER_EQUAL: {
+        		Value b = pop();
+        		Value a = pop();
+
+        		int compare = 0;
+        		if (!compareValues(a, b, &compare)) {
+        			RUNTIME_ERROR("Unable to compare two values.");
+        			break;
+        		}
+        		if (compare == 1 || compare == 0) {
+        			push(MAKE_VALUE_BOOLEAN(true));
+        		} else {
+        			push(MAKE_VALUE_BOOLEAN(false));
+        		}
+
+            	break;
+            }
+
+            case OP_EQUAL: {
+        		Value b = pop();
+        		Value a = pop();
+
+        		int compare = 0;
+        		if (!compareValues(a, b, &compare)) {
+        			RUNTIME_ERROR("Unable to compare two values.");
+        			break;
+        		}
+        		if (compare == 0) {
+        			push(MAKE_VALUE_BOOLEAN(true));
+        		} else {
+        			push(MAKE_VALUE_BOOLEAN(false));
+        		}
+
+            	break;
+            	break;
+            }
+
             case OP_NIL: {
             	push(MAKE_VALUE_NIL());
             	break;
@@ -360,10 +451,13 @@ InterpretResult interpret(Chunk* baseChunk) {
 
             case OP_NEGATE: {
                 Value operand = pop();
-                Value result;
-                result.type = VALUE_NUMBER;
-                result.as.number = operand.as.number * -1;
-                push(result);
+                if (operand.type == VALUE_NUMBER) {
+                	push(MAKE_VALUE_NUMBER(operand.as.number * -1));
+                } else if (operand.type == VALUE_BOOLEAN) {
+                	push(MAKE_VALUE_BOOLEAN(!operand.as.boolean));
+                } else {
+                	RUNTIME_ERROR("Illegal value to negate.");
+                }
                 break;
             }
             
@@ -442,7 +536,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 	DEBUG_TRACE("Ended interpreter loop.");
     
     #undef READ_BYTE
-    #undef BINARY_OPERATION
+    #undef BINARY_MATH_OP
 
     return runtimeErrorOccured ? INTERPRET_RUNTIME_ERROR : INTERPRET_SUCCESS;
 }

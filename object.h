@@ -44,6 +44,8 @@ ObjectString** createCopiedStringsArray(const char** strings, int num, const cha
 ObjectFunction* newUserObjectFunction(Chunk chunk, ObjectString** parameters, int numParams);
 ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, ObjectString** parameters, int numParams);
 
+bool compareObjects(Object* a, Object* b);
+
 bool cstringsEqual(const char* a, const char* b);
 bool stringsEqual(ObjectString* a, ObjectString* b);
 

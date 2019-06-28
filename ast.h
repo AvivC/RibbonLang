@@ -85,8 +85,9 @@ typedef struct {
 void printTree(AstNode* tree);
 void freeTree(AstNode* node);
 
-AstNodeStatements* newAstNodeStatements();
-AstNodeExprStatement* newAstNodeExprStatement();
+AstNodeConstant* newAstNodeConstant(Value value);
+AstNodeStatements* newAstNodeStatements(void);
+AstNodeExprStatement* newAstNodeExprStatement(AstNode* expression);
 AstNodeReturn* newAstNodeReturn(AstNode* expression);
 AstNodeCall* newAstNodeCall(AstNode* expression, PointerArray arguments);
 AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, PointerArray parameters);

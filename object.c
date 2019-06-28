@@ -139,6 +139,18 @@ void printObject(Object* o) {
     
 }
 
+bool compareObjects(Object* a, Object* b) {
+	if (a->type != b->type) {
+		return false;
+	}
+
+	if (a->type == OBJECT_STRING) {
+		return stringsEqual(OBJECT_AS_STRING(a), OBJECT_AS_STRING(b));
+	} else {
+		return a == b;
+	}
+}
+
 // For debugging
 void printAllObjects(void) {
 	if (vm.objects != NULL) {

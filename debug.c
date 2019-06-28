@@ -48,6 +48,26 @@ int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
 			return simpleInstruction("OP_MULTIPLY", chunk, offset);
 			break;
 		}
+		case OP_LESS_THAN: {
+			return simpleInstruction("OP_LESS_THAN", chunk, offset);
+			break;
+		}
+		case OP_GREATER_THAN: {
+			return simpleInstruction("OP_GREATER_THAN", chunk, offset);
+			break;
+		}
+		case OP_LESS_EQUAL: {
+			return simpleInstruction("OP_LESS_EQUAL", chunk, offset);
+			break;
+		}
+		case OP_GREATER_EQUAL: {
+			return simpleInstruction("OP_GREATER_EQUAL", chunk, offset);
+			break;
+		}
+		case OP_EQUAL: {
+			return simpleInstruction("OP_EQUAL", chunk, offset);
+			break;
+		}
 		case OP_NEGATE: {
 			return simpleInstruction("OP_NEGATE", chunk, offset);
 			break;

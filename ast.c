@@ -45,6 +45,12 @@ static void printNode(AstNode* node, int nesting) {
                 case TOKEN_MINUS: operator = "-"; break;
                 case TOKEN_STAR: operator = "*"; break;
                 case TOKEN_SLASH: operator = "/"; break;
+                case TOKEN_EQUAL_EQUAL: operator = "=="; break;
+                case TOKEN_GREATER_EQUAL: operator = ">="; break;
+                case TOKEN_LESS_EQUAL: operator = "<="; break;
+                case TOKEN_LESS_THAN: operator = "<"; break;
+                case TOKEN_GREATER_THAN: operator = ">"; break;
+                case TOKEN_BANG_EQUAL: operator = "!="; break;
                 default: operator = "Unrecognized";
             }
             
@@ -251,7 +257,7 @@ void freeTree(AstNode* node) {
     freeNode(node, 0);
 }
 
-AstNodeStatements* newAstNodeStatements() {
+AstNodeStatements* newAstNodeStatements(void) {
     AstNodeStatements* node = ALLOCATE_AST_NODE(AstNodeStatements, AST_NODE_STATEMENTS);
     initPointerArray(&node->statements);
     return node;
@@ -280,6 +286,12 @@ AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, PointerArray 
 	AstNodeFunction* node = ALLOCATE_AST_NODE(AstNodeFunction, AST_NODE_FUNCTION);
 	node->statements = statements;
 	node->parameters = parameters;
+	return node;
+}
+
+AstNodeConstant* newAstNodeConstant(Value value) {
+	AstNodeConstant* node = ALLOCATE_AST_NODE(AstNodeConstant, AST_NODE_CONSTANT);
+	node->value = value;
 	return node;
 }
 
