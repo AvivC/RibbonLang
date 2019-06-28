@@ -76,11 +76,11 @@ static void printStructures(int argc, char* argv[], Chunk* chunk, AstNode* ast) 
         printf("\n");
     }
     
-    printf("================\n\n");
+    printf("================\n");
 }
 
 static void printMemoryDiagnostic() {
-    printf("\n======== Memory diagnostics ========");
+    printf("======== Memory diagnostics ========");
     
     bool problem = false;
     
@@ -112,8 +112,6 @@ static void printMemoryDiagnostic() {
 }
 
 int main(int argc, char* argv[]) {
-    printf("\n");
-    
     if (argc < 2 || argc > 5) {
         fprintf(stderr, "Usage: plane <file> [[-asm] [-tree] [-dry]]");
         return -1;

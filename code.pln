@@ -1,1 +1,5 @@
-print("Hi!!!")
+f1 = {
+print("f1")
+return x * 10
+}
+f1()

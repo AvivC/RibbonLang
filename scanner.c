@@ -193,5 +193,6 @@ Token scanToken() {
         case '\n': return makeToken(TOKEN_NEWLINE);
     }
     
+    // TODO: More specific error reporting
     return errorToken("Unknown character.");
 }
