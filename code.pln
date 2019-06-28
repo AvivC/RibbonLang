@@ -1,5 +1,1 @@
-f1 = {
-print("f1")
-return x * 10
-}
-f1()
+{takes x, y to print(y)}(1, 2)

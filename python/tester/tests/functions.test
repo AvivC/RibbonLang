@@ -35,3 +35,14 @@ expect
     f1
     8000
 end
+
+test fuction_calls_multi_arg
+    divide = {takes x, y to
+        print("In function divide")
+        return y
+    }
+    print(divide(20, 5))
+expect
+    In function divide
+    20
+end

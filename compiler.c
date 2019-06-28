@@ -104,7 +104,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         case AST_NODE_CALL: {
             AstNodeCall* nodeCall = (AstNodeCall*) node;
 
-            for (int i = 0; i < nodeCall->arguments.count; i++) {
+            for (int i = nodeCall->arguments.count - 1; i >= 0; i--) {
             	AstNode* argument = nodeCall->arguments.values[i];
 				compileTree(argument, chunk);
 			}
