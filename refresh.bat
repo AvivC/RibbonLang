@@ -16,6 +16,7 @@ if %errorlevel%==0 (
     if !errorlevel!==0 (
 		echo Tests successful. Executing interpreter.
         call run.bat
+        echo Finished refresh.
 	) else (
 		echo Tests failed.
 	)

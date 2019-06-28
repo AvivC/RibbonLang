@@ -60,3 +60,15 @@ test function_as_argument
 expect
     2500
 end
+
+test function_call_in_expression
+    f = { takes x, y to
+        print("In f")
+        return x + y
+    }
+    print(5 + 8 * f(10, f(5, 15)) - 1)
+expect
+    In f
+    In f
+    244
+end
