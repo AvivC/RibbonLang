@@ -147,8 +147,24 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 
         	compileTree((AstNode*) nodeIf->body, chunk);
 
-        	setChunk(chunk, placeholderOffset, (chunk->count >> 8) & 0xFF);
-        	setChunk(chunk, placeholderOffset + 1, (chunk->count) & 0xFF);
+        	bool haveElse = nodeIf->elseBody != NULL;
+        	if (haveElse) {
+        		writeChunk(chunk, OP_JUMP);
+				size_t elsePlaceholderOffset = chunk->count;
+				writeChunk(chunk, 0);
+				writeChunk(chunk, 0);
+
+				setChunk(chunk, placeholderOffset, (chunk->count >> 8) & 0xFF);
+				setChunk(chunk, placeholderOffset + 1, (chunk->count) & 0xFF);
+
+				compileTree((AstNode*) nodeIf->elseBody, chunk);
+
+	        	setChunk(chunk, elsePlaceholderOffset, (chunk->count >> 8) & 0xFF);
+	        	setChunk(chunk, elsePlaceholderOffset + 1, (chunk->count) & 0xFF);
+        	} else {
+        		setChunk(chunk, placeholderOffset, (chunk->count >> 8) & 0xFF);
+        		setChunk(chunk, placeholderOffset + 1, (chunk->count) & 0xFF);
+        	}
         	break;
         }
     }

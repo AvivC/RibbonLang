@@ -87,6 +87,7 @@ typedef struct {
     AstNode base;
     AstNode* condition;
     AstNodeStatements* body;
+    AstNodeStatements* elseBody;
 } AstNodeIf;
 
 void printTree(AstNode* tree);
@@ -98,7 +99,7 @@ AstNodeExprStatement* newAstNodeExprStatement(AstNode* expression);
 AstNodeReturn* newAstNodeReturn(AstNode* expression);
 AstNodeCall* newAstNodeCall(AstNode* expression, PointerArray arguments);
 AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, PointerArray parameters);
-AstNodeIf* newAstNodeIf(AstNode* condition, AstNodeStatements* body);
+AstNodeIf* newAstNodeIf(AstNode* condition, AstNodeStatements* body, AstNodeStatements* elseBody);
 
 #define ALLOCATE_AST_NODE(type, tag) (type*) allocateAstNode(tag, sizeof(type))
 

@@ -521,6 +521,16 @@ InterpretResult interpret(Chunk* baseChunk) {
 				break;
 			}
 
+            case OP_JUMP: {
+            	uint8_t addr_byte1 = READ_BYTE();
+            	uint8_t addr_byte2 = READ_BYTE();
+            	uint16_t address = twoBytesToShort(addr_byte1, addr_byte2);
+
+            	vm.ip = currentChunk()->code + address;
+
+            	break;
+            }
+
             default: {
             	FAIL("Unknown opcode: %d", opcode);
             }

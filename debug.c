@@ -100,6 +100,10 @@ int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
 			return shortOperandInstruction("OP_JUMP_IF_FALSE", chunk, offset);
 			break;
 		}
+		case OP_JUMP: {
+			return shortOperandInstruction("OP_JUMP", chunk, offset);
+			break;
+		}
 		case OP_NIL: {
 			return simpleInstruction("OP_NIL", chunk, offset);
 			break;

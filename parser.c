@@ -193,7 +193,13 @@ static AstNode* ifStatement(void) {
 	consume(TOKEN_LEFT_BRACE, "Expected '{' to open if-body.");
 	AstNode* body = statements();
 	consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of if-body.");
-	return (AstNode*) newAstNodeIf(condition, (AstNodeStatements*) body);
+	AstNode* elseBody = NULL;
+	if (match(TOKEN_ELSE)) {
+		consume(TOKEN_LEFT_BRACE, "Expected '{' to open else-body.");
+		elseBody = statements();
+		consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of else-body.");
+	}
+	return (AstNode*) newAstNodeIf(condition, (AstNodeStatements*) body, (AstNodeStatements*) elseBody);
 }
 
 static ParseRule rules[] = {

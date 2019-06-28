@@ -92,6 +92,7 @@ static void printNode(AstNode* node, int nesting) {
         
         case AST_NODE_STATEMENTS: {
             AstNodeStatements* nodeStatements = (AstNodeStatements*) node;
+            printNestingString(nesting);
             printf("STATEMENTS\n");
             for (int i = 0; i < nodeStatements->statements.count; i++) {
                 printNode((AstNode*) nodeStatements->statements.values[i], nesting + 1);
@@ -268,6 +269,9 @@ static void freeNode(AstNode* node, int nesting) {
 			AstNodeIf* nodeIf = (AstNodeIf*) node;
 			freeNode((AstNode*) nodeIf->condition, nesting + 1);
 			freeNode((AstNode*) nodeIf->body, nesting + 1);
+			if (nodeIf->elseBody != NULL) {
+				freeNode((AstNode*) nodeIf->elseBody, nesting + 1);
+			}
 			deallocate(nodeIf, sizeof(AstNodeIf), deallocationString);
 			break;
 		}
@@ -317,10 +321,11 @@ AstNodeConstant* newAstNodeConstant(Value value) {
 	return node;
 }
 
-AstNodeIf* newAstNodeIf(AstNode* condition, AstNodeStatements* body) {
+AstNodeIf* newAstNodeIf(AstNode* condition, AstNodeStatements* body, AstNodeStatements* elseBody) {
 	AstNodeIf* node = ALLOCATE_AST_NODE(AstNodeIf, AST_NODE_IF);
 	node->condition = condition;
 	node->body = body;
+	node->elseBody = elseBody;
 	return node;
 }
 
