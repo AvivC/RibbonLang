@@ -1,0 +1,126 @@
+test plain_if
+    if 10 > 5 {
+        print("yes")
+    }
+expect
+    yes
+end
+
+test if_else
+    if 10 < 5 {
+        print("yes")
+    } else {
+        print("no")
+    }
+expect
+    no
+end
+
+test if_elsif_else
+    if 10 > 5 {
+        print("a")
+    } elsif 10 == 5 {
+        print("b")
+    } else {
+        print("c")
+    }
+
+    if 10 < 5 {
+        print("a")
+    } elsif 10 == 5 {
+        print("b")
+    } else {
+        print("c")
+    }
+
+    if 10 < 5 {
+        print("a")
+    } elsif 10 == 10 {
+        print("b")
+    } else {
+        print("c")
+    }
+
+    if 10 < 5 {
+        print("a")
+    } elsif 10 != 10 {
+        print("b")
+    }
+
+    if 10 < 5 {
+        print("a")
+    } elsif 10 < 8 {
+        print("b")
+    } elsif 10 < 11 {
+        print("c")
+    } else {
+        print("d")
+    }
+
+    if 10 < 5 {
+        print("a")
+    } elsif 10 < 8 {
+        print("b")
+    } elsif 10 < 11 {
+        print("c")
+    }
+expect
+    a
+    c
+    b
+    c
+    c
+end
+
+test nested_if_elsif_else
+    if 10 < 5 {
+        print("a")
+    } elsif 10 < 8 {
+        print("b")
+    } elsif 10 < 11 {
+        if 20 / 2 == 5 {
+            print("c.1")
+        } else {
+            print("c.2")
+        }
+    } else {
+        print("d")
+    }
+
+    if 10 < 5 {
+        print("a")
+    } elsif 10 < 8 {
+        print("b")
+    } elsif 10 < 11 {
+        if 20 / 2 == 5 {
+            print("c.1")
+        } elsif 10 / 5 == 2 {
+            print("c.2")
+        }
+    } else {
+        print("d")
+    }
+
+    something = 10 < 5
+    if something {
+        print("a")
+    } elsif 10 < 8 {
+        print("b")
+    } elsif 10 < 10 {
+        if 20 / 2 == 5 {
+            print("c.1")
+        } elsif 10 / 5 == 1 {
+            print("c.2")
+        }
+    } else {
+        if 10 / 5 == 2 {
+            print("d.1")
+        } else {
+            print("d.2")
+        }
+    }
+expect
+    c.2
+    c.2
+    d.1
+end

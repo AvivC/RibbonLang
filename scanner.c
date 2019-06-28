@@ -83,7 +83,11 @@ static Token parseIdentifier() {
         return makeToken(TOKEN_IF);
     } else if (checkToken("else")) {
         return makeToken(TOKEN_ELSE);
-    } else if (checkToken("func")) {
+    } else if (checkToken("elsif")) {
+        return makeToken(TOKEN_ELSIF);
+    } else if (checkToken("while")) {
+    	return makeToken(TOKEN_WHILE);
+	} else if (checkToken("func")) {
         return makeToken(TOKEN_FUNC);
     } else if (checkToken("and")) {
         return makeToken(TOKEN_AND);

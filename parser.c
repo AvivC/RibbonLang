@@ -187,19 +187,37 @@ static AstNode* boolean(void) {
 	return (AstNode*) newAstNodeConstant(MAKE_VALUE_BOOLEAN(booleanValue));
 }
 
-static AstNode* ifStatement(void) {
-	AstNode* condition = parsePrecedence(PREC_ASSIGNMENT);
+static void conditionedClause(AstNodeStatements** bodyOut, AstNode** conditionOut) {
+	*conditionOut = parsePrecedence(PREC_ASSIGNMENT);
 	skipNewlines();
 	consume(TOKEN_LEFT_BRACE, "Expected '{' to open if-body.");
-	AstNode* body = statements();
+	*bodyOut = (AstNodeStatements*) statements();
 	consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of if-body.");
+}
+
+static AstNode* ifStatement(void) {
+	AstNodeStatements* body;
+	AstNode* condition;
+	conditionedClause(&body, &condition);
+
+	PointerArray elsifClauses;
+	initPointerArray(&elsifClauses);
+
+	while (match(TOKEN_ELSIF)) {
+		AstNodeStatements* body;
+		AstNode* condition;
+		conditionedClause(&body, &condition);
+		writePointerArray(&elsifClauses, condition);
+		writePointerArray(&elsifClauses, body);
+	}
+
 	AstNode* elseBody = NULL;
 	if (match(TOKEN_ELSE)) {
 		consume(TOKEN_LEFT_BRACE, "Expected '{' to open else-body.");
 		elseBody = statements();
 		consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of else-body.");
 	}
-	return (AstNode*) newAstNodeIf(condition, (AstNodeStatements*) body, (AstNodeStatements*) elseBody);
+	return (AstNode*) newAstNodeIf(condition, (AstNodeStatements*) body, elsifClauses, (AstNodeStatements*) elseBody);
 }
 
 static ParseRule rules[] = {
@@ -228,6 +246,8 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_END
     {NULL, NULL, PREC_NONE},     // TOKEN_IF
     {NULL, NULL, PREC_NONE},     // TOKEN_ELSE
+    {NULL, NULL, PREC_NONE},     // TOKEN_ELSIF
+    {NULL, NULL, PREC_NONE},     // TOKEN_WHILE
     {NULL, NULL, PREC_NONE},     // TOKEN_FUNC
     {NULL, NULL, PREC_NONE},     // TOKEN_TAKES
     {NULL, NULL, PREC_NONE},     // TOKEN_TO

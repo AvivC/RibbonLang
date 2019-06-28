@@ -154,6 +154,21 @@ static void printNode(AstNode* node, int nesting) {
 			printNestingString(nesting);
 			printf("Body:\n");
 			printNode((AstNode*) nodeIf->body, nesting + 1);
+
+			for (int i = 0; i < nodeIf->elsifClauses.count; i += 2) {
+				printNestingString(nesting);
+				printf("Elsif condition:\n");
+				printNode((AstNode*) nodeIf->elsifClauses.values[i], nesting + 1);
+				printNestingString(nesting);
+				printf("Elsif body:\n");
+				printNode((AstNode*) nodeIf->elsifClauses.values[i+1], nesting + 1);
+			}
+
+			if (nodeIf->elseBody != NULL) {
+				printNestingString(nesting);
+				printf("Else:\n");
+				printNode((AstNode*) nodeIf->body, nesting + 1);
+			}
 			break;
 		}
     }
@@ -181,15 +196,6 @@ static void freeNode(AstNode* node, int nesting) {
         
         case AST_NODE_BINARY: {
             AstNodeBinary* nodeBinary = (AstNodeBinary*) node;
-            
-            const char* operator = NULL;
-            switch (nodeBinary->operator) {
-                case TOKEN_PLUS: operator = "+"; break;
-                case TOKEN_MINUS: operator = "-"; break;
-                case TOKEN_STAR: operator = "*"; break;
-                case TOKEN_SLASH: operator = "/"; break;
-                default: operator = "Unrecognized";
-            }
             
             freeNode(nodeBinary->leftOperand, nesting + 1);
             freeNode(nodeBinary->rightOperand, nesting + 1);
@@ -272,6 +278,10 @@ static void freeNode(AstNode* node, int nesting) {
 			if (nodeIf->elseBody != NULL) {
 				freeNode((AstNode*) nodeIf->elseBody, nesting + 1);
 			}
+			for (int i = 0; i < nodeIf->elsifClauses.count; i++) {
+				freeNode(nodeIf->elsifClauses.values[i], nesting + 1);
+			}
+			freePointerArray(&nodeIf->elsifClauses);
 			deallocate(nodeIf, sizeof(AstNodeIf), deallocationString);
 			break;
 		}
@@ -321,10 +331,11 @@ AstNodeConstant* newAstNodeConstant(Value value) {
 	return node;
 }
 
-AstNodeIf* newAstNodeIf(AstNode* condition, AstNodeStatements* body, AstNodeStatements* elseBody) {
+AstNodeIf* newAstNodeIf(AstNode* condition, AstNodeStatements* body, PointerArray elsifClauses, AstNodeStatements* elseBody) {
 	AstNodeIf* node = ALLOCATE_AST_NODE(AstNodeIf, AST_NODE_IF);
 	node->condition = condition;
 	node->body = body;
+	node->elsifClauses = elsifClauses;
 	node->elseBody = elseBody;
 	return node;
 }

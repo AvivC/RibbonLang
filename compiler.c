@@ -147,6 +147,28 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 
         	compileTree((AstNode*) nodeIf->body, chunk);
 
+        	writeChunk(chunk, OP_JUMP);
+			size_t skipElseClausesOffset = chunk->count;
+			writeChunk(chunk, 0);
+			writeChunk(chunk, 0);
+
+        	for (int i = 0; i < nodeIf->elsifClauses.count; i += 2) {
+        		AstNode* condition = nodeIf->elsifClauses.values[i];
+        		AstNodeStatements* body = nodeIf->elsifClauses.values[i+1];
+
+        		setChunk(chunk, placeholderOffset, (chunk->count >> 8) & 0xFF);
+				setChunk(chunk, placeholderOffset + 1, (chunk->count) & 0xFF);
+
+        		compileTree(condition, chunk);
+
+        		writeChunk(chunk, OP_JUMP_IF_FALSE);
+        		placeholderOffset = chunk->count;
+				writeChunk(chunk, 0);
+				writeChunk(chunk, 0);
+
+				compileTree((AstNode*) body, chunk);
+			}
+
         	bool haveElse = nodeIf->elseBody != NULL;
         	if (haveElse) {
         		writeChunk(chunk, OP_JUMP);
@@ -161,10 +183,14 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 
 	        	setChunk(chunk, elsePlaceholderOffset, (chunk->count >> 8) & 0xFF);
 	        	setChunk(chunk, elsePlaceholderOffset + 1, (chunk->count) & 0xFF);
+
         	} else {
         		setChunk(chunk, placeholderOffset, (chunk->count >> 8) & 0xFF);
         		setChunk(chunk, placeholderOffset + 1, (chunk->count) & 0xFF);
         	}
+
+        	setChunk(chunk, skipElseClausesOffset, (chunk->count >> 8) & 0xFF);
+			setChunk(chunk, skipElseClausesOffset + 1, (chunk->count) & 0xFF);
         	break;
         }
     }
