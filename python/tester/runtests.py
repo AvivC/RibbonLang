@@ -27,6 +27,7 @@ def _run_on_interpreter(interpreter_path, input_text):
     # always assert no memory leaks - kinda ugly, probably refactor this later
     assert "All memory freed" in output_text
     assert "All allocations freed" in output_text
+    assert "No live objects" in output_text
 
     memory_diagnostics_start = output_text.index('======== Memory diagnostics ========')
 
@@ -79,11 +80,14 @@ def _run_test_file(absolute_path):
 
     interpreter_path = _relative_path_to_abs(os.path.join('..', '..', INTERPRETER_NAME))
 
+    all_success = True
+
     for test_name, test in tests.items():
         output = _run_on_interpreter(interpreter_path, test.code)
         if output == test.expected_output:
             print(f'Test %-35s   SUCCESS' % test_name)
         else:
+            all_success = False
             print(f'Test %-35s   FAILURE' % test_name)
             print('=== Expected ===')
             print(test.expected_output)
@@ -92,6 +96,8 @@ def _run_test_file(absolute_path):
             print(output)
             print('==============')
 
+    return all_success
+
 
 def _relative_path_to_abs(path):
     current_abs_dir = os.path.dirname(os.path.abspath(__file__))
@@ -99,14 +105,16 @@ def _relative_path_to_abs(path):
 
 
 def _run_test_directory(relative_dir_path):
+    all_success = True
     abs_dir_path = _relative_path_to_abs(relative_dir_path)
     for f in os.listdir(abs_dir_path):
         abs_test_path = os.path.join(abs_dir_path, f)
         if os.path.isfile(abs_test_path) and abs_test_path.endswith(TEST_FILE_SUFFIX):
             print(f'Running tests in {f}')
             print()
-            _run_test_file(abs_test_path)
+            all_success = _run_test_file(abs_test_path)
             print()
+    return all_success
 
 
 def main():
@@ -115,7 +123,12 @@ def main():
     else:
         testdir = DEFAULT_TESTS_DIR
 
-    _run_test_directory(testdir)
+    all_success = _run_test_directory(testdir)
+
+    if all_success:
+        exit(0)
+    else:
+        exit(-1)
 
 
 if __name__ == '__main__':
