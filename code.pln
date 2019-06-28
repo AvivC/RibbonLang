@@ -1,1 +1,0 @@
-{takes x, y to print(y)}(1, 2)

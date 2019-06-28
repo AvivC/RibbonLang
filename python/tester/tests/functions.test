@@ -39,10 +39,24 @@ end
 test fuction_calls_multi_arg
     divide = {takes x, y to
         print("In function divide")
-        return y
+        return x / y
     }
     print(divide(20, 5))
 expect
     In function divide
-    20
+    4
+end
+
+test function_as_argument
+    f1 = {takes f2 to
+        return f2(50)
+    }
+
+    q = { takes n to
+        return n * n
+    }
+
+    print(f1(q))
+expect
+    2500
 end

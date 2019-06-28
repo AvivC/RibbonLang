@@ -1,3 +1,4 @@
+code.pln
 *.exe
 *.pyc
 .pytest_cache/
