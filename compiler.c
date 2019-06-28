@@ -135,6 +135,22 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         	writeChunk(chunk, OP_RETURN);
         	break;
         }
+
+        case AST_NODE_IF: {
+        	AstNodeIf* nodeIf = (AstNodeIf*) node;
+        	compileTree(nodeIf->condition, chunk);
+
+        	writeChunk(chunk, OP_JUMP_IF_FALSE);
+        	size_t placeholderOffset = chunk->count;
+        	writeChunk(chunk, 0);
+        	writeChunk(chunk, 0);
+
+        	compileTree((AstNode*) nodeIf->body, chunk);
+
+        	setChunk(chunk, placeholderOffset, (chunk->count >> 8) & 0xFF);
+        	setChunk(chunk, placeholderOffset + 1, (chunk->count) & 0xFF);
+        	break;
+        }
     }
 }
 

@@ -187,6 +187,15 @@ static AstNode* boolean(void) {
 	return (AstNode*) newAstNodeConstant(MAKE_VALUE_BOOLEAN(booleanValue));
 }
 
+static AstNode* ifStatement(void) {
+	AstNode* condition = parsePrecedence(PREC_ASSIGNMENT);
+	skipNewlines();
+	consume(TOKEN_LEFT_BRACE, "Expected '{' to open if-body.");
+	AstNode* body = statements();
+	consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of if-body.");
+	return (AstNode*) newAstNodeIf(condition, (AstNodeStatements*) body);
+}
+
 static ParseRule rules[] = {
     {identifier, NULL, PREC_NONE},           // TOKEN_IDENTIFIER
     {number, NULL, PREC_NONE},         // TOKEN_NUMBER
@@ -285,13 +294,15 @@ static AstNode* statements() {
             childNode = (AstNode*) assignmentStatement();
         } else if (match(TOKEN_RETURN)) {
         	childNode = (AstNode*) returnStatement();
+        } else if (match(TOKEN_IF)) {
+        	childNode = (AstNode*) ifStatement();
         } else {
 			childNode = (AstNode*) expressionStatement();
         }
 
         writePointerArray(&statementsNode->statements, childNode);
 
-		int endOfBlock = check(TOKEN_EOF) || check(TOKEN_RIGHT_BRACE);
+		bool endOfBlock = check(TOKEN_EOF) || check(TOKEN_RIGHT_BRACE);
 		if (!endOfBlock) {
             // Allow omitting the newline at the end of the function or program
             consume(TOKEN_NEWLINE, "Expected newline after statement.");

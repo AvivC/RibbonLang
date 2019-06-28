@@ -151,6 +151,20 @@ bool compareObjects(Object* a, Object* b) {
 	}
 }
 
+ObjectFunction* objectAsFunction(Object* o) {
+	if (o->type != OBJECT_FUNCTION) {
+		FAIL("Illegal object conversion to function.");
+	}
+	return (ObjectFunction*) o;
+}
+
+ObjectString* objectAsString(Object* o) {
+	if (o->type != OBJECT_STRING) {
+		FAIL("Illegal object conversion to string.");
+	}
+	return (ObjectString*) o;
+}
+
 // For debugging
 void printAllObjects(void) {
 	if (vm.objects != NULL) {
@@ -166,6 +180,3 @@ void printAllObjects(void) {
 		printf("No live objects.\n");
 	}
 }
-
-
-

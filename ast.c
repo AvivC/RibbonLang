@@ -15,7 +15,8 @@ const char* AST_NODE_TYPE_NAMES[] = {
     "AST_NODE_FUNCTION",
     "AST_NODE_CALL",
     "AST_NODE_EXPR_STATEMENT",
-	"AST_NODE_RETURN"
+	"AST_NODE_RETURN",
+	"AST_NODE_IF"
 };
 
 static void printNestingString(int nesting) {
@@ -141,6 +142,19 @@ static void printNode(AstNode* node, int nesting) {
 			printNode((AstNode*) nodeReturn->expression, nesting + 1);
 			break;
 		}
+
+        case AST_NODE_IF: {
+			AstNodeIf* nodeIf = (AstNodeIf*) node;
+			printNestingString(nesting);
+			printf("IF\n");
+			printNestingString(nesting);
+			printf("Condition:\n");
+			printNode((AstNode*) nodeIf->condition, nesting + 1);
+			printNestingString(nesting);
+			printf("Body:\n");
+			printNode((AstNode*) nodeIf->body, nesting + 1);
+			break;
+		}
     }
 }
 
@@ -249,6 +263,14 @@ static void freeNode(AstNode* node, int nesting) {
 			deallocate(nodeReturn, sizeof(AstNodeReturn), deallocationString);
 			break;
 		}
+
+        case AST_NODE_IF: {
+			AstNodeIf* nodeIf = (AstNodeIf*) node;
+			freeNode((AstNode*) nodeIf->condition, nesting + 1);
+			freeNode((AstNode*) nodeIf->body, nesting + 1);
+			deallocate(nodeIf, sizeof(AstNodeIf), deallocationString);
+			break;
+		}
     }
 }
 
@@ -292,6 +314,13 @@ AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, PointerArray 
 AstNodeConstant* newAstNodeConstant(Value value) {
 	AstNodeConstant* node = ALLOCATE_AST_NODE(AstNodeConstant, AST_NODE_CONSTANT);
 	node->value = value;
+	return node;
+}
+
+AstNodeIf* newAstNodeIf(AstNode* condition, AstNodeStatements* body) {
+	AstNodeIf* node = ALLOCATE_AST_NODE(AstNodeIf, AST_NODE_IF);
+	node->condition = condition;
+	node->body = body;
 	return node;
 }
 

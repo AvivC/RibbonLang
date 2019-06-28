@@ -20,6 +20,14 @@ void writeChunk(Chunk* chunk, uint8_t byte) {
     chunk->code[chunk->count++] = byte;
 }
 
+void setChunk(Chunk* chunk, int position, uint8_t byte) {
+	if (position >= chunk->count || position < 0) {
+		FAIL("Position out of bounds for chunk writing.");
+	}
+
+	chunk->code[position] = byte;
+}
+
 void freeChunk(Chunk* chunk) {
     deallocate(chunk->code, chunk->capacity * sizeof(uint8_t), "Chunk code buffer"); // the sizeof is probably stupid
     freeValueArray(&chunk->constants);

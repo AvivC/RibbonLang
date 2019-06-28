@@ -20,6 +20,7 @@ typedef enum {
     OP_SET_VARIABLE,
     OP_CALL,
 	OP_POP,
+	OP_JUMP_IF_FALSE,
 	OP_NIL,
     OP_RETURN
 } OP_CODE;
@@ -33,6 +34,7 @@ typedef struct {
 
 void initChunk(Chunk* chunk);
 void writeChunk(Chunk* chunk, uint8_t byte);
+void setChunk(Chunk* chunk, int position, uint8_t byte);
 void freeChunk(Chunk* chunk);
 int addConstant(Chunk* chunk, Value constant);
 

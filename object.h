@@ -53,7 +53,10 @@ void freeObject(Object* object);
 void printObject(Object* o);
 void printAllObjects(void);
 
-#define OBJECT_AS_STRING(o) ((ObjectString*) (o))
-#define OBJECT_AS_FUNCTION(o) ((ObjectFunction*) (o))
+#define OBJECT_AS_STRING(o) (objectAsString(o))
+#define OBJECT_AS_FUNCTION(o) (objectAsFunction(o))
+
+ObjectFunction* objectAsFunction(Object* o);
+ObjectString* objectAsString(Object* o);
 
 #endif

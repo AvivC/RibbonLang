@@ -2,12 +2,20 @@
 #include "debug.h"
 #include "object.h"
 #include "value.h"
+#include "utils.h"
 
 static int singleOperandInstruction(const char* name, Chunk* chunk, int offset) {
     int operand = chunk->code[offset + 1];
 
     printf("%p %-28s %d\n", chunk->code + offset, name, operand);
     return offset + 2;
+}
+
+static int shortOperandInstruction(const char* name, Chunk* chunk, int offset) {
+    uint16_t operand = twoBytesToShort(chunk->code[offset + 1], chunk->code[offset + 2]);
+
+    printf("%p %-28s %d\n", chunk->code + offset, name, operand);
+    return offset + 3;
 }
 
 static int constantInstruction(const char* name, Chunk* chunk, int offset) {
@@ -86,6 +94,10 @@ int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
 		}
 		case OP_POP: {
 			return simpleInstruction("OP_POP", chunk, offset);
+			break;
+		}
+		case OP_JUMP_IF_FALSE: {
+			return shortOperandInstruction("OP_JUMP_IF_FALSE", chunk, offset);
 			break;
 		}
 		case OP_NIL: {

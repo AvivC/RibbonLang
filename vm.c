@@ -9,6 +9,7 @@
 #include "table.h"
 #include "builtins.h"
 #include "debug.h"
+#include "utils.h"
 
 #define INITIAL_GC_THRESHOLD 4
 
@@ -501,6 +502,24 @@ InterpretResult interpret(Chunk* baseChunk) {
 
                 break;
             }
+
+            case OP_JUMP_IF_FALSE: {
+            	uint8_t addr_byte1 = READ_BYTE();
+            	uint8_t addr_byte2 = READ_BYTE();
+            	uint16_t address = twoBytesToShort(addr_byte1, addr_byte2);
+				Value condition = pop();
+
+				if (condition.type != VALUE_BOOLEAN) {
+					RUNTIME_ERROR("Non-boolean for condition.");
+					break;
+				}
+
+				if (!condition.as.boolean) {
+					vm.ip = currentChunk()->code + address;
+				}
+
+				break;
+			}
 
             default: {
             	FAIL("Unknown opcode: %d", opcode);
