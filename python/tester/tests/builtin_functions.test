@@ -1,19 +1,19 @@
 test empty_print_prints_newline
-print("")
+    print("")
 expect
 
 end
 
 test print_line
-print("Hello!")
-expect
-Hello!
+    print("Hello!")
+    expect
+    Hello!
 end
 
 test print_multiple_lines
-print("Hello,")
-print("world!")
-expect
-Hello,
-world!
+    print("Hello,")
+    print("world!")
+    expect
+    Hello,
+    world!
 end

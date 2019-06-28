@@ -1,0 +1,37 @@
+test empty_function_does_nothing
+    {}
+    {}()
+expect
+end
+
+test function_with_no_return_returns_nil
+    print({}())
+    f = {
+
+    }
+    print(f())
+expect
+    nil
+    nil
+end
+
+test function_calls
+    f1 = { takes x to
+        print("f1")
+        return x * 10
+    }
+    f2 = { takes x to
+        print("f2")
+        return f1(x) * 10
+    }
+    f3 = { takes x to
+        print("f3")
+        return f2(x) * 10
+    }
+    print(f3(8))
+expect
+    f3
+    f2
+    f1
+    8000
+end

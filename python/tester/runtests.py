@@ -35,14 +35,33 @@ def _run_on_interpreter(interpreter_path, input_text):
     # return output_text[:memory_diagnostics_start].strip()  # TODO: .strip() might not be the best idea.
 
 
-_Test = namedtuple('_Test', ['code', 'expected_output'])
+def _parse_test_lines(lines_iter, end_token):
+    expect_lines = []
+    line = next(lines_iter)
+    while line.strip() != end_token:
+        if line == '\n':  # allow a special case of bare empty lines, for convenience
+            indent = 0
+        elif line.startswith('\t'):
+            indent = 1
+        elif line.startswith('    '):
+            indent = 4
+        else:
+            print()
+            print('Parsing error: Indentation missing in test code or expected result.')
+            return None
+
+        line = line[indent:]  # deindent
+        expect_lines.append(line)
+        line = next(lines_iter)
+
+    return ''.join(expect_lines)
 
 
 def _run_test_file(absolute_path):
     with open(absolute_path) as f:
         text = f.readlines()
 
-    tests = {}
+    all_success = True
 
     lines = iter(text)
     while True:
@@ -59,38 +78,27 @@ def _run_test_file(absolute_path):
 
         _, test_name = [s.strip() for s in line.split('test ')]
 
-        test_lines = []
-        line = next(lines)
-        while line.strip() != 'expect':
-            test_lines.append(line)
-            line = next(lines)
-        test_code = ''.join(test_lines)
+        print('Test %-50s' % test_name, end='')
 
-        expect_lines = []
-        line = next(lines)
-        while line.strip() != 'end':
-            expect_lines.append(line)
-            line = next(lines)
-        expect_output = ''.join(expect_lines)
+        test_code = _parse_test_lines(lines, 'expect')
+        if test_code is None:
+            all_success = False
+            break
 
-        if test_name in tests:
-            raise RuntimeError('Duplicate test names')
+        expect_output = _parse_test_lines(lines, 'end')
+        if expect_output is None:
+            all_success = False
+            break
 
-        tests[test_name] = _Test(test_code, expect_output)
-
-    interpreter_path = _relative_path_to_abs(os.path.join('..', '..', INTERPRETER_NAME))
-
-    all_success = True
-
-    for test_name, test in tests.items():
-        output = _run_on_interpreter(interpreter_path, test.code)
-        if output == test.expected_output:
-            print(f'Test %-35s   SUCCESS' % test_name)
+        interpreter_path = _relative_path_to_abs(os.path.join('..', '..', INTERPRETER_NAME))
+        output = _run_on_interpreter(interpreter_path, test_code)
+        if output == expect_output:
+            print(f'SUCCESS')
         else:
             all_success = False
-            print(f'Test %-35s   FAILURE' % test_name)
+            print(f'FAILURE')
             print('=== Expected ===')
-            print(test.expected_output)
+            print(expect_output)
             print('==============')
             print('=== Actual ===')
             print(output)
@@ -112,7 +120,8 @@ def _run_test_directory(relative_dir_path):
         if os.path.isfile(abs_test_path) and abs_test_path.endswith(TEST_FILE_SUFFIX):
             print(f'Running tests in {f}')
             print()
-            all_success = _run_test_file(abs_test_path)
+            if not _run_test_file(abs_test_path):
+                all_success = False
             print()
     return all_success
 
@@ -126,8 +135,10 @@ def main():
     all_success = _run_test_directory(testdir)
 
     if all_success:
+        print('All tests successful')
         exit(0)
     else:
+        print('Some tests failed!')
         exit(-1)
 
 
