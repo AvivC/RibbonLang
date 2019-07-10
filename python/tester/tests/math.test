@@ -48,6 +48,28 @@ test bool_expression
     print(true == true)
     print(true != false)
     print(true != true)
+
+    print(true and true)
+    print(true or true)
+    print(false and false)
+    print(false or false)
+    print(true and false)
+    print(true or false)
+    print(false and true)
+    print(false or true)
+
+    print(10 + 20 > 5)
+    print(10 + 20 > 5 and 50 / 2 == 25)
+    print(10 + 20 > 5 and 50 / 2 != 25)
+    print(10 + 20 > 5 or 50 / 2 != 25)
+    print(10 + 20 > 50 or 50 / 2 != 25)
+    print(10 + 20 > 50 or 50 / 2 != 25 or true)
+    print(10 + 20 > 50 or 50 / 2 != 25 or 100 / 2 == 51)
+    print((10 + 20 > 50 or 50 / 2 != 25 or 100 / 2 == 51) and 10 == 10)
+    print((10 + 20 > 50 or 50 / 2 != 25 or 100 / 2 == 51) or 10 == 10)
+
+    a = 50 / 2 != 25
+    print(a)
 expect
     false
     true
@@ -61,6 +83,24 @@ expect
     true
     false
     true
+    true
+    false
+    true
+    true
+    false
+    false
+    false
+    true
+    false
+    true
+    true
+    true
+    false
+    true
+    false
+    true
+    false
+    false
     true
     false
 end

@@ -124,3 +124,48 @@ expect
     c.2
     d.1
 end
+
+test counting_while_loop
+    x = 0
+    while x < 3 {
+        print(x)
+        x = x + 1
+    }
+expect
+    0
+    1
+    2
+end
+
+test while_inside_if
+    if 10 < 20 {
+        i = 3
+        while i > 0 {
+            print("hi")
+            i = i - 1
+        }
+    } else {
+        print("Shouldn't happen")
+    }
+expect
+    hi
+    hi
+    hi
+end
+
+test if_inside_while
+    i = 4
+    while i > 0 {
+        print("hi")
+        if i == 2 {
+            print(i)
+        }
+        i = i - 1
+    }
+expect
+    hi
+    hi
+    hi
+    2
+    hi
+end
