@@ -16,7 +16,8 @@ const char* AST_NODE_TYPE_NAMES[] = {
     "AST_NODE_CALL",
     "AST_NODE_EXPR_STATEMENT",
 	"AST_NODE_RETURN",
-	"AST_NODE_IF"
+	"AST_NODE_IF",
+	"AST_NODE_WHILE"
 };
 
 static void printNestingString(int nesting) {
@@ -171,6 +172,19 @@ static void printNode(AstNode* node, int nesting) {
 			}
 			break;
 		}
+
+        case AST_NODE_WHILE: {
+        	AstNodeWhile* nodeWhile = (AstNodeWhile*) node;
+        	printNestingString(nesting);
+			printf("WHILE\n");
+			printNestingString(nesting);
+			printf("Condition:\n");
+			printNode((AstNode*) nodeWhile->condition, nesting + 1);
+			printNestingString(nesting);
+			printf("Body:\n");
+			printNode((AstNode*) nodeWhile->body, nesting + 1);
+        	break;
+        }
     }
 }
 
@@ -285,6 +299,14 @@ static void freeNode(AstNode* node, int nesting) {
 			deallocate(nodeIf, sizeof(AstNodeIf), deallocationString);
 			break;
 		}
+
+        case AST_NODE_WHILE: {
+			AstNodeWhile* nodeWhile = (AstNodeWhile*) node;
+			freeNode((AstNode*) nodeWhile->condition, nesting + 1);
+			freeNode((AstNode*) nodeWhile->body, nesting + 1);
+			deallocate(nodeWhile, sizeof(AstNodeWhile), deallocationString);
+			break;
+		}
     }
 }
 
@@ -337,6 +359,13 @@ AstNodeIf* newAstNodeIf(AstNode* condition, AstNodeStatements* body, PointerArra
 	node->body = body;
 	node->elsifClauses = elsifClauses;
 	node->elseBody = elseBody;
+	return node;
+}
+
+AstNodeWhile* newAstNodeWhile(AstNode* condition, AstNodeStatements* body) {
+	AstNodeWhile* node = ALLOCATE_AST_NODE(AstNodeWhile, AST_NODE_WHILE);
+	node->condition = condition;
+	node->body = body;
 	return node;
 }
 

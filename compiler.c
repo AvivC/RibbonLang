@@ -4,6 +4,7 @@
 #include "chunk.h"
 #include "ast.h"
 #include "value.h"
+#include "utils.h"
 
 static void compileTree(AstNode* node, Chunk* chunk) {
     AstNodeType nodeType = node->type;
@@ -193,6 +194,31 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 			setChunk(chunk, skipElseClausesOffset + 1, (chunk->count) & 0xFF);
         	break;
         }
+
+        case AST_NODE_WHILE: {
+			AstNodeWhile* nodeWhile = (AstNodeWhile*) node;
+
+			int before_condition = chunk->count;
+			compileTree(nodeWhile->condition, chunk);
+
+			writeChunk(chunk, OP_JUMP_IF_FALSE);
+			size_t placeholderOffset = chunk->count;
+			writeChunk(chunk, 0);
+			writeChunk(chunk, 0);
+
+			compileTree((AstNode*) nodeWhile->body, chunk);
+
+			writeChunk(chunk, OP_JUMP);
+			uint8_t before_condition_addr_bytes[2];
+			short_to_two_bytes(before_condition, before_condition_addr_bytes);
+			writeChunk(chunk, before_condition_addr_bytes[0]);
+			writeChunk(chunk, before_condition_addr_bytes[1]);
+
+			setChunk(chunk, placeholderOffset, (chunk->count >> 8) & 0xFF);
+			setChunk(chunk, placeholderOffset + 1, (chunk->count) & 0xFF);
+
+			break;
+		}
     }
 }
 

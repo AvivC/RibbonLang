@@ -190,9 +190,9 @@ static AstNode* boolean(void) {
 static void conditionedClause(AstNodeStatements** bodyOut, AstNode** conditionOut) {
 	*conditionOut = parsePrecedence(PREC_ASSIGNMENT);
 	skipNewlines();
-	consume(TOKEN_LEFT_BRACE, "Expected '{' to open if-body.");
+	consume(TOKEN_LEFT_BRACE, "Expected '{' to open block.");
 	*bodyOut = (AstNodeStatements*) statements();
-	consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of if-body.");
+	consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of block.");
 }
 
 static AstNode* ifStatement(void) {
@@ -218,6 +218,14 @@ static AstNode* ifStatement(void) {
 		consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of else-body.");
 	}
 	return (AstNode*) newAstNodeIf(condition, (AstNodeStatements*) body, elsifClauses, (AstNodeStatements*) elseBody);
+}
+
+static AstNode* whileStatement(void) {
+	AstNodeStatements* body;
+	AstNode* condition;
+	conditionedClause(&body, &condition);
+
+	return (AstNode*) newAstNodeWhile(condition, body);
 }
 
 static ParseRule rules[] = {
@@ -322,7 +330,9 @@ static AstNode* statements() {
         	childNode = (AstNode*) returnStatement();
         } else if (match(TOKEN_IF)) {
         	childNode = (AstNode*) ifStatement();
-        } else {
+        } else if (match(TOKEN_WHILE)) {
+        	childNode = (AstNode*) whileStatement();
+    	} else {
 			childNode = (AstNode*) expressionStatement();
         }
 
