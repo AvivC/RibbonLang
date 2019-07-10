@@ -219,6 +219,24 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 
 			break;
 		}
+
+        case AST_NODE_AND: {
+        	AstNodeAnd* node_and = (AstNodeAnd*) node;
+        	compileTree((AstNode*) node_and->left, chunk);
+        	compileTree((AstNode*) node_and->right, chunk);
+        	writeChunk(chunk, OP_AND);
+
+        	break;
+        }
+
+        case AST_NODE_OR: {
+        	AstNodeOr* node_or = (AstNodeOr*) node;
+        	compileTree((AstNode*) node_or->left, chunk);
+        	compileTree((AstNode*) node_or->right, chunk);
+        	writeChunk(chunk, OP_OR);
+
+        	break;
+        }
     }
 }
 

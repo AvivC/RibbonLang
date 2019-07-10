@@ -16,6 +16,8 @@ typedef enum {
     OP_GREATER_EQUAL,
     OP_LESS_EQUAL,
     OP_EQUAL,
+    OP_AND,
+    OP_OR,
     OP_LOAD_VARIABLE,
     OP_SET_VARIABLE,
     OP_CALL,

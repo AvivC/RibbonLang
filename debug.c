@@ -76,6 +76,14 @@ int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
 			return simpleInstruction("OP_EQUAL", chunk, offset);
 			break;
 		}
+		case OP_AND: {
+			return simpleInstruction("OP_AND", chunk, offset);
+			break;
+		}
+		case OP_OR: {
+			return simpleInstruction("OP_OR", chunk, offset);
+			break;
+		}
 		case OP_NEGATE: {
 			return simpleInstruction("OP_NEGATE", chunk, offset);
 			break;

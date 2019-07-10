@@ -17,7 +17,9 @@ typedef enum {
     AST_NODE_EXPR_STATEMENT,
     AST_NODE_RETURN,
     AST_NODE_IF,
-    AST_NODE_WHILE
+    AST_NODE_WHILE,
+	AST_NODE_AND,
+	AST_NODE_OR
 } AstNodeType;
 
 // for debugging purposes
@@ -98,6 +100,18 @@ typedef struct {
     AstNodeStatements* body;
 } AstNodeWhile;
 
+typedef struct {
+	AstNode base;
+	AstNode* left;
+	AstNode* right;
+} AstNodeAnd;
+
+typedef struct {
+	AstNode base;
+	AstNode* left;
+	AstNode* right;
+} AstNodeOr;
+
 void printTree(AstNode* tree);
 void freeTree(AstNode* node);
 
@@ -109,6 +123,8 @@ AstNodeCall* newAstNodeCall(AstNode* expression, PointerArray arguments);
 AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, PointerArray parameters);
 AstNodeIf* newAstNodeIf(AstNode* condition, AstNodeStatements* body, PointerArray elsifClauses, AstNodeStatements* elseBody);
 AstNodeWhile* newAstNodeWhile(AstNode* condition, AstNodeStatements* body);
+AstNodeAnd* new_ast_node_and(AstNode* left, AstNode* right);
+AstNodeOr* new_ast_node_or(AstNode* left, AstNode* right);
 
 #define ALLOCATE_AST_NODE(type, tag) (type*) allocateAstNode(tag, sizeof(type))
 

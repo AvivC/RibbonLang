@@ -17,7 +17,9 @@ const char* AST_NODE_TYPE_NAMES[] = {
     "AST_NODE_EXPR_STATEMENT",
 	"AST_NODE_RETURN",
 	"AST_NODE_IF",
-	"AST_NODE_WHILE"
+	"AST_NODE_WHILE",
+	"AST_NODE_AND",
+	"AST_NODE_OR"
 };
 
 static void printNestingString(int nesting) {
@@ -185,6 +187,32 @@ static void printNode(AstNode* node, int nesting) {
 			printNode((AstNode*) nodeWhile->body, nesting + 1);
         	break;
         }
+
+        case AST_NODE_AND: {
+        	AstNodeAnd* nodeAnd = (AstNodeAnd*) node;
+        	printNestingString(nesting);
+			printf("AND\n");
+			printNestingString(nesting);
+			printf("Left:\n");
+			printNode((AstNode*) nodeAnd->left, nesting + 1);
+			printNestingString(nesting);
+			printf("Right:\n");
+			printNode((AstNode*) nodeAnd->right, nesting + 1);
+        	break;
+        }
+
+        case AST_NODE_OR: {
+        	AstNodeOr* nodeOr = (AstNodeOr*) node;
+        	printNestingString(nesting);
+			printf("OR\n");
+			printNestingString(nesting);
+			printf("Left:\n");
+			printNode((AstNode*) nodeOr->left, nesting + 1);
+			printNestingString(nesting);
+			printf("Right:\n");
+			printNode((AstNode*) nodeOr->right, nesting + 1);
+        	break;
+        }
     }
 }
 
@@ -307,6 +335,22 @@ static void freeNode(AstNode* node, int nesting) {
 			deallocate(nodeWhile, sizeof(AstNodeWhile), deallocationString);
 			break;
 		}
+
+        case AST_NODE_AND: {
+			AstNodeAnd* nodeAnd = (AstNodeAnd*) node;
+			freeNode((AstNode*) nodeAnd->left, nesting + 1);
+			freeNode((AstNode*) nodeAnd->right, nesting + 1);
+			deallocate(nodeAnd, sizeof(AstNodeAnd), deallocationString);
+			break;
+		}
+
+        case AST_NODE_OR: {
+			AstNodeOr* nodeOr = (AstNodeOr*) node;
+			freeNode((AstNode*) nodeOr->left, nesting + 1);
+			freeNode((AstNode*) nodeOr->right, nesting + 1);
+			deallocate(nodeOr, sizeof(AstNodeOr), deallocationString);
+			break;
+		}
     }
 }
 
@@ -366,6 +410,20 @@ AstNodeWhile* newAstNodeWhile(AstNode* condition, AstNodeStatements* body) {
 	AstNodeWhile* node = ALLOCATE_AST_NODE(AstNodeWhile, AST_NODE_WHILE);
 	node->condition = condition;
 	node->body = body;
+	return node;
+}
+
+AstNodeAnd* new_ast_node_and(AstNode* left, AstNode* right) {
+	AstNodeAnd* node = ALLOCATE_AST_NODE(AstNodeAnd, AST_NODE_AND);
+	node->left = left;
+	node->right = right;
+	return node;
+}
+
+AstNodeOr* new_ast_node_or(AstNode* left, AstNode* right) {
+	AstNodeOr* node = ALLOCATE_AST_NODE(AstNodeOr, AST_NODE_OR);
+	node->left = left;
+	node->right = right;
 	return node;
 }
 

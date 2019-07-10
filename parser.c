@@ -127,6 +127,14 @@ static AstNode* string(void) {
     return (AstNode*) node;
 }
 
+static AstNode* and(AstNode* leftNode) {
+	return (AstNode*) new_ast_node_and(leftNode, parsePrecedence(PREC_AND + 1));
+}
+
+static AstNode* or(AstNode* leftNode) {
+	return (AstNode*) new_ast_node_or(leftNode, parsePrecedence(PREC_OR + 1));
+}
+
 static AstNode* function(void) {
 	skipNewlines();
 
@@ -259,8 +267,8 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_FUNC
     {NULL, NULL, PREC_NONE},     // TOKEN_TAKES
     {NULL, NULL, PREC_NONE},     // TOKEN_TO
-    {NULL, NULL, PREC_NONE},     // TOKEN_AND
-    {NULL, NULL, PREC_NONE},     // TOKEN_OR
+    {NULL, and, PREC_AND},     // TOKEN_AND
+    {NULL, or, PREC_OR},     // TOKEN_OR
     {NULL, NULL, PREC_NONE},     // TOKEN_RETURN
     {boolean, NULL, PREC_NONE},     // TOKEN_TRUE
     {boolean, NULL, PREC_NONE},     // TOKEN_FALSE

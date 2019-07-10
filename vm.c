@@ -281,6 +281,29 @@ InterpretResult interpret(Chunk* baseChunk) {
 		/* Remember to break manually after using this macro! */ \
 	} while(false)
 
+	#define ERROR_IF_WRONG_TYPE(value, value_type, message) do { \
+		if (value.type != value_type	) { \
+			RUNTIME_ERROR(message); \
+			break; \
+		} \
+	} while (false)
+
+	#define ERROR_IF_NON_BOOLEAN(value, message) do { \
+		ERROR_IF_WRONG_TYPE(value, VALUE_BOOLEAN, message); \
+	} while (false)
+
+	#define ERROR_IF_NON_NUMBER(value, message) do { \
+		ERROR_IF_WRONG_TYPE(value, VALUE_NUMBER, message); \
+	} while (false)
+
+	#define ERROR_IF_NON_OBJECT(value, message) do { \
+		ERROR_IF_WRONG_TYPE(value, VALUE_OBJECT, message); \
+	} while (false)
+
+	#define ERROR_IF_NOT_NIL(value, message) do { \
+		ERROR_IF_WRONG_TYPE(value, VALUE_NIL, message); \
+	} while (false)
+
 	pushFrame(makeBaseStackFrame(baseChunk));
 
 	vm.allowGC = true;
@@ -422,6 +445,39 @@ InterpretResult interpret(Chunk* baseChunk) {
         		}
 
             	break;
+            }
+
+            case OP_AND: {
+            	// TODO: AND should be short-circuiting
+
+        		Value b = pop();
+        		Value a = pop();
+
+        		ERROR_IF_NON_BOOLEAN(a, "Right side non-boolean in AND expression.");
+        		ERROR_IF_NON_BOOLEAN(b, "Left side non-boolean in AND expression.");
+
+        		if (a.as.boolean && b.as.boolean) {
+        			push(MAKE_VALUE_BOOLEAN(true));
+        		} else {
+        			push(MAKE_VALUE_BOOLEAN(false));
+        		}
+
+            	break;
+            }
+
+            case OP_OR: {
+        		Value b = pop();
+        		Value a = pop();
+
+        		ERROR_IF_NON_BOOLEAN(a, "Right side non-boolean in OR expression.");
+        		ERROR_IF_NON_BOOLEAN(b, "Left side non-boolean in OR expression.");
+
+        		if (a.as.boolean || b.as.boolean) {
+        			push(MAKE_VALUE_BOOLEAN(true));
+        		} else {
+        			push(MAKE_VALUE_BOOLEAN(false));
+        		}
+
             	break;
             }
 
@@ -509,10 +565,7 @@ InterpretResult interpret(Chunk* baseChunk) {
             	uint16_t address = twoBytesToShort(addr_byte1, addr_byte2);
 				Value condition = pop();
 
-				if (condition.type != VALUE_BOOLEAN) {
-					RUNTIME_ERROR("Non-boolean for condition.");
-					break;
-				}
+				ERROR_IF_NON_BOOLEAN(condition, "Expected boolean as condition");
 
 				if (!condition.as.boolean) {
 					vm.ip = currentChunk()->code + address;
