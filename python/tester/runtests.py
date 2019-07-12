@@ -33,7 +33,6 @@ def _run_on_interpreter(interpreter_path, input_text):
     memory_diagnostics_start = output_text.index('======== Memory diagnostics ========')
 
     return output_text[:memory_diagnostics_start]
-    # return output_text[:memory_diagnostics_start].strip()  # TODO: .strip() might not be the best idea.
 
 
 def _parse_test_lines(lines_iter, end_token):
