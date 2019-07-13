@@ -28,7 +28,8 @@ typedef Value (*NativeFunction)(ValueArray);
 
 typedef struct ObjectFunction {
     Object base;
-    ObjectString** parameters;
+//    ObjectString** parameters;
+    const char** parameters;
     int numParams;
     bool isNative;
     union {
@@ -41,8 +42,8 @@ ObjectString* copyString(const char* string, int length);
 ObjectString* takeString(char* chars, int length);
 ObjectString** createCopiedStringsArray(const char** strings, int num, const char* allocDescription);
 
-ObjectFunction* newUserObjectFunction(Chunk chunk, ObjectString** parameters, int numParams);
-ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, ObjectString** parameters, int numParams);
+ObjectFunction* newUserObjectFunction(Chunk chunk, const char** parameters, int numParams);
+ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, const char** parameters, int numParams);
 
 bool compareObjects(Object* a, Object* b);
 

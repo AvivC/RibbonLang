@@ -70,7 +70,7 @@ bool stringsEqual(ObjectString* a, ObjectString* b) {
     return (a->length == b->length) && (cstringsEqual(a->chars, b->chars));
 }
 
-static ObjectFunction* newPartialObjectFunction(bool isNative, ObjectString** parameters, int numParams) {
+static ObjectFunction* newPartialObjectFunction(bool isNative, const char** parameters, int numParams) {
     ObjectFunction* objFunc = (ObjectFunction*) allocateObject(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
     objFunc->isNative = isNative;
     objFunc->parameters = parameters;
@@ -78,14 +78,14 @@ static ObjectFunction* newPartialObjectFunction(bool isNative, ObjectString** pa
     return objFunc;
 }
 
-ObjectFunction* newUserObjectFunction(Chunk chunk, ObjectString** parameters, int numParams) {
+ObjectFunction* newUserObjectFunction(Chunk chunk, const char** parameters, int numParams) {
     DEBUG_PRINT("Creating user function object.");
     ObjectFunction* objFunc = newPartialObjectFunction(false, parameters, numParams);
     objFunc->chunk = chunk;
     return objFunc;
 }
 
-ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, ObjectString** parameters, int numParams) {
+ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, const char** parameters, int numParams) {
     DEBUG_PRINT("Creating native function object.");
     ObjectFunction* objFunc = newPartialObjectFunction(true, parameters, numParams);
     objFunc->nativeFunction = nativeFunction;
@@ -111,7 +111,7 @@ void freeObject(Object* o) {
 				DEBUG_OBJECTS("Freeing user ObjectFunction");
 				freeChunk(&func->chunk);
 			}
-            deallocate(func->parameters, sizeof(ObjectString*) * func->numParams, "Parameters list");
+            deallocate(func->parameters, sizeof(char*) * func->numParams, "Parameters list as cstrings");
             deallocate(func, sizeof(ObjectFunction), "ObjectFunction");
             break;
         }

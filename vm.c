@@ -191,7 +191,9 @@ static void resetStacks(void) {
 
 static void setBuiltinGlobals(void) {
 	int numParams = 1;
-	ObjectString** printParams = createCopiedStringsArray((const char*[] ) {"text" }, numParams, "Parameters list");
+//	ObjectString** printParams = createCopiedStringsArray((const char*[] ) {"text" }, numParams, "Parameters list");
+	const char** printParams = allocate(sizeof(char*) * numParams, "Parameters list as cstrings");
+	printParams[0] = "text";
 	ObjectFunction* printFunction = newNativeObjectFunction(builtinPrint, printParams, numParams);
 	setTableCStringKey(&vm.globals, "print", MAKE_VALUE_OBJECT(printFunction));
 }
@@ -199,9 +201,9 @@ static void setBuiltinGlobals(void) {
 static void callUserFunction(ObjectFunction* function) {
 	StackFrame frame = newStackFrame(vm.ip, function);
 	for (int i = 0; i < function->numParams; i++) {
-		ObjectString* paramName = function->parameters[i];
+		const char* paramName = function->parameters[i];
 		Value argument = pop();
-		setTable(&frame.localVariables, paramName, argument);
+		setTableCStringKey(&frame.localVariables, paramName, argument);
 	}
 	pushFrame(frame);
 	vm.ip = function->chunk.code;

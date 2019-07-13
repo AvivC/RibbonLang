@@ -4,6 +4,7 @@
 #include "chunk.h"
 #include "ast.h"
 #include "value.h"
+#include "memory.h"
 #include "utils.h"
 
 static void compileTree(AstNode* node, Chunk* chunk) {
@@ -97,8 +98,12 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             initChunk(&functionChunk);
             compile((AstNode*) nodeFunction->statements, &functionChunk); // calling compile() and not compileTree(), because it ends with OP_RETURN
 
-            ObjectString** parameters = (ObjectString**) pointerArrayToPlainArray(&nodeFunction->parameters, "Parameters list");
-            ObjectFunction* objFunc = newUserObjectFunction(functionChunk, parameters, nodeFunction->parameters.count);
+//            ObjectString** parameters = (ObjectString**) pointerArrayToPlainArray(&nodeFunction->parameters, "Parameters list");
+            const char** cstrings_params = allocate(sizeof(const char*) * nodeFunction->parameters.count, "Parameters list as cstrings");
+            for (int i = 0; i < nodeFunction->parameters.count; i++) {
+            	cstrings_params[i] = ((ObjectString*) nodeFunction->parameters.values[i])->chars;
+			}
+            ObjectFunction* objFunc = newUserObjectFunction(functionChunk, cstrings_params, nodeFunction->parameters.count);
             Value objFuncConstant = MAKE_VALUE_OBJECT(objFunc);
             int constantIndex = addConstant(chunk, objFuncConstant);
             
