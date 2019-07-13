@@ -144,7 +144,9 @@ static AstNode* function(void) {
 	if (match(TOKEN_TAKES)) {
 		do {
 			consume(TOKEN_IDENTIFIER, "Expected parameter name.");
-			writePointerArray(&parameters, copyString(parser.previous.start, parser.previous.length));
+//			writePointerArray(&parameters, copyString(parser.previous.start, parser.previous.length));
+			char* parameter = copy_cstring(parser.previous.start, parser.previous.length, "ObjectFunction param cstring");
+			writePointerArray(&parameters, parameter);
 		} while (match(TOKEN_COMMA));
 
 		consume(TOKEN_TO, "Expected 'to' at end of parameter list.");

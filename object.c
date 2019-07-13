@@ -37,14 +37,22 @@ static ObjectString* newObjectString(char* chars, int length) {
     return objString;
 }
 
+char* copy_cstring(const char* string, int length, const char* what) {
+	// argument length should not include the null-terminator
+	DEBUG_PRINT("Allocating string buffer '%.*s' of length %d.", length, string, length);
+
+    char* chars = allocate(sizeof(char) * length + 1, what);
+    memcpy(chars, string, length);
+    chars[length] = '\0';
+
+    return chars;
+}
+
 ObjectString* copyString(const char* string, int length) {
 	// argument length should not include the null-terminator
     DEBUG_PRINT("Allocating string buffer '%.*s' of length %d.", length, string, length);
     
-    char* chars = allocate(sizeof(char) * length + 1, "Object string buffer");
-    memcpy(chars, string, length);
-    chars[length] = '\0';
-    
+    char* chars = copy_cstring(string, length, "Object string buffer");
     return newObjectString(chars, length);
 }
 
@@ -70,7 +78,7 @@ bool stringsEqual(ObjectString* a, ObjectString* b) {
     return (a->length == b->length) && (cstringsEqual(a->chars, b->chars));
 }
 
-static ObjectFunction* newPartialObjectFunction(bool isNative, const char** parameters, int numParams) {
+static ObjectFunction* newPartialObjectFunction(bool isNative, char** parameters, int numParams) {
     ObjectFunction* objFunc = (ObjectFunction*) allocateObject(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
     objFunc->isNative = isNative;
     objFunc->parameters = parameters;
@@ -78,14 +86,14 @@ static ObjectFunction* newPartialObjectFunction(bool isNative, const char** para
     return objFunc;
 }
 
-ObjectFunction* newUserObjectFunction(Chunk chunk, const char** parameters, int numParams) {
+ObjectFunction* newUserObjectFunction(Chunk chunk, char** parameters, int numParams) {
     DEBUG_PRINT("Creating user function object.");
     ObjectFunction* objFunc = newPartialObjectFunction(false, parameters, numParams);
     objFunc->chunk = chunk;
     return objFunc;
 }
 
-ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, const char** parameters, int numParams) {
+ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, char** parameters, int numParams) {
     DEBUG_PRINT("Creating native function object.");
     ObjectFunction* objFunc = newPartialObjectFunction(true, parameters, numParams);
     objFunc->nativeFunction = nativeFunction;
@@ -111,7 +119,11 @@ void freeObject(Object* o) {
 				DEBUG_OBJECTS("Freeing user ObjectFunction");
 				freeChunk(&func->chunk);
 			}
-            deallocate(func->parameters, sizeof(char*) * func->numParams, "Parameters list as cstrings");
+            for (int i = 0; i < func->numParams; i++) {
+            	char* param = func->parameters[i];
+				deallocate(param, strlen(param) + 1, "ObjectFunction param cstring");
+			}
+            deallocate(func->parameters, sizeof(char*) * func->numParams, "Parameters list cstrings");
             deallocate(func, sizeof(ObjectFunction), "ObjectFunction");
             break;
         }

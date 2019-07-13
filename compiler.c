@@ -98,10 +98,10 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             initChunk(&functionChunk);
             compile((AstNode*) nodeFunction->statements, &functionChunk); // calling compile() and not compileTree(), because it ends with OP_RETURN
 
-//            ObjectString** parameters = (ObjectString**) pointerArrayToPlainArray(&nodeFunction->parameters, "Parameters list");
-            const char** cstrings_params = allocate(sizeof(const char*) * nodeFunction->parameters.count, "Parameters list as cstrings");
+            char** cstrings_params = allocate(sizeof(char*) * nodeFunction->parameters.count, "Parameters list cstrings");
+            // Assuming the cstrings in the PointerArray are safe to just point to, will not be freed by the AST free function.
             for (int i = 0; i < nodeFunction->parameters.count; i++) {
-            	cstrings_params[i] = ((ObjectString*) nodeFunction->parameters.values[i])->chars;
+            	cstrings_params[i] = nodeFunction->parameters.values[i];
 			}
             ObjectFunction* objFunc = newUserObjectFunction(functionChunk, cstrings_params, nodeFunction->parameters.count);
             Value objFuncConstant = MAKE_VALUE_OBJECT(objFunc);

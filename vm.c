@@ -123,10 +123,6 @@ static void gcMarkObject(Object* object) {
 				}
 			}
 		}
-
-		for (int i = 0; i < objFunc->numParams; i++) {
-			gcMarkObject((Object*) objFunc->parameters[i]);
-		}
 	}
 }
 
@@ -141,6 +137,15 @@ static void gcMark(void) {
 
 	for (StackFrame* frame = vm.callStack; frame != vm.callStackTop; frame++) {
 		gcMarkObject((Object*) frame->objFunc);
+
+		// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
+		// many entries are likely to be empty
+		for (int i = 0; i < frame->localVariables.capacity; i++) {
+			Entry* entry = &frame->localVariables.entries[i];
+			if (entry->value.type == VALUE_OBJECT) {
+				gcMarkObject(entry->value.as.object);
+			}
+		}
 	}
 
 	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
@@ -191,9 +196,8 @@ static void resetStacks(void) {
 
 static void setBuiltinGlobals(void) {
 	int numParams = 1;
-//	ObjectString** printParams = createCopiedStringsArray((const char*[] ) {"text" }, numParams, "Parameters list");
-	const char** printParams = allocate(sizeof(char*) * numParams, "Parameters list as cstrings");
-	printParams[0] = "text";
+	char** printParams = allocate(sizeof(char*) * numParams, "Parameters list cstrings");
+	printParams[0] = copy_cstring("text", 4, "ObjectFunction param cstring");
 	ObjectFunction* printFunction = newNativeObjectFunction(builtinPrint, printParams, numParams);
 	setTableCStringKey(&vm.globals, "print", MAKE_VALUE_OBJECT(printFunction));
 }

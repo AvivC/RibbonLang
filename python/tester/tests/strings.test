@@ -1,6 +1,0 @@
-test string adding
-    s = "abc" + "def"
-    print(a)
-expect
-    abcdef
-end
