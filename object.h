@@ -28,7 +28,6 @@ typedef Value (*NativeFunction)(ValueArray);
 
 typedef struct ObjectFunction {
     Object base;
-//    ObjectString** parameters;
     char** parameters;
     int numParams;
     bool isNative;
