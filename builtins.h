@@ -3,6 +3,6 @@
 
 #include "value.h"
 
-Value builtinPrint(ValueArray args);
+bool builtinPrint(ValueArray args, Value* out);
 
 #endif

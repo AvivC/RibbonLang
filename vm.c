@@ -219,7 +219,15 @@ static void callNativeFunction(ObjectFunction* function) {
 	for (int i = 0; i < function->numParams; i++) {
 		writeValueArray(&arguments, pop());
 	}
-	push(function->nativeFunction(arguments));
+
+	Value result;
+	bool func_success = function->nativeFunction(arguments, &result);
+	if (func_success) {
+		push(result);
+	} else {
+		push(MAKE_VALUE_NIL());
+	}
+
 	freeValueArray(&arguments);
 }
 

@@ -24,7 +24,7 @@ typedef struct ObjectString {
     int length;
 } ObjectString;
 
-typedef Value (*NativeFunction)(ValueArray);
+typedef bool (*NativeFunction)(ValueArray, Value*);
 
 typedef struct ObjectFunction {
     Object base;
@@ -59,5 +59,7 @@ void printAllObjects(void);
 
 ObjectFunction* objectAsFunction(Object* o);
 ObjectString* objectAsString(Object* o);
+
+bool is_value_object_of_type(Value value, ObjectType type);
 
 #endif

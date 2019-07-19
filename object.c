@@ -27,6 +27,33 @@ static Object* allocateObject(size_t size, const char* what, ObjectType type) {
     return object;
 }
 
+bool is_value_object_of_type(Value value, ObjectType type) {
+	return value.type == VALUE_OBJECT && value.as.object->type == type;
+}
+
+static bool object_string_add(ValueArray args, Value* result) {
+	Value self_value = args.values[0];
+	Value other_value = args.values[1];
+
+    if (!is_value_object_of_type(self_value, OBJECT_STRING) || !is_value_object_of_type(other_value, OBJECT_STRING)) {
+    	*result = MAKE_VALUE_NIL();
+    	return false;
+    }
+
+    ObjectString* self_string = OBJECT_AS_STRING(self_value.as.object);
+    ObjectString* other_string = OBJECT_AS_STRING(other_value.as.object);
+
+    char* buffer = allocate(self_string->length + other_string->length + 1, "Object string buffer");
+    memcpy(buffer, self_string->chars, self_string->length);
+    memcpy(buffer + self_string->length, other_string->chars, other_string->length);
+    int stringLength = self_string->length + other_string->length;
+    buffer[stringLength] = '\0';
+    ObjectString* objString = takeString(buffer, stringLength);
+
+    *result = MAKE_VALUE_OBJECT(objString);
+    return true;
+}
+
 static ObjectString* newObjectString(char* chars, int length) {
     DEBUG_PRINT("Allocating string object '%s' of length %d.", chars, length);
     
@@ -34,6 +61,15 @@ static ObjectString* newObjectString(char* chars, int length) {
     
     objString->chars = chars;
     objString->length = length;
+
+    // Should "result" be listed in the internal parameter list?
+    // TODO: Factor out all of this, it repeats in more places
+    int add_func_num_params = 2;
+    char** params = allocate(sizeof(char*) * add_func_num_params, "Parameters list cstrings");
+    params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");;
+    params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");;
+    ObjectFunction* string_object_function = newNativeObjectFunction(object_string_add, params, add_func_num_params);
+
     return objString;
 }
 
@@ -192,3 +228,4 @@ void printAllObjects(void) {
 		printf("No live objects.\n");
 	}
 }
+

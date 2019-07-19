@@ -3,8 +3,10 @@
 #include "builtins.h"
 #include "value.h"
 
-Value builtinPrint(ValueArray args) {
+bool builtinPrint(ValueArray args, Value* out) {
 	printValue(args.values[0]);
 	printf("\n");
-	return MAKE_VALUE_NIL();
+
+	*out = MAKE_VALUE_NIL();
+	return true;
 }
