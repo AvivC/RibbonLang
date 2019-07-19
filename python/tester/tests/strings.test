@@ -1,0 +1,33 @@
+test adding strings
+    print("abc" + "abc")
+    print("abc" + " " + "abc")
+    print("abc" + " " + "def")
+
+    a = "abc"
+    b = "def"
+    print(a + " " + b)
+
+    str = ""
+    n = 0
+    while n <= 3 {
+        if n == 0 {
+            x = "0"
+        } elsif n == 1 {
+            x = "1"
+        } elsif n == 2 {
+            x = "2"
+        } elsif n == 3 {
+            x = "3"
+        }
+
+        str = str + x
+        n = n + 1
+    }
+    print(str)
+expect
+    abcabc
+    abc abc
+    abc def
+    abc def
+    0123
+end

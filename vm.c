@@ -43,8 +43,12 @@ static Value pop(void) {
     return *vm.stackTop;
 }
 
+static Value peekAt(int offset) {
+	return *(vm.stackTop - offset);
+}
+
 static Value peek(void) {
-	return *(vm.stackTop - 1);
+	return peekAt(1);
 }
 
 static void initStackFrame(StackFrame* frame) {
@@ -108,9 +112,16 @@ static void gcMarkObject(Object* object) {
 		return;
 	}
 
-	// TODO: Scan attributes recursively
-
 	object->isReachable = true;
+
+	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
+	// many entries are likely to be empty
+	for (int i = 0; i < object->attributes.capacity; i++) {
+		Entry* entry = &object->attributes.entries[i];
+		if (entry->value.type == VALUE_OBJECT) {
+			gcMarkObject(entry->value.as.object);
+		}
+	}
 
 	if (object->type == OBJECT_FUNCTION) {
 		ObjectFunction* objFunc = OBJECT_AS_FUNCTION(object);
@@ -127,8 +138,6 @@ static void gcMarkObject(Object* object) {
 }
 
 static void gcMark(void) {
-	// TODO: Recursively free all object attributes of the freed objects
-
 	for (Value* value = vm.evalStack; value != vm.stackTop; value++) {
 		if (value->type == VALUE_OBJECT) {
 			gcMarkObject(value->as.object);
@@ -156,8 +165,6 @@ static void gcMark(void) {
 			gcMarkObject(entry->value.as.object);
 		}
 	}
-
-	// TODO: Scan more things which will be added later, such as local variable Tables
 }
 
 static void gcSweep(void) {
@@ -352,7 +359,46 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
             
             case OP_ADD: {
-                BINARY_MATH_OP(+);
+            	if (peekAt(2).type == VALUE_OBJECT) {
+            		Value other = pop();
+            		Value self_val = pop();
+
+            		Object* self = self_val.as.object;
+            		Value add_method;
+            		if (!getTableCStringKey(&self->attributes, "@add", &add_method)) {
+            			RUNTIME_ERROR("Object doesn't support @add method.");
+            			break;
+            		}
+
+					if (!is_value_object_of_type(add_method, OBJECT_FUNCTION)) {
+						RUNTIME_ERROR("Objects @add isn't a function.");
+						break;
+					}
+
+					ObjectFunction* add_method_as_func = (ObjectFunction*) add_method.as.object;
+
+					ValueArray arguments;
+					initValueArray(&arguments);
+					writeValueArray(&arguments, self_val);
+					writeValueArray(&arguments, other);
+
+					Value result;
+					if (add_method_as_func->isNative) {
+						if (!add_method_as_func->nativeFunction(arguments, &result)) {
+							RUNTIME_ERROR("@add function failed.");
+							goto cleanup;
+						}
+						push(result);
+					} else {
+						// TODO: user function
+					}
+
+					cleanup:
+					freeValueArray(&arguments);
+
+            	} else {
+            		BINARY_MATH_OP(+);
+            	}
                 break;
             }
             
@@ -377,7 +423,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 
         		int compare = 0;
         		if (!compareValues(a, b, &compare)) {
-        			RUNTIME_ERROR("Unable to compare two values.");
+        			RUNTIME_ERROR("Unable to compare two values <.");
         			break;
         		}
         		if (compare == -1) {
@@ -395,7 +441,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 
         		int compare = 0;
         		if (!compareValues(a, b, &compare)) {
-        			RUNTIME_ERROR("Unable to compare two values.");
+        			RUNTIME_ERROR("Unable to compare two values >.");
         			break;
         		}
         		if (compare == 1) {
@@ -413,7 +459,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 
         		int compare = 0;
         		if (!compareValues(a, b, &compare)) {
-        			RUNTIME_ERROR("Unable to compare two values.");
+        			RUNTIME_ERROR("Unable to compare two values <=.");
         			break;
         		}
         		if (compare == -1 || compare == 0) {
@@ -431,7 +477,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 
         		int compare = 0;
         		if (!compareValues(a, b, &compare)) {
-        			RUNTIME_ERROR("Unable to compare two values.");
+        			RUNTIME_ERROR("Unable to compare two values >=.");
         			break;
         		}
         		if (compare == 1 || compare == 0) {
@@ -449,7 +495,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 
         		int compare = 0;
         		if (!compareValues(a, b, &compare)) {
-        			RUNTIME_ERROR("Unable to compare two values.");
+        			RUNTIME_ERROR("Unable to compare two values ==.");
         			break;
         		}
         		if (compare == 0) {

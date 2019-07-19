@@ -62,13 +62,14 @@ static ObjectString* newObjectString(char* chars, int length) {
     objString->chars = chars;
     objString->length = length;
 
-    // Should "result" be listed in the internal parameter list?
     // TODO: Factor out all of this, it repeats in more places
     int add_func_num_params = 2;
     char** params = allocate(sizeof(char*) * add_func_num_params, "Parameters list cstrings");
+    // Should "result" be listed in the internal parameter list?
     params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");;
     params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");;
-    ObjectFunction* string_object_function = newNativeObjectFunction(object_string_add, params, add_func_num_params);
+    ObjectFunction* string_add_function = newNativeObjectFunction(object_string_add, params, add_func_num_params);
+    setTableCStringKey(&objString->base.attributes, "@add", MAKE_VALUE_OBJECT(string_add_function));
 
     return objString;
 }
@@ -137,6 +138,8 @@ ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, char** pa
 }
 
 void freeObject(Object* o) {
+	freeTable(&o->attributes);
+
 	ObjectType type = o->type;
 
     switch (type) {
