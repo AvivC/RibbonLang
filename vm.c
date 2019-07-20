@@ -205,7 +205,7 @@ static void setBuiltinGlobals(void) {
 	int numParams = 1;
 	char** printParams = allocate(sizeof(char*) * numParams, "Parameters list cstrings");
 	printParams[0] = copy_cstring("text", 4, "ObjectFunction param cstring");
-	ObjectFunction* printFunction = newNativeObjectFunction(builtinPrint, printParams, numParams);
+	ObjectFunction* printFunction = newNativeObjectFunction(builtin_print, printParams, numParams);
 	setTableCStringKey(&vm.globals, "print", MAKE_VALUE_OBJECT(printFunction));
 }
 
