@@ -19,7 +19,8 @@ const char* AST_NODE_TYPE_NAMES[] = {
 	"AST_NODE_IF",
 	"AST_NODE_WHILE",
 	"AST_NODE_AND",
-	"AST_NODE_OR"
+	"AST_NODE_OR",
+	"AST_NODE_ATTRIBUTE"
 };
 
 static void printNestingString(int nesting) {
@@ -84,6 +85,16 @@ static void printNode(AstNode* node, int nesting) {
             break;
         }
         
+        case AST_NODE_ATTRIBUTE: {
+			AstNodeAttribute* node_attr = (AstNodeAttribute*) node;
+			printNestingString(nesting);
+			printf("ATTRIBUTE: %.*s\n", node_attr->length, node_attr->name);
+			printNestingString(nesting);
+			printf("Of object:\n");
+			printNode(node_attr->object, nesting + 1);
+			break;
+		}
+
         case AST_NODE_ASSIGNMENT: {
             AstNodeAssignment* nodeAssignment = (AstNodeAssignment*) node;
             printNestingString(nesting);
@@ -236,6 +247,13 @@ static void freeNode(AstNode* node, int nesting) {
             break;
         }
         
+        case AST_NODE_ATTRIBUTE: {
+            AstNodeAttribute* node_attr = (AstNodeAttribute*) node;
+            freeNode(node_attr ->object, nesting + 1);
+            deallocate(node_attr, sizeof(AstNodeAttribute), deallocationString);
+            break;
+        }
+
         case AST_NODE_BINARY: {
             AstNodeBinary* nodeBinary = (AstNodeBinary*) node;
             
@@ -424,6 +442,14 @@ AstNodeOr* new_ast_node_or(AstNode* left, AstNode* right) {
 	AstNodeOr* node = ALLOCATE_AST_NODE(AstNodeOr, AST_NODE_OR);
 	node->left = left;
 	node->right = right;
+	return node;
+}
+
+AstNodeAttribute* new_ast_node_attribute(AstNode* object, const char* name, int length) {
+	AstNodeAttribute* node = ALLOCATE_AST_NODE(AstNodeAttribute, AST_NODE_ATTRIBUTE);
+	node->object = object;
+	node->name = name;
+	node->length = length;
 	return node;
 }
 

@@ -11,6 +11,7 @@
 #define DEBUG_TRACE_EXECUTION 0 // Show low-level stack and object operations
 #define DEBUG_MEMORY_EXECUTION 0 // Show low-level memory operations
 #define DEBUG_IMPORTANT 1 // Pretty much always leave this on, at least in dev - printing critical diagnosis and such
+#define DEBUG_SCANNER 0 // Show low level lexing output and such
 
 #if DEBUG
     #define DEBUG_PRINT(...) do { \
@@ -52,6 +53,16 @@
             
 #else
     #define DEBUG_TRACE(...) do {} while(false)
+#endif
+
+#if DEBUG_SCANNER
+    #define DEBUG_SCANNER_PRINT(...) do { \
+            fprintf (stderr, "Scanner: " __VA_ARGS__); \
+            fprintf (stderr, "\n"); \
+        } while (false)
+
+#else
+    #define DEBUG_SCANNER_PRINT(...) do {} while(false)
 #endif
 
 #define DEBUG_OBJECTS(...) DEBUG_TRACE("Objects: " __VA_ARGS__)

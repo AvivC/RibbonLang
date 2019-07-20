@@ -56,6 +56,8 @@ static Token makeToken(ScannerTokenType type) {
     token.start = scanner.start;
     token.length = scanner.current - scanner.start;
     token.lineNumber = scanner.line;
+
+    DEBUG_SCANNER_PRINT("Token %d", type);
     return token;
 }
 
@@ -64,6 +66,9 @@ static Token errorToken(const char* message) {
     token.type = TOKEN_ERROR;
     token.start = message;
     token.length = strlen(message); // assuming message is always a null-terminated string-literal
+
+    DEBUG_SCANNER_PRINT("Error token '%s'", message);
+
     return token;
 }
 
@@ -198,6 +203,7 @@ Token scanToken() {
         case '{': return makeToken(TOKEN_LEFT_BRACE);
         case '}': return makeToken(TOKEN_RIGHT_BRACE);
         case ',': return makeToken(TOKEN_COMMA);
+        case '.': return makeToken(TOKEN_DOT);
         case '\n': return makeToken(TOKEN_NEWLINE);
     }
     

@@ -100,6 +100,11 @@ static AstNode* binary(AstNode* leftNode) {
     return (AstNode*) node;
 }
 
+static AstNode* get_attribute(AstNode* leftNode) {
+	advance(); // Currently the attribute name is parser.current. We advance this so parsing continues correctly after us
+	return (AstNode*) new_ast_node_attribute(leftNode, parser.previous.start, parser.previous.length);
+}
+
 static AstNode* returnStatement(void) {
 	return (AstNode*) newAstNodeReturn(parsePrecedence(PREC_ASSIGNMENT));
 }
@@ -144,7 +149,6 @@ static AstNode* function(void) {
 	if (match(TOKEN_TAKES)) {
 		do {
 			consume(TOKEN_IDENTIFIER, "Expected parameter name.");
-//			writePointerArray(&parameters, copyString(parser.previous.start, parser.previous.length));
 			char* parameter = copy_cstring(parser.previous.start, parser.previous.length, "ObjectFunction param cstring");
 			writePointerArray(&parameters, parameter);
 		} while (match(TOKEN_COMMA));
@@ -256,6 +260,7 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_RIGHT_BRACE
     {NULL, NULL, PREC_NONE},     // TOKEN_COMMA
     {NULL, NULL, PREC_NONE},     // TOKEN_NEWLINE
+    {NULL, get_attribute, PREC_GROUPING},     // TOKEN_DOT
     {NULL, binary, PREC_COMPARISON},     // TOKEN_EQUAL_EQUAL
     {NULL, binary, PREC_COMPARISON},     // TOKEN_BANG_EQUAL
     {NULL, binary, PREC_COMPARISON},     // TOKEN_GREATER_EQUAL

@@ -214,12 +214,6 @@ static void setBuiltinGlobals(void) {
 	register_builtin_function("print", 1, (char*[]) {"text"}, builtin_print);
 	register_builtin_function("input", 0, NULL, builtin_input);
 	register_builtin_function("read_file", 1, (char*[]) {"path"}, builtin_read_file);
-//
-//	num_params = 1;
-//	char** read_file_params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
-//	read_file_params[0] = copy_cstring("path", 4, "ObjectFunction param cstring");
-//	ObjectFunction* read_file_function = newNativeObjectFunction(builtin_read_file, input_params, num_params);
-//	setTableCStringKey(&vm.globals, "read_file", MAKE_VALUE_OBJECT(read_file_function));
 }
 
 static void callUserFunction(ObjectFunction* function) {
@@ -592,7 +586,6 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
             
             case OP_LOAD_VARIABLE: {
-
                 int constantIndex = READ_BYTE();
                 ObjectString* name = OBJECT_AS_STRING(currentChunk()->constants.values[constantIndex].as.object);
                 push(loadVariable(name));
@@ -627,6 +620,27 @@ InterpretResult interpret(Chunk* baseChunk) {
                 	callNativeFunction(function);
                 } else {
                 	callUserFunction(function);
+                }
+
+                break;
+            }
+
+            case OP_GET_ATTRIBUTE: {
+                int constant_index = READ_BYTE();
+                ObjectString* name = OBJECT_AS_STRING(currentChunk()->constants.values[constant_index].as.object);
+
+                Value obj_val = pop();
+                if (obj_val.type != VALUE_OBJECT) {
+                	RUNTIME_ERROR("Cannot access attribute on non-object.");
+                	break;
+                }
+
+                Object* object = obj_val.as.object;
+                Value attr_value;
+                if (getTable(&object->attributes, name, &attr_value)) {
+                	push(attr_value);
+                } else {
+                	push(MAKE_VALUE_NIL());
                 }
 
                 break;
