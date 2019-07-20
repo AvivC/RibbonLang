@@ -46,6 +46,10 @@ static bool check(ScannerTokenType type) {
     return parser.current.type == type;
 }
 
+static bool check_at_offset(ScannerTokenType type, int offset) {
+	return peek_token_at_offset(offset).type == type;
+}
+
 static void advance() {
     parser.previous = parser.current;
     parser.current = scanToken();
@@ -76,6 +80,14 @@ static bool matchNext(ScannerTokenType type) {
         return true;
     }
     return false;
+}
+
+static bool match_at_offset(ScannerTokenType type, int offset) {
+	if (peek_token_at_offset(offset).type == type) {
+		advance();
+		return true;
+	}
+	return false;
 }
 
 static void skipNewlines(void) {
@@ -305,7 +317,7 @@ static AstNode* parsePrecedence(Precedence precedence) {
     return node;
 }
 
-static AstNodeAssignment* assignmentStatement() {
+static AstNodeAssignment* assignmentStatement(void) {
     const char* variableName = parser.previous.start;
     int variableLength = parser.previous.length;
     
@@ -318,6 +330,22 @@ static AstNodeAssignment* assignmentStatement() {
     node->length = variableLength;
     node->value = value;
     
+    return node;
+}
+
+static AstNodeAssignment* attribute_assignment_statement(void) {
+    const char* variableName = parser.previous.start;
+    int variableLength = parser.previous.length;
+
+    consume(TOKEN_EQUAL, "Expected '=' after variable name in assignment.");
+
+    AstNode* value = parsePrecedence(PREC_ASSIGNMENT);
+
+    AstNodeAssignment* node = ALLOCATE_AST_NODE(AstNodeAssignment, AST_NODE_ASSIGNMENT);
+    node->name = variableName;
+    node->length = variableLength;
+    node->value = value;
+
     return node;
 }
 
@@ -341,6 +369,11 @@ static AstNode* statements() {
 
         if (check(TOKEN_IDENTIFIER) && matchNext(TOKEN_EQUAL)) {
             childNode = (AstNode*) assignmentStatement();
+        } else if (check(TOKEN_IDENTIFIER)
+        		&& check_at_offset(TOKEN_DOT, 1)
+				&& check_at_offset(TOKEN_IDENTIFIER, 2)
+				&& check_at_offset(TOKEN_EQUAL, 3)) {
+        	childNode = (AstNode*) attribute_assignment_statement();
         } else if (match(TOKEN_RETURN)) {
         	childNode = (AstNode*) returnStatement();
         } else if (match(TOKEN_IF)) {

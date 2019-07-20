@@ -156,11 +156,24 @@ void initScanner(const char* source) {
 }
 
 Token peekNextToken() {
+    return peek_token_at_offset(1);
+}
+
+Token peek_token_at_offset(int offset) {
+	if (offset < 1) {
+		FAIL("peek_token_at_offset called with offset < 1.");
+	}
+
     // TODO: This approach is pretty awkward and can cause bugs later. Needs refactoring.
-    
+
     const char* oldStart = scanner.start;
     const char* oldCurrent = scanner.current;
-    Token token = scanToken();
+
+    Token token;
+    for (int i = 0; i < offset; i++) {
+    	token = scanToken();
+	}
+
     scanner.start = oldStart;
     scanner.current = oldCurrent;
     return token;
