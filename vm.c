@@ -202,11 +202,16 @@ static void resetStacks(void) {
 }
 
 static void setBuiltinGlobals(void) {
-	int numParams = 1;
-	char** printParams = allocate(sizeof(char*) * numParams, "Parameters list cstrings");
+	int num_params = 1;
+	char** printParams = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 	printParams[0] = copy_cstring("text", 4, "ObjectFunction param cstring");
-	ObjectFunction* printFunction = newNativeObjectFunction(builtin_print, printParams, numParams);
-	setTableCStringKey(&vm.globals, "print", MAKE_VALUE_OBJECT(printFunction));
+	ObjectFunction* print_function = newNativeObjectFunction(builtin_print, printParams, num_params);
+	setTableCStringKey(&vm.globals, "print", MAKE_VALUE_OBJECT(print_function));
+
+	num_params = 0;
+	char** input_params = NULL;
+	ObjectFunction* input_function = newNativeObjectFunction(builtin_input, input_params, num_params);
+	setTableCStringKey(&vm.globals, "input", MAKE_VALUE_OBJECT(input_function));
 }
 
 static void callUserFunction(ObjectFunction* function) {

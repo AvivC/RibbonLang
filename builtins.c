@@ -20,7 +20,7 @@ bool builtin_input(ValueArray args, Value* out) {
 	int character = 0;
 	int length = 0;
 	int capacity = 10;
-	const char* alloc_string = "User input buffer";
+	const char* alloc_string = "Object string buffer";
 
 	char* user_input = allocate(sizeof(char) * capacity, alloc_string);
 

@@ -162,7 +162,9 @@ void freeObject(Object* o) {
             	char* param = func->parameters[i];
 				deallocate(param, strlen(param) + 1, "ObjectFunction param cstring");
 			}
-            deallocate(func->parameters, sizeof(char*) * func->numParams, "Parameters list cstrings");
+            if (func->numParams > 0) {
+            	deallocate(func->parameters, sizeof(char*) * func->numParams, "Parameters list cstrings");
+            }
             deallocate(func, sizeof(ObjectFunction), "ObjectFunction");
             break;
         }
