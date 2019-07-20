@@ -16,6 +16,7 @@ bool builtin_print(ValueArray args, Value* out) {
 
 bool builtin_input(ValueArray args, Value* out) {
 	// TODO: Error handling
+	// TODO: Write dedicated tests
 
 	int character = 0;
 	int length = 0;
@@ -23,6 +24,10 @@ bool builtin_input(ValueArray args, Value* out) {
 	const char* alloc_string = "Object string buffer";
 
 	char* user_input = allocate(sizeof(char) * capacity, alloc_string);
+
+	if (user_input == NULL) {
+		return false;
+	}
 
 	while ((character = getchar()) != '\n') {
 		user_input[length++] = character;
@@ -39,4 +44,46 @@ bool builtin_input(ValueArray args, Value* out) {
 
 	*out = MAKE_VALUE_OBJECT(obj_string);
 	return true;
+}
+
+bool builtin_read_file(ValueArray args, Value* out) {
+	// TODO: Proper systematic error handling, instead of ad-hoc printing
+	// TODO: Dedicated tests
+
+	if (!is_value_object_of_type(args.values[0], OBJECT_STRING)) {
+		return false;
+	}
+
+	ObjectString* path = OBJECT_AS_STRING(args.values[0].as.object);
+
+    FILE* file = fopen(path->chars, "rb");
+
+    if (file == NULL) {
+        fprintf(stderr, "Couldn't open file '%s'. Error:\n'", path->chars);
+        perror("fopen");
+        fprintf(stderr, "'\n");
+        return false;
+    }
+
+    fseek(file, 0, SEEK_END);
+    size_t fileSize = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    char* buffer = allocate(sizeof(char) * fileSize + 1, "Object string buffer");
+    size_t bytesRead = fread(buffer, 1, fileSize, file);
+
+    if (bytesRead != fileSize) {
+        fprintf(stderr, "Couldn't read entire file. File size: %d. Bytes read: %d.\n", fileSize, bytesRead);
+        return false;
+    }
+
+    if (fclose(file) != 0) {
+        fprintf(stderr, "Couldn't close file.\n");
+        return false;
+    }
+
+    buffer[fileSize] = '\0';
+
+    *out = MAKE_VALUE_OBJECT(takeString(buffer, fileSize));
+    return true;
 }

@@ -201,17 +201,25 @@ static void resetStacks(void) {
 	vm.callStackTop = vm.callStack;
 }
 
-static void setBuiltinGlobals(void) {
-	int num_params = 1;
-	char** printParams = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
-	printParams[0] = copy_cstring("text", 4, "ObjectFunction param cstring");
-	ObjectFunction* print_function = newNativeObjectFunction(builtin_print, printParams, num_params);
-	setTableCStringKey(&vm.globals, "print", MAKE_VALUE_OBJECT(print_function));
+static void register_builtin_function(const char* name, int num_params, char** params, NativeFunction function) {
+	char** params_buffer = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+	for (int i = 0; i < num_params; i++) {
+		params_buffer[i] = copy_cstring(params[i], strlen(params[i]), "ObjectFunction param cstring");
+	}
+	ObjectFunction* obj_function = newNativeObjectFunction(function, params_buffer, num_params);
+	setTableCStringKey(&vm.globals, name, MAKE_VALUE_OBJECT(obj_function));
+}
 
-	num_params = 0;
-	char** input_params = NULL;
-	ObjectFunction* input_function = newNativeObjectFunction(builtin_input, input_params, num_params);
-	setTableCStringKey(&vm.globals, "input", MAKE_VALUE_OBJECT(input_function));
+static void setBuiltinGlobals(void) {
+	register_builtin_function("print", 1, (char*[]) {"text"}, builtin_print);
+	register_builtin_function("input", 0, NULL, builtin_input);
+	register_builtin_function("read_file", 1, (char*[]) {"path"}, builtin_read_file);
+//
+//	num_params = 1;
+//	char** read_file_params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+//	read_file_params[0] = copy_cstring("path", 4, "ObjectFunction param cstring");
+//	ObjectFunction* read_file_function = newNativeObjectFunction(builtin_read_file, input_params, num_params);
+//	setTableCStringKey(&vm.globals, "read_file", MAKE_VALUE_OBJECT(read_file_function));
 }
 
 static void callUserFunction(ObjectFunction* function) {
