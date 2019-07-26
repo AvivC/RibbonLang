@@ -28,8 +28,8 @@ typedef enum {
 } Precedence;
 
 
-typedef AstNode* (*PrefixFunction)(void);
-typedef AstNode* (*InfixFunction)(AstNode* leftNode);
+typedef AstNode* (*PrefixFunction)(int expression_level);
+typedef AstNode* (*InfixFunction)(AstNode* leftNode, int expression_level);
 
 typedef struct {
     PrefixFunction prefix;
@@ -94,15 +94,15 @@ static void skipNewlines(void) {
 	while (match(TOKEN_NEWLINE));
 }
 
-static AstNode* parsePrecedence(Precedence precedence);
+static AstNode* parsePrecedence(Precedence precedence, int expression_level);
 static ParseRule getRule(ScannerTokenType type);
 static AstNode* statements();
 
-static AstNode* binary(AstNode* leftNode) {
+static AstNode* binary(AstNode* leftNode, int expression_level) {
     ScannerTokenType operator = parser.previous.type;
     Precedence precedence = getRule(operator).precedence;
     
-    AstNode* rightNode = parsePrecedence(precedence + 1);
+    AstNode* rightNode = parsePrecedence(precedence + 1, expression_level + 1);
     
     AstNodeBinary* node = ALLOCATE_AST_NODE(AstNodeBinary, AST_NODE_BINARY);
     node->operator = operator;
@@ -112,7 +112,7 @@ static AstNode* binary(AstNode* leftNode) {
     return (AstNode*) node;
 }
 
-static AstNode* dot(AstNode* leftNode) {
+static AstNode* dot(AstNode* leftNode, int expression_level) {
 	// TODO: Very possibly not the best solution for attribute setting. Maybe refactor later.
 
 	consume(TOKEN_IDENTIFIER, "Expected attribute name after '.'");
@@ -120,8 +120,12 @@ static AstNode* dot(AstNode* leftNode) {
 	int name_length = parser.previous.length;
 
 	if (match(TOKEN_EQUAL)) { // TODO: Validate assignment is legal here
+		if (expression_level != 0) {
+			error("Attribute assignment illegal inside expression");
+			return NULL;
+		}
 		// Set attribute
-		AstNode* value = parsePrecedence(PREC_ASSIGNMENT);
+		AstNode* value = parsePrecedence(PREC_ASSIGNMENT, expression_level + 1);
 		return (AstNode*) new_ast_node_attribute_assignment(leftNode, attr_name, name_length, value);
 	} else {
 		// Get attribute
@@ -130,24 +134,24 @@ static AstNode* dot(AstNode* leftNode) {
 }
 
 static AstNode* returnStatement(void) {
-	return (AstNode*) newAstNodeReturn(parsePrecedence(PREC_ASSIGNMENT));
+	return (AstNode*) newAstNodeReturn(parsePrecedence(PREC_ASSIGNMENT, 0));
 }
 
-static AstNode* identifier(void) {
+static AstNode* identifier(int expression_level) {
     AstNodeVariable* node = ALLOCATE_AST_NODE(AstNodeVariable, AST_NODE_VARIABLE);
     node->name = parser.previous.start;
     node->length = parser.previous.length;
     return (AstNode*) node;
 }
 
-static AstNode* number(void) {
+static AstNode* number(int expression_level) {
     double number = strtod(parser.previous.start, NULL);
     AstNodeConstant* node = ALLOCATE_AST_NODE(AstNodeConstant, AST_NODE_CONSTANT);
     node->value = MAKE_VALUE_NUMBER(number);
     return (AstNode*) node;
 }
 
-static AstNode* string(void) {
+static AstNode* string(int expression_level) {
     const char* theString = parser.previous.start + 1;
     ObjectString* objString = copyString(theString, parser.previous.length - 2);
     Value value = MAKE_VALUE_OBJECT(objString);
@@ -156,15 +160,15 @@ static AstNode* string(void) {
     return (AstNode*) node;
 }
 
-static AstNode* and(AstNode* leftNode) {
-	return (AstNode*) new_ast_node_and(leftNode, parsePrecedence(PREC_AND + 1));
+static AstNode* and(AstNode* leftNode, int expression_level) {
+	return (AstNode*) new_ast_node_and(leftNode, parsePrecedence(PREC_AND + 1, expression_level + 1));
 }
 
-static AstNode* or(AstNode* leftNode) {
-	return (AstNode*) new_ast_node_or(leftNode, parsePrecedence(PREC_OR + 1));
+static AstNode* or(AstNode* leftNode, int expression_level) {
+	return (AstNode*) new_ast_node_or(leftNode, parsePrecedence(PREC_OR + 1, expression_level + 1));
 }
 
-static AstNode* function(void) {
+static AstNode* function(int expression_level) {
 	skipNewlines();
 
 	PointerArray parameters;
@@ -187,13 +191,13 @@ static AstNode* function(void) {
     return (AstNode*) node;
 }
 
-static AstNode* call(AstNode* leftNode) {
+static AstNode* call(AstNode* leftNode, int expression_level) {
 	PointerArray arguments;
 	initPointerArray(&arguments);
 
 	while (!match(TOKEN_RIGHT_PAREN)) {
 		do {
-			AstNode* argument = parsePrecedence(PREC_ASSIGNMENT);
+			AstNode* argument = parsePrecedence(PREC_ASSIGNMENT, expression_level + 1);
 			writePointerArray(&arguments, argument);
 		} while (match(TOKEN_COMMA));
 	}
@@ -201,19 +205,19 @@ static AstNode* call(AstNode* leftNode) {
 	return (AstNode*) newAstNodeCall(leftNode, arguments);
 }
 
-static AstNode* grouping(void) {
-    AstNode* node = parsePrecedence(PREC_ASSIGNMENT);
+static AstNode* grouping(int expression_level) {
+    AstNode* node = parsePrecedence(PREC_ASSIGNMENT, expression_level + 1);
     consume(TOKEN_RIGHT_PAREN, "Expected closing ')' after grouped expression.");
     return node;
 }
 
-static AstNode* unary(void) {
+static AstNode* unary(int expression_level) {
     AstNodeUnary* node = ALLOCATE_AST_NODE(AstNodeUnary, AST_NODE_UNARY);
-    node->operand = parsePrecedence(PREC_UNARY); // so-called right associativity
+    node->operand = parsePrecedence(PREC_UNARY, expression_level + 1); // so-called right associativity
     return (AstNode*) node;
 }
 
-static AstNode* boolean(void) {
+static AstNode* boolean(int expression_level) {
 	bool booleanValue;
 	if (parser.previous.type == TOKEN_TRUE) {
 		booleanValue = true;
@@ -225,8 +229,8 @@ static AstNode* boolean(void) {
 	return (AstNode*) newAstNodeConstant(MAKE_VALUE_BOOLEAN(booleanValue));
 }
 
-static void conditionedClause(AstNodeStatements** bodyOut, AstNode** conditionOut) {
-	*conditionOut = parsePrecedence(PREC_ASSIGNMENT);
+static void conditionedClause(AstNodeStatements** bodyOut, AstNode** conditionOut, int expression_level) {
+	*conditionOut = parsePrecedence(PREC_ASSIGNMENT, expression_level + 1);
 	skipNewlines();
 	consume(TOKEN_LEFT_BRACE, "Expected '{' to open block.");
 	*bodyOut = (AstNodeStatements*) statements();
@@ -236,7 +240,7 @@ static void conditionedClause(AstNodeStatements** bodyOut, AstNode** conditionOu
 static AstNode* ifStatement(void) {
 	AstNodeStatements* body;
 	AstNode* condition;
-	conditionedClause(&body, &condition);
+	conditionedClause(&body, &condition, 0);
 
 	PointerArray elsifClauses;
 	initPointerArray(&elsifClauses);
@@ -244,7 +248,7 @@ static AstNode* ifStatement(void) {
 	while (match(TOKEN_ELSIF)) {
 		AstNodeStatements* body;
 		AstNode* condition;
-		conditionedClause(&body, &condition);
+		conditionedClause(&body, &condition, 0);
 		writePointerArray(&elsifClauses, condition);
 		writePointerArray(&elsifClauses, body);
 	}
@@ -261,7 +265,7 @@ static AstNode* ifStatement(void) {
 static AstNode* whileStatement(void) {
 	AstNodeStatements* body;
 	AstNode* condition;
-	conditionedClause(&body, &condition);
+	conditionedClause(&body, &condition, 0);
 
 	return (AstNode*) newAstNodeWhile(condition, body);
 }
@@ -307,7 +311,7 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE}            // TOKEN_ERROR
 };
 
-static AstNode* parsePrecedence(Precedence precedence) {
+static AstNode* parsePrecedence(Precedence precedence, int expression_level) {
     AstNode* node = NULL;
     
     advance(); // always assume the previous token is the "acting operator"
@@ -318,12 +322,12 @@ static AstNode* parsePrecedence(Precedence precedence) {
         return NULL;
     }
     
-    node = (AstNode*) prefixRule.prefix();
+    node = (AstNode*) prefixRule.prefix(expression_level);
     
     while (getRule(parser.current.type).precedence >= precedence) { // TODO: also validate no NULL?
         advance();
         ParseRule infixRule = getRule(parser.previous.type);
-        node = (AstNode*) infixRule.infix(node);
+        node = (AstNode*) infixRule.infix(node, expression_level);
     }
     
     return node;
@@ -335,7 +339,7 @@ static AstNodeAssignment* assignmentStatement(void) {
     
     consume(TOKEN_EQUAL, "Expected '=' after variable name in assignment.");
     
-    AstNode* value = parsePrecedence(PREC_ASSIGNMENT);
+    AstNode* value = parsePrecedence(PREC_ASSIGNMENT, 0);
     
     AstNodeAssignment* node = ALLOCATE_AST_NODE(AstNodeAssignment, AST_NODE_ASSIGNMENT);
     node->name = variableName;
@@ -368,7 +372,7 @@ static AstNode* statements(void) {
         } else if (match(TOKEN_WHILE)) {
         	childNode = (AstNode*) whileStatement();
     	} else {
-    		AstNode* expression_or_attr_assignment = parsePrecedence(PREC_ASSIGNMENT);
+    		AstNode* expression_or_attr_assignment = parsePrecedence(PREC_ASSIGNMENT, 0);
     		if (expression_or_attr_assignment->type == AST_NODE_ATTRIBUTE_ASSIGNMENT) {
     			childNode = expression_or_attr_assignment;
     		} else {

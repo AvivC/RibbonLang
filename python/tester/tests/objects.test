@@ -1,0 +1,18 @@
+test attribute assignment
+    obj = "a"
+    obj.x = 10
+    print(obj.x)
+    obj.x = 20
+    print(obj.x)
+    obj.x = obj.x + 1
+    print(obj.x)
+
+    b = "b"
+    b.y = 10 + obj.x
+    print(b.y)
+expect
+    10
+    20
+    21
+    31
+end
