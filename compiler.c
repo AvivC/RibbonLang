@@ -141,6 +141,20 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             break;
         }
 
+        case AST_NODE_ATTRIBUTE_ASSIGNMENT: {
+            AstNodeAttributeAssignment* node_attr = (AstNodeAttributeAssignment*) node;
+
+            compileTree(node_attr->value, chunk);
+            compileTree(node_attr->object, chunk);
+
+            int constant_index = addConstant(chunk, MAKE_VALUE_OBJECT(copyString(node_attr->name, node_attr->length)));
+
+            writeChunk(chunk, OP_SET_ATTRIBUTE);
+            writeChunk(chunk, constant_index);
+
+            break;
+        }
+
         case AST_NODE_EXPR_STATEMENT: {
         	AstNodeExprStatement* nodeExprStatement = (AstNodeExprStatement*) node;
         	compileTree(nodeExprStatement->expression, chunk);

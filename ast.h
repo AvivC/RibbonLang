@@ -20,7 +20,8 @@ typedef enum {
     AST_NODE_WHILE,
 	AST_NODE_AND,
 	AST_NODE_OR,
-	AST_NODE_ATTRIBUTE
+	AST_NODE_ATTRIBUTE,
+	AST_NODE_ATTRIBUTE_ASSIGNMENT
 } AstNodeType;
 
 // for debugging purposes
@@ -47,6 +48,14 @@ typedef struct {
     const char* name;
     int length;
 } AstNodeAttribute;
+
+typedef struct {
+    AstNode base;
+    AstNode* object;
+    const char* name;
+    int length;
+    AstNode* value;
+} AstNodeAttributeAssignment;
 
 typedef struct {
     AstNode base;
@@ -134,6 +143,7 @@ AstNodeWhile* newAstNodeWhile(AstNode* condition, AstNodeStatements* body);
 AstNodeAnd* new_ast_node_and(AstNode* left, AstNode* right);
 AstNodeOr* new_ast_node_or(AstNode* left, AstNode* right);
 AstNodeAttribute* new_ast_node_attribute(AstNode* object, const char* name, int length);
+AstNodeAttributeAssignment* new_ast_node_attribute_assignment(AstNode* object, const char* name, int length, AstNode* value);
 
 #define ALLOCATE_AST_NODE(type, tag) (type*) allocateAstNode(tag, sizeof(type))
 

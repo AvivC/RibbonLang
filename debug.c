@@ -104,6 +104,10 @@ int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
 			return constantInstruction("OP_GET_ATTRIBUTE", chunk, offset);
 			break;
 		}
+		case OP_SET_ATTRIBUTE: {
+			return constantInstruction("OP_SET_ATTRIBUTE", chunk, offset);
+			break;
+		}
 		case OP_POP: {
 			return simpleInstruction("OP_POP", chunk, offset);
 			break;

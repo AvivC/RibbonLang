@@ -112,9 +112,21 @@ static AstNode* binary(AstNode* leftNode) {
     return (AstNode*) node;
 }
 
-static AstNode* get_attribute(AstNode* leftNode) {
-	advance(); // Currently the attribute name is parser.current. We advance this so parsing continues correctly after us
-	return (AstNode*) new_ast_node_attribute(leftNode, parser.previous.start, parser.previous.length);
+static AstNode* dot(AstNode* leftNode) {
+	// TODO: Very possibly not the best solution for attribute setting. Maybe refactor later.
+
+	consume(TOKEN_IDENTIFIER, "Expected attribute name after '.'");
+	const char* attr_name = parser.previous.start;
+	int name_length = parser.previous.length;
+
+	if (match(TOKEN_EQUAL)) { // TODO: Validate assignment is legal here
+		// Set attribute
+		AstNode* value = parsePrecedence(PREC_ASSIGNMENT);
+		return (AstNode*) new_ast_node_attribute_assignment(leftNode, attr_name, name_length, value);
+	} else {
+		// Get attribute
+		return (AstNode*) new_ast_node_attribute(leftNode, attr_name, name_length);
+	}
 }
 
 static AstNode* returnStatement(void) {
@@ -272,7 +284,7 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_RIGHT_BRACE
     {NULL, NULL, PREC_NONE},     // TOKEN_COMMA
     {NULL, NULL, PREC_NONE},     // TOKEN_NEWLINE
-    {NULL, get_attribute, PREC_GROUPING},     // TOKEN_DOT
+    {NULL, dot, PREC_GROUPING},     // TOKEN_DOT
     {NULL, binary, PREC_COMPARISON},     // TOKEN_EQUAL_EQUAL
     {NULL, binary, PREC_COMPARISON},     // TOKEN_BANG_EQUAL
     {NULL, binary, PREC_COMPARISON},     // TOKEN_GREATER_EQUAL
@@ -333,31 +345,11 @@ static AstNodeAssignment* assignmentStatement(void) {
     return node;
 }
 
-static AstNodeAssignment* attribute_assignment_statement(void) {
-    const char* variableName = parser.previous.start;
-    int variableLength = parser.previous.length;
-
-    consume(TOKEN_EQUAL, "Expected '=' after variable name in assignment.");
-
-    AstNode* value = parsePrecedence(PREC_ASSIGNMENT);
-
-    AstNodeAssignment* node = ALLOCATE_AST_NODE(AstNodeAssignment, AST_NODE_ASSIGNMENT);
-    node->name = variableName;
-    node->length = variableLength;
-    node->value = value;
-
-    return node;
-}
-
 static ParseRule getRule(ScannerTokenType type) {
     return rules[type];
 }
 
-static AstNodeExprStatement* expressionStatement() {
-	return newAstNodeExprStatement(parsePrecedence(PREC_ASSIGNMENT));
-}
-
-static AstNode* statements() {
+static AstNode* statements(void) {
     AstNodeStatements* statementsNode = newAstNodeStatements();
     
     while (!check(TOKEN_EOF) && !check(TOKEN_RIGHT_BRACE)) {
@@ -369,11 +361,6 @@ static AstNode* statements() {
 
         if (check(TOKEN_IDENTIFIER) && matchNext(TOKEN_EQUAL)) {
             childNode = (AstNode*) assignmentStatement();
-        } else if (check(TOKEN_IDENTIFIER)
-        		&& check_at_offset(TOKEN_DOT, 1)
-				&& check_at_offset(TOKEN_IDENTIFIER, 2)
-				&& check_at_offset(TOKEN_EQUAL, 3)) {
-        	childNode = (AstNode*) attribute_assignment_statement();
         } else if (match(TOKEN_RETURN)) {
         	childNode = (AstNode*) returnStatement();
         } else if (match(TOKEN_IF)) {
@@ -381,7 +368,12 @@ static AstNode* statements() {
         } else if (match(TOKEN_WHILE)) {
         	childNode = (AstNode*) whileStatement();
     	} else {
-			childNode = (AstNode*) expressionStatement();
+    		AstNode* expression_or_attr_assignment = parsePrecedence(PREC_ASSIGNMENT);
+    		if (expression_or_attr_assignment->type == AST_NODE_ATTRIBUTE_ASSIGNMENT) {
+    			childNode = expression_or_attr_assignment;
+    		} else {
+    			childNode = (AstNode*) newAstNodeExprStatement(expression_or_attr_assignment);
+    		}
         }
 
         writePointerArray(&statementsNode->statements, childNode);

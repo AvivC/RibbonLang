@@ -20,7 +20,8 @@ const char* AST_NODE_TYPE_NAMES[] = {
 	"AST_NODE_WHILE",
 	"AST_NODE_AND",
 	"AST_NODE_OR",
-	"AST_NODE_ATTRIBUTE"
+	"AST_NODE_ATTRIBUTE",
+	"AST_NODE_ATTRIBUTE_ASSIGNMENT"
 };
 
 static void printNestingString(int nesting) {
@@ -92,6 +93,19 @@ static void printNode(AstNode* node, int nesting) {
 			printNestingString(nesting);
 			printf("Of object:\n");
 			printNode(node_attr->object, nesting + 1);
+			break;
+		}
+
+        case AST_NODE_ATTRIBUTE_ASSIGNMENT: {
+        	AstNodeAttributeAssignment* node_attr = (AstNodeAttributeAssignment*) node;
+			printNestingString(nesting);
+			printf("ATTRIBUTE_ASSIGNMENT: %.*s\n", node_attr->length, node_attr->name);
+			printNestingString(nesting);
+			printf("Of object:\n");
+			printNode(node_attr->object, nesting + 1);
+			printNestingString(nesting);
+			printf("Value:\n");
+			printNode(node_attr->value, nesting + 1);
 			break;
 		}
 
@@ -252,6 +266,14 @@ static void freeNode(AstNode* node, int nesting) {
             freeNode(node_attr ->object, nesting + 1);
             deallocate(node_attr, sizeof(AstNodeAttribute), deallocationString);
             break;
+        }
+
+        case AST_NODE_ATTRIBUTE_ASSIGNMENT: {
+        	AstNodeAttributeAssignment* node_attr = (AstNodeAttributeAssignment*) node;
+			freeNode(node_attr->object, nesting + 1);
+			freeNode(node_attr->value, nesting + 1);
+			deallocate(node_attr, sizeof(AstNodeAttributeAssignment), deallocationString);
+        	break;
         }
 
         case AST_NODE_BINARY: {
@@ -450,6 +472,15 @@ AstNodeAttribute* new_ast_node_attribute(AstNode* object, const char* name, int 
 	node->object = object;
 	node->name = name;
 	node->length = length;
+	return node;
+}
+
+AstNodeAttributeAssignment* new_ast_node_attribute_assignment(AstNode* object, const char* name, int length, AstNode* value) {
+	AstNodeAttributeAssignment* node = ALLOCATE_AST_NODE(AstNodeAttributeAssignment, AST_NODE_ATTRIBUTE_ASSIGNMENT);
+	node->object = object;
+	node->name = name;
+	node->length = length;
+	node->value = value;
 	return node;
 }
 

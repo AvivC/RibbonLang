@@ -646,6 +646,22 @@ InterpretResult interpret(Chunk* baseChunk) {
                 break;
             }
 
+            case OP_SET_ATTRIBUTE: {
+                ObjectString* attr_name = OBJECT_AS_STRING(currentChunk()->constants.values[READ_BYTE()].as.object);
+
+                Value obj_value = pop();
+                if (obj_value.type != VALUE_OBJECT) {
+                	RUNTIME_ERROR("Cannot set attribute on non-object.");
+                	break;
+                }
+
+                Object* object = obj_value.as.object;
+                Value attribute_value = pop();
+                setTable(&object->attributes, attr_name, attribute_value);
+
+                break;
+            }
+
             case OP_JUMP_IF_FALSE: {
             	uint8_t addr_byte1 = READ_BYTE();
             	uint8_t addr_byte2 = READ_BYTE();
