@@ -10,7 +10,7 @@
 typedef struct {
     Token current;
     Token previous;
-    bool hadError;
+    bool had_error;
 } Parser;
 
 static Parser parser;
@@ -39,7 +39,7 @@ typedef struct {
 
 static void error(const char* errorMessage) {
     fprintf(stderr, "On line %d: %s\n", parser.current.lineNumber, errorMessage);
-    parser.hadError = true;
+    parser.had_error = true;
 }
 
 static bool check(ScannerTokenType type) {
@@ -90,7 +90,7 @@ static bool match_at_offset(ScannerTokenType type, int offset) {
 	return false;
 }
 
-static void skipNewlines(void) {
+static void skip_newlines(void) {
 	while (match(TOKEN_NEWLINE));
 }
 
@@ -133,7 +133,7 @@ static AstNode* dot(AstNode* leftNode, int expression_level) {
 	}
 }
 
-static AstNode* returnStatement(void) {
+static AstNode* return_statement(void) {
 	return (AstNode*) newAstNodeReturn(parse_expression(PREC_ASSIGNMENT, 0));
 }
 
@@ -169,16 +169,16 @@ static AstNode* or(AstNode* leftNode, int expression_level) {
 }
 
 static AstNode* function(int expression_level) {
-	skipNewlines();
+	skip_newlines();
 
 	PointerArray parameters;
-	initPointerArray(&parameters);
+	init_pointer_array(&parameters);
 
 	if (match(TOKEN_TAKES)) {
 		do {
 			consume(TOKEN_IDENTIFIER, "Expected parameter name.");
 			char* parameter = copy_cstring(parser.previous.start, parser.previous.length, "ObjectFunction param cstring");
-			writePointerArray(&parameters, parameter);
+			write_pointer_array(&parameters, parameter);
 		} while (match(TOKEN_COMMA));
 
 		consume(TOKEN_TO, "Expected 'to' at end of parameter list.");
@@ -193,12 +193,12 @@ static AstNode* function(int expression_level) {
 
 static AstNode* call(AstNode* leftNode, int expression_level) {
 	PointerArray arguments;
-	initPointerArray(&arguments);
+	init_pointer_array(&arguments);
 
 	while (!match(TOKEN_RIGHT_PAREN)) {
 		do {
 			AstNode* argument = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
-			writePointerArray(&arguments, argument);
+			write_pointer_array(&arguments, argument);
 		} while (match(TOKEN_COMMA));
 	}
 
@@ -229,45 +229,45 @@ static AstNode* boolean(int expression_level) {
 	return (AstNode*) newAstNodeConstant(MAKE_VALUE_BOOLEAN(booleanValue));
 }
 
-static void conditionedClause(AstNodeStatements** bodyOut, AstNode** conditionOut, int expression_level) {
-	*conditionOut = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
-	skipNewlines();
+static void conditioned_clause(AstNodeStatements** body_out, AstNode** condition_out, int expression_level) {
+	*condition_out = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+	skip_newlines();
 	consume(TOKEN_LEFT_BRACE, "Expected '{' to open block.");
-	*bodyOut = (AstNodeStatements*) statements();
+	*body_out = (AstNodeStatements*) statements();
 	consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of block.");
 }
 
 static AstNode* if_statement(void) {
 	AstNodeStatements* body;
 	AstNode* condition;
-	conditionedClause(&body, &condition, 0);
+	conditioned_clause(&body, &condition, 0);
 
-	PointerArray elsifClauses;
-	initPointerArray(&elsifClauses);
+	PointerArray elsif_clauses;
+	init_pointer_array(&elsif_clauses);
 
 	while (match(TOKEN_ELSIF)) {
 		AstNodeStatements* body;
 		AstNode* condition;
-		conditionedClause(&body, &condition, 0);
-		writePointerArray(&elsifClauses, condition);
-		writePointerArray(&elsifClauses, body);
+		conditioned_clause(&body, &condition, 0);
+		write_pointer_array(&elsif_clauses, condition);
+		write_pointer_array(&elsif_clauses, body);
 	}
 
-	AstNode* elseBody = NULL;
+	AstNode* else_body = NULL;
 	if (match(TOKEN_ELSE)) {
 		consume(TOKEN_LEFT_BRACE, "Expected '{' to open else-body.");
-		elseBody = statements();
+		else_body = statements();
 		consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of else-body.");
 	}
-	return (AstNode*) newAstNodeIf(condition, (AstNodeStatements*) body, elsifClauses, (AstNodeStatements*) elseBody);
+	return (AstNode*) new_ast_node_ff(condition, (AstNodeStatements*) body, elsif_clauses, (AstNodeStatements*) else_body);
 }
 
 static AstNode* while_statement(void) {
 	AstNodeStatements* body;
 	AstNode* condition;
-	conditionedClause(&body, &condition, 0);
+	conditioned_clause(&body, &condition, 0);
 
-	return (AstNode*) newAstNodeWhile(condition, body);
+	return (AstNode*) new_ast_node_while(condition, body);
 }
 
 static ParseRule rules[] = {
@@ -315,35 +315,35 @@ static AstNode* parse_expression(Precedence precedence, int expression_level) {
     AstNode* node = NULL;
     
     advance(); // always assume the previous token is the "acting operator"
-    ParseRule prefixRule = get_rule(parser.previous.type);
-    if (prefixRule.prefix == NULL) {
+    ParseRule prefix_rule = get_rule(parser.previous.type);
+    if (prefix_rule.prefix == NULL) {
     	printf("\n%d\n", parser.previous.type);
         error("Expecting a prefix operator."); // TODO: better message
         return NULL;
     }
     
-    node = (AstNode*) prefixRule.prefix(expression_level);
+    node = (AstNode*) prefix_rule.prefix(expression_level);
     
     while (get_rule(parser.current.type).precedence >= precedence) { // TODO: also validate no NULL?
         advance();
-        ParseRule infixRule = get_rule(parser.previous.type);
-        node = (AstNode*) infixRule.infix(node, expression_level);
+        ParseRule infix_rule = get_rule(parser.previous.type);
+        node = (AstNode*) infix_rule.infix(node, expression_level);
     }
     
     return node;
 }
 
 static AstNodeAssignment* assignment_statement(void) {
-    const char* variableName = parser.previous.start;
-    int variableLength = parser.previous.length;
+    const char* variable_name = parser.previous.start;
+    int variable_length = parser.previous.length;
     
     consume(TOKEN_EQUAL, "Expected '=' after variable name in assignment.");
     
     AstNode* value = parse_expression(PREC_ASSIGNMENT, 0);
     
     AstNodeAssignment* node = ALLOCATE_AST_NODE(AstNodeAssignment, AST_NODE_ASSIGNMENT);
-    node->name = variableName;
-    node->length = variableLength;
+    node->name = variable_name;
+    node->length = variable_length;
     node->value = value;
     
     return node;
@@ -366,7 +366,7 @@ static AstNode* statements(void) {
         if (check(TOKEN_IDENTIFIER) && matchNext(TOKEN_EQUAL)) {
             child_node = (AstNode*) assignment_statement();
         } else if (match(TOKEN_RETURN)) {
-        	child_node = (AstNode*) returnStatement();
+        	child_node = (AstNode*) return_statement();
         } else if (match(TOKEN_IF)) {
         	child_node = (AstNode*) if_statement();
         } else if (match(TOKEN_WHILE)) {
@@ -376,11 +376,11 @@ static AstNode* statements(void) {
     		if (expression_or_attr_assignment->type == AST_NODE_ATTRIBUTE_ASSIGNMENT) {
     			child_node = expression_or_attr_assignment;
     		} else {
-    			child_node = (AstNode*) newAstNodeExprStatement(expression_or_attr_assignment);
+    			child_node = (AstNode*) new_ast_node_expr_statement(expression_or_attr_assignment);
     		}
         }
 
-        writePointerArray(&statements_node->statements, child_node);
+        write_pointer_array(&statements_node->statements, child_node);
 
 		bool endOfBlock = check(TOKEN_EOF) || check(TOKEN_RIGHT_BRACE);
 		if (!endOfBlock) {
@@ -389,7 +389,7 @@ static AstNode* statements(void) {
         }
         
         // Checking for errors on statement boundaries
-        if (parser.hadError) {
+        if (parser.had_error) {
             // TODO: Proper compiler error propagations and such
             fprintf(stderr, "Compiler exits with errors.\n");
             exit(EXIT_FAILURE);
@@ -400,10 +400,10 @@ static AstNode* statements(void) {
 }
 
 AstNode* parse(const char* source) {
-    initScanner(source);
+    init_scanner(source);
     
     advance();
-    parser.hadError = false;
+    parser.had_error = false;
     
     AstNode* node = statements();
     

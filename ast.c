@@ -401,11 +401,11 @@ void freeTree(AstNode* node) {
 
 AstNodeStatements* newAstNodeStatements(void) {
     AstNodeStatements* node = ALLOCATE_AST_NODE(AstNodeStatements, AST_NODE_STATEMENTS);
-    initPointerArray(&node->statements);
+    init_pointer_array(&node->statements);
     return node;
 }
 
-AstNodeExprStatement* newAstNodeExprStatement(AstNode* expression) {
+AstNodeExprStatement* new_ast_node_expr_statement(AstNode* expression) {
 	AstNodeExprStatement* node = ALLOCATE_AST_NODE(AstNodeExprStatement, AST_NODE_EXPR_STATEMENT);
 	node->expression = expression;
 	return node;
@@ -437,7 +437,7 @@ AstNodeConstant* newAstNodeConstant(Value value) {
 	return node;
 }
 
-AstNodeIf* newAstNodeIf(AstNode* condition, AstNodeStatements* body, PointerArray elsifClauses, AstNodeStatements* elseBody) {
+AstNodeIf* new_ast_node_ff(AstNode* condition, AstNodeStatements* body, PointerArray elsifClauses, AstNodeStatements* elseBody) {
 	AstNodeIf* node = ALLOCATE_AST_NODE(AstNodeIf, AST_NODE_IF);
 	node->condition = condition;
 	node->body = body;
@@ -446,7 +446,7 @@ AstNodeIf* newAstNodeIf(AstNode* condition, AstNodeStatements* body, PointerArra
 	return node;
 }
 
-AstNodeWhile* newAstNodeWhile(AstNode* condition, AstNodeStatements* body) {
+AstNodeWhile* new_ast_node_while(AstNode* condition, AstNodeStatements* body) {
 	AstNodeWhile* node = ALLOCATE_AST_NODE(AstNodeWhile, AST_NODE_WHILE);
 	node->condition = condition;
 	node->body = body;

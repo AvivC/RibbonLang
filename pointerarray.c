@@ -3,13 +3,13 @@
 #include "pointerarray.h"
 #include "memory.h"
 
-void initPointerArray(PointerArray* array) {
+void init_pointer_array(PointerArray* array) {
     array->count = 0;
     array->capacity = 0;
     array->values = NULL;
 }
 
-void writePointerArray(PointerArray* array, void* value) {
+void write_pointer_array(PointerArray* array, void* value) {
     if (array->count == array->capacity) {
         int oldCapacity = array->capacity;
         array->capacity = GROW_CAPACITY(oldCapacity);
@@ -21,7 +21,7 @@ void writePointerArray(PointerArray* array, void* value) {
 
 void freePointerArray(PointerArray* array) {
     deallocate(array->values, sizeof(void*) * array->capacity, "Pointer array buffer");
-    initPointerArray(array);
+    init_pointer_array(array);
 }
 
 void** pointerArrayToPlainArray(PointerArray* array, const char* what) {

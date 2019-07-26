@@ -134,12 +134,12 @@ void freeTree(AstNode* node);
 
 AstNodeConstant* newAstNodeConstant(Value value);
 AstNodeStatements* newAstNodeStatements(void);
-AstNodeExprStatement* newAstNodeExprStatement(AstNode* expression);
+AstNodeExprStatement* new_ast_node_expr_statement(AstNode* expression);
 AstNodeReturn* newAstNodeReturn(AstNode* expression);
 AstNodeCall* newAstNodeCall(AstNode* expression, PointerArray arguments);
 AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, PointerArray parameters);
-AstNodeIf* newAstNodeIf(AstNode* condition, AstNodeStatements* body, PointerArray elsifClauses, AstNodeStatements* elseBody);
-AstNodeWhile* newAstNodeWhile(AstNode* condition, AstNodeStatements* body);
+AstNodeIf* new_ast_node_ff(AstNode* condition, AstNodeStatements* body, PointerArray elsifClauses, AstNodeStatements* elseBody);
+AstNodeWhile* new_ast_node_while(AstNode* condition, AstNodeStatements* body);
 AstNodeAnd* new_ast_node_and(AstNode* left, AstNode* right);
 AstNodeOr* new_ast_node_or(AstNode* left, AstNode* right);
 AstNodeAttribute* new_ast_node_attribute(AstNode* object, const char* name, int length);

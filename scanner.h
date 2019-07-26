@@ -29,7 +29,7 @@ typedef struct {
     int lineNumber;
 } Token;
 
-void initScanner(const char* source);
+void init_scanner(const char* source);
 Token peekNextToken();
 Token peek_token_at_offset(int offset);
 Token scanToken();
