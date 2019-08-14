@@ -229,9 +229,9 @@ static void callUserFunction(ObjectFunction* function) {
 
 static void callNativeFunction(ObjectFunction* function) {
 	ValueArray arguments;
-	initValueArray(&arguments);
+	value_array_init(&arguments);
 	for (int i = 0; i < function->numParams; i++) {
-		writeValueArray(&arguments, pop());
+		value_array_write(&arguments, pop());
 	}
 
 	Value result;
@@ -242,7 +242,7 @@ static void callNativeFunction(ObjectFunction* function) {
 		push(MAKE_VALUE_NIL());
 	}
 
-	freeValueArray(&arguments);
+	value_array_free(&arguments);
 }
 
 void initVM(void) {
@@ -385,9 +385,9 @@ InterpretResult interpret(Chunk* baseChunk) {
 					ObjectFunction* add_method_as_func = (ObjectFunction*) add_method.as.object;
 
 					ValueArray arguments;
-					initValueArray(&arguments);
-					writeValueArray(&arguments, self_val);
-					writeValueArray(&arguments, other);
+					value_array_init(&arguments);
+					value_array_write(&arguments, self_val);
+					value_array_write(&arguments, other);
 
 					Value result;
 					if (add_method_as_func->isNative) {
@@ -401,7 +401,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 					}
 
 					cleanup:
-					freeValueArray(&arguments);
+					value_array_free(&arguments);
 
             	} else {
             		BINARY_MATH_OP(+);

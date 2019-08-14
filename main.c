@@ -13,6 +13,9 @@
 #include "vm.h"
 #include "memory.h"
 
+// Generally this will always be false. Only set to true when experimenting during development
+#define TRYING_THINGS false
+
 static char* readFile(const char* path) {
     // TODO: read relative / absolute paths, etc. Currently only relative to the CWD (which changes in the test runner, etc.)
     
@@ -112,6 +115,12 @@ static void printMemoryDiagnostic() {
 }
 
 int main(int argc, char* argv[]) {
+	// To make experimenting while working easy
+	if (TRYING_THINGS) {
+		printf("--- Experimentation mode. ---\n");
+		return 0;
+	}
+
     if (argc < 2 || argc > 5) {
         fprintf(stderr, "Usage: plane <file> [[-asm] [-tree] [-dry]]");
         return -1;

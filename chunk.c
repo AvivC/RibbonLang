@@ -7,7 +7,7 @@ void initChunk(Chunk* chunk) {
     chunk->capacity = 0;
     chunk->count = 0;
     chunk->code = NULL;
-    initValueArray(&chunk->constants);
+    value_array_init(&chunk->constants);
 }
 
 void writeChunk(Chunk* chunk, uint8_t byte) {
@@ -30,11 +30,11 @@ void setChunk(Chunk* chunk, int position, uint8_t byte) {
 
 void freeChunk(Chunk* chunk) {
     deallocate(chunk->code, chunk->capacity * sizeof(uint8_t), "Chunk code buffer"); // the sizeof is probably stupid
-    freeValueArray(&chunk->constants);
+    value_array_free(&chunk->constants);
     initChunk(chunk);
 }
 
 int addConstant(Chunk* chunk, Value constant) {
-    writeValueArray(&chunk->constants, constant);
+	value_array_write(&chunk->constants, constant);
     return chunk->constants.count - 1;
 }

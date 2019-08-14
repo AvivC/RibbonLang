@@ -2,6 +2,7 @@
 #define plane_value_h
 
 #include "common.h"
+#include "dynamic_array.h"
 
 typedef enum {
     VALUE_NUMBER,
@@ -19,20 +20,12 @@ typedef struct {
     } as;
 } Value;
 
-typedef struct {
-    int count;
-    int capacity;
-    Value* values;
-} ValueArray;
+DEFINE_DYNAMIC_ARRAY(Value, ValueArray, value_array)
 
 #define MAKE_VALUE_NUMBER(n) (Value){.type = VALUE_NUMBER, .as.number = (n)}
 #define MAKE_VALUE_BOOLEAN(val) (Value){.type = VALUE_BOOLEAN, .as.boolean = (val)}
 #define MAKE_VALUE_OBJECT(o) (Value){.type = VALUE_OBJECT, .as.object = (struct Object*)(o)}
 #define MAKE_VALUE_NIL() (Value){.type = VALUE_NIL, .as.number = -1}
-
-void initValueArray(ValueArray* array);
-void writeValueArray(ValueArray* array, Value value);
-void freeValueArray(ValueArray* array);
 
 void printValue(Value value);
 bool compareValues(Value a, Value b, int* output);
