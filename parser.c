@@ -152,12 +152,7 @@ static AstNode* number(int expression_level) {
 }
 
 static AstNode* string(int expression_level) {
-    const char* theString = parser.previous.start + 1;
-    ObjectString* objString = copyString(theString, parser.previous.length - 2);
-    Value value = MAKE_VALUE_OBJECT(objString);
-    AstNodeConstant* node = ALLOCATE_AST_NODE(AstNodeConstant, AST_NODE_CONSTANT);
-    node->value = value;
-    return (AstNode*) node;
+    return (AstNode*) new_ast_node_string(parser.previous.start + 1, parser.previous.length - 2);
 }
 
 static AstNode* and(AstNode* leftNode, int expression_level) {
@@ -177,6 +172,7 @@ static AstNode* function(int expression_level) {
 	if (match(TOKEN_TAKES)) {
 		do {
 			consume(TOKEN_IDENTIFIER, "Expected parameter name.");
+			// TODO: Why not keep pointing at the source, and have freeObject not free the params, instead of copy the strings?
 			char* parameter = copy_cstring(parser.previous.start, parser.previous.length, "ObjectFunction param cstring");
 			write_pointer_array(&parameters, parameter);
 		} while (match(TOKEN_COMMA));

@@ -49,7 +49,27 @@ bool samePointerDifferentName(void* pointer, const char* what, Allocation alloca
     return allocation.ptr == pointer && (strcmp(allocation.name, what) != 0);
 }
 
+static void manage_allocations_buffer_size(void) {
+	if (allocsBufferCount % 5000 == 0) {
+		int num_allocated = 0;
+		Allocation* new_allocations = malloc(sizeof(Allocation) * allocsBufferCount);
+		for (int i = 0; i < allocsBufferCount; i++) {
+			if (allocations[i].allocated) {
+				new_allocations[num_allocated++] = allocations[i];
+			}
+		}
+
+		allocsBufferCount = num_allocated;
+		allocsBufferCapacity = allocsBufferCount;
+		new_allocations = realloc(new_allocations, sizeof(Allocation) * allocsBufferCapacity);
+		free(allocations);
+		allocations = new_allocations;
+	}
+}
+
 void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what) {
+	manage_allocations_buffer_size();
+
     if (newSize == 0) {
         // Deallocation
         
@@ -140,19 +160,19 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
     return newpointer;
 }
 
-void printAllocationsBuffer() {  // for debugging
-    DEBUG_IMPORTANT_PRINT("\nAllocations buffer:\n");
+void print_allocated_memory_entries() {  // for debugging
+    DEBUG_IMPORTANT_PRINT("\nAllocated memory entries:\n");
 
     for (int i = 0; i < allocsBufferCount; i++) {
         Allocation allocation = allocations[i];
-        DEBUG_IMPORTANT_PRINT("[ %-3d: ", i);
-        DEBUG_IMPORTANT_PRINT("%p ", allocation.ptr);
-        DEBUG_IMPORTANT_PRINT(" | ");
-        DEBUG_IMPORTANT_PRINT("%-25s", allocation.name);
-        DEBUG_IMPORTANT_PRINT(" | ");
-        DEBUG_IMPORTANT_PRINT("%-15s", allocation.allocated ? "Allocated" : "Not allocated");
-        DEBUG_IMPORTANT_PRINT(" | ");
-        DEBUG_IMPORTANT_PRINT("Last allocated size: %-4" PRIuPTR, allocation.size);
-        DEBUG_IMPORTANT_PRINT("]\n");
+        if (allocation.allocated) {
+			DEBUG_IMPORTANT_PRINT("[ %-3d: ", i);
+			DEBUG_IMPORTANT_PRINT("%p ", allocation.ptr);
+			DEBUG_IMPORTANT_PRINT(" | ");
+			DEBUG_IMPORTANT_PRINT("%-33s", allocation.name);
+			DEBUG_IMPORTANT_PRINT(" | ");
+			DEBUG_IMPORTANT_PRINT("Last allocated size: %-4" PRIuPTR, allocation.size);
+			DEBUG_IMPORTANT_PRINT("]\n");
+        }
     }
 }

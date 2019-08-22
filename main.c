@@ -79,7 +79,9 @@ static void printStructures(int argc, char* argv[], Chunk* chunk, AstNode* ast) 
         printf("\n");
     }
     
-    printf("================\n");
+    if (showTree || showBytecode) {
+    	printf("================\n");
+    }
 }
 
 static void printMemoryDiagnostic() {
@@ -104,7 +106,7 @@ static void printMemoryDiagnostic() {
     }
     
     if (problem) {
-        printAllocationsBuffer();
+        print_allocated_memory_entries();
     }
     
     printf("\n*******\n");
@@ -141,9 +143,7 @@ int main(int argc, char* argv[]) {
     AstNode* ast = parse(source);
     compile(ast, &chunk);
     
-    if (argc > 2) {
-        printStructures(argc, argv, &chunk, ast);
-    }
+	printStructures(argc, argv, &chunk, ast);
     
     bool dryRun = checkCmdArg(argv, argc, 2, "-dry") || checkCmdArg(argv, argc, 3, "-dry") || checkCmdArg(argv, argc, 4, "-dry");
     if (!dryRun) {

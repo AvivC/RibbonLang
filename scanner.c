@@ -181,6 +181,11 @@ Token peek_token_at_offset(int offset) {
 
 Token scanToken() {
     skipWhitespace();
+    while (current() == '#') {
+    	do {
+    		advance();
+    	} while (current() != '\n');
+    }
     
     scanner.start = scanner.current;
     

@@ -11,7 +11,7 @@
 #include "debug.h"
 #include "utils.h"
 
-#define INITIAL_GC_THRESHOLD 4
+#define INITIAL_GC_THRESHOLD 1024 * 1024
 
 VM vm;
 
@@ -183,16 +183,24 @@ static void gcSweep(void) {
 
 void gc(void) {
 	if (vm.allowGC) {
-		DEBUG_OBJECTS("GC Running. numObjects: %d. maxObjects: %d", vm.numObjects, vm.maxObjects);
+		size_t memory_before_gc = getAllocatedMemory();
+		DEBUG_GC_PRINT("===== GC Running =====");
+		DEBUG_GC_PRINT("numObjects: %d. maxObjects: %d", vm.numObjects, vm.maxObjects);
+		DEBUG_GC_PRINT("Allocated memory: %d bytes", memory_before_gc);
+		DEBUG_GC_PRINT("=======================");
 
 		gcMark();
 		gcSweep();
 
 		vm.maxObjects = vm.numObjects * 2;
 
-		DEBUG_OBJECTS("GC Finished. numObjects: %d. maxObjects: %d", vm.numObjects, vm.maxObjects);
+		DEBUG_GC_PRINT("===== GC Finished =====");
+		DEBUG_GC_PRINT("numObjects: %d. maxObjects: %d", vm.numObjects, vm.maxObjects);
+		DEBUG_GC_PRINT("Allocated memory before GC: %d bytes", memory_before_gc);
+		DEBUG_GC_PRINT("Allocated memory after GC: %d bytes", getAllocatedMemory());
+		DEBUG_GC_PRINT("=======================");
 	} else {
-		DEBUG_OBJECTS("GC should run, but vm.allowGC is still false.");
+		DEBUG_GC_PRINT("GC should run, but vm.allowGC is still false.");
 	}
 }
 
@@ -227,7 +235,7 @@ static void callUserFunction(ObjectFunction* function) {
 	vm.ip = function->chunk.code;
 }
 
-static void callNativeFunction(ObjectFunction* function) {
+static bool callNativeFunction(ObjectFunction* function) {
 	ValueArray arguments;
 	value_array_init(&arguments);
 	for (int i = 0; i < function->numParams; i++) {
@@ -238,8 +246,10 @@ static void callNativeFunction(ObjectFunction* function) {
 	bool func_success = function->nativeFunction(arguments, &result);
 	if (func_success) {
 		push(result);
+		return true;
 	} else {
 		push(MAKE_VALUE_NIL());
+		return false;
 	}
 
 	value_array_free(&arguments);
@@ -274,6 +284,7 @@ void freeVM(void) {
 
 InterpretResult interpret(Chunk* baseChunk) {
     #define READ_BYTE() (*vm.ip++)
+	#define READ_CONSTANT() (currentChunk()->constants.values[READ_BYTE()])
     #define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
         Value a = pop(); \
@@ -335,7 +346,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 	pushFrame(makeBaseStackFrame(baseChunk));
 
 	vm.allowGC = true;
-	DEBUG_OBJECTS("Set vm.allowGC = true.");
+	DEBUG_OBJECTS_PRINT("Set vm.allowGC = true.");
 
 	vm.ip = baseChunk->code;
 	gc(); // Cleanup unused objects the compiler created
@@ -548,6 +559,13 @@ InterpretResult interpret(Chunk* baseChunk) {
             	break;
             }
 
+            case OP_MAKE_STRING: {
+            	RawString string = READ_CONSTANT().as.raw_string;
+            	ObjectString* obj_string = copyString(string.data, string.length);
+            	push(MAKE_VALUE_OBJECT(obj_string));
+            	break;
+            }
+
             case OP_NIL: {
             	push(MAKE_VALUE_NIL());
             	break;
@@ -617,7 +635,10 @@ InterpretResult interpret(Chunk* baseChunk) {
                 }
 
                 if (function->isNative) {
-                	callNativeFunction(function);
+                	if (!callNativeFunction(function)) {
+                		RUNTIME_ERROR("Native function failed.");
+                		break;
+                	}
                 } else {
                 	callUserFunction(function);
                 }
@@ -721,6 +742,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 	DEBUG_TRACE("Ended interpreter loop.");
     
     #undef READ_BYTE
+	#undef READ_CONSTANT
     #undef BINARY_MATH_OP
 
     return runtimeErrorOccured ? INTERPRET_RUNTIME_ERROR : INTERPRET_SUCCESS;

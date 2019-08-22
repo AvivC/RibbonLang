@@ -7,7 +7,7 @@
 #include "memory.h"
 
 static Object* allocateObject(size_t size, const char* what, ObjectType type) {
-	DEBUG_OBJECTS("Allocating object '%s' of size %d and type %d.", what, size, type);
+	DEBUG_OBJECTS_PRINT("Allocating object '%s' of size %d and type %d.", what, size, type);
 
 	// Possible that vm.numObjects > vm.maxObjects if many objects were created during the compiling stage, where GC is disallowed
     if (vm.numObjects >= vm.maxObjects) {
@@ -22,7 +22,7 @@ static Object* allocateObject(size_t size, const char* what, ObjectType type) {
     initTable(&object->attributes);
     
     vm.numObjects++;
-    DEBUG_OBJECTS("Incremented numObjects to %d", vm.numObjects);
+    DEBUG_OBJECTS_PRINT("Incremented numObjects to %d", vm.numObjects);
 
     return object;
 }
@@ -36,6 +36,13 @@ static bool object_string_add(ValueArray args, Value* result) {
 	Value other_value = args.values[1];
 
     if (!is_value_object_of_type(self_value, OBJECT_STRING) || !is_value_object_of_type(other_value, OBJECT_STRING)) {
+    	printf("Arg 1 of @add:\n");
+    	printValue(self_value);
+    	printf("\nArg 2 of @add:\n");
+    	printValue(other_value);
+    	printf("\nFrom type: %d\n", other_value.type);
+    	printf("\nFrom object type: %d\n", other_value.as.object->type);
+    	printf("\n");
     	*result = MAKE_VALUE_NIL();
     	return false;
     }
@@ -55,17 +62,16 @@ static bool object_string_add(ValueArray args, Value* result) {
 }
 
 static ObjectString* newObjectString(char* chars, int length) {
-    DEBUG_PRINT("Allocating string object '%s' of length %d.", chars, length);
+    DEBUG_OBJECTS_PRINT("Allocating string object '%s' of length %d.", chars, length);
     
     ObjectString* objString = (ObjectString*) allocateObject(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
     
     objString->chars = chars;
     objString->length = length;
 
-    // TODO: Factor out all of this, it repeats in more places
     int add_func_num_params = 2;
     char** params = allocate(sizeof(char*) * add_func_num_params, "Parameters list cstrings");
-    // Should "result" be listed in the internal parameter list?
+    // TODO: Should "result" be listed in the internal parameter list?
     params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");;
     params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");;
     ObjectFunction* string_add_function = newNativeObjectFunction(object_string_add, params, add_func_num_params);
@@ -76,7 +82,7 @@ static ObjectString* newObjectString(char* chars, int length) {
 
 char* copy_cstring(const char* string, int length, const char* what) {
 	// argument length should not include the null-terminator
-	DEBUG_PRINT("Allocating string buffer '%.*s' of length %d.", length, string, length);
+	DEBUG_OBJECTS_PRINT("Allocating string buffer '%.*s' of length %d.", length, string, length);
 
     char* chars = allocate(sizeof(char) * length + 1, what);
     memcpy(chars, string, length);
@@ -87,7 +93,7 @@ char* copy_cstring(const char* string, int length, const char* what) {
 
 ObjectString* copyString(const char* string, int length) {
 	// argument length should not include the null-terminator
-    DEBUG_PRINT("Allocating string buffer '%.*s' of length %d.", length, string, length);
+    DEBUG_OBJECTS_PRINT("Allocating string buffer '%.*s' of length %d.", length, string, length);
     
     char* chars = copy_cstring(string, length, "Object string buffer");
     return newObjectString(chars, length);
@@ -124,14 +130,14 @@ static ObjectFunction* newPartialObjectFunction(bool isNative, char** parameters
 }
 
 ObjectFunction* newUserObjectFunction(Chunk chunk, char** parameters, int numParams) {
-    DEBUG_PRINT("Creating user function object.");
+    DEBUG_OBJECTS_PRINT("Creating user function object.");
     ObjectFunction* objFunc = newPartialObjectFunction(false, parameters, numParams);
     objFunc->chunk = chunk;
     return objFunc;
 }
 
 ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, char** parameters, int numParams) {
-    DEBUG_PRINT("Creating native function object.");
+    DEBUG_OBJECTS_PRINT("Creating native function object.");
     ObjectFunction* objFunc = newPartialObjectFunction(true, parameters, numParams);
     objFunc->nativeFunction = nativeFunction;
     return objFunc;
@@ -145,7 +151,7 @@ void freeObject(Object* o) {
     switch (type) {
         case OBJECT_STRING: {
             ObjectString* string = (ObjectString*) o;
-            DEBUG_OBJECTS("Freeing ObjectString '%s'", string->chars);
+            DEBUG_OBJECTS_PRINT("Freeing ObjectString '%s'", string->chars);
             deallocate(string->chars, string->length + 1, "Object string buffer");
             deallocate(string, sizeof(ObjectString), "ObjectString");
             break;
@@ -153,9 +159,9 @@ void freeObject(Object* o) {
         case OBJECT_FUNCTION: {
             ObjectFunction* func = (ObjectFunction*) o;
             if (func->isNative) {
-				DEBUG_OBJECTS("Freeing native ObjectFunction");
+            	DEBUG_OBJECTS_PRINT("Freeing native ObjectFunction");
 			} else {
-				DEBUG_OBJECTS("Freeing user ObjectFunction");
+				DEBUG_OBJECTS_PRINT("Freeing user ObjectFunction");
 				freeChunk(&func->chunk);
 			}
             for (int i = 0; i < func->numParams; i++) {
@@ -171,7 +177,7 @@ void freeObject(Object* o) {
     }
     
     vm.numObjects--;
-    DEBUG_OBJECTS("Decremented numObjects to %d", vm.numObjects);
+    DEBUG_OBJECTS_PRINT("Decremented numObjects to %d", vm.numObjects);
 }
 
 void printObject(Object* o) {

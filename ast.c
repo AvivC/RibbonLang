@@ -21,7 +21,8 @@ const char* AST_NODE_TYPE_NAMES[] = {
 	"AST_NODE_AND",
 	"AST_NODE_OR",
 	"AST_NODE_ATTRIBUTE",
-	"AST_NODE_ATTRIBUTE_ASSIGNMENT"
+	"AST_NODE_ATTRIBUTE_ASSIGNMENT",
+	"AST_NODE_STRING"
 };
 
 static void printNestingString(int nesting) {
@@ -238,6 +239,13 @@ static void printNode(AstNode* node, int nesting) {
 			printNode((AstNode*) nodeOr->right, nesting + 1);
         	break;
         }
+
+        case AST_NODE_STRING: {
+			AstNodeString* node_string = (AstNodeString*) node;
+			printNestingString(nesting);
+			printf("STRING: %.*s\n", node_string->length, node_string->string);
+			break;
+		}
     }
 }
 
@@ -391,11 +399,18 @@ static void freeNode(AstNode* node, int nesting) {
 			deallocate(nodeOr, sizeof(AstNodeOr), deallocationString);
 			break;
 		}
+
+
+        case AST_NODE_STRING: {
+			AstNodeString* node_string = (AstNodeString*) node;
+			deallocate(node_string, sizeof(AstNodeString), deallocationString);
+			break;
+		}
     }
 }
 
 void freeTree(AstNode* node) {
-    DEBUG_PRINT("Freeing AST");
+    DEBUG_MEMORY("Freeing AST");
     freeNode(node, 0);
 }
 
@@ -481,6 +496,13 @@ AstNodeAttributeAssignment* new_ast_node_attribute_assignment(AstNode* object, c
 	node->name = name;
 	node->length = length;
 	node->value = value;
+	return node;
+}
+
+AstNodeString* new_ast_node_string(const char* string, int length) {
+	AstNodeString* node = ALLOCATE_AST_NODE(AstNodeString, AST_NODE_STRING);
+	node->string = string;
+	node->length = length;
 	return node;
 }
 

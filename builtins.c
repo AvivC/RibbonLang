@@ -26,6 +26,7 @@ bool builtin_input(ValueArray args, Value* out) {
 	char* user_input = allocate(sizeof(char) * capacity, alloc_string);
 
 	if (user_input == NULL) {
+//		FAIL("")
 		return false;
 	}
 

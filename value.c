@@ -9,22 +9,33 @@ void printValue(Value value) {
     switch (value.type) {
         case VALUE_NUMBER: {
             printf("%g", value.as.number);
-            break;
+            return;
         }
         case VALUE_OBJECT: {
             printObject(value.as.object);
-            break;
+            return;
         }
         case VALUE_BOOLEAN: {
             printf(value.as.boolean ? "true" : "false");
-            break;
+            return;
         }
+        case VALUE_RAW_STRING: {
+        	RawString string = value.as.raw_string;
+			printf("\"%.*s\"", string.length, string.data);
+			return;
+		}
+//        case VALUE_CODE: {
+//			RawString string = value.as.raw_string;
+//			printf("'%.*s'", string.length, string.data);
+//			return;
+//		}
         case VALUE_NIL: {
             printf("nil");
-            break;
+            return;
         }
-        default: printf("Unknown value type: %d.", value.type); break;
     }
+
+    FAIL("Unrecognized VALUE_TYPE.");
 }
 
 bool compareValues(Value a, Value b, int* output) {

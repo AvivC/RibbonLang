@@ -1,0 +1,74 @@
+Welcome to the story generator!
+What's your name?
+What's your age?
+What's your favorite color?
+Aviv
+23
+Blue
+Here is your story:
+Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!
+Another one? (Y/N)
+What's your name?
+What's your age?
+What's your favorite color?
+Aviv
+23
+Blue
+Here is your story:
+Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!
+Another one? (Y/N)
+
+What's your age?
+What's your favorite color?
+Aviv
+23
+Blue
+Here is your story:
+Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!
+Another one? (Y/N)
+What's your name?
+What's your age?
+What's your favorite color?
+Aviv
+23
+Blue
+Here is your story:
+Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!
+Another one? (Y/N)
+What's your name?
+What's your age?
+What's your favorite color?
+Aviv
+23
+Blue
+Here is your story:
+Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!
+Another one? (Y/N)
+What's your name?
+What's your age?
+What's your favorite color?
+Aviv
+23
+Blue
+Here is your story:
+Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!
+Another one? (Y/N)
+What's your name?
+What's your age?
+What's your favorite color?
+Aviv
+23
+Blue
+Arg 1 of @add:
+Once there was a guy named Aviv
+Arg 2 of @add:
+
+From type: 5
+
+From object type: 65535
+
+======== Memory diagnostics ========
+*******
+No live objects.
+*******
+======== End memory diagnostics ========

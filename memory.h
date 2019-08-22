@@ -12,6 +12,6 @@ void* allocate(size_t size, const char* what);
 void deallocate(void* pointer, size_t oldSize, const char* what);
 void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what);
 
-void printAllocationsBuffer(); // for debugging
+void print_allocated_memory_entries(); // for debugging
 
 #endif

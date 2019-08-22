@@ -22,9 +22,9 @@ static int constantInstruction(const char* name, Chunk* chunk, int offset) {
     int constantIndex = chunk->code[offset + 1];
     Value constant = chunk->constants.values[constantIndex];
     
-    printf("%p %-27s '", chunk->code + offset, name);
+    printf("%p %-28s ", chunk->code + offset, name);
     printValue(constant);
-    printf("'\n");
+    printf("\n");
     
     return offset + 2;
 }
@@ -118,6 +118,10 @@ int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
 		}
 		case OP_JUMP: {
 			return shortOperandInstruction("OP_JUMP", chunk, offset);
+			break;
+		}
+		case OP_MAKE_STRING: {
+			return constantInstruction("OP_MAKE_STRING", chunk, offset);
 			break;
 		}
 		case OP_NIL: {

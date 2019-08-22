@@ -7,6 +7,15 @@
 #include "memory.h"
 #include "utils.h"
 
+static void emit_two_bytes(Chunk* chunk, uint8_t byte1, uint8_t byte2) {
+	writeChunk(chunk, byte1);
+	writeChunk(chunk, byte2);
+}
+
+static void emit_opcode_with_constant_operand(Chunk* chunk, OP_CODE instruction, Value constant) {
+	emit_two_bytes(chunk, instruction, addConstant(chunk, constant));
+}
+
 static void compileTree(AstNode* node, Chunk* chunk) {
     AstNodeType nodeType = node->type;
     
@@ -266,6 +275,15 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         	compileTree((AstNode*) node_or->left, chunk);
         	compileTree((AstNode*) node_or->right, chunk);
         	writeChunk(chunk, OP_OR);
+
+        	break;
+        }
+
+        case AST_NODE_STRING: {
+        	AstNodeString* node_string = (AstNodeString*) node;
+
+        	Value constant = MAKE_VALUE_RAW_STRING(node_string->string, node_string->length);
+        	emit_opcode_with_constant_operand(chunk, OP_MAKE_STRING, constant);
 
         	break;
         }

@@ -47,7 +47,7 @@ static Entry* findEntry(Table* table, const char* key, bool settingValue) {
 }
 
 static void growTable(Table* table) {
-    DEBUG_PRINT("Growing table.");
+    DEBUG_MEMORY("Growing table.");
     
     int oldCapacity = table->capacity;
     Entry* oldEntries = table->entries;
@@ -55,7 +55,7 @@ static void growTable(Table* table) {
     table->capacity = GROW_CAPACITY(table->capacity);
     table->entries = allocate(sizeof(Entry) * table->capacity, "Hash table array");
     
-    DEBUG_PRINT("Old capacity: %d. New capacity: %d", oldCapacity, table->capacity);
+    DEBUG_MEMORY("Old capacity: %d. New capacity: %d", oldCapacity, table->capacity);
     
     for (int i = 0; i < table->capacity; i++) {
         table->entries[i] = (Entry) {.key = NULL, .value = MAKE_VALUE_NUMBER(0)}; // TODO: add proper Nil values
@@ -73,7 +73,7 @@ static void growTable(Table* table) {
         newEntry->value = oldEntry->value;
     }
     
-    DEBUG_PRINT("Deallocating old table array.");
+    DEBUG_MEMORY("Deallocating old table array.");
     deallocate(oldEntries, sizeof(Entry) * oldCapacity, "Hash table array");
 }
 
@@ -89,7 +89,7 @@ void setTableCStringKey(Table* table, const char* key, Value value) {
         growTable(table);
     }
     
-    DEBUG_PRINT("Finding entry '%s' in hash table.", key);
+    DEBUG_MEMORY("Finding entry '%s' in hash table.", key);
     Entry* entry = findEntry(table, key, true);
     if (entry->key == NULL) {
         table->count++;
