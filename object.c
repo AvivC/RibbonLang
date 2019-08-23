@@ -9,11 +9,6 @@
 static Object* allocateObject(size_t size, const char* what, ObjectType type) {
 	DEBUG_OBJECTS_PRINT("Allocating object '%s' of size %d and type %d.", what, size, type);
 
-	// Possible that vm.numObjects > vm.maxObjects if many objects were created during the compiling stage, where GC is disallowed
-    if (vm.numObjects >= vm.maxObjects) {
-    	gc();
-    }
-
     Object* object = allocate(size, what);
     object->type = type;    
     object->isReachable = false;
@@ -93,8 +88,6 @@ char* copy_cstring(const char* string, int length, const char* what) {
 
 ObjectString* copyString(const char* string, int length) {
 	// argument length should not include the null-terminator
-    DEBUG_OBJECTS_PRINT("Allocating string buffer '%.*s' of length %d.", length, string, length);
-    
     char* chars = copy_cstring(string, length, "Object string buffer");
     return newObjectString(chars, length);
 }
@@ -184,7 +177,7 @@ void printObject(Object* o) {
     switch (o->type) {
         case OBJECT_STRING: {
             printf("%s", OBJECT_AS_STRING(o)->chars);
-            break;
+            return;
         }
         case OBJECT_FUNCTION: {
         	if (OBJECT_AS_FUNCTION(o)->isNative) {
@@ -192,10 +185,11 @@ void printObject(Object* o) {
         	} else {
         		printf("<Function at %p>", o);
         	}
-            break;
+            return;
         }
     }
     
+    FAIL("Unrecognized object type: %d", o->type);
 }
 
 bool compareObjects(Object* a, Object* b) {

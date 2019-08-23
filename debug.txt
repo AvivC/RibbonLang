@@ -1,0 +1,6143 @@
+
+C:\Users\owner\programming\myvm>plane.exe code.pln -asm -tree 
+Allocating string buffer 'text' of length 4.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 1
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 2
+Allocating string buffer 'path' of length 4.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 3
+Allocating string buffer 'name' of length 4.
+Allocating string buffer 'age' of length 3.
+Allocating string buffer 'color' of length 5.
+Allocating string buffer 'name' of length 4.
+Allocating string object 'name' of length 4.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 4
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 5
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 6
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 7
+Allocating string buffer 'age' of length 3.
+Allocating string object 'age' of length 3.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 8
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 9
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 10
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 11
+Allocating string buffer 'color' of length 5.
+Allocating string object 'color' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 12
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 13
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 14
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 15
+Allocating string buffer 'name' of length 4.
+Allocating string object 'name' of length 4.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 16
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 17
+Allocating string buffer 'line1' of length 5.
+Allocating string object 'line1' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 18
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 19
+Allocating string buffer 'age' of length 3.
+Allocating string object 'age' of length 3.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 20
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 21
+Allocating string buffer 'color' of length 5.
+Allocating string object 'color' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 22
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 23
+Allocating string buffer 'line2' of length 5.
+Allocating string object 'line2' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 24
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 25
+Allocating string buffer 'line1' of length 5.
+Allocating string object 'line1' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 26
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 27
+Allocating string buffer 'line2' of length 5.
+Allocating string object 'line2' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 28
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 29
+Creating user function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 30
+Allocating string buffer 'create_story' of length 12.
+Allocating string object 'create_story' of length 12.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 31
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 32
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 33
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 34
+Allocating string buffer 'name' of length 4.
+Allocating string object 'name' of length 4.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 35
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 36
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 37
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 38
+Allocating string buffer 'age' of length 3.
+Allocating string object 'age' of length 3.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 39
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 40
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 41
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 42
+Allocating string buffer 'color' of length 5.
+Allocating string object 'color' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 43
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 44
+Allocating string buffer 'color' of length 5.
+Allocating string object 'color' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 45
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 46
+Allocating string buffer 'age' of length 3.
+Allocating string object 'age' of length 3.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 47
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 48
+Allocating string buffer 'name' of length 4.
+Allocating string object 'name' of length 4.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 49
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 50
+Allocating string buffer 'create_story' of length 12.
+Allocating string object 'create_story' of length 12.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 51
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 52
+Allocating string buffer 'story' of length 5.
+Allocating string object 'story' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 53
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 54
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 55
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 56
+Allocating string buffer 'story' of length 5.
+Allocating string object 'story' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 57
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 58
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 59
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 60
+Creating user function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 61
+Allocating string buffer 'print_user_story' of length 16.
+Allocating string object 'print_user_story' of length 16.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 62
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 63
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 64
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 65
+Allocating string buffer 'do_game' of length 7.
+Allocating string object 'do_game' of length 7.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 66
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 67
+Allocating string buffer 'do_game' of length 7.
+Allocating string object 'do_game' of length 7.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 68
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 69
+Allocating string buffer 'do_game' of length 7.
+Allocating string object 'do_game' of length 7.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 70
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 71
+Allocating string buffer 'print_user_story' of length 16.
+Allocating string object 'print_user_story' of length 16.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 72
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 73
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 74
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 75
+Allocating string buffer 'do_game' of length 7.
+Allocating string object 'do_game' of length 7.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 76
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 77
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 78
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 79
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 80
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 81
+Allocating string buffer 'do_game' of length 7.
+Allocating string object 'do_game' of length 7.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 82
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 83
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 84
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 85
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 86
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 87
+Creating user function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 88
+Allocating string buffer 'print' of length 5.
+Allocating string object 'print' of length 5.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 89
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 90
+==== AST ====
+
+
+STATEMENTS
+
+. . ASSIGNMENT: create_story
+
+. . . . FUNCTION
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . VARIABLE: name
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . VARIABLE: age
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . VARIABLE: color
+
+. . . . . . ASSIGNMENT: line1
+
+. . . . . . . . BINARY: +
+
+. . . . . . . . Left:
+
+. . . . . . . . . . STRING: Once there was a guy named 
+
+. . . . . . . . Right:
+
+. . . . . . . . . . VARIABLE: name
+
+. . . . . . ASSIGNMENT: line2
+
+. . . . . . . . BINARY: +
+
+. . . . . . . . Left:
+
+. . . . . . . . . . BINARY: +
+
+. . . . . . . . . . Left:
+
+. . . . . . . . . . . . BINARY: +
+
+. . . . . . . . . . . . Left:
+
+. . . . . . . . . . . . . . BINARY: +
+
+. . . . . . . . . . . . . . Left:
+
+. . . . . . . . . . . . . . . . STRING:  who was 
+
+. . . . . . . . . . . . . . Right:
+
+. . . . . . . . . . . . . . . . VARIABLE: age
+
+. . . . . . . . . . . . Right:
+
+. . . . . . . . . . . . . . STRING:  years old, and liked the color 
+
+. . . . . . . . . . Right:
+
+. . . . . . . . . . . . VARIABLE: color
+
+. . . . . . . . Right:
+
+. . . . . . . . . . STRING:  very much!
+
+. . . . . . RETURN
+
+. . . . . . . . BINARY: +
+
+. . . . . . . . Left:
+
+. . . . . . . . . . VARIABLE: line1
+
+. . . . . . . . Right:
+
+. . . . . . . . . . VARIABLE: line2
+
+. . ASSIGNMENT: print_user_story
+
+. . . . FUNCTION
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: What's your name?
+
+. . . . . . ASSIGNMENT: name
+
+. . . . . . . . STRING: Aviv
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: What's your age?
+
+. . . . . . ASSIGNMENT: age
+
+. . . . . . . . STRING: 23
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: What's your favorite color?
+
+. . . . . . ASSIGNMENT: color
+
+. . . . . . . . STRING: Blue
+
+. . . . . . ASSIGNMENT: story
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: create_story
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . VARIABLE: name
+
+. . . . . . . . . . VARIABLE: age
+
+. . . . . . . . . . VARIABLE: color
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: Here is your story:
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . VARIABLE: story
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: print
+
+. . . . Arguments:
+
+. . . . . . STRING: Welcome to the story generator!
+
+. . ASSIGNMENT: do_game
+
+. . . . STRING: Y
+
+. . WHILE
+
+. . Condition:
+
+. . . . OR
+
+. . . . Left:
+
+. . . . . . BINARY: ==
+
+. . . . . . Left:
+
+. . . . . . . . VARIABLE: do_game
+
+. . . . . . Right:
+
+. . . . . . . . STRING: Y
+
+. . . . Right:
+
+. . . . . . BINARY: ==
+
+. . . . . . Left:
+
+. . . . . . . . VARIABLE: do_game
+
+. . . . . . Right:
+
+. . . . . . . . STRING: y
+
+. . Body:
+
+. . . . STATEMENTS
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print_user_story
+
+. . . . . . . . Arguments:
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: Another one? (Y/N)
+
+. . . . . . ASSIGNMENT: do_game
+
+. . . . . . . . STRING: y
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: do_game is:
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: ---
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . VARIABLE: do_game
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: ---
+
+. . EXPR_STATEMENT
+
+. . . . FUNCTION
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: print
+
+. . . . Arguments:
+
+. . . . . . STRING: ***** Exited program! *****
+
+==== Bytecode ====
+
+004CA400 OP_CONSTANT                  OBJECT FUNCTION <Function at 004CB138>
+004CA402 OP_SET_VARIABLE              OBJECT STRING 'create_story'
+004CA404 OP_CONSTANT                  OBJECT FUNCTION <Function at 004CB600>
+004CA406 OP_SET_VARIABLE              OBJECT STRING 'print_user_story'
+004CA408 OP_MAKE_STRING               RAW_STRING "Welcome to the story generator!"
+004CA40A OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CA40C OP_CALL                      1
+004CA40E OP_POP
+004CA40F OP_MAKE_STRING               RAW_STRING "Y"
+004CA411 OP_SET_VARIABLE              OBJECT STRING 'do_game'
+004CA413 OP_LOAD_VARIABLE             OBJECT STRING 'do_game'
+004CA415 OP_MAKE_STRING               RAW_STRING "Y"
+004CA417 OP_EQUAL
+004CA418 OP_LOAD_VARIABLE             OBJECT STRING 'do_game'
+004CA41A OP_MAKE_STRING               RAW_STRING "y"
+004CA41C OP_EQUAL
+004CA41D OP_OR
+004CA41E OP_JUMP_IF_FALSE             80
+004CA421 OP_LOAD_VARIABLE             OBJECT STRING 'print_user_story'
+004CA423 OP_CALL                      0
+004CA425 OP_POP
+004CA426 OP_MAKE_STRING               RAW_STRING "Another one? (Y/N)"
+004CA428 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CA42A OP_CALL                      1
+004CA42C OP_POP
+004CA42D OP_MAKE_STRING               RAW_STRING "y"
+004CA42F OP_SET_VARIABLE              OBJECT STRING 'do_game'
+004CA431 OP_MAKE_STRING               RAW_STRING "do_game is:"
+004CA433 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CA435 OP_CALL                      1
+004CA437 OP_POP
+004CA438 OP_MAKE_STRING               RAW_STRING "---"
+004CA43A OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CA43C OP_CALL                      1
+004CA43E OP_POP
+004CA43F OP_LOAD_VARIABLE             OBJECT STRING 'do_game'
+004CA441 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CA443 OP_CALL                      1
+004CA445 OP_POP
+004CA446 OP_MAKE_STRING               RAW_STRING "---"
+004CA448 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CA44A OP_CALL                      1
+004CA44C OP_POP
+004CA44D OP_JUMP                      19
+004CA450 OP_CONSTANT                  OBJECT FUNCTION <Function at 004CB9F0>
+004CA452 OP_POP
+004CA453 OP_MAKE_STRING               RAW_STRING "***** Exited program! *****"
+004CA455 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CA457 OP_CALL                      1
+004CA459 OP_POP
+004CA45A OP_NIL
+004CA45B OP_RETURN
+
+Inner function [index 0]:
+004CA9D0 OP_LOAD_VARIABLE             OBJECT STRING 'name'
+004CA9D2 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CA9D4 OP_CALL                      1
+004CA9D6 OP_POP
+004CA9D7 OP_LOAD_VARIABLE             OBJECT STRING 'age'
+004CA9D9 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CA9DB OP_CALL                      1
+004CA9DD OP_POP
+004CA9DE OP_LOAD_VARIABLE             OBJECT STRING 'color'
+004CA9E0 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CA9E2 OP_CALL                      1
+004CA9E4 OP_POP
+004CA9E5 OP_MAKE_STRING               RAW_STRING "Once there was a guy named "
+004CA9E7 OP_LOAD_VARIABLE             OBJECT STRING 'name'
+004CA9E9 OP_ADD
+004CA9EA OP_SET_VARIABLE              OBJECT STRING 'line1'
+004CA9EC OP_MAKE_STRING               RAW_STRING " who was "
+004CA9EE OP_LOAD_VARIABLE             OBJECT STRING 'age'
+004CA9F0 OP_ADD
+004CA9F1 OP_MAKE_STRING               RAW_STRING " years old, and liked the color "
+004CA9F3 OP_ADD
+004CA9F4 OP_LOAD_VARIABLE             OBJECT STRING 'color'
+004CA9F6 OP_ADD
+004CA9F7 OP_MAKE_STRING               RAW_STRING " very much!"
+004CA9F9 OP_ADD
+004CA9FA OP_SET_VARIABLE              OBJECT STRING 'line2'
+004CA9FC OP_LOAD_VARIABLE             OBJECT STRING 'line1'
+004CA9FE OP_LOAD_VARIABLE             OBJECT STRING 'line2'
+004CAA00 OP_ADD
+004CAA01 OP_RETURN
+004CAA02 OP_NIL
+004CAA03 OP_RETURN
+
+Inner function [index 2]:
+004CB378 OP_MAKE_STRING               RAW_STRING "What's your name?"
+004CB37A OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CB37C OP_CALL                      1
+004CB37E OP_POP
+004CB37F OP_MAKE_STRING               RAW_STRING "Aviv"
+004CB381 OP_SET_VARIABLE              OBJECT STRING 'name'
+004CB383 OP_MAKE_STRING               RAW_STRING "What's your age?"
+004CB385 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CB387 OP_CALL                      1
+004CB389 OP_POP
+004CB38A OP_MAKE_STRING               RAW_STRING "23"
+004CB38C OP_SET_VARIABLE              OBJECT STRING 'age'
+004CB38E OP_MAKE_STRING               RAW_STRING "What's your favorite color?"
+004CB390 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CB392 OP_CALL                      1
+004CB394 OP_POP
+004CB395 OP_MAKE_STRING               RAW_STRING "Blue"
+004CB397 OP_SET_VARIABLE              OBJECT STRING 'color'
+004CB399 OP_LOAD_VARIABLE             OBJECT STRING 'color'
+004CB39B OP_LOAD_VARIABLE             OBJECT STRING 'age'
+004CB39D OP_LOAD_VARIABLE             OBJECT STRING 'name'
+004CB39F OP_LOAD_VARIABLE             OBJECT STRING 'create_story'
+004CB3A1 OP_CALL                      3
+004CB3A3 OP_SET_VARIABLE              OBJECT STRING 'story'
+004CB3A5 OP_MAKE_STRING               RAW_STRING "Here is your story:"
+004CB3A7 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CB3A9 OP_CALL                      1
+004CB3AB OP_POP
+004CB3AC OP_LOAD_VARIABLE             OBJECT STRING 'story'
+004CB3AE OP_LOAD_VARIABLE             OBJECT STRING 'print'
+004CB3B0 OP_CALL                      1
+004CB3B2 OP_POP
+004CB3B3 OP_NIL
+004CB3B4 OP_RETURN
+
+Inner function [index 25]:
+004CE6B0 OP_NIL
+004CE6B1 OP_RETURN
+
+================
+Creating user function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 91
+Set vm.allowGC = true.
+===== GC Running =====
+numObjects: 91. maxObjects: 1048576
+Allocated memory: 18109 bytes
+=======================
+===== GC Finished =====
+numObjects: 91. maxObjects: 182
+Allocated memory before GC: 18109 bytes
+Allocated memory after GC: 18109 bytes
+=======================
+Starting interpreter loop.
+
+--------------------------
+
+IP: 004CA400
+numObjects: 91
+maxObjects: 182
+004CA400 OP_CONSTANT                  OBJECT FUNCTION <Function at 004CB138>
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: couldn't get it >>
+
+--------------------------
+
+IP: 004CA402
+numObjects: 91
+maxObjects: 182
+004CA402 OP_SET_VARIABLE              OBJECT STRING 'create_story'
+
+[ OBJECT FUNCTION <Function at 004CB138> ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: couldn't get it >>
+
+--------------------------
+
+IP: 004CA404
+numObjects: 91
+maxObjects: 182
+004CA404 OP_CONSTANT                  OBJECT FUNCTION <Function at 004CB600>
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: couldn't get it >>
+
+--------------------------
+
+IP: 004CA406
+numObjects: 91
+maxObjects: 182
+004CA406 OP_SET_VARIABLE              OBJECT STRING 'print_user_story'
+
+[ OBJECT FUNCTION <Function at 004CB600> ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: couldn't get it >>
+
+--------------------------
+
+IP: 004CA408
+numObjects: 91
+maxObjects: 182
+004CA408 OP_MAKE_STRING               RAW_STRING "Welcome to the story generator!"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: couldn't get it >>
+Allocating string buffer 'Welcome to the story generator!' of length 31.
+Allocating string object 'Welcome to the story generator!' of length 31.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 92
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 93
+
+--------------------------
+
+IP: 004CA40A
+numObjects: 93
+maxObjects: 182
+004CA40A OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'Welcome to the story generator!' ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: couldn't get it >>
+
+--------------------------
+
+IP: 004CA40C
+numObjects: 93
+maxObjects: 182
+004CA40C OP_CALL                      1
+
+[ OBJECT STRING 'Welcome to the story generator!' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: couldn't get it >>
+OBJECT STRING 'Welcome to the story generator!'
+
+--------------------------
+
+IP: 004CA40E
+numObjects: 93
+maxObjects: 182
+004CA40E OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: couldn't get it >>
+
+--------------------------
+
+IP: 004CA40F
+numObjects: 93
+maxObjects: 182
+004CA40F OP_MAKE_STRING               RAW_STRING "Y"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: couldn't get it >>
+Allocating string buffer 'Y' of length 1.
+Allocating string object 'Y' of length 1.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 94
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 95
+
+--------------------------
+
+IP: 004CA411
+numObjects: 95
+maxObjects: 182
+004CA411 OP_SET_VARIABLE              OBJECT STRING 'do_game'
+
+[ OBJECT STRING 'Y' ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: couldn't get it >>
+
+--------------------------
+
+IP: 004CA413
+numObjects: 95
+maxObjects: 182
+004CA413 OP_LOAD_VARIABLE             OBJECT STRING 'do_game'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA415
+numObjects: 95
+maxObjects: 182
+004CA415 OP_MAKE_STRING               RAW_STRING "Y"
+
+[ OBJECT STRING 'Y' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer 'Y' of length 1.
+Allocating string object 'Y' of length 1.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 96
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 97
+
+--------------------------
+
+IP: 004CA417
+numObjects: 97
+maxObjects: 182
+004CA417 OP_EQUAL
+
+[ OBJECT STRING 'Y' ][ OBJECT STRING 'Y' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA418
+numObjects: 97
+maxObjects: 182
+004CA418 OP_LOAD_VARIABLE             OBJECT STRING 'do_game'
+
+[ BOOLEAN true ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA41A
+numObjects: 97
+maxObjects: 182
+004CA41A OP_MAKE_STRING               RAW_STRING "y"
+
+[ BOOLEAN true ][ OBJECT STRING 'Y' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer 'y' of length 1.
+Allocating string object 'y' of length 1.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 98
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 99
+
+--------------------------
+
+IP: 004CA41C
+numObjects: 99
+maxObjects: 182
+004CA41C OP_EQUAL
+
+[ BOOLEAN true ][ OBJECT STRING 'Y' ][ OBJECT STRING 'y' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA41D
+numObjects: 99
+maxObjects: 182
+004CA41D OP_OR
+
+[ BOOLEAN true ][ BOOLEAN false ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA41E
+numObjects: 99
+maxObjects: 182
+004CA41E OP_JUMP_IF_FALSE             80
+
+[ BOOLEAN true ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA421
+numObjects: 99
+maxObjects: 182
+004CA421 OP_LOAD_VARIABLE             OBJECT STRING 'print_user_story'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA423
+numObjects: 99
+maxObjects: 182
+004CA423 OP_CALL                      0
+
+[ OBJECT FUNCTION <Function at 004CB600> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB378
+numObjects: 99
+maxObjects: 182
+004CB378 OP_MAKE_STRING               RAW_STRING "What's your name?"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer 'What's your name?' of length 17.
+Allocating string object 'What's your name?' of length 17.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 100
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 101
+
+--------------------------
+
+IP: 004CB37A
+numObjects: 101
+maxObjects: 182
+004CB37A OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'What's your name?' ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB37C
+numObjects: 101
+maxObjects: 182
+004CB37C OP_CALL                      1
+
+[ OBJECT STRING 'What's your name?' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: OBJECT STRING 'Y' >>
+OBJECT STRING 'What's your name?'
+
+--------------------------
+
+IP: 004CB37E
+numObjects: 101
+maxObjects: 182
+004CB37E OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB37F
+numObjects: 101
+maxObjects: 182
+004CB37F OP_MAKE_STRING               RAW_STRING "Aviv"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer 'Aviv' of length 4.
+Allocating string object 'Aviv' of length 4.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 102
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 103
+
+--------------------------
+
+IP: 004CB381
+numObjects: 103
+maxObjects: 182
+004CB381 OP_SET_VARIABLE              OBJECT STRING 'name'
+
+[ OBJECT STRING 'Aviv' ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB383
+numObjects: 103
+maxObjects: 182
+004CB383 OP_MAKE_STRING               RAW_STRING "What's your age?"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer 'What's your age?' of length 16.
+Allocating string object 'What's your age?' of length 16.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 104
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 105
+
+--------------------------
+
+IP: 004CB385
+numObjects: 105
+maxObjects: 182
+004CB385 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'What's your age?' ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB387
+numObjects: 105
+maxObjects: 182
+004CB387 OP_CALL                      1
+
+[ OBJECT STRING 'What's your age?' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+OBJECT STRING 'What's your age?'
+
+--------------------------
+
+IP: 004CB389
+numObjects: 105
+maxObjects: 182
+004CB389 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB38A
+numObjects: 105
+maxObjects: 182
+004CB38A OP_MAKE_STRING               RAW_STRING "23"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer '23' of length 2.
+Allocating string object '23' of length 2.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 106
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 107
+
+--------------------------
+
+IP: 004CB38C
+numObjects: 107
+maxObjects: 182
+004CB38C OP_SET_VARIABLE              OBJECT STRING 'age'
+
+[ OBJECT STRING '23' ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB38E
+numObjects: 107
+maxObjects: 182
+004CB38E OP_MAKE_STRING               RAW_STRING "What's your favorite color?"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer 'What's your favorite color?' of length 27.
+Allocating string object 'What's your favorite color?' of length 27.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 108
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 109
+
+--------------------------
+
+IP: 004CB390
+numObjects: 109
+maxObjects: 182
+004CB390 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'What's your favorite color?' ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB392
+numObjects: 109
+maxObjects: 182
+004CB392 OP_CALL                      1
+
+[ OBJECT STRING 'What's your favorite color?' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+OBJECT STRING 'What's your favorite color?'
+
+--------------------------
+
+IP: 004CB394
+numObjects: 109
+maxObjects: 182
+004CB394 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB395
+numObjects: 109
+maxObjects: 182
+004CB395 OP_MAKE_STRING               RAW_STRING "Blue"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer 'Blue' of length 4.
+Allocating string object 'Blue' of length 4.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 110
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 111
+
+--------------------------
+
+IP: 004CB397
+numObjects: 111
+maxObjects: 182
+004CB397 OP_SET_VARIABLE              OBJECT STRING 'color'
+
+[ OBJECT STRING 'Blue' ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB399
+numObjects: 111
+maxObjects: 182
+004CB399 OP_LOAD_VARIABLE             OBJECT STRING 'color'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB39B
+numObjects: 111
+maxObjects: 182
+004CB39B OP_LOAD_VARIABLE             OBJECT STRING 'age'
+
+[ OBJECT STRING 'Blue' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB39D
+numObjects: 111
+maxObjects: 182
+004CB39D OP_LOAD_VARIABLE             OBJECT STRING 'name'
+
+[ OBJECT STRING 'Blue' ][ OBJECT STRING '23' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB39F
+numObjects: 111
+maxObjects: 182
+004CB39F OP_LOAD_VARIABLE             OBJECT STRING 'create_story'
+
+[ OBJECT STRING 'Blue' ][ OBJECT STRING '23' ][ OBJECT STRING 'Aviv' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB3A1
+numObjects: 111
+maxObjects: 182
+004CB3A1 OP_CALL                      3
+
+[ OBJECT STRING 'Blue' ][ OBJECT STRING '23' ][ OBJECT STRING 'Aviv' ][ OBJECT FUNCTION <Function at 004CB138> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9D0
+numObjects: 111
+maxObjects: 182
+004CA9D0 OP_LOAD_VARIABLE             OBJECT STRING 'name'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9D2
+numObjects: 111
+maxObjects: 182
+004CA9D2 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'Aviv' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9D4
+numObjects: 111
+maxObjects: 182
+004CA9D4 OP_CALL                      1
+
+[ OBJECT STRING 'Aviv' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+OBJECT STRING 'Aviv'
+
+--------------------------
+
+IP: 004CA9D6
+numObjects: 111
+maxObjects: 182
+004CA9D6 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9D7
+numObjects: 111
+maxObjects: 182
+004CA9D7 OP_LOAD_VARIABLE             OBJECT STRING 'age'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9D9
+numObjects: 111
+maxObjects: 182
+004CA9D9 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING '23' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9DB
+numObjects: 111
+maxObjects: 182
+004CA9DB OP_CALL                      1
+
+[ OBJECT STRING '23' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+OBJECT STRING '23'
+
+--------------------------
+
+IP: 004CA9DD
+numObjects: 111
+maxObjects: 182
+004CA9DD OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9DE
+numObjects: 111
+maxObjects: 182
+004CA9DE OP_LOAD_VARIABLE             OBJECT STRING 'color'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9E0
+numObjects: 111
+maxObjects: 182
+004CA9E0 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'Blue' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9E2
+numObjects: 111
+maxObjects: 182
+004CA9E2 OP_CALL                      1
+
+[ OBJECT STRING 'Blue' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+OBJECT STRING 'Blue'
+
+--------------------------
+
+IP: 004CA9E4
+numObjects: 111
+maxObjects: 182
+004CA9E4 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9E5
+numObjects: 111
+maxObjects: 182
+004CA9E5 OP_MAKE_STRING               RAW_STRING "Once there was a guy named "
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer 'Once there was a guy named ' of length 27.
+Allocating string object 'Once there was a guy named ' of length 27.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 112
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 113
+
+--------------------------
+
+IP: 004CA9E7
+numObjects: 113
+maxObjects: 182
+004CA9E7 OP_LOAD_VARIABLE             OBJECT STRING 'name'
+
+[ OBJECT STRING 'Once there was a guy named ' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9E9
+numObjects: 113
+maxObjects: 182
+004CA9E9 OP_ADD
+
+[ OBJECT STRING 'Once there was a guy named ' ][ OBJECT STRING 'Aviv' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string object 'Once there was a guy named Aviv' of length 31.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 114
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 115
+
+--------------------------
+
+IP: 004CA9EA
+numObjects: 115
+maxObjects: 182
+004CA9EA OP_SET_VARIABLE              OBJECT STRING 'line1'
+
+[ OBJECT STRING 'Once there was a guy named Aviv' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9EC
+numObjects: 115
+maxObjects: 182
+004CA9EC OP_MAKE_STRING               RAW_STRING " who was "
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer ' who was ' of length 9.
+Allocating string object ' who was ' of length 9.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 116
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 117
+
+--------------------------
+
+IP: 004CA9EE
+numObjects: 117
+maxObjects: 182
+004CA9EE OP_LOAD_VARIABLE             OBJECT STRING 'age'
+
+[ OBJECT STRING ' who was ' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9F0
+numObjects: 117
+maxObjects: 182
+004CA9F0 OP_ADD
+
+[ OBJECT STRING ' who was ' ][ OBJECT STRING '23' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string object ' who was 23' of length 11.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 118
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 119
+
+--------------------------
+
+IP: 004CA9F1
+numObjects: 119
+maxObjects: 182
+004CA9F1 OP_MAKE_STRING               RAW_STRING " years old, and liked the color "
+
+[ OBJECT STRING ' who was 23' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer ' years old, and liked the color ' of length 32.
+Allocating string object ' years old, and liked the color ' of length 32.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 120
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 121
+
+--------------------------
+
+IP: 004CA9F3
+numObjects: 121
+maxObjects: 182
+004CA9F3 OP_ADD
+
+[ OBJECT STRING ' who was 23' ][ OBJECT STRING ' years old, and liked the color ' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string object ' who was 23 years old, and liked the color ' of length 43.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 122
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 123
+
+--------------------------
+
+IP: 004CA9F4
+numObjects: 123
+maxObjects: 182
+004CA9F4 OP_LOAD_VARIABLE             OBJECT STRING 'color'
+
+[ OBJECT STRING ' who was 23 years old, and liked the color ' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9F6
+numObjects: 123
+maxObjects: 182
+004CA9F6 OP_ADD
+
+[ OBJECT STRING ' who was 23 years old, and liked the color ' ][ OBJECT STRING 'Blue' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string object ' who was 23 years old, and liked the color Blue' of length 47.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 124
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 125
+
+--------------------------
+
+IP: 004CA9F7
+numObjects: 125
+maxObjects: 182
+004CA9F7 OP_MAKE_STRING               RAW_STRING " very much!"
+
+[ OBJECT STRING ' who was 23 years old, and liked the color Blue' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer ' very much!' of length 11.
+Allocating string object ' very much!' of length 11.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 126
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 127
+
+--------------------------
+
+IP: 004CA9F9
+numObjects: 127
+maxObjects: 182
+004CA9F9 OP_ADD
+
+[ OBJECT STRING ' who was 23 years old, and liked the color Blue' ][ OBJECT STRING ' very much!' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string object ' who was 23 years old, and liked the color Blue very much!' of length 58.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 128
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 129
+
+--------------------------
+
+IP: 004CA9FA
+numObjects: 129
+maxObjects: 182
+004CA9FA OP_SET_VARIABLE              OBJECT STRING 'line2'
+
+[ OBJECT STRING ' who was 23 years old, and liked the color Blue very much!' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9FC
+numObjects: 129
+maxObjects: 182
+004CA9FC OP_LOAD_VARIABLE             OBJECT STRING 'line1'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 5 
+Collisions: 2 
+Data: 
+0 = [Key: line2, Value: OBJECT STRING ' who was 23 years old, and liked the color Blue very much!']
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA9FE
+numObjects: 129
+maxObjects: 182
+004CA9FE OP_LOAD_VARIABLE             OBJECT STRING 'line2'
+
+[ OBJECT STRING 'Once there was a guy named Aviv' ]
+
+Local variables:
+Capacity: 8 
+Count: 5 
+Collisions: 2 
+Data: 
+0 = [Key: line2, Value: OBJECT STRING ' who was 23 years old, and liked the color Blue very much!']
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CAA00
+numObjects: 129
+maxObjects: 182
+004CAA00 OP_ADD
+
+[ OBJECT STRING 'Once there was a guy named Aviv' ][ OBJECT STRING ' who was 23 years old, and liked the color Blue very much!' ]
+
+Local variables:
+Capacity: 8 
+Count: 5 
+Collisions: 2 
+Data: 
+0 = [Key: line2, Value: OBJECT STRING ' who was 23 years old, and liked the color Blue very much!']
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string object 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!' of length 89.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 130
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 131
+
+--------------------------
+
+IP: 004CAA01
+numObjects: 131
+maxObjects: 182
+004CAA01 OP_RETURN
+
+[ OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!' ]
+
+Local variables:
+Capacity: 8 
+Count: 5 
+Collisions: 2 
+Data: 
+0 = [Key: line2, Value: OBJECT STRING ' who was 23 years old, and liked the color Blue very much!']
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB3A3
+numObjects: 131
+maxObjects: 182
+004CB3A3 OP_SET_VARIABLE              OBJECT STRING 'story'
+
+[ OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB3A5
+numObjects: 131
+maxObjects: 182
+004CB3A5 OP_MAKE_STRING               RAW_STRING "Here is your story:"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer 'Here is your story:' of length 19.
+Allocating string object 'Here is your story:' of length 19.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 132
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 133
+
+--------------------------
+
+IP: 004CB3A7
+numObjects: 133
+maxObjects: 182
+004CB3A7 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'Here is your story:' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB3A9
+numObjects: 133
+maxObjects: 182
+004CB3A9 OP_CALL                      1
+
+[ OBJECT STRING 'Here is your story:' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+OBJECT STRING 'Here is your story:'
+
+--------------------------
+
+IP: 004CB3AB
+numObjects: 133
+maxObjects: 182
+004CB3AB OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB3AC
+numObjects: 133
+maxObjects: 182
+004CB3AC OP_LOAD_VARIABLE             OBJECT STRING 'story'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB3AE
+numObjects: 133
+maxObjects: 182
+004CB3AE OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB3B0
+numObjects: 133
+maxObjects: 182
+004CB3B0 OP_CALL                      1
+
+[ OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!'
+
+--------------------------
+
+IP: 004CB3B2
+numObjects: 133
+maxObjects: 182
+004CB3B2 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB3B3
+numObjects: 133
+maxObjects: 182
+004CB3B3 OP_NIL
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CB3B4
+numObjects: 133
+maxObjects: 182
+004CB3B4 OP_RETURN
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA425
+numObjects: 133
+maxObjects: 182
+004CA425 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA426
+numObjects: 133
+maxObjects: 182
+004CA426 OP_MAKE_STRING               RAW_STRING "Another one? (Y/N)"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer 'Another one? (Y/N)' of length 18.
+Allocating string object 'Another one? (Y/N)' of length 18.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 134
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 135
+
+--------------------------
+
+IP: 004CA428
+numObjects: 135
+maxObjects: 182
+004CA428 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'Another one? (Y/N)' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA42A
+numObjects: 135
+maxObjects: 182
+004CA42A OP_CALL                      1
+
+[ OBJECT STRING 'Another one? (Y/N)' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+OBJECT STRING 'Another one? (Y/N)'
+
+--------------------------
+
+IP: 004CA42C
+numObjects: 135
+maxObjects: 182
+004CA42C OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA42D
+numObjects: 135
+maxObjects: 182
+004CA42D OP_MAKE_STRING               RAW_STRING "y"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+Allocating string buffer 'y' of length 1.
+Allocating string object 'y' of length 1.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 136
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 137
+
+--------------------------
+
+IP: 004CA42F
+numObjects: 137
+maxObjects: 182
+004CA42F OP_SET_VARIABLE              OBJECT STRING 'do_game'
+
+[ OBJECT STRING 'y' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 1 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'Y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'Y' >>
+
+--------------------------
+
+IP: 004CA431
+numObjects: 137
+maxObjects: 182
+004CA431 OP_MAKE_STRING               RAW_STRING "do_game is:"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer 'do_game is:' of length 11.
+Allocating string object 'do_game is:' of length 11.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 138
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 139
+
+--------------------------
+
+IP: 004CA433
+numObjects: 139
+maxObjects: 182
+004CA433 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'do_game is:' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA435
+numObjects: 139
+maxObjects: 182
+004CA435 OP_CALL                      1
+
+[ OBJECT STRING 'do_game is:' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+OBJECT STRING 'do_game is:'
+
+--------------------------
+
+IP: 004CA437
+numObjects: 139
+maxObjects: 182
+004CA437 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA438
+numObjects: 139
+maxObjects: 182
+004CA438 OP_MAKE_STRING               RAW_STRING "---"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer '---' of length 3.
+Allocating string object '---' of length 3.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 140
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 141
+
+--------------------------
+
+IP: 004CA43A
+numObjects: 141
+maxObjects: 182
+004CA43A OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING '---' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA43C
+numObjects: 141
+maxObjects: 182
+004CA43C OP_CALL                      1
+
+[ OBJECT STRING '---' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+OBJECT STRING '---'
+
+--------------------------
+
+IP: 004CA43E
+numObjects: 141
+maxObjects: 182
+004CA43E OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA43F
+numObjects: 141
+maxObjects: 182
+004CA43F OP_LOAD_VARIABLE             OBJECT STRING 'do_game'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA441
+numObjects: 141
+maxObjects: 182
+004CA441 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'y' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA443
+numObjects: 141
+maxObjects: 182
+004CA443 OP_CALL                      1
+
+[ OBJECT STRING 'y' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+OBJECT STRING 'y'
+
+--------------------------
+
+IP: 004CA445
+numObjects: 141
+maxObjects: 182
+004CA445 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA446
+numObjects: 141
+maxObjects: 182
+004CA446 OP_MAKE_STRING               RAW_STRING "---"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer '---' of length 3.
+Allocating string object '---' of length 3.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 142
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 143
+
+--------------------------
+
+IP: 004CA448
+numObjects: 143
+maxObjects: 182
+004CA448 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING '---' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA44A
+numObjects: 143
+maxObjects: 182
+004CA44A OP_CALL                      1
+
+[ OBJECT STRING '---' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+OBJECT STRING '---'
+
+--------------------------
+
+IP: 004CA44C
+numObjects: 143
+maxObjects: 182
+004CA44C OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA44D
+numObjects: 143
+maxObjects: 182
+004CA44D OP_JUMP                      19
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA413
+numObjects: 143
+maxObjects: 182
+004CA413 OP_LOAD_VARIABLE             OBJECT STRING 'do_game'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA415
+numObjects: 143
+maxObjects: 182
+004CA415 OP_MAKE_STRING               RAW_STRING "Y"
+
+[ OBJECT STRING 'y' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer 'Y' of length 1.
+Allocating string object 'Y' of length 1.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 144
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 145
+
+--------------------------
+
+IP: 004CA417
+numObjects: 145
+maxObjects: 182
+004CA417 OP_EQUAL
+
+[ OBJECT STRING 'y' ][ OBJECT STRING 'Y' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA418
+numObjects: 145
+maxObjects: 182
+004CA418 OP_LOAD_VARIABLE             OBJECT STRING 'do_game'
+
+[ BOOLEAN false ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA41A
+numObjects: 145
+maxObjects: 182
+004CA41A OP_MAKE_STRING               RAW_STRING "y"
+
+[ BOOLEAN false ][ OBJECT STRING 'y' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer 'y' of length 1.
+Allocating string object 'y' of length 1.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 146
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 147
+
+--------------------------
+
+IP: 004CA41C
+numObjects: 147
+maxObjects: 182
+004CA41C OP_EQUAL
+
+[ BOOLEAN false ][ OBJECT STRING 'y' ][ OBJECT STRING 'y' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA41D
+numObjects: 147
+maxObjects: 182
+004CA41D OP_OR
+
+[ BOOLEAN false ][ BOOLEAN true ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA41E
+numObjects: 147
+maxObjects: 182
+004CA41E OP_JUMP_IF_FALSE             80
+
+[ BOOLEAN true ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA421
+numObjects: 147
+maxObjects: 182
+004CA421 OP_LOAD_VARIABLE             OBJECT STRING 'print_user_story'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA423
+numObjects: 147
+maxObjects: 182
+004CA423 OP_CALL                      0
+
+[ OBJECT FUNCTION <Function at 004CB600> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB378
+numObjects: 147
+maxObjects: 182
+004CB378 OP_MAKE_STRING               RAW_STRING "What's your name?"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer 'What's your name?' of length 17.
+Allocating string object 'What's your name?' of length 17.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 148
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 149
+
+--------------------------
+
+IP: 004CB37A
+numObjects: 149
+maxObjects: 182
+004CB37A OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'What's your name?' ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB37C
+numObjects: 149
+maxObjects: 182
+004CB37C OP_CALL                      1
+
+[ OBJECT STRING 'What's your name?' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: OBJECT STRING 'y' >>
+OBJECT STRING 'What's your name?'
+
+--------------------------
+
+IP: 004CB37E
+numObjects: 149
+maxObjects: 182
+004CB37E OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB37F
+numObjects: 149
+maxObjects: 182
+004CB37F OP_MAKE_STRING               RAW_STRING "Aviv"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer 'Aviv' of length 4.
+Allocating string object 'Aviv' of length 4.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 150
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 151
+
+--------------------------
+
+IP: 004CB381
+numObjects: 151
+maxObjects: 182
+004CB381 OP_SET_VARIABLE              OBJECT STRING 'name'
+
+[ OBJECT STRING 'Aviv' ]
+
+Local variables:
+Capacity: 0 
+Count: 0 
+Collisions: 0 
+Table is empty.
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB383
+numObjects: 151
+maxObjects: 182
+004CB383 OP_MAKE_STRING               RAW_STRING "What's your age?"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer 'What's your age?' of length 16.
+Allocating string object 'What's your age?' of length 16.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 152
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 153
+
+--------------------------
+
+IP: 004CB385
+numObjects: 153
+maxObjects: 182
+004CB385 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'What's your age?' ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB387
+numObjects: 153
+maxObjects: 182
+004CB387 OP_CALL                      1
+
+[ OBJECT STRING 'What's your age?' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+OBJECT STRING 'What's your age?'
+
+--------------------------
+
+IP: 004CB389
+numObjects: 153
+maxObjects: 182
+004CB389 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB38A
+numObjects: 153
+maxObjects: 182
+004CB38A OP_MAKE_STRING               RAW_STRING "23"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer '23' of length 2.
+Allocating string object '23' of length 2.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 154
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 155
+
+--------------------------
+
+IP: 004CB38C
+numObjects: 155
+maxObjects: 182
+004CB38C OP_SET_VARIABLE              OBJECT STRING 'age'
+
+[ OBJECT STRING '23' ]
+
+Local variables:
+Capacity: 8 
+Count: 1 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: null, Value: NUMBER 0]
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB38E
+numObjects: 155
+maxObjects: 182
+004CB38E OP_MAKE_STRING               RAW_STRING "What's your favorite color?"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer 'What's your favorite color?' of length 27.
+Allocating string object 'What's your favorite color?' of length 27.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 156
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 157
+
+--------------------------
+
+IP: 004CB390
+numObjects: 157
+maxObjects: 182
+004CB390 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'What's your favorite color?' ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB392
+numObjects: 157
+maxObjects: 182
+004CB392 OP_CALL                      1
+
+[ OBJECT STRING 'What's your favorite color?' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+OBJECT STRING 'What's your favorite color?'
+
+--------------------------
+
+IP: 004CB394
+numObjects: 157
+maxObjects: 182
+004CB394 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB395
+numObjects: 157
+maxObjects: 182
+004CB395 OP_MAKE_STRING               RAW_STRING "Blue"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer 'Blue' of length 4.
+Allocating string object 'Blue' of length 4.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 158
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 159
+
+--------------------------
+
+IP: 004CB397
+numObjects: 159
+maxObjects: 182
+004CB397 OP_SET_VARIABLE              OBJECT STRING 'color'
+
+[ OBJECT STRING 'Blue' ]
+
+Local variables:
+Capacity: 8 
+Count: 2 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB399
+numObjects: 159
+maxObjects: 182
+004CB399 OP_LOAD_VARIABLE             OBJECT STRING 'color'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB39B
+numObjects: 159
+maxObjects: 182
+004CB39B OP_LOAD_VARIABLE             OBJECT STRING 'age'
+
+[ OBJECT STRING 'Blue' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB39D
+numObjects: 159
+maxObjects: 182
+004CB39D OP_LOAD_VARIABLE             OBJECT STRING 'name'
+
+[ OBJECT STRING 'Blue' ][ OBJECT STRING '23' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB39F
+numObjects: 159
+maxObjects: 182
+004CB39F OP_LOAD_VARIABLE             OBJECT STRING 'create_story'
+
+[ OBJECT STRING 'Blue' ][ OBJECT STRING '23' ][ OBJECT STRING 'Aviv' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB3A1
+numObjects: 159
+maxObjects: 182
+004CB3A1 OP_CALL                      3
+
+[ OBJECT STRING 'Blue' ][ OBJECT STRING '23' ][ OBJECT STRING 'Aviv' ][ OBJECT FUNCTION <Function at 004CB138> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9D0
+numObjects: 159
+maxObjects: 182
+004CA9D0 OP_LOAD_VARIABLE             OBJECT STRING 'name'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9D2
+numObjects: 159
+maxObjects: 182
+004CA9D2 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'Aviv' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9D4
+numObjects: 159
+maxObjects: 182
+004CA9D4 OP_CALL                      1
+
+[ OBJECT STRING 'Aviv' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+OBJECT STRING 'Aviv'
+
+--------------------------
+
+IP: 004CA9D6
+numObjects: 159
+maxObjects: 182
+004CA9D6 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9D7
+numObjects: 159
+maxObjects: 182
+004CA9D7 OP_LOAD_VARIABLE             OBJECT STRING 'age'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9D9
+numObjects: 159
+maxObjects: 182
+004CA9D9 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING '23' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9DB
+numObjects: 159
+maxObjects: 182
+004CA9DB OP_CALL                      1
+
+[ OBJECT STRING '23' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+OBJECT STRING '23'
+
+--------------------------
+
+IP: 004CA9DD
+numObjects: 159
+maxObjects: 182
+004CA9DD OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9DE
+numObjects: 159
+maxObjects: 182
+004CA9DE OP_LOAD_VARIABLE             OBJECT STRING 'color'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9E0
+numObjects: 159
+maxObjects: 182
+004CA9E0 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'Blue' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9E2
+numObjects: 159
+maxObjects: 182
+004CA9E2 OP_CALL                      1
+
+[ OBJECT STRING 'Blue' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+OBJECT STRING 'Blue'
+
+--------------------------
+
+IP: 004CA9E4
+numObjects: 159
+maxObjects: 182
+004CA9E4 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9E5
+numObjects: 159
+maxObjects: 182
+004CA9E5 OP_MAKE_STRING               RAW_STRING "Once there was a guy named "
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer 'Once there was a guy named ' of length 27.
+Allocating string object 'Once there was a guy named ' of length 27.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 160
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 161
+
+--------------------------
+
+IP: 004CA9E7
+numObjects: 161
+maxObjects: 182
+004CA9E7 OP_LOAD_VARIABLE             OBJECT STRING 'name'
+
+[ OBJECT STRING 'Once there was a guy named ' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9E9
+numObjects: 161
+maxObjects: 182
+004CA9E9 OP_ADD
+
+[ OBJECT STRING 'Once there was a guy named ' ][ OBJECT STRING 'Aviv' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string object 'Once there was a guy named Aviv' of length 31.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 162
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 163
+
+--------------------------
+
+IP: 004CA9EA
+numObjects: 163
+maxObjects: 182
+004CA9EA OP_SET_VARIABLE              OBJECT STRING 'line1'
+
+[ OBJECT STRING 'Once there was a guy named Aviv' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9EC
+numObjects: 163
+maxObjects: 182
+004CA9EC OP_MAKE_STRING               RAW_STRING " who was "
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer ' who was ' of length 9.
+Allocating string object ' who was ' of length 9.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 164
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 165
+
+--------------------------
+
+IP: 004CA9EE
+numObjects: 165
+maxObjects: 182
+004CA9EE OP_LOAD_VARIABLE             OBJECT STRING 'age'
+
+[ OBJECT STRING ' who was ' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9F0
+numObjects: 165
+maxObjects: 182
+004CA9F0 OP_ADD
+
+[ OBJECT STRING ' who was ' ][ OBJECT STRING '23' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string object ' who was 23' of length 11.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 166
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 167
+
+--------------------------
+
+IP: 004CA9F1
+numObjects: 167
+maxObjects: 182
+004CA9F1 OP_MAKE_STRING               RAW_STRING " years old, and liked the color "
+
+[ OBJECT STRING ' who was 23' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer ' years old, and liked the color ' of length 32.
+Allocating string object ' years old, and liked the color ' of length 32.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 168
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 169
+
+--------------------------
+
+IP: 004CA9F3
+numObjects: 169
+maxObjects: 182
+004CA9F3 OP_ADD
+
+[ OBJECT STRING ' who was 23' ][ OBJECT STRING ' years old, and liked the color ' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string object ' who was 23 years old, and liked the color ' of length 43.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 170
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 171
+
+--------------------------
+
+IP: 004CA9F4
+numObjects: 171
+maxObjects: 182
+004CA9F4 OP_LOAD_VARIABLE             OBJECT STRING 'color'
+
+[ OBJECT STRING ' who was 23 years old, and liked the color ' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9F6
+numObjects: 171
+maxObjects: 182
+004CA9F6 OP_ADD
+
+[ OBJECT STRING ' who was 23 years old, and liked the color ' ][ OBJECT STRING 'Blue' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string object ' who was 23 years old, and liked the color Blue' of length 47.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 172
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 173
+
+--------------------------
+
+IP: 004CA9F7
+numObjects: 173
+maxObjects: 182
+004CA9F7 OP_MAKE_STRING               RAW_STRING " very much!"
+
+[ OBJECT STRING ' who was 23 years old, and liked the color Blue' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer ' very much!' of length 11.
+Allocating string object ' very much!' of length 11.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 174
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 175
+
+--------------------------
+
+IP: 004CA9F9
+numObjects: 175
+maxObjects: 182
+004CA9F9 OP_ADD
+
+[ OBJECT STRING ' who was 23 years old, and liked the color Blue' ][ OBJECT STRING ' very much!' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string object ' who was 23 years old, and liked the color Blue very much!' of length 58.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 176
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 177
+
+--------------------------
+
+IP: 004CA9FA
+numObjects: 177
+maxObjects: 182
+004CA9FA OP_SET_VARIABLE              OBJECT STRING 'line2'
+
+[ OBJECT STRING ' who was 23 years old, and liked the color Blue very much!' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9FC
+numObjects: 177
+maxObjects: 182
+004CA9FC OP_LOAD_VARIABLE             OBJECT STRING 'line1'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 5 
+Collisions: 2 
+Data: 
+0 = [Key: line2, Value: OBJECT STRING ' who was 23 years old, and liked the color Blue very much!']
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA9FE
+numObjects: 177
+maxObjects: 182
+004CA9FE OP_LOAD_VARIABLE             OBJECT STRING 'line2'
+
+[ OBJECT STRING 'Once there was a guy named Aviv' ]
+
+Local variables:
+Capacity: 8 
+Count: 5 
+Collisions: 2 
+Data: 
+0 = [Key: line2, Value: OBJECT STRING ' who was 23 years old, and liked the color Blue very much!']
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CAA00
+numObjects: 177
+maxObjects: 182
+004CAA00 OP_ADD
+
+[ OBJECT STRING 'Once there was a guy named Aviv' ][ OBJECT STRING ' who was 23 years old, and liked the color Blue very much!' ]
+
+Local variables:
+Capacity: 8 
+Count: 5 
+Collisions: 2 
+Data: 
+0 = [Key: line2, Value: OBJECT STRING ' who was 23 years old, and liked the color Blue very much!']
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string object 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!' of length 89.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 178
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 179
+
+--------------------------
+
+IP: 004CAA01
+numObjects: 179
+maxObjects: 182
+004CAA01 OP_RETURN
+
+[ OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!' ]
+
+Local variables:
+Capacity: 8 
+Count: 5 
+Collisions: 2 
+Data: 
+0 = [Key: line2, Value: OBJECT STRING ' who was 23 years old, and liked the color Blue very much!']
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: line1, Value: OBJECT STRING 'Once there was a guy named Aviv']
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB3A3
+numObjects: 179
+maxObjects: 182
+004CB3A3 OP_SET_VARIABLE              OBJECT STRING 'story'
+
+[ OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!' ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 0 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB3A5
+numObjects: 179
+maxObjects: 182
+004CB3A5 OP_MAKE_STRING               RAW_STRING "Here is your story:"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer 'Here is your story:' of length 19.
+Allocating string object 'Here is your story:' of length 19.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 180
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+Incremented numObjects to 181
+
+--------------------------
+
+IP: 004CB3A7
+numObjects: 181
+maxObjects: 182
+004CB3A7 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'Here is your story:' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB3A9
+numObjects: 181
+maxObjects: 182
+004CB3A9 OP_CALL                      1
+
+[ OBJECT STRING 'Here is your story:' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'y' >>
+OBJECT STRING 'Here is your story:'
+
+--------------------------
+
+IP: 004CB3AB
+numObjects: 181
+maxObjects: 182
+004CB3AB OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB3AC
+numObjects: 181
+maxObjects: 182
+004CB3AC OP_LOAD_VARIABLE             OBJECT STRING 'story'
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB3AE
+numObjects: 181
+maxObjects: 182
+004CB3AE OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!' ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB3B0
+numObjects: 181
+maxObjects: 182
+004CB3B0 OP_CALL                      1
+
+[ OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!' ][ OBJECT FUNCTION <Native function at 004C18F0> ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'y' >>
+OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!'
+
+--------------------------
+
+IP: 004CB3B2
+numObjects: 181
+maxObjects: 182
+004CB3B2 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB3B3
+numObjects: 181
+maxObjects: 182
+004CB3B3 OP_NIL
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CB3B4
+numObjects: 181
+maxObjects: 182
+004CB3B4 OP_RETURN
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 4 
+Collisions: 1 
+Data: 
+0 = [Key: null, Value: NUMBER 0]
+1 = [Key: null, Value: NUMBER 0]
+2 = [Key: age, Value: OBJECT STRING '23']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: color, Value: OBJECT STRING 'Blue']
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: name, Value: OBJECT STRING 'Aviv']
+7 = [Key: story, Value: OBJECT STRING 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!']
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA425
+numObjects: 181
+maxObjects: 182
+004CA425 OP_POP
+
+[ NIL nil ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+
+--------------------------
+
+IP: 004CA426
+numObjects: 181
+maxObjects: 182
+004CA426 OP_MAKE_STRING               RAW_STRING "Another one? (Y/N)"
+
+[ -- Empty Stack -- ]
+
+Local variables:
+Capacity: 8 
+Count: 3 
+Collisions: 2 
+Data: 
+0 = [Key: print_user_story, Value: OBJECT FUNCTION <Function at 004CB600>]
+1 = [Key: create_story, Value: OBJECT FUNCTION <Function at 004CB138>]
+2 = [Key: do_game, Value: OBJECT STRING 'y']
+3 = [Key: null, Value: NUMBER 0]
+4 = [Key: null, Value: NUMBER 0]
+5 = [Key: null, Value: NUMBER 0]
+6 = [Key: null, Value: NUMBER 0]
+7 = [Key: null, Value: NUMBER 0]
+
+
+<< do_game: OBJECT STRING 'y' >>
+Allocating string buffer 'Another one? (Y/N)' of length 18.
+Allocating string object 'Another one? (Y/N)' of length 18.
+Allocating object 'ObjectString' of size 36 and type 0.
+Incremented numObjects to 182
+Allocating string buffer 'self' of length 4.
+Allocating string buffer 'other' of length 5.
+Creating native function object.
+Allocating object 'ObjectFunction' of size 64 and type 1.
+===== GC Running =====
+numObjects: 182. maxObjects: 182
+Allocated memory: 33381 bytes
+=======================
+Freeing ObjectString 'Another one? (Y/N)'
+Decremented numObjects to 181
+Freeing native ObjectFunction
+Decremented numObjects to 180
+Freeing ObjectString 'Here is your story:'
+Decremented numObjects to 179
+Freeing native ObjectFunction
+Decremented numObjects to 178
+Freeing ObjectString 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!'
+Decremented numObjects to 177
+Freeing native ObjectFunction
+Decremented numObjects to 176
+Freeing ObjectString ' who was 23 years old, and liked the color Blue very much!'
+Decremented numObjects to 175
+Freeing native ObjectFunction
+Decremented numObjects to 174
+Freeing ObjectString ' very much!'
+Decremented numObjects to 173
+Freeing native ObjectFunction
+Decremented numObjects to 172
+Freeing ObjectString ' who was 23 years old, and liked the color Blue'
+Decremented numObjects to 171
+Freeing native ObjectFunction
+Decremented numObjects to 170
+Freeing ObjectString ' who was 23 years old, and liked the color '
+Decremented numObjects to 169
+Freeing native ObjectFunction
+Decremented numObjects to 168
+Freeing ObjectString ' years old, and liked the color '
+Decremented numObjects to 167
+Freeing native ObjectFunction
+Decremented numObjects to 166
+Freeing ObjectString ' who was 23'
+Decremented numObjects to 165
+Freeing native ObjectFunction
+Decremented numObjects to 164
+Freeing ObjectString ' who was '
+Decremented numObjects to 163
+Freeing native ObjectFunction
+Decremented numObjects to 162
+Freeing ObjectString 'Once there was a guy named Aviv'
+Decremented numObjects to 161
+Freeing native ObjectFunction
+Decremented numObjects to 160
+Freeing ObjectString 'Once there was a guy named '
+Decremented numObjects to 159
+Freeing native ObjectFunction
+Decremented numObjects to 158
+Freeing ObjectString 'Blue'
+Decremented numObjects to 157
+Freeing native ObjectFunction
+Decremented numObjects to 156
+Freeing ObjectString 'What's your favorite color?'
+Decremented numObjects to 155
+Freeing native ObjectFunction
+Decremented numObjects to 154
+Freeing ObjectString '23'
+Decremented numObjects to 153
+Freeing native ObjectFunction
+Decremented numObjects to 152
+Freeing ObjectString 'What's your age?'
+Decremented numObjects to 151
+Freeing native ObjectFunction
+Decremented numObjects to 150
+Freeing ObjectString 'Aviv'
+Decremented numObjects to 149
+Freeing native ObjectFunction
+Decremented numObjects to 148
+Freeing ObjectString 'What's your name?'
+Decremented numObjects to 147
+Freeing native ObjectFunction
+Decremented numObjects to 146
+Freeing ObjectString 'y'
+Decremented numObjects to 145
+Freeing native ObjectFunction
+Decremented numObjects to 144
+Freeing ObjectString 'Y'
+Decremented numObjects to 143
+Freeing native ObjectFunction
+Decremented numObjects to 142
+Freeing ObjectString '---'
+Decremented numObjects to 141
+Freeing native ObjectFunction
+Decremented numObjects to 140
+Freeing ObjectString '---'
+Decremented numObjects to 139
+Freeing native ObjectFunction
+Decremented numObjects to 138
+Freeing ObjectString 'do_game is:'
+Decremented numObjects to 137
+Freeing native ObjectFunction
+Decremented numObjects to 136
+Freeing ObjectString 'Another one? (Y/N)'
+Decremented numObjects to 135
+Freeing native ObjectFunction
+Decremented numObjects to 134
+Freeing ObjectString 'Here is your story:'
+Decremented numObjects to 133
+Freeing native ObjectFunction
+Decremented numObjects to 132
+Freeing ObjectString 'Once there was a guy named Aviv who was 23 years old, and liked the color Blue very much!'
+Decremented numObjects to 131
+Freeing native ObjectFunction
+Decremented numObjects to 130
+Freeing ObjectString ' who was 23 years old, and liked the color Blue very much!'
+Decremented numObjects to 129
+Freeing native ObjectFunction
+Decremented numObjects to 128
+Freeing ObjectString ' very much!'
+Decremented numObjects to 127
+Freeing native ObjectFunction
+Decremented numObjects to 126
+Freeing ObjectString ' who was 23 years old, and liked the color Blue'
+Decremented numObjects to 125
+Freeing native ObjectFunction
+Decremented numObjects to 124
+Freeing ObjectString ' who was 23 years old, and liked the color '
+Decremented numObjects to 123
+Freeing native ObjectFunction
+Decremented numObjects to 122
+Freeing ObjectString ' years old, and liked the color '
+Decremented numObjects to 121
+Freeing native ObjectFunction
+Decremented numObjects to 120
+Freeing ObjectString ' who was 23'
+Decremented numObjects to 119
+Freeing native ObjectFunction
+Decremented numObjects to 118
+Freeing ObjectString ' who was '
+Decremented numObjects to 117
+Freeing native ObjectFunction
+Decremented numObjects to 116
+Freeing ObjectString 'Once there was a guy named Aviv'
+Decremented numObjects to 115
+Freeing native ObjectFunction
+Decremented numObjects to 114
+Freeing ObjectString 'Once there was a guy named '
+Decremented numObjects to 113
+Freeing native ObjectFunction
+Decremented numObjects to 112
+Freeing ObjectString 'Blue'
+Decremented numObjects to 111
+Freeing native ObjectFunction
+Decremented numObjects to 110
+Freeing ObjectString 'What's your favorite color?'
+Decremented numObjects to 109
+Freeing native ObjectFunction
+Decremented numObjects to 108
+Freeing ObjectString '23'
+Decremented numObjects to 107
+Freeing native ObjectFunction
+Decremented numObjects to 106
+Freeing ObjectString 'What's your age?'
+Decremented numObjects to 105
+Freeing native ObjectFunction
+Decremented numObjects to 104
+Freeing ObjectString 'Aviv'
+Decremented numObjects to 103
+Freeing native ObjectFunction
+Decremented numObjects to 102
+Freeing ObjectString 'What's your name?'
+Decremented numObjects to 101
+Freeing native ObjectFunction
+Decremented numObjects to 100
+Freeing ObjectString 'y'
+Decremented numObjects to 99
+Freeing native ObjectFunction
+Decremented numObjects to 98
+Freeing ObjectString 'Y'
+Decremented numObjects to 97
+Freeing native ObjectFunction
+Decremented numObjects to 96
+Freeing ObjectString 'Y'
+Decremented numObjects to 95
+Freeing native ObjectFunction
+Decremented numObjects to 94
+Freeing ObjectString 'Welcome to the story generator!'
+Decremented numObjects to 93
+===== GC Finished =====
+numObjects: 93. maxObjects: 186
+Allocated memory before GC: 33381 bytes
+Allocated memory after GC: 18633 bytes
+=======================
+Incremented numObjects to 94
+
+--------------------------
+
+IP: 004CA428
+numObjects: 94
+maxObjects: 186
+004CA428 OP_LOAD_VARIABLE             OBJECT STRING 'print'
+
+[ OBJECT 
+FAILING! Reason:'Unrecognized object type: 188'

@@ -8,18 +8,22 @@ IMPLEMENT_DYNAMIC_ARRAY(Value, ValueArray, value_array)
 void printValue(Value value) {
     switch (value.type) {
         case VALUE_NUMBER: {
+//        	printf("NUMBER ");
             printf("%g", value.as.number);
             return;
         }
         case VALUE_OBJECT: {
+//        	printf("OBJECT ");
             printObject(value.as.object);
             return;
         }
         case VALUE_BOOLEAN: {
+//        	printf("BOOLEAN ");
             printf(value.as.boolean ? "true" : "false");
             return;
         }
         case VALUE_RAW_STRING: {
+//        	printf("RAW_STRING ");
         	RawString string = value.as.raw_string;
 			printf("\"%.*s\"", string.length, string.data);
 			return;
@@ -30,6 +34,7 @@ void printValue(Value value) {
 //			return;
 //		}
         case VALUE_NIL: {
+//        	printf("NIL ");
             printf("nil");
             return;
         }

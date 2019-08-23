@@ -24,8 +24,8 @@ static Chunk* currentChunk(void) {
 }
 
 static void push(Value value) {
-    #if DEBUG
-        if (vm.stackTop - vm.evalStack == STACK_MAX) {
+    #if DEBUG_IMPORTANT
+        if (vm.stackTop - vm.evalStack >= STACK_MAX) {
             FAIL("STACK OVERFLOW!");
         }
     #endif
@@ -34,8 +34,8 @@ static void push(Value value) {
 }
 
 static Value pop(void) {
-    #if DEBUG
-        if (vm.stackTop == vm.evalStack) {
+    #if DEBUG_IMPORTANT
+        if (vm.stackTop <= vm.evalStack) {
             FAIL("STACK UNDERFLOW!");
         }
     #endif
@@ -246,13 +246,12 @@ static bool callNativeFunction(ObjectFunction* function) {
 	bool func_success = function->nativeFunction(arguments, &result);
 	if (func_success) {
 		push(result);
-		return true;
 	} else {
 		push(MAKE_VALUE_NIL());
-		return false;
 	}
 
 	value_array_free(&arguments);
+	return func_success;
 }
 
 void initVM(void) {
@@ -366,7 +365,44 @@ InterpretResult interpret(Chunk* baseChunk) {
         
 		#if DEBUG_TRACE_EXECUTION
 			disassembleInstruction(opcode, currentChunk(), vm.ip - 1 - currentChunk()->code);
+
+			printf("\n");
+			bool stackEmpty = vm.evalStack == vm.stackTop;
+			if (stackEmpty) {
+				printf("[ -- Empty Stack -- ]");
+			} else {
+				for (Value* value = vm.evalStack; value < vm.stackTop; value++) {
+					printf("[ ");
+					printValue(*value);
+					printf(" ]");
+				}
+			}
+			printf("\n\nLocal variables:\n");
+			if (isInFrame()) {
+				printTable(&currentFrame()->localVariables);
+			} else {
+				printf("No stack frames.");
+			}
+			printf("\n\n");
+
+			#if DEBUG_MEMORY_EXECUTION
+				printAllObjects();
+			#endif
 		#endif
+//
+//		Value out;
+//		if (getTableCStringKey(&vm.callStack[0].localVariables, "do_game", &out)) {
+//			printf("<< do_game: ");
+//			printValue(out);
+//			printf(" >>\n");
+//		} else {
+//			printf("<< do_game: couldn't get it >>\n");
+//		}
+
+		// Possible that vm.numObjects > vm.maxObjects if many objects were created during the compiling stage, where GC is disallowed
+		if (vm.numObjects >= vm.maxObjects) {
+			gc();
+		}
 
         switch (opcode) {
             case OP_CONSTANT: {
@@ -640,6 +676,7 @@ InterpretResult interpret(Chunk* baseChunk) {
                 		break;
                 	}
                 } else {
+                	// TODO: Handle errors
                 	callUserFunction(function);
                 }
 
@@ -712,30 +749,6 @@ InterpretResult interpret(Chunk* baseChunk) {
             	FAIL("Unknown opcode: %d", opcode);
             }
         }
-
-		#if DEBUG_TRACE_EXECUTION
-        	printf("\n");
-			bool stackEmpty = vm.evalStack == vm.stackTop;
-			if (stackEmpty) {
-				printf("[ ]");
-			} else {
-				for (Value* value = vm.evalStack; value < vm.stackTop; value++) {
-					printf("[ ");
-					printValue(*value);
-					printf(" ]");
-				}
-			}
-			printf("\n\nLocal variables:\n");
-			if (isInFrame()) {
-				printTable(&currentFrame()->localVariables);
-			} else {
-				printf("No stack frames.");
-			}
-			printf("\n\n");
-			#if DEBUG_MEMORY_EXECUTION
-				printAllObjects();
-			#endif
-        #endif
     }
 
     DEBUG_TRACE("\n--------------------------\n");
