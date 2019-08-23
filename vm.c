@@ -389,15 +389,6 @@ InterpretResult interpret(Chunk* baseChunk) {
 				printAllObjects();
 			#endif
 		#endif
-//
-//		Value out;
-//		if (getTableCStringKey(&vm.callStack[0].localVariables, "do_game", &out)) {
-//			printf("<< do_game: ");
-//			printValue(out);
-//			printf(" >>\n");
-//		} else {
-//			printf("<< do_game: couldn't get it >>\n");
-//		}
 
 		// Possible that vm.numObjects > vm.maxObjects if many objects were created during the compiling stage, where GC is disallowed
 		if (vm.numObjects >= vm.maxObjects) {
@@ -601,6 +592,20 @@ InterpretResult interpret(Chunk* baseChunk) {
             	push(MAKE_VALUE_OBJECT(obj_string));
             	break;
             }
+
+            case OP_MAKE_FUNCTION: {
+				RawCode code = READ_CONSTANT().as.code;
+
+				Chunk func_chunk;
+				initChunk(&func_chunk);
+				for (int i = 0; i < code.length; i++) {
+					writeChunk(&func_chunk, code.bytes[i]);
+				}
+
+				ObjectFunction* obj_function = newUserObjectFunction(func_chunk, code.params, code.num_params);
+				push(MAKE_VALUE_OBJECT(obj_function));
+				break;
+			}
 
             case OP_NIL: {
             	push(MAKE_VALUE_NIL());

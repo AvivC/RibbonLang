@@ -19,12 +19,19 @@ typedef struct {
 } RawString;
 
 typedef struct {
+	uint8_t* bytes;
+	int length;
+	char** params;
+	int num_params;
+} RawCode;
+
+typedef struct {
     ValueType type;
     union {
         double number;
         bool boolean;
         RawString raw_string;
-        // code;
+        RawCode code;
         struct Object* object;
     } as;
 } Value;
@@ -36,7 +43,9 @@ DEFINE_DYNAMIC_ARRAY(Value, ValueArray, value_array)
 #define MAKE_VALUE_NIL() (Value){.type = VALUE_NIL, .as.number = -1}
 #define MAKE_VALUE_RAW_STRING(cstring, the_length) (Value){.type = VALUE_RAW_STRING, \
 														.as.raw_string = (RawString) {.data = (cstring), .length = (the_length)}}
-// #define MAKE_VALUE_CODE() (Value){.type = VALUE_CODE, .as.code = ?}
+#define MAKE_VALUE_CODE(the_code, the_length, the_params, the_num_params) (Value){.type = VALUE_CODE, \
+														.as.code = (RawCode) {.bytes = the_code, .length = the_length, \
+																				.params = the_params, .num_params = the_num_params}}
 #define MAKE_VALUE_OBJECT(o) (Value){.type = VALUE_OBJECT, .as.object = (struct Object*)(o)}
 
 void printValue(Value value);

@@ -124,6 +124,10 @@ int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
 			return constantInstruction("OP_MAKE_STRING", chunk, offset);
 			break;
 		}
+		case OP_MAKE_FUNCTION: {
+			return constantInstruction("OP_MAKE_FUNCTION", chunk, offset);
+			break;
+		}
 		case OP_NIL: {
 			return simpleInstruction("OP_NIL", chunk, offset);
 			break;

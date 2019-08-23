@@ -7,6 +7,10 @@
 #include "memory.h"
 #include "utils.h"
 
+static void emit_byte(Chunk* chunk, uint8_t byte) {
+	writeChunk(chunk, byte);
+}
+
 static void emit_two_bytes(Chunk* chunk, uint8_t byte1, uint8_t byte2) {
 	writeChunk(chunk, byte1);
 	writeChunk(chunk, byte2);
@@ -107,17 +111,16 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             initChunk(&functionChunk);
             compile((AstNode*) nodeFunction->statements, &functionChunk); // calling compile() and not compileTree(), because it ends with OP_RETURN
 
-            char** cstrings_params = allocate(sizeof(char*) * nodeFunction->parameters.count, "Parameters list cstrings");
-            // Assuming the cstrings in the PointerArray are safe to just point to, will not be freed by the AST free function.
-            for (int i = 0; i < nodeFunction->parameters.count; i++) {
-            	cstrings_params[i] = nodeFunction->parameters.values[i];
+            int num_params = nodeFunction->parameters.count;
+            char** cstrings_params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+			// Assuming the cstrings in the PointerArray are safe to just point to, will not be freed by the AST free function.
+			for (int i = 0; i < num_params; i++) {
+				cstrings_params[i] = nodeFunction->parameters.values[i];
 			}
-            ObjectFunction* objFunc = newUserObjectFunction(functionChunk, cstrings_params, nodeFunction->parameters.count);
-            Value objFuncConstant = MAKE_VALUE_OBJECT(objFunc);
-            int constantIndex = addConstant(chunk, objFuncConstant);
-            
-            writeChunk(chunk, OP_CONSTANT);
-            writeChunk(chunk, (uint8_t) constantIndex);
+
+			Value code_constant = MAKE_VALUE_CODE(functionChunk.code, functionChunk.count, cstrings_params, num_params);
+
+            emit_opcode_with_constant_operand(chunk, OP_MAKE_FUNCTION, code_constant);
             
             break;
         }

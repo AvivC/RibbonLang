@@ -23,7 +23,6 @@ typedef enum {
 	AST_NODE_ATTRIBUTE,
 	AST_NODE_ATTRIBUTE_ASSIGNMENT,
 	AST_NODE_STRING
-//	AST_NODE_FUNCTION
 } AstNodeType;
 
 // for debugging purposes
