@@ -13,7 +13,7 @@
 	\
 	void FUNCTIONS_PERFIX##_init(ARRAY_NAME* array); \
 	\
-	void FUNCTIONS_PERFIX##_write(ARRAY_NAME* array, TYPE value); \
+	void FUNCTIONS_PERFIX##_write(ARRAY_NAME* array, TYPE* value); \
 	\
 	void FUNCTIONS_PERFIX##_free(ARRAY_NAME* array); \
 
@@ -25,14 +25,14 @@ void FUNCTIONS_PERFIX##_init(ARRAY_NAME* array) {\
     array->capacity = 0;\
 }\
 \
-void FUNCTIONS_PERFIX##_write(ARRAY_NAME* array, TYPE value) {\
+void FUNCTIONS_PERFIX##_write(ARRAY_NAME* array, TYPE* value) {\
     if (array->count == array->capacity) {\
         int oldCapacity = array->capacity;\
         array->capacity = GROW_CAPACITY(oldCapacity);\
         array->values = reallocate(array->values, sizeof(TYPE) * oldCapacity, sizeof(TYPE) * array->capacity, "Dynamic array buffer");\
     }\
 \
-    array->values[array->count++] = value;\
+    array->values[array->count++] = *value;\
 }\
 \
 void FUNCTIONS_PERFIX##_free(ARRAY_NAME* array) {\

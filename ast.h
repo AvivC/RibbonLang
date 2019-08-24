@@ -85,7 +85,7 @@ typedef struct {
 typedef struct {
     AstNode base;
     AstNodeStatements* statements;
-    PointerArray parameters;
+    ValueArray parameters;
 } AstNodeFunction;
 
 typedef struct {
@@ -144,7 +144,7 @@ AstNodeStatements* newAstNodeStatements(void);
 AstNodeExprStatement* new_ast_node_expr_statement(AstNode* expression);
 AstNodeReturn* newAstNodeReturn(AstNode* expression);
 AstNodeCall* newAstNodeCall(AstNode* expression, PointerArray arguments);
-AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, PointerArray parameters);
+AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, ValueArray parameters);
 AstNodeIf* new_ast_node_ff(AstNode* condition, AstNodeStatements* body, PointerArray elsifClauses, AstNodeStatements* elseBody);
 AstNodeWhile* new_ast_node_while(AstNode* condition, AstNodeStatements* body);
 AstNodeAnd* new_ast_node_and(AstNode* left, AstNode* right);

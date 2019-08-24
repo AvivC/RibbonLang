@@ -2,7 +2,7 @@
 #define plane_chunk_h
 
 #include "common.h"
-#include "value.h"
+#include "value_array.h"
 
 typedef enum {
     OP_CONSTANT,
@@ -43,6 +43,6 @@ void initChunk(Chunk* chunk);
 void writeChunk(Chunk* chunk, uint8_t byte);
 void setChunk(Chunk* chunk, int position, uint8_t byte);
 void freeChunk(Chunk* chunk);
-int addConstant(Chunk* chunk, Value constant);
+int addConstant(Chunk* chunk, struct Value* constant);
 
 #endif

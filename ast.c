@@ -331,7 +331,7 @@ static void freeNode(AstNode* node, int nesting) {
         case AST_NODE_FUNCTION: {
             AstNodeFunction* nodeFunction = (AstNodeFunction*) node;
             freeNode((AstNode*) nodeFunction->statements, nesting + 1);
-            freePointerArray(&nodeFunction->parameters);
+            value_array_free(&nodeFunction->parameters);
             deallocate(nodeFunction, sizeof(AstNodeFunction), deallocationString);
             break;
         }
@@ -439,7 +439,7 @@ AstNodeReturn* newAstNodeReturn(AstNode* expression) {
 	return node;
 }
 
-AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, PointerArray parameters) {
+AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, ValueArray parameters) {
 	AstNodeFunction* node = ALLOCATE_AST_NODE(AstNodeFunction, AST_NODE_FUNCTION);
 	node->statements = statements;
 	node->parameters = parameters;

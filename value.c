@@ -3,8 +3,6 @@
 #include "object.h"
 #include "memory.h"
 
-IMPLEMENT_DYNAMIC_ARRAY(Value, ValueArray, value_array)
-
 void printValue(Value value) {
     switch (value.type) {
         case VALUE_NUMBER: {
@@ -24,10 +22,11 @@ void printValue(Value value) {
 			printf("\"%.*s\"", string.length, string.data);
 			return;
 		}
-        case VALUE_CODE: {
-			printf("< RawCode pointing at %p >", value.as.code.bytes);
-			return;
-		}
+        case VALUE_CHUNK: {
+        	Chunk chunk = value.as.chunk;
+        	printf("< Chunk of size %d pointing at '%p' >", chunk.count, chunk.code);
+        	return;
+        }
         case VALUE_NIL: {
             printf("nil");
             return;

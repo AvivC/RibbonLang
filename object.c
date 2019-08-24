@@ -206,14 +206,14 @@ bool compareObjects(Object* a, Object* b) {
 
 ObjectFunction* objectAsFunction(Object* o) {
 	if (o->type != OBJECT_FUNCTION) {
-		FAIL("Illegal object conversion to function.");
+		FAIL("Object is not a function. Actual type: %d", o->type);
 	}
 	return (ObjectFunction*) o;
 }
 
 ObjectString* objectAsString(Object* o) {
 	if (o->type != OBJECT_STRING) {
-		FAIL("Illegal object conversion to string.");
+		FAIL("Object is not string. Actual type: %d", o->type);
 	}
 	return (ObjectString*) o;
 }

@@ -29,6 +29,27 @@ static int constantInstruction(const char* name, Chunk* chunk, int offset) {
     return offset + 2;
 }
 
+static int constantAndVariableLengthConstantsInstruction(const char* name, Chunk* chunk, int offset) {
+    int constantIndex = chunk->code[offset + 1];
+    Value constant = chunk->constants.values[constantIndex];
+
+    printf("%p %-28s ", chunk->code + offset, name);
+    printValue(constant);
+
+    uint16_t additional_operands_count = twoBytesToShort(chunk->code[offset + 2], chunk->code[offset + 3]);
+    for (int i = 0; i < additional_operands_count; i++) {
+		int additional_operand_offset = offset + 4 + i;
+		uint8_t additional_operand_index = chunk->code[additional_operand_offset];
+		Value operand = chunk->constants.values[additional_operand_index];
+		printf(", ");
+		printValue(operand);
+	}
+
+    printf("\n");
+
+    return offset + 4 + additional_operands_count;
+}
+
 static int simpleInstruction(const char* name, Chunk* chunk, int offset) {
     printf("%p %s\n", chunk->code + offset, name);
     return offset + 1;
@@ -125,7 +146,7 @@ int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
 			break;
 		}
 		case OP_MAKE_FUNCTION: {
-			return constantInstruction("OP_MAKE_FUNCTION", chunk, offset);
+			return constantAndVariableLengthConstantsInstruction("OP_MAKE_FUNCTION", chunk, offset);
 			break;
 		}
 		case OP_NIL: {
@@ -151,10 +172,10 @@ void disassembleChunk(Chunk* chunk) {
     
     for (int i = 0; i < chunk->constants.count; i++) {
         Value constant = chunk->constants.values[i];
-        if (constant.type == VALUE_OBJECT && constant.as.object->type == OBJECT_FUNCTION) {
-            printf("\nInner function [index %d]:\n", i);
-            ObjectFunction* funcObj = (ObjectFunction*) constant.as.object;
-            disassembleChunk(&funcObj->chunk);
+        if (constant.type == VALUE_CHUNK) {
+            printf("\nInner chunk [index %d]:\n", i);
+            Chunk inner_chunk = constant.as.chunk;
+            disassembleChunk(&inner_chunk);
         }
     }
 }

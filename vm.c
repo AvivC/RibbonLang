@@ -90,19 +90,25 @@ static bool isInFrame(void) {
 }
 
 static Value loadVariable(ObjectString* name) {
+	// TODO: Fix this weird semantics thing
+
 	Value value;
 
 	for (StackFrame* frame = vm.callStackTop; frame > vm.callStack;) {
 		frame--;
 
 		if (getTable(&frame->localVariables, name, &value)) {
+			printf("\nfound in locals\n");
 			return value;
 		}
 	}
 
 	if (getTable(&vm.globals, name, &value)) {
+		printf("\nfound in globals\n");
 		return value;
 	}
+
+	printf("\n '%s' not found\n", name->chars);
 
 	return MAKE_VALUE_NIL();
 }
@@ -239,7 +245,8 @@ static bool callNativeFunction(ObjectFunction* function) {
 	ValueArray arguments;
 	value_array_init(&arguments);
 	for (int i = 0; i < function->numParams; i++) {
-		value_array_write(&arguments, pop());
+		Value value = pop();
+		value_array_write(&arguments, &value);
 	}
 
 	Value result;
@@ -424,8 +431,8 @@ InterpretResult interpret(Chunk* baseChunk) {
 
 					ValueArray arguments;
 					value_array_init(&arguments);
-					value_array_write(&arguments, self_val);
-					value_array_write(&arguments, other);
+					value_array_write(&arguments, &self_val);
+					value_array_write(&arguments, &other);
 
 					Value result;
 					if (add_method_as_func->isNative) {
@@ -594,15 +601,23 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
 
             case OP_MAKE_FUNCTION: {
-				RawCode code = READ_CONSTANT().as.code;
+				Chunk func_chunk = READ_CONSTANT().as.chunk;
 
-				Chunk func_chunk;
-				initChunk(&func_chunk);
-				for (int i = 0; i < code.length; i++) {
-					writeChunk(&func_chunk, code.bytes[i]);
+				uint8_t num_params_byte1 = READ_BYTE();
+				uint8_t num_params_byte2 = READ_BYTE();
+				uint16_t num_params = twoBytesToShort(num_params_byte1, num_params_byte2);
+
+				char** params_buffer = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+				for (int i = 0; i < num_params; i++) {
+					Value param_value = READ_CONSTANT();
+					if (param_value.type != VALUE_RAW_STRING) {
+						FAIL("Param constant expected to be VALUE_RAW_STRING, actual type: '%d'", param_value.type);
+					}
+					RawString param_raw_string = param_value.as.raw_string;
+					params_buffer[i] = copy_cstring(param_raw_string.data, param_raw_string.length, "ObjectFunction param cstring");
 				}
 
-				ObjectFunction* obj_function = newUserObjectFunction(func_chunk, code.params, code.num_params);
+				ObjectFunction* obj_function = newUserObjectFunction(func_chunk, params_buffer, num_params);
 				push(MAKE_VALUE_OBJECT(obj_function));
 				break;
 			}
@@ -646,15 +661,21 @@ InterpretResult interpret(Chunk* baseChunk) {
             
             case OP_LOAD_VARIABLE: {
                 int constantIndex = READ_BYTE();
-                ObjectString* name = OBJECT_AS_STRING(currentChunk()->constants.values[constantIndex].as.object);
-                push(loadVariable(name));
+                Value name_val = currentChunk()->constants.values[constantIndex];
+                ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
+                ObjectString* name_string = objectAsString(name_val.as.object);
+                printf("\n%s\n", name_string->chars);
+                push(loadVariable(name_string));
 
                 break;
             }
             
             case OP_SET_VARIABLE: {
                 int constantIndex = READ_BYTE();
-                ObjectString* name = OBJECT_AS_STRING(currentChunk()->constants.values[constantIndex].as.object);
+                Value name_val = currentChunk()->constants.values[constantIndex];
+                ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
+                ObjectString* name = OBJECT_AS_STRING(name_val.as.object);
+
                 Value value = pop();
                 setTable(&currentFrame()->localVariables, name, value);
                 break;
@@ -664,11 +685,13 @@ InterpretResult interpret(Chunk* baseChunk) {
             	int argCount = READ_BYTE();
 
                 if (peek().type != VALUE_OBJECT || (peek().type == VALUE_OBJECT && peek().as.object->type != OBJECT_FUNCTION)) {
-                	RUNTIME_ERROR("Illegal call target.");
+                	printValue(peek());
+                	printf("\n");
+                	RUNTIME_ERROR("Illegal call target. Target type: %d.", peek().type);
                 	break;
                 }
 
-                ObjectFunction* function = (ObjectFunction*) pop().as.object;
+                ObjectFunction* function = OBJECT_AS_FUNCTION(pop().as.object);
 
                 if (argCount != function->numParams) {
                 	RUNTIME_ERROR("Function called with %d arguments, needs %d.", argCount, function->numParams);
@@ -690,7 +713,9 @@ InterpretResult interpret(Chunk* baseChunk) {
 
             case OP_GET_ATTRIBUTE: {
                 int constant_index = READ_BYTE();
-                ObjectString* name = OBJECT_AS_STRING(currentChunk()->constants.values[constant_index].as.object);
+                Value name_val = currentChunk()->constants.values[constant_index];
+                ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
+                ObjectString* name = OBJECT_AS_STRING(name_val.as.object);
 
                 Value obj_val = pop();
                 if (obj_val.type != VALUE_OBJECT) {
@@ -710,7 +735,9 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
 
             case OP_SET_ATTRIBUTE: {
-                ObjectString* attr_name = OBJECT_AS_STRING(currentChunk()->constants.values[READ_BYTE()].as.object);
+                Value name_val = currentChunk()->constants.values[READ_BYTE()];
+                ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
+                ObjectString* name = OBJECT_AS_STRING(name_val.as.object);
 
                 Value obj_value = pop();
                 if (obj_value.type != VALUE_OBJECT) {
@@ -720,7 +747,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 
                 Object* object = obj_value.as.object;
                 Value attribute_value = pop();
-                setTable(&object->attributes, attr_name, attribute_value);
+                setTable(&object->attributes, name, attribute_value);
 
                 break;
             }

@@ -2,6 +2,7 @@
 #define plane_value_h
 
 #include "common.h"
+#include "chunk.h"
 #include "dynamic_array.h"
 
 typedef enum {
@@ -9,7 +10,7 @@ typedef enum {
     VALUE_BOOLEAN,
     VALUE_NIL,
 	VALUE_RAW_STRING,
-	VALUE_CODE,
+	VALUE_CHUNK,
     VALUE_OBJECT
 } ValueType;
 
@@ -18,35 +19,31 @@ typedef struct {
 	int length;
 } RawString;
 
-typedef struct {
-	uint8_t* bytes;
-	int length;
-	char** params;
-	int num_params;
-} RawCode;
-
-typedef struct {
+typedef struct Value {
     ValueType type;
     union {
         double number;
         bool boolean;
         RawString raw_string;
-        RawCode code;
+        Chunk chunk;
         struct Object* object;
     } as;
 } Value;
-
-DEFINE_DYNAMIC_ARRAY(Value, ValueArray, value_array)
 
 #define MAKE_VALUE_NUMBER(n) (Value){.type = VALUE_NUMBER, .as.number = (n)}
 #define MAKE_VALUE_BOOLEAN(val) (Value){.type = VALUE_BOOLEAN, .as.boolean = (val)}
 #define MAKE_VALUE_NIL() (Value){.type = VALUE_NIL, .as.number = -1}
 #define MAKE_VALUE_RAW_STRING(cstring, the_length) (Value){.type = VALUE_RAW_STRING, \
 														.as.raw_string = (RawString) {.data = (cstring), .length = (the_length)}}
-#define MAKE_VALUE_CODE(the_code, the_length, the_params, the_num_params) (Value){.type = VALUE_CODE, \
-														.as.code = (RawCode) {.bytes = the_code, .length = the_length, \
-																				.params = the_params, .num_params = the_num_params}}
 #define MAKE_VALUE_OBJECT(o) (Value){.type = VALUE_OBJECT, .as.object = (struct Object*)(o)}
+#define MAKE_VALUE_CHUNK(the_chunk) (Value){.type = VALUE_CHUNK, .as.chunk = (the_chunk)}
+
+#define ASSERT_VALUE_TYPE(value, expected_type) \
+	do { \
+		if (value.type != expected_type) { \
+			FAIL("Expected value type: %d, found: %d", expected_type, value.type); \
+		} \
+	} while (false)
 
 void printValue(Value value);
 bool compareValues(Value a, Value b, int* output);

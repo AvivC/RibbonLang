@@ -1,7 +1,7 @@
 #include "chunk.h"
 #include "common.h"
-#include "value.h"
 #include "memory.h"
+#include "value.h"
 
 void initChunk(Chunk* chunk) {
     chunk->capacity = 0;
@@ -34,7 +34,7 @@ void freeChunk(Chunk* chunk) {
     initChunk(chunk);
 }
 
-int addConstant(Chunk* chunk, Value constant) {
+int addConstant(Chunk* chunk, struct Value* constant) {
 	value_array_write(&chunk->constants, constant);
     return chunk->constants.count - 1;
 }

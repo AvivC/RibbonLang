@@ -1,3 +1,4 @@
+#include "string.h"
 #include "compiler.h"
 #include "parser.h"
 #include "object.h"
@@ -17,7 +18,18 @@ static void emit_two_bytes(Chunk* chunk, uint8_t byte1, uint8_t byte2) {
 }
 
 static void emit_opcode_with_constant_operand(Chunk* chunk, OP_CODE instruction, Value constant) {
-	emit_two_bytes(chunk, instruction, addConstant(chunk, constant));
+	emit_two_bytes(chunk, instruction, addConstant(chunk, &constant));
+}
+
+static void emit_constant(Chunk* chunk, Value constant) {
+	emit_byte(chunk, addConstant(chunk, &constant));
+}
+
+static void emit_short_as_two_bytes(Chunk* chunk, uint16_t number) {
+	uint8_t bytes[2];
+	short_to_two_bytes(number, bytes);
+	emit_byte(chunk, bytes[0]);
+	emit_byte(chunk, bytes[1]);
 }
 
 static void compileTree(AstNode* node, Chunk* chunk) {
@@ -54,7 +66,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         case AST_NODE_CONSTANT: {
             AstNodeConstant* nodeConstant = (AstNodeConstant*) node;
             
-            int constantIndex = addConstant(chunk, nodeConstant->value);
+            int constantIndex = addConstant(chunk, &nodeConstant->value);
             
             writeChunk(chunk, OP_CONSTANT);
             writeChunk(chunk, (uint8_t) constantIndex);
@@ -72,9 +84,9 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         case AST_NODE_VARIABLE: {
             AstNodeVariable* nodeVariable = (AstNodeVariable*) node;
             
-            ObjectString* stringObj = copyString(nodeVariable->name, nodeVariable->length);
-            Value nameValue = MAKE_VALUE_OBJECT(stringObj);
-            int constantIndex = addConstant(chunk, nameValue);
+//            Value name_constant = MAKE_VALUE_RAW_STRING(nodeVariable->name, nodeVariable->length);
+            Value name_constant = MAKE_VALUE_OBJECT(copyString(nodeVariable->name, nodeVariable->length));
+            int constantIndex = addConstant(chunk, &name_constant);
             
             writeChunk(chunk, OP_LOAD_VARIABLE);
             writeChunk(chunk, constantIndex);
@@ -86,9 +98,10 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             
             compileTree(nodeAssignment->value, chunk);
             
-            Value nameValue = MAKE_VALUE_OBJECT(copyString(nodeAssignment->name, nodeAssignment->length));
-            int constantIndex = addConstant(chunk, nameValue);
-            
+//			Value name_constant = MAKE_VALUE_RAW_STRING(nodeAssignment->name, nodeAssignment->length);
+			Value name_constant = MAKE_VALUE_OBJECT(copyString(nodeAssignment->name, nodeAssignment->length));
+			int constantIndex = addConstant(chunk, &name_constant);
+
             writeChunk(chunk, OP_SET_VARIABLE);
             writeChunk(chunk, constantIndex);
             break;
@@ -105,23 +118,30 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         }
         
         case AST_NODE_FUNCTION: {
-            AstNodeFunction* nodeFunction = (AstNodeFunction*) node;
+            AstNodeFunction* node_function = (AstNodeFunction*) node;
             
-            Chunk functionChunk;
-            initChunk(&functionChunk);
-            compile((AstNode*) nodeFunction->statements, &functionChunk); // calling compile() and not compileTree(), because it ends with OP_RETURN
+            Chunk function_chunk;
+            initChunk(&function_chunk);
+            compile((AstNode*) node_function->statements, &function_chunk);
+            Value constant_chunk = MAKE_VALUE_CHUNK(function_chunk);
 
-            int num_params = nodeFunction->parameters.count;
-            char** cstrings_params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
-			// Assuming the cstrings in the PointerArray are safe to just point to, will not be freed by the AST free function.
+            emit_opcode_with_constant_operand(chunk, OP_MAKE_FUNCTION, constant_chunk);
+
+            int num_params = node_function->parameters.count;
+
+            if (num_params > 65535) {
+            	FAIL("Way too many function parameters: %d", num_params);
+            }
+            if (num_params < 0) {
+            	FAIL("Negative number of parameters... '%d'", num_params);
+            }
+
+            emit_short_as_two_bytes(chunk, num_params);
+
 			for (int i = 0; i < num_params; i++) {
-				cstrings_params[i] = nodeFunction->parameters.values[i];
+				emit_constant(chunk, node_function->parameters.values[i]);
 			}
 
-			Value code_constant = MAKE_VALUE_CODE(functionChunk.code, functionChunk.count, cstrings_params, num_params);
-
-            emit_opcode_with_constant_operand(chunk, OP_MAKE_FUNCTION, code_constant);
-            
             break;
         }
         
@@ -145,7 +165,8 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 
             compileTree(node_attr->object, chunk);
 
-            int constant_index = addConstant(chunk, MAKE_VALUE_OBJECT(copyString(node_attr->name, node_attr->length)));
+            Value constant = MAKE_VALUE_OBJECT(copyString(node_attr->name, node_attr->length));
+            int constant_index = addConstant(chunk, &constant);
 
             writeChunk(chunk, OP_GET_ATTRIBUTE);
             writeChunk(chunk, constant_index);
@@ -159,7 +180,8 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             compileTree(node_attr->value, chunk);
             compileTree(node_attr->object, chunk);
 
-            int constant_index = addConstant(chunk, MAKE_VALUE_OBJECT(copyString(node_attr->name, node_attr->length)));
+            Value constant = MAKE_VALUE_OBJECT(copyString(node_attr->name, node_attr->length));
+            int constant_index = addConstant(chunk, &constant);
 
             writeChunk(chunk, OP_SET_ATTRIBUTE);
             writeChunk(chunk, constant_index);

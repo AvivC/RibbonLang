@@ -4,8 +4,8 @@
 #include "scanner.h"
 #include "ast.h"
 #include "memory.h"
-#include "object.h"
-#include "pointerarray.h"
+#include "value_array.h"
+#include "value.h"
 
 typedef struct {
     Token current;
@@ -166,15 +166,14 @@ static AstNode* or(AstNode* leftNode, int expression_level) {
 static AstNode* function(int expression_level) {
 	skip_newlines();
 
-	PointerArray parameters;
-	init_pointer_array(&parameters);
+	ValueArray parameters;
+	value_array_init(&parameters);
 
 	if (match(TOKEN_TAKES)) {
 		do {
 			consume(TOKEN_IDENTIFIER, "Expected parameter name.");
-			// TODO: Why not keep pointing at the source, and have freeObject not free the params, instead of copy the strings?
-			char* parameter = copy_cstring(parser.previous.start, parser.previous.length, "ObjectFunction param cstring");
-			write_pointer_array(&parameters, parameter);
+			Value param = MAKE_VALUE_RAW_STRING(parser.previous.start, parser.previous.length);
+			value_array_write(&parameters, &param);
 		} while (match(TOKEN_COMMA));
 
 		consume(TOKEN_TO, "Expected 'to' at end of parameter list.");
