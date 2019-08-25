@@ -178,4 +178,6 @@ void disassembleChunk(Chunk* chunk) {
             disassembleChunk(&inner_chunk);
         }
     }
+
+    chunk_print_constant_table(chunk);
 }

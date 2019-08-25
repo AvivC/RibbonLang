@@ -134,11 +134,27 @@ static void printNode(AstNode* node, int nesting) {
             AstNodeFunction* nodeFunction = (AstNodeFunction*) node;
             printNestingString(nesting);
             printf("FUNCTION\n");
+            printNestingString(nesting);
+			printf("Parameters: ");
+			ValueArray parameters = nodeFunction->parameters;
+			if (parameters.count == 0) {
+				printf("-- No parameters --");
+			} else {
+				for (int i = 0; i < parameters.count; i++) {
+					RawString parameter = parameters.values[i].as.raw_string;
+					printf("%.*s", parameter.length, parameter.data);
+					if (i != parameters.count - 1) {
+						printf(", ");
+					}
+				}
+			}
+			printf("\n");
+			printNestingString(nesting);
+			printf("Statements:\n");
             PointerArray* statements = &nodeFunction->statements->statements;
             for (int i = 0; i < statements->count; i++) {
                 printNode((AstNode*) statements->values[i], nesting + 1);
             }
-            // TODO: print parameters and such
             
             break;
         }

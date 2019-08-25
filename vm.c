@@ -98,17 +98,13 @@ static Value loadVariable(ObjectString* name) {
 		frame--;
 
 		if (getTable(&frame->localVariables, name, &value)) {
-			printf("\nfound in locals\n");
 			return value;
 		}
 	}
 
 	if (getTable(&vm.globals, name, &value)) {
-		printf("\nfound in globals\n");
 		return value;
 	}
-
-	printf("\n '%s' not found\n", name->chars);
 
 	return MAKE_VALUE_NIL();
 }
@@ -143,15 +139,29 @@ static void gcMarkObject(Object* object) {
 	}
 }
 
+static void gcMarkChunkConstants(Chunk* chunk) {
+	for (int i = 0; i < chunk->constants.count; i++) {
+		Value* constant = &chunk->constants.values[i];
+		if (constant->type == VALUE_OBJECT) {
+			gcMarkObject(chunk->constants.values[i].as.object);
+		} else if (constant->type == VALUE_CHUNK) {
+			gcMarkChunkConstants(&constant->as.chunk);
+		}
+	}
+}
+
 static void gcMark(void) {
 	for (Value* value = vm.evalStack; value != vm.stackTop; value++) {
 		if (value->type == VALUE_OBJECT) {
 			gcMarkObject(value->as.object);
+		} else if (value->type == VALUE_CHUNK) {
+			gcMarkChunkConstants(&value->as.chunk);
 		}
 	}
 
 	for (StackFrame* frame = vm.callStack; frame != vm.callStackTop; frame++) {
 		gcMarkObject((Object*) frame->objFunc);
+		gcMarkChunkConstants(&frame->objFunc->chunk);
 
 		// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
 		// many entries are likely to be empty
@@ -159,6 +169,8 @@ static void gcMark(void) {
 			Entry* entry = &frame->localVariables.entries[i];
 			if (entry->value.type == VALUE_OBJECT) {
 				gcMarkObject(entry->value.as.object);
+			} else if (entry->value.type == VALUE_CHUNK) {
+				gcMarkChunkConstants(&entry->value.as.chunk);
 			}
 		}
 	}
@@ -169,6 +181,8 @@ static void gcMark(void) {
 		Entry* entry = &vm.globals.entries[i];
 		if (entry->value.type == VALUE_OBJECT) {
 			gcMarkObject(entry->value.as.object);
+		} else if (entry->value.type == VALUE_CHUNK) {
+			gcMarkChunkConstants(&entry->value.as.chunk);
 		}
 	}
 }
@@ -390,6 +404,9 @@ InterpretResult interpret(Chunk* baseChunk) {
 			} else {
 				printf("No stack frames.");
 			}
+
+			chunk_print_constant_table(currentChunk());
+
 			printf("\n\n");
 
 			#if DEBUG_MEMORY_EXECUTION
@@ -664,7 +681,6 @@ InterpretResult interpret(Chunk* baseChunk) {
                 Value name_val = currentChunk()->constants.values[constantIndex];
                 ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
                 ObjectString* name_string = objectAsString(name_val.as.object);
-                printf("\n%s\n", name_string->chars);
                 push(loadVariable(name_string));
 
                 break;
@@ -686,7 +702,6 @@ InterpretResult interpret(Chunk* baseChunk) {
 
                 if (peek().type != VALUE_OBJECT || (peek().type == VALUE_OBJECT && peek().as.object->type != OBJECT_FUNCTION)) {
                 	printValue(peek());
-                	printf("\n");
                 	RUNTIME_ERROR("Illegal call target. Target type: %d.", peek().type);
                 	break;
                 }

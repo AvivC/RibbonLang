@@ -38,3 +38,14 @@ int addConstant(Chunk* chunk, struct Value* constant) {
 	value_array_write(&chunk->constants, constant);
     return chunk->constants.count - 1;
 }
+
+void chunk_print_constant_table(Chunk* chunk) { // For debugging
+	printf("\nConstant table of chunk pointing at '%p':\n", chunk->code);
+	for (int i = 0; i < chunk->constants.count; i++) {
+		Value constant = chunk->constants.values[i];
+		printf("%d: ", i);
+		printValue(constant);
+		printf(" [ type %d ]", constant.type);
+		printf("\n");
+	}
+}

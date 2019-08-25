@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #define DEBUG 0 // General debug printing
-#define DEBUG_TRACE_EXECUTION 1 // Show stack operations
+#define DEBUG_TRACE_EXECUTION 0 // Show stack operations
 #define DEBUG_GC 0 // Show GC operations
 #define DEBUG_OBJECTS 0 // Show object operations
 #define DEBUG_MEMORY_EXECUTION 0 // Show low-level memory operations

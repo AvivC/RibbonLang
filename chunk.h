@@ -45,4 +45,6 @@ void setChunk(Chunk* chunk, int position, uint8_t byte);
 void freeChunk(Chunk* chunk);
 int addConstant(Chunk* chunk, struct Value* constant);
 
+void chunk_print_constant_table(Chunk* chunk); // For debugging
+
 #endif
