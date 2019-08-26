@@ -7,6 +7,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#define DISABLE_GC 0  // Only set to 1 for debugging purposes when you need the GC to not run
+
 #define DEBUG 0 // General debug printing
 #define DEBUG_TRACE_EXECUTION 0 // Show stack operations
 #define DEBUG_GC 0 // Show GC operations

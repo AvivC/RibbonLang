@@ -312,7 +312,6 @@ static AstNode* parse_expression(Precedence precedence, int expression_level) {
     advance(); // always assume the previous token is the "acting operator"
     ParseRule prefix_rule = get_rule(parser.previous.type);
     if (prefix_rule.prefix == NULL) {
-    	printf("\n%d\n", parser.previous.type);
         error("Expecting a prefix operator."); // TODO: better message
         return NULL;
     }

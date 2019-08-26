@@ -72,3 +72,33 @@ expect
     In f
     244
 end
+
+test function instances are independent objects
+    func_creator = {
+        return { takes x to
+            print("I received " + x)
+        }
+    }
+
+    f1 = func_creator()
+    f2 = func_creator()
+
+    print(f1 == f1)
+    print(f1 == f2)
+
+    f1.attr = "Thing1"
+    f2.attr = "Thing2"
+
+    print(f1.attr)
+    print(f2.attr)
+
+    f1(10)
+    #f2(20)
+    #f1(10)
+expect
+    true
+    false
+    Thing1
+    Thing2
+    I received 10
+end

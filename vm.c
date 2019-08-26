@@ -236,6 +236,12 @@ static void gcSweep(void) {
 }
 
 void gc(void) {
+	#if DISABLE_GC
+
+	DEBUG_GC_PRINT("GC would run, but is disabled");
+
+	#else
+
 	if (vm.allowGC) {
 		size_t memory_before_gc = getAllocatedMemory();
 		DEBUG_GC_PRINT("===== GC Running =====");
@@ -256,6 +262,8 @@ void gc(void) {
 	} else {
 		DEBUG_GC_PRINT("GC should run, but vm.allowGC is still false.");
 	}
+
+	#endif
 }
 
 static void resetStacks(void) {

@@ -31,13 +31,6 @@ static bool object_string_add(ValueArray args, Value* result) {
 	Value other_value = args.values[1];
 
     if (!is_value_object_of_type(self_value, OBJECT_STRING) || !is_value_object_of_type(other_value, OBJECT_STRING)) {
-    	printf("Arg 1 of @add:\n");
-    	printValue(self_value);
-    	printf("\nArg 2 of @add:\n");
-    	printValue(other_value);
-    	printf("\nFrom type: %d\n", other_value.type);
-    	printf("\nFrom object type: %d\n", other_value.as.object->type);
-    	printf("\n");
     	*result = MAKE_VALUE_NIL();
     	return false;
     }

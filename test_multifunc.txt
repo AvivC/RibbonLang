@@ -1,8 +1,6 @@
-
-test function instances are independent objects
     func_creator = {
-        return {
-            print("This is a function")
+        return { takes x to
+            print("I received " + x)
         }
     }
 
@@ -17,9 +15,7 @@ test function instances are independent objects
 
     print(f1.attr)
     print(f2.attr)
-expect
-    true
-    false
-    Thing1
-    Thing2
-end
+
+    f1(10)
+    #f2(20)
+    #f1(10)

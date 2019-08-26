@@ -66,6 +66,7 @@ static Token errorToken(const char* message) {
     token.type = TOKEN_ERROR;
     token.start = message;
     token.length = strlen(message); // assuming message is always a null-terminated string-literal
+    token.lineNumber = scanner.line;
 
     DEBUG_SCANNER_PRINT("Error token '%s'", message);
 
@@ -184,7 +185,7 @@ Token scanToken() {
     while (current() == '#') {
     	do {
     		advance();
-    	} while (current() != '\n');
+    	} while (current() != '\n' && !isEndOfCode(current()));
     }
     
     scanner.start = scanner.current;
@@ -226,5 +227,6 @@ Token scanToken() {
     }
     
     // TODO: More specific error reporting
+
     return errorToken("Unknown character.");
 }
