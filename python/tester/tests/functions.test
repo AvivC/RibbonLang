@@ -75,8 +75,8 @@ end
 
 test function instances are independent objects
     func_creator = {
-        return { takes x to
-            print("I received " + x)
+        return { takes food to
+            print("I received a " + food)
         }
     }
 
@@ -92,13 +92,21 @@ test function instances are independent objects
     print(f1.attr)
     print(f2.attr)
 
-    f1(10)
-    #f2(20)
-    #f1(10)
+    f1("pizza")
+    f2("pasta")
+    f1("pizza")
+    f2("pasta")
+    f1("steak")
+    f1("orange")
 expect
     true
     false
     Thing1
     Thing2
-    I received 10
+    I received a pizza
+    I received a pasta
+    I received a pizza
+    I received a pasta
+    I received a steak
+    I received a orange
 end

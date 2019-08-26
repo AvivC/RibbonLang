@@ -31,3 +31,66 @@ expect
     abc def
     0123
 end
+
+test string literals create objects
+    text = "hello world"
+    a = text
+    b = text
+
+    print(a)
+    print(b)
+
+    a.attr = "thing"
+    print(b.attr)
+expect
+    hello world
+    hello world
+    thing
+end
+
+test strings are independent objects
+    string_maker = {
+        return "hello world"
+    }
+
+    s1 = string_maker()
+    s2 = string_maker()
+
+    print(s1 == s2)  # logical equality
+
+    s1.attr = "thing"
+    print(s2.attr)  # should be nil, because it's a different object
+    print(s1.attr)
+    s2.attr = "other thing"
+    print(s1.attr)
+    print(s2.attr)
+
+    shared_thing = {
+        print("I'm some object which happens to be a function")
+    }
+
+    s1.shared_attr = shared_thing
+    s2.shared_attr = shared_thing
+
+    print(s1.shared_attr == s2.shared_attr)
+    s2.shared_attr.nested_attr = "I'm nested"
+    print(s1.shared_attr.nested_attr)
+    print(s2.shared_attr.nested_attr)
+
+    s1.shared_attr = "Something not shared"
+    print(s1.shared_attr)
+    print(s2.shared_attr.nested_attr)
+    print(s1.shared_attr.nested_attr)
+expect
+    true
+    nil
+    thing
+    thing
+    other thing
+    true
+    I'm nested
+    I'm nested
+    Something not shared
+    I'm nested
+    nil
+end
