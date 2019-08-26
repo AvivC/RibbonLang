@@ -186,7 +186,6 @@ static ObjectFunction* newPartialObjectFunction(bool isNative, char** parameters
     return objFunc;
 }
 
-//ObjectFunction* newUserObjectFunction(Chunk chunk, char** parameters, int numParams) {
 ObjectFunction* newUserObjectFunction(ObjectCode* code, char** parameters, int numParams, Object* self) {
     DEBUG_OBJECTS_PRINT("Creating user function object.");
     ObjectFunction* objFunc = newPartialObjectFunction(false, parameters, numParams, self);
@@ -226,7 +225,6 @@ void freeObject(Object* o) {
             	DEBUG_OBJECTS_PRINT("Freeing native ObjectFunction");
 			} else {
 				DEBUG_OBJECTS_PRINT("Freeing user ObjectFunction");
-//				freeChunk(&func->chunk);
 			}
             for (int i = 0; i < func->numParams; i++) {
             	char* param = func->parameters[i];
