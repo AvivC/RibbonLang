@@ -50,6 +50,19 @@ static bool object_string_add(ValueArray args, Value* result) {
     return true;
 }
 
+static bool object_string_length(ValueArray args, Value* result) {
+	Value self_value = args.values[0];
+
+    if (!is_value_object_of_type(self_value, OBJECT_STRING)) {
+    	FAIL("String length method called on none ObjectString.");
+    }
+
+    ObjectString* self_string = OBJECT_AS_STRING(self_value.as.object);
+
+    *result = MAKE_VALUE_NUMBER(self_string->length);
+    return true;
+}
+
 static bool object_string_get_key(ValueArray args, Value* result) {
 	// TODO: Proper error reporting mechanisms! not just a boolean which tells the user nothing.
 
@@ -90,7 +103,7 @@ void set_string_add_method(ObjectString* objString) {
 	// TODO: Should "result" be listed in the internal parameter list?
 	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
 	params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");
-	ObjectFunction* string_add_function = newNativeObjectFunction(object_string_add, params, add_func_num_params);
+	ObjectFunction* string_add_function = newNativeObjectFunction(object_string_add, params, add_func_num_params, (Object*) objString);
 	setTableCStringKey(&objString->base.attributes, "@add", MAKE_VALUE_OBJECT(string_add_function));
 }
 
@@ -99,8 +112,16 @@ void set_string_get_key_method(ObjectString* objString) {
 	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
 	params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");
-	ObjectFunction* string_add_function = newNativeObjectFunction(object_string_get_key, params, num_params);
+	ObjectFunction* string_add_function = newNativeObjectFunction(object_string_get_key, params, num_params, (Object*) objString);
 	setTableCStringKey(&objString->base.attributes, "@get_key", MAKE_VALUE_OBJECT(string_add_function));
+}
+
+void set_string_length_method(ObjectString* objString) {
+	int num_params = 1;
+	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
+	ObjectFunction* string_length_function = newNativeObjectFunction(object_string_length, params, num_params, (Object*) objString);
+	setTableCStringKey(&objString->base.attributes, "length", MAKE_VALUE_OBJECT(string_length_function));
 }
 
 static ObjectString* newObjectString(char* chars, int length) {
@@ -113,6 +134,7 @@ static ObjectString* newObjectString(char* chars, int length) {
 
 	set_string_add_method(objString);
 	set_string_get_key_method(objString);
+	set_string_length_method(objString);
     return objString;
 }
 
@@ -155,25 +177,26 @@ bool stringsEqual(ObjectString* a, ObjectString* b) {
     return (a->length == b->length) && (cstringsEqual(a->chars, b->chars));
 }
 
-static ObjectFunction* newPartialObjectFunction(bool isNative, char** parameters, int numParams) {
+static ObjectFunction* newPartialObjectFunction(bool isNative, char** parameters, int numParams, Object* self) {
     ObjectFunction* objFunc = (ObjectFunction*) allocateObject(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
     objFunc->isNative = isNative;
     objFunc->parameters = parameters;
     objFunc->numParams = numParams;
+    objFunc->self = self;
     return objFunc;
 }
 
 //ObjectFunction* newUserObjectFunction(Chunk chunk, char** parameters, int numParams) {
-ObjectFunction* newUserObjectFunction(ObjectCode* code, char** parameters, int numParams) {
+ObjectFunction* newUserObjectFunction(ObjectCode* code, char** parameters, int numParams, Object* self) {
     DEBUG_OBJECTS_PRINT("Creating user function object.");
-    ObjectFunction* objFunc = newPartialObjectFunction(false, parameters, numParams);
+    ObjectFunction* objFunc = newPartialObjectFunction(false, parameters, numParams, self);
     objFunc->code = code;
     return objFunc;
 }
 
-ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, char** parameters, int numParams) {
+ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, char** parameters, int numParams, Object* self) {
     DEBUG_OBJECTS_PRINT("Creating native function object.");
-    ObjectFunction* objFunc = newPartialObjectFunction(true, parameters, numParams);
+    ObjectFunction* objFunc = newPartialObjectFunction(true, parameters, numParams, self);
     objFunc->nativeFunction = nativeFunction;
     return objFunc;
 }

@@ -37,6 +37,7 @@ typedef struct ObjectFunction {
     char** parameters;
     int numParams;
     bool isNative;
+    Object* self;
     union {
     	NativeFunction nativeFunction;
 //    	Chunk chunk;
@@ -49,8 +50,8 @@ ObjectString* copyString(const char* string, int length);
 ObjectString* takeString(char* chars, int length);
 ObjectString** createCopiedStringsArray(const char** strings, int num, const char* allocDescription);
 
-ObjectFunction* newUserObjectFunction(ObjectCode* code, char** parameters, int numParams);
-ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, char** parameters, int numParams);
+ObjectFunction* newUserObjectFunction(ObjectCode* code, char** parameters, int numParams, Object* self);
+ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, char** parameters, int numParams, Object* self);
 
 ObjectCode* object_code_new(Chunk chunk);
 

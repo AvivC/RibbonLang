@@ -67,7 +67,7 @@ static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc)
 
 static StackFrame makeBaseStackFrame(Chunk* base_chunk) {
 	ObjectCode* code = object_code_new(*base_chunk);
-	ObjectFunction* baseObjFunc = newUserObjectFunction(code, NULL, 0);
+	ObjectFunction* baseObjFunc = newUserObjectFunction(code, NULL, 0, NULL);
 	return newStackFrame(NULL, baseObjFunc);
 }
 
@@ -276,7 +276,7 @@ static void register_builtin_function(const char* name, int num_params, char** p
 	for (int i = 0; i < num_params; i++) {
 		params_buffer[i] = copy_cstring(params[i], strlen(params[i]), "ObjectFunction param cstring");
 	}
-	ObjectFunction* obj_function = newNativeObjectFunction(function, params_buffer, num_params);
+	ObjectFunction* obj_function = newNativeObjectFunction(function, params_buffer, num_params, NULL);
 	setTableCStringKey(&vm.globals, name, MAKE_VALUE_OBJECT(obj_function));
 }
 
@@ -287,6 +287,10 @@ static void setBuiltinGlobals(void) {
 }
 
 static void callUserFunction(ObjectFunction* function) {
+	if (function->self != NULL) {
+		push(MAKE_VALUE_OBJECT(function->self));
+	}
+
 	StackFrame frame = newStackFrame(vm.ip, function);
 	for (int i = 0; i < function->numParams; i++) {
 		const char* paramName = function->parameters[i];
@@ -298,6 +302,10 @@ static void callUserFunction(ObjectFunction* function) {
 }
 
 static bool callNativeFunction(ObjectFunction* function) {
+	if (function->self != NULL) {
+		push(MAKE_VALUE_OBJECT(function->self));
+	}
+
 	ValueArray arguments;
 	value_array_init(&arguments);
 	for (int i = 0; i < function->numParams; i++) {
@@ -688,7 +696,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 					params_buffer[i] = copy_cstring(param_raw_string.data, param_raw_string.length, "ObjectFunction param cstring");
 				}
 
-				ObjectFunction* obj_function = newUserObjectFunction(obj_code, params_buffer, num_params);
+				ObjectFunction* obj_function = newUserObjectFunction(obj_code, params_buffer, num_params, NULL);
 				push(MAKE_VALUE_OBJECT(obj_function));
 				break;
 			}
@@ -752,7 +760,7 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
             
             case OP_CALL: {
-            	int argCount = READ_BYTE();
+            	int explicit_arg_count = READ_BYTE();
 
                 if (peek().type != VALUE_OBJECT || (peek().type == VALUE_OBJECT && peek().as.object->type != OBJECT_FUNCTION)) {
                 	printValue(peek());
@@ -762,8 +770,10 @@ InterpretResult interpret(Chunk* baseChunk) {
 
                 ObjectFunction* function = OBJECT_AS_FUNCTION(pop().as.object);
 
-                if (argCount != function->numParams) {
-                	RUNTIME_ERROR("Function called with %d arguments, needs %d.", argCount, function->numParams);
+                bool is_method = function->self != NULL;
+                int actual_arg_count = explicit_arg_count + (is_method ? 1 : 0);
+                if (actual_arg_count != function->numParams) {
+                	RUNTIME_ERROR("Function called with %d arguments, needs %d.", explicit_arg_count, function->numParams);
                 	break;
                 }
 
