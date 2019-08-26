@@ -112,6 +112,12 @@ static AstNode* binary(AstNode* leftNode, int expression_level) {
     return (AstNode*) node;
 }
 
+static AstNode* left_square_brace(AstNode* left_node, int expression_level) {
+	AstNode* key_expression = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+	consume(TOKEN_RIGHT_SQUARE_BRACE, "Expected ']' after key.");
+	return (AstNode*) new_ast_node_key_access(key_expression, left_node);
+}
+
 static AstNode* dot(AstNode* leftNode, int expression_level) {
 	// TODO: Very possibly not the best solution for attribute setting. Maybe refactor later.
 
@@ -284,6 +290,8 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_COMMA
     {NULL, NULL, PREC_NONE},     // TOKEN_NEWLINE
     {NULL, dot, PREC_GROUPING},     // TOKEN_DOT
+    {NULL, left_square_brace, PREC_GROUPING},     // TOKEN_LEFT_SQUARE_BRACE
+    {NULL, NULL, PREC_NONE},     // TOKEN_RIGHT_SQUARE_BRACE
     {NULL, binary, PREC_COMPARISON},     // TOKEN_EQUAL_EQUAL
     {NULL, binary, PREC_COMPARISON},     // TOKEN_BANG_EQUAL
     {NULL, binary, PREC_COMPARISON},     // TOKEN_GREATER_EQUAL
@@ -313,7 +321,7 @@ static AstNode* parse_expression(Precedence precedence, int expression_level) {
     ParseRule prefix_rule = get_rule(parser.previous.type);
     if (prefix_rule.prefix == NULL) {
         error("Expecting a prefix operator."); // TODO: better message
-        return NULL;
+        return NULL; // TODO: This makes the program crash...
     }
     
     node = (AstNode*) prefix_rule.prefix(expression_level);

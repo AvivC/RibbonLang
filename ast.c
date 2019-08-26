@@ -22,7 +22,8 @@ const char* AST_NODE_TYPE_NAMES[] = {
 	"AST_NODE_OR",
 	"AST_NODE_ATTRIBUTE",
 	"AST_NODE_ATTRIBUTE_ASSIGNMENT",
-	"AST_NODE_STRING"
+	"AST_NODE_STRING",
+	"AST_NODE_KEY_ACCESS"
 };
 
 static void printNestingString(int nesting) {
@@ -170,6 +171,18 @@ static void printNode(AstNode* node, int nesting) {
 				printNode(nodeCall->arguments.values[i], nesting + 1);
 			}
             
+            break;
+        }
+
+        case AST_NODE_KEY_ACCESS: {
+            AstNodeKeyAccess* node_key_access = (AstNodeKeyAccess*) node;
+            printNestingString(nesting);
+            printf("KEY_ACCESS\n");
+            printNode((AstNode*) node_key_access->subject, nesting + 1);
+            printNestingString(nesting);
+            printf("Key:\n");
+			printNode(node_key_access->key, nesting + 1);
+
             break;
         }
 
@@ -363,6 +376,14 @@ static void freeNode(AstNode* node, int nesting) {
             break;
         }
 
+        case AST_NODE_KEY_ACCESS: {
+            AstNodeKeyAccess* node_key_access = (AstNodeKeyAccess*) node;
+            freeNode((AstNode*) node_key_access->subject, nesting + 1);
+			freeNode(node_key_access->key, nesting + 1);
+            deallocate(node_key_access, sizeof(AstNodeKeyAccess), deallocationString);
+            break;
+        }
+
         case AST_NODE_EXPR_STATEMENT: {
             AstNodeExprStatement* nodeExprStatement = (AstNodeExprStatement*) node;
             freeNode((AstNode*) nodeExprStatement->expression, nesting + 1);
@@ -519,6 +540,13 @@ AstNodeString* new_ast_node_string(const char* string, int length) {
 	AstNodeString* node = ALLOCATE_AST_NODE(AstNodeString, AST_NODE_STRING);
 	node->string = string;
 	node->length = length;
+	return node;
+}
+
+AstNodeKeyAccess* new_ast_node_key_access(AstNode* key, AstNode* subject) {
+	AstNodeKeyAccess* node = ALLOCATE_AST_NODE(AstNodeKeyAccess, AST_NODE_KEY_ACCESS);
+	node->key = key;
+	node->subject = subject;
 	return node;
 }
 

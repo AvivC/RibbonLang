@@ -22,7 +22,8 @@ typedef enum {
 	AST_NODE_OR,
 	AST_NODE_ATTRIBUTE,
 	AST_NODE_ATTRIBUTE_ASSIGNMENT,
-	AST_NODE_STRING
+	AST_NODE_STRING,
+	AST_NODE_KEY_ACCESS
 } AstNodeType;
 
 // for debugging purposes
@@ -136,6 +137,12 @@ typedef struct {
 	int length;
 } AstNodeString;
 
+typedef struct {
+	AstNode base;
+	AstNode* key;
+	AstNode* subject;
+} AstNodeKeyAccess;
+
 void printTree(AstNode* tree);
 void freeTree(AstNode* node);
 
@@ -152,6 +159,7 @@ AstNodeOr* new_ast_node_or(AstNode* left, AstNode* right);
 AstNodeAttribute* new_ast_node_attribute(AstNode* object, const char* name, int length);
 AstNodeAttributeAssignment* new_ast_node_attribute_assignment(AstNode* object, const char* name, int length, AstNode* value);
 AstNodeString* new_ast_node_string(const char* string, int length);
+AstNodeKeyAccess* new_ast_node_key_access(AstNode* key, AstNode* subject);
 
 #define ALLOCATE_AST_NODE(type, tag) (type*) allocateAstNode(tag, sizeof(type))
 

@@ -1,4 +1,5 @@
 #include <string.h>
+#include <math.h>
 
 #include "common.h"
 #include "object.h"
@@ -49,6 +50,59 @@ static bool object_string_add(ValueArray args, Value* result) {
     return true;
 }
 
+static bool object_string_get_key(ValueArray args, Value* result) {
+	// TODO: Proper error reporting mechanisms! not just a boolean which tells the user nothing.
+
+	Value self_value = args.values[0];
+	Value other_value = args.values[1];
+
+    if (!is_value_object_of_type(self_value, OBJECT_STRING)) {
+    	FAIL("String @get_key called on none ObjectString.");
+    }
+
+    if (other_value.type != VALUE_NUMBER) {
+    	*result = MAKE_VALUE_NIL();
+    	return false;
+    }
+
+    ObjectString* self_string = objectAsString(self_value.as.object);
+
+    double other_as_number = other_value.as.number;
+    bool number_is_integer = floor(other_as_number) == other_as_number;
+    if (!number_is_integer) {
+    	*result = MAKE_VALUE_NIL();
+		return false;
+    }
+
+    if (other_as_number < 0 || other_as_number > self_string->length - 1) {
+    	*result = MAKE_VALUE_NIL();
+		return false;
+    }
+
+    char char_result = self_string->chars[(int) other_as_number];
+    *result = MAKE_VALUE_OBJECT(copyString(&char_result, 1));
+    return true;
+}
+
+void set_string_add_method(ObjectString* objString) {
+	int add_func_num_params = 2;
+	char** params = allocate(sizeof(char*) * add_func_num_params, "Parameters list cstrings");
+	// TODO: Should "result" be listed in the internal parameter list?
+	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
+	params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");
+	ObjectFunction* string_add_function = newNativeObjectFunction(object_string_add, params, add_func_num_params);
+	setTableCStringKey(&objString->base.attributes, "@add", MAKE_VALUE_OBJECT(string_add_function));
+}
+
+void set_string_get_key_method(ObjectString* objString) {
+	int num_params = 2;
+	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
+	params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");
+	ObjectFunction* string_add_function = newNativeObjectFunction(object_string_get_key, params, num_params);
+	setTableCStringKey(&objString->base.attributes, "@get_key", MAKE_VALUE_OBJECT(string_add_function));
+}
+
 static ObjectString* newObjectString(char* chars, int length) {
     DEBUG_OBJECTS_PRINT("Allocating string object '%s' of length %d.", chars, length);
     
@@ -57,14 +111,8 @@ static ObjectString* newObjectString(char* chars, int length) {
     objString->chars = chars;
     objString->length = length;
 
-    int add_func_num_params = 2;
-    char** params = allocate(sizeof(char*) * add_func_num_params, "Parameters list cstrings");
-    // TODO: Should "result" be listed in the internal parameter list?
-    params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");;
-    params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");;
-    ObjectFunction* string_add_function = newNativeObjectFunction(object_string_add, params, add_func_num_params);
-    setTableCStringKey(&objString->base.attributes, "@add", MAKE_VALUE_OBJECT(string_add_function));
-
+	set_string_add_method(objString);
+	set_string_get_key_method(objString);
     return objString;
 }
 

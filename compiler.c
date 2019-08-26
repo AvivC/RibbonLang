@@ -163,6 +163,16 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             break;
         }
 
+        case AST_NODE_KEY_ACCESS: {
+        	AstNodeKeyAccess* node_key_access = (AstNodeKeyAccess*) node;
+
+			compileTree(node_key_access->key, chunk);
+            compileTree(node_key_access->subject, chunk);
+            writeChunk(chunk, OP_ACCESS_KEY);
+
+            break;
+        }
+
         case AST_NODE_ATTRIBUTE: {
             AstNodeAttribute* node_attr = (AstNodeAttribute*) node;
 

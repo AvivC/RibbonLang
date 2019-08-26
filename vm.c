@@ -398,7 +398,6 @@ InterpretResult interpret(Chunk* baseChunk) {
 	#define ERROR_IF_WRONG_TYPE(value, value_type, message) do { \
 		if (value.type != value_type	) { \
 			RUNTIME_ERROR(message); \
-			break; \
 		} \
 	} while (false)
 
@@ -820,6 +819,52 @@ InterpretResult interpret(Chunk* baseChunk) {
                 setTable(&object->attributes, name, attribute_value);
 
                 break;
+            }
+
+            case OP_ACCESS_KEY: {
+            	Value subject_value = pop();
+            	if (subject_value.type != VALUE_OBJECT) {
+					RUNTIME_ERROR("Accessing key on none object.");
+					break;
+            	}
+
+            	Object* subject = subject_value.as.object;
+
+            	Value key = pop();
+
+				Value key_access_method_value;
+				if (!getTableCStringKey(&subject->attributes, "@get_key", &key_access_method_value)) {
+					RUNTIME_ERROR("Object doesn't support @get_key method.");
+					break;
+				}
+
+				if (!is_value_object_of_type(key_access_method_value, OBJECT_FUNCTION)) {
+					RUNTIME_ERROR("Objects @get_key isn't a function.");
+					break;
+				}
+
+				ObjectFunction* method_as_func = (ObjectFunction*) key_access_method_value.as.object;
+
+				ValueArray arguments;
+				value_array_init(&arguments);
+				value_array_write(&arguments, &subject_value);
+				value_array_write(&arguments, &key);
+
+				Value result;
+				if (method_as_func->isNative) {
+					if (!method_as_func->nativeFunction(arguments, &result)) {
+						RUNTIME_ERROR("@get_key function failed.");
+						goto op_access_key_cleanup;
+					}
+					push(result);
+				} else {
+					// TODO: user function
+				}
+
+				op_access_key_cleanup:
+				value_array_free(&arguments);
+
+            	break;
             }
 
             case OP_JUMP_IF_FALSE: {
