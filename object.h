@@ -8,7 +8,8 @@
 
 typedef enum {
     OBJECT_STRING,
-    OBJECT_FUNCTION
+    OBJECT_FUNCTION,
+	OBJECT_CODE
 } ObjectType;
 
 typedef struct Object {
@@ -24,6 +25,11 @@ typedef struct ObjectString {
     int length;
 } ObjectString;
 
+typedef struct ObjectCode {
+    Object base;
+    Chunk chunk;
+} ObjectCode;
+
 typedef bool (*NativeFunction)(ValueArray, Value*);
 
 typedef struct ObjectFunction {
@@ -33,7 +39,8 @@ typedef struct ObjectFunction {
     bool isNative;
     union {
     	NativeFunction nativeFunction;
-    	Chunk chunk;
+//    	Chunk chunk;
+    	ObjectCode* code;
     };
 } ObjectFunction;
 
@@ -42,8 +49,10 @@ ObjectString* copyString(const char* string, int length);
 ObjectString* takeString(char* chars, int length);
 ObjectString** createCopiedStringsArray(const char** strings, int num, const char* allocDescription);
 
-ObjectFunction* newUserObjectFunction(Chunk chunk, char** parameters, int numParams);
+ObjectFunction* newUserObjectFunction(ObjectCode* code, char** parameters, int numParams);
 ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, char** parameters, int numParams);
+
+ObjectCode* object_code_new(Chunk chunk);
 
 bool compareObjects(Object* a, Object* b);
 

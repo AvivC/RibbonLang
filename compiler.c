@@ -123,9 +123,12 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             Chunk function_chunk;
             initChunk(&function_chunk);
             compile((AstNode*) node_function->statements, &function_chunk);
-            Value constant_chunk = MAKE_VALUE_CHUNK(function_chunk);
 
-            emit_opcode_with_constant_operand(chunk, OP_MAKE_FUNCTION, constant_chunk);
+            Value obj_code_constant = MAKE_VALUE_OBJECT(object_code_new(function_chunk));
+
+//            Value constant_chunk = MAKE_VALUE_CHUNK(function_chunk);
+
+            emit_opcode_with_constant_operand(chunk, OP_MAKE_FUNCTION, obj_code_constant);
 
             int num_params = node_function->parameters.count;
 

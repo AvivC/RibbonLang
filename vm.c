@@ -20,7 +20,7 @@ static StackFrame* currentFrame(void) {
 }
 
 static Chunk* currentChunk(void) {
-	return &currentFrame()->objFunc->chunk;
+	return &currentFrame()->objFunc->code->chunk;
 }
 
 static void push(Value value) {
@@ -65,8 +65,9 @@ static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc)
 	return frame;
 }
 
-static StackFrame makeBaseStackFrame(Chunk* baseChunk) {
-	ObjectFunction* baseObjFunc = newUserObjectFunction(*baseChunk, NULL, 0);
+static StackFrame makeBaseStackFrame(Chunk* base_chunk) {
+	ObjectCode* code = object_code_new(*base_chunk);
+	ObjectFunction* baseObjFunc = newUserObjectFunction(code, NULL, 0);
 	return newStackFrame(NULL, baseObjFunc);
 }
 
@@ -109,6 +110,21 @@ static Value loadVariable(ObjectString* name) {
 	return MAKE_VALUE_NIL();
 }
 
+static void gcMarkObject(Object* object);
+
+static void gcMarkCodeConstants(ObjectCode* code) {
+	Chunk* chunk = &code->chunk;
+	for (int i = 0; i < chunk->constants.count; i++) {
+		Value* constant = &chunk->constants.values[i];
+		if (constant->type == VALUE_OBJECT) {
+			gcMarkObject(chunk->constants.values[i].as.object);
+		}
+	}
+
+	// Note: not looking for bare VALUE_CHUNK here, because logically it should never happen.
+	// Chunks should always be wrapped in ObjectCode in order to be managed "automatically" by the GC system.
+}
+
 static void gcMarkObject(Object* object) {
 	if (object->isReachable) {
 		return;
@@ -129,39 +145,61 @@ static void gcMarkObject(Object* object) {
 		ObjectFunction* objFunc = OBJECT_AS_FUNCTION(object);
 
 		if (!objFunc->isNative) {
-			ValueArray constants = objFunc->chunk.constants;
-			for (int i = 0; i < constants.count; i++) {
-				if (constants.values[i].type == VALUE_OBJECT) {
-					gcMarkObject(constants.values[i].as.object);
-				}
-			}
+			ObjectCode* code_object = objFunc->code;
+			gcMarkObject((Object*) code_object);
+			gcMarkCodeConstants(code_object);
 		}
+	} else if (object->type == OBJECT_CODE) { // Code objects can also be by themselves sometimes, on the eval stack for example
+		gcMarkCodeConstants((ObjectCode*) object);
 	}
 }
 
-static void gcMarkChunkConstants(Chunk* chunk) {
-	for (int i = 0; i < chunk->constants.count; i++) {
-		Value* constant = &chunk->constants.values[i];
-		if (constant->type == VALUE_OBJECT) {
-			gcMarkObject(chunk->constants.values[i].as.object);
-		} else if (constant->type == VALUE_CHUNK) {
-			gcMarkChunkConstants(&constant->as.chunk);
-		}
-	}
-}
+//static void gcMark(void) {
+//	for (Value* value = vm.evalStack; value != vm.stackTop; value++) {
+//		if (value->type == VALUE_OBJECT) {
+//			gcMarkObject(value->as.object);
+//		} else if (value->type == VALUE_CHUNK) {
+//			gcMarkChunkConstants(&value->as.chunk);
+//		}
+//	}
+//
+//	for (StackFrame* frame = vm.callStack; frame != vm.callStackTop; frame++) {
+//		gcMarkObject((Object*) frame->objFunc);
+//		gcMarkChunkConstants(&frame->objFunc->code->chunk);
+//
+//		// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
+//		// many entries are likely to be empty
+//		for (int i = 0; i < frame->localVariables.capacity; i++) {
+//			Entry* entry = &frame->localVariables.entries[i];
+//			if (entry->value.type == VALUE_OBJECT) {
+//				gcMarkObject(entry->value.as.object);
+//			} else if (entry->value.type == VALUE_CHUNK) {
+//				gcMarkChunkConstants(&entry->value.as.chunk);
+//			}
+//		}
+//	}
+//
+//	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
+//	// many entries are likely to be empty
+//	for (int i = 0; i < vm.globals.capacity; i++) {
+//		Entry* entry = &vm.globals.entries[i];
+//		if (entry->value.type == VALUE_OBJECT) {
+//			gcMarkObject(entry->value.as.object);
+//		} else if (entry->value.type == VALUE_CHUNK) {
+//			gcMarkChunkConstants(&entry->value.as.chunk);
+//		}
+//	}
+//}
 
 static void gcMark(void) {
 	for (Value* value = vm.evalStack; value != vm.stackTop; value++) {
 		if (value->type == VALUE_OBJECT) {
 			gcMarkObject(value->as.object);
-		} else if (value->type == VALUE_CHUNK) {
-			gcMarkChunkConstants(&value->as.chunk);
 		}
 	}
 
 	for (StackFrame* frame = vm.callStack; frame != vm.callStackTop; frame++) {
 		gcMarkObject((Object*) frame->objFunc);
-		gcMarkChunkConstants(&frame->objFunc->chunk);
 
 		// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
 		// many entries are likely to be empty
@@ -169,8 +207,6 @@ static void gcMark(void) {
 			Entry* entry = &frame->localVariables.entries[i];
 			if (entry->value.type == VALUE_OBJECT) {
 				gcMarkObject(entry->value.as.object);
-			} else if (entry->value.type == VALUE_CHUNK) {
-				gcMarkChunkConstants(&entry->value.as.chunk);
 			}
 		}
 	}
@@ -181,8 +217,6 @@ static void gcMark(void) {
 		Entry* entry = &vm.globals.entries[i];
 		if (entry->value.type == VALUE_OBJECT) {
 			gcMarkObject(entry->value.as.object);
-		} else if (entry->value.type == VALUE_CHUNK) {
-			gcMarkChunkConstants(&entry->value.as.chunk);
 		}
 	}
 }
@@ -252,7 +286,7 @@ static void callUserFunction(ObjectFunction* function) {
 		setTableCStringKey(&frame.localVariables, paramName, argument);
 	}
 	pushFrame(frame);
-	vm.ip = function->chunk.code;
+	vm.ip = function->code->chunk.code;
 }
 
 static bool callNativeFunction(ObjectFunction* function) {
@@ -302,9 +336,22 @@ void freeVM(void) {
     vm.allowGC = false;
 }
 
+#define READ_BYTE() (*vm.ip++)
+#define READ_CONSTANT() (currentChunk()->constants.values[READ_BYTE()])
+
+static Object* read_constant_as_object(ObjectType type) {
+	Value constant = READ_CONSTANT();
+	ASSERT_VALUE_TYPE(constant, VALUE_OBJECT);
+	Object* object = constant.as.object;
+	if (object->type != type) {
+		FAIL("Object at '%p' is of type %d, expected %d", object, object->type, type);
+	}
+	return object;
+}
+
+#define READ_CONSTANT_AS_OBJECT(type, cast) (cast*) read_constant_as_object(type)
+
 InterpretResult interpret(Chunk* baseChunk) {
-    #define READ_BYTE() (*vm.ip++)
-	#define READ_CONSTANT() (currentChunk()->constants.values[READ_BYTE()])
     #define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
         Value a = pop(); \
@@ -618,7 +665,7 @@ InterpretResult interpret(Chunk* baseChunk) {
             }
 
             case OP_MAKE_FUNCTION: {
-				Chunk func_chunk = READ_CONSTANT().as.chunk;
+				ObjectCode* obj_code = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
 
 				uint8_t num_params_byte1 = READ_BYTE();
 				uint8_t num_params_byte2 = READ_BYTE();
@@ -634,7 +681,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 					params_buffer[i] = copy_cstring(param_raw_string.data, param_raw_string.length, "ObjectFunction param cstring");
 				}
 
-				ObjectFunction* obj_function = newUserObjectFunction(func_chunk, params_buffer, num_params);
+				ObjectFunction* obj_function = newUserObjectFunction(obj_code, params_buffer, num_params);
 				push(MAKE_VALUE_OBJECT(obj_function));
 				break;
 			}
@@ -801,9 +848,10 @@ InterpretResult interpret(Chunk* baseChunk) {
     DEBUG_TRACE("\n--------------------------\n");
 	DEBUG_TRACE("Ended interpreter loop.");
     
-    #undef READ_BYTE
-	#undef READ_CONSTANT
     #undef BINARY_MATH_OP
 
     return runtimeErrorOccured ? INTERPRET_RUNTIME_ERROR : INTERPRET_SUCCESS;
 }
+
+#undef READ_BYTE
+#undef READ_CONSTANT

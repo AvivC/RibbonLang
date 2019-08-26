@@ -122,10 +122,11 @@ static ObjectFunction* newPartialObjectFunction(bool isNative, char** parameters
     return objFunc;
 }
 
-ObjectFunction* newUserObjectFunction(Chunk chunk, char** parameters, int numParams) {
+//ObjectFunction* newUserObjectFunction(Chunk chunk, char** parameters, int numParams) {
+ObjectFunction* newUserObjectFunction(ObjectCode* code, char** parameters, int numParams) {
     DEBUG_OBJECTS_PRINT("Creating user function object.");
     ObjectFunction* objFunc = newPartialObjectFunction(false, parameters, numParams);
-    objFunc->chunk = chunk;
+    objFunc->code = code;
     return objFunc;
 }
 
@@ -134,6 +135,12 @@ ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, char** pa
     ObjectFunction* objFunc = newPartialObjectFunction(true, parameters, numParams);
     objFunc->nativeFunction = nativeFunction;
     return objFunc;
+}
+
+ObjectCode* object_code_new(Chunk chunk) {
+	ObjectCode* obj_code = (ObjectCode*) allocateObject(sizeof(ObjectCode), "ObjectCode", OBJECT_CODE);
+	obj_code->chunk = chunk;
+	return obj_code;
 }
 
 void freeObject(Object* o) {
@@ -155,7 +162,7 @@ void freeObject(Object* o) {
             	DEBUG_OBJECTS_PRINT("Freeing native ObjectFunction");
 			} else {
 				DEBUG_OBJECTS_PRINT("Freeing user ObjectFunction");
-				freeChunk(&func->chunk);
+//				freeChunk(&func->chunk);
 			}
             for (int i = 0; i < func->numParams; i++) {
             	char* param = func->parameters[i];
@@ -167,6 +174,13 @@ void freeObject(Object* o) {
             deallocate(func, sizeof(ObjectFunction), "ObjectFunction");
             break;
         }
+        case OBJECT_CODE: {
+        	ObjectCode* code = (ObjectCode*) o;
+        	DEBUG_OBJECTS_PRINT("Freeing ObjectCode at '%p'", code);
+        	freeChunk(&code->chunk);
+        	deallocate(code, sizeof(ObjectCode), "ObjectCode");
+        	break;
+        }
     }
     
     vm.numObjects--;
@@ -176,6 +190,7 @@ void freeObject(Object* o) {
 void printObject(Object* o) {
     switch (o->type) {
         case OBJECT_STRING: {
+        	// TODO: Maybe differentiate string printing and value printing which happens to be a string
             printf("%s", OBJECT_AS_STRING(o)->chars);
             return;
         }
@@ -185,6 +200,10 @@ void printObject(Object* o) {
         	} else {
         		printf("<Function at %p>", o);
         	}
+            return;
+        }
+        case OBJECT_CODE: {
+        	printf("<Code object at %p>", o);
             return;
         }
     }
