@@ -125,6 +125,68 @@ expect
     d.1
 end
 
+test more if elsif else
+    char = "b"
+    if char == "a" {
+			upper_char = "A"
+		} elsif char == "b" {
+			upper_char = "B"
+		} elsif char == "c" {
+			upper_char = "C"
+		} elsif char == "d" {
+			upper_char = "D"
+		} elsif char == "e" {
+			upper_char = "E"
+		} elsif char == "f" {
+			upper_char = "F"
+		} elsif char == "g" {
+			upper_char = "G"
+		} elsif char == "h" {
+			upper_char = "H"
+		} elsif char == "i" {
+			upper_char = "I"
+		} elsif char == "j" {
+			upper_char = "J"
+		} elsif char == "k" {
+			upper_char = "K"
+		} elsif char == "l" {
+			upper_char = "L"
+		} elsif char == "m" {
+			upper_char = "M"
+		} elsif char == "n" {
+			upper_char = "N"
+		} elsif char == "o" {
+			upper_char = "O"
+		} elsif char == "p" {
+			upper_char = "P"
+		} elsif char == "q" {
+			upper_char = "Q"
+		} elsif char == "r" {
+			upper_char = "R"
+		} elsif char == "s" {
+			upper_char = "S"
+		} elsif char == "t" {
+			upper_char = "T"
+		} elsif char == "u" {
+			upper_char = "U"
+		} elsif char == "v" {
+			upper_char = "V"
+		} elsif char == "w" {
+			upper_char = "W"
+		} elsif char == "x" {
+			upper_char = "X"
+		} elsif char == "y" {
+			upper_char = "Y"
+		} elsif char == "z" {
+			upper_char = "Z"
+		} else {
+			upper_char = char
+		}
+		print(upper_char)
+expect
+    B
+end
+
 test counting_while_loop
     x = 0
     while x < 3 {

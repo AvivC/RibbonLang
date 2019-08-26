@@ -176,9 +176,10 @@ void disassembleChunk(Chunk* chunk) {
     
     for (int i = 0; i < chunk->constants.count; i++) {
         Value constant = chunk->constants.values[i];
-        if (constant.type == VALUE_CHUNK) {
+        if (constant.type == VALUE_OBJECT && constant.as.object->type == OBJECT_CODE) {
             printf("\nInner chunk [index %d]:\n", i);
-            Chunk inner_chunk = constant.as.chunk;
+            ObjectCode* inner_code_object = (ObjectCode*) constant.as.object;
+            Chunk inner_chunk = inner_code_object->chunk;
             disassembleChunk(&inner_chunk);
         }
     }
