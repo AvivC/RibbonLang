@@ -94,3 +94,37 @@ expect
     I'm nested
     nil
 end
+
+test string length method
+    text = "abc def g"
+    n = text.length()
+    print(n)
+expect
+    9
+end
+
+test string key accessor
+    text = "abc def g"
+    print(text[2])
+    print(text[0])
+    print(text[8])
+    print(text[1] + text[3] + text[6])
+expect
+    c
+    a
+    g
+    b f
+end
+
+test string operations
+    text = "hello world!"
+    reversed = ""
+    i = text.length() - 1
+    while i >= 0 {
+        reversed = reversed + text[i]
+        i = i - 1
+    }
+    print(reversed)
+expect
+    !dlrow olleh
+end
