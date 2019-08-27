@@ -56,6 +56,8 @@ static int simpleInstruction(const char* name, Chunk* chunk, int offset) {
 }
 
 int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
+	printf("%-3d ", offset);
+
 	switch (opcode) {
 		case OP_CONSTANT: {
 			return constantInstruction("OP_CONSTANT", chunk, offset);
