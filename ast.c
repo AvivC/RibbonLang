@@ -550,6 +550,12 @@ AstNodeKeyAccess* new_ast_node_key_access(AstNode* key, AstNode* subject) {
 	return node;
 }
 
+AstNodeUnary* new_ast_node_unary(AstNode* expression) {
+	AstNodeUnary* node = ALLOCATE_AST_NODE(AstNodeUnary, AST_NODE_UNARY);
+	node->operand = expression;
+	return node;
+}
+
 AstNode* allocateAstNode(AstNodeType type, size_t size) {
     AstNode* node = allocate(size, AST_NODE_TYPE_NAMES[type]);
     node->type = type;

@@ -109,6 +109,8 @@ static Token parseIdentifier() {
     	return makeToken(TOKEN_TRUE);
     } else if (checkToken("false")) {
     	return makeToken(TOKEN_FALSE);
+    } else if (checkToken("not")) {
+    	return makeToken(TOKEN_NOT);
     }
     
     return makeToken(TOKEN_IDENTIFIER);
@@ -214,7 +216,6 @@ Token scanToken() {
         case '*': return makeToken(TOKEN_STAR);
         case '/': return makeToken(TOKEN_SLASH);
         case '=': return (match('=') ? makeToken(TOKEN_EQUAL_EQUAL) : makeToken(TOKEN_EQUAL));
-        case '!': return (match('=') ? makeToken(TOKEN_BANG_EQUAL) : makeToken(TOKEN_BANG));
         case '<': return (match('=') ? makeToken(TOKEN_LESS_EQUAL) : makeToken(TOKEN_LESS_THAN));
         case '>': return (match('=') ? makeToken(TOKEN_GREATER_EQUAL) : makeToken(TOKEN_GREATER_THAN));
         case '(': return makeToken(TOKEN_LEFT_PAREN);
@@ -226,6 +227,12 @@ Token scanToken() {
         case '[': return makeToken(TOKEN_LEFT_SQUARE_BRACE);
         case ']': return makeToken(TOKEN_RIGHT_SQUARE_BRACE);
         case '\n': return makeToken(TOKEN_NEWLINE);
+        case '!': {
+			if (match('=')) {
+				return makeToken(TOKEN_BANG_EQUAL);
+			}
+			break;
+		}
     }
     
     // TODO: More specific error reporting

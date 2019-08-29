@@ -160,6 +160,7 @@ AstNodeAttribute* new_ast_node_attribute(AstNode* object, const char* name, int 
 AstNodeAttributeAssignment* new_ast_node_attribute_assignment(AstNode* object, const char* name, int length, AstNode* value);
 AstNodeString* new_ast_node_string(const char* string, int length);
 AstNodeKeyAccess* new_ast_node_key_access(AstNode* key, AstNode* subject);
+AstNodeUnary* new_ast_node_unary(AstNode* expression);
 
 #define ALLOCATE_AST_NODE(type, tag) (type*) allocateAstNode(tag, sizeof(type))
 

@@ -213,9 +213,7 @@ static AstNode* grouping(int expression_level) {
 }
 
 static AstNode* unary(int expression_level) {
-    AstNodeUnary* node = ALLOCATE_AST_NODE(AstNodeUnary, AST_NODE_UNARY);
-    node->operand = parse_expression(PREC_UNARY, expression_level + 1); // so-called right associativity
-    return (AstNode*) node;
+    return (AstNode*) new_ast_node_unary(parse_expression(PREC_UNARY, expression_level + 1)); // so-called right associativity
 }
 
 static AstNode* boolean(int expression_level) {
@@ -280,7 +278,7 @@ static ParseRule rules[] = {
     {NULL, binary, PREC_FACTOR},       // TOKEN_STAR
     {NULL, binary, PREC_FACTOR},       // TOKEN_SLASH
     {NULL, NULL, PREC_NONE},     // TOKEN_EQUAL
-    {NULL, NULL, PREC_NONE},     // TOKEN_BANG
+    {unary, NULL, PREC_NONE},     // TOKEN_NOT
     {NULL, binary, PREC_COMPARISON},     // TOKEN_LESS_THAN
     {NULL, binary, PREC_COMPARISON},     // TOKEN_GREATER_THAN
     {grouping, call, PREC_GROUPING},     // TOKEN_LEFT_PAREN

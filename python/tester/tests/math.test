@@ -30,7 +30,13 @@ expect
     -4.5
 end
 
-test bool_expression
+test boolean expressions
+    print(not true)
+    print(not not true)
+    print(not false)
+    print(not (5 == 5))
+    print(not (5 == 5) or not false)
+
     print(5 > 10)
     print(5 < 10)
     print(5 == 10)
@@ -72,6 +78,11 @@ test bool_expression
     a = 50 / 2 != 25
     print(a)
 expect
+    false
+    true
+    true
+    false
+    true
     false
     true
     false
