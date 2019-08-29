@@ -32,11 +32,17 @@ static void emit_short_as_two_bytes(Chunk* chunk, uint16_t number) {
 	emit_byte(chunk, bytes[1]);
 }
 
-static size_t emit_short_placeholder(Chunk* chunk) {
+static size_t emit_opcode_with_short_placeholder(Chunk* chunk, OP_CODE opcode) {
+	writeChunk(chunk, opcode);
 	size_t placeholder_offset = chunk->count;
 	writeChunk(chunk, 0);
 	writeChunk(chunk, 0);
 	return placeholder_offset;
+}
+
+static void backpatch_placeholder_with_current_address(Chunk* chunk, size_t placeholder_offset) {
+	setChunk(chunk, placeholder_offset, (chunk->count >> 8) & 0xFF);
+	setChunk(chunk, placeholder_offset + 1, (chunk->count) & 0xFF);
 }
 
 static void compileTree(AstNode* node, Chunk* chunk) {
@@ -227,55 +233,33 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         	AstNodeIf* nodeIf = (AstNodeIf*) node;
         	compileTree(nodeIf->condition, chunk);
 
-        	writeChunk(chunk, OP_JUMP_IF_FALSE);
-        	size_t placeholderOffset = emit_short_placeholder(chunk);
+        	size_t placeholder_offset = emit_opcode_with_short_placeholder(chunk, OP_JUMP_IF_FALSE);
 
         	compileTree((AstNode*) nodeIf->body, chunk);
 
-        	writeChunk(chunk, OP_JUMP);
-			size_t skipElseClausesOffset = chunk->count;
-			writeChunk(chunk, 0);
-			writeChunk(chunk, 0);
+			size_t skip_else_clauses_offset = emit_opcode_with_short_placeholder(chunk, OP_JUMP);
 
         	for (int i = 0; i < nodeIf->elsifClauses.count; i += 2) {
         		AstNode* condition = nodeIf->elsifClauses.values[i];
         		AstNodeStatements* body = nodeIf->elsifClauses.values[i+1];
 
-        		setChunk(chunk, placeholderOffset, (chunk->count >> 8) & 0xFF);
-				setChunk(chunk, placeholderOffset + 1, (chunk->count) & 0xFF);
-
+				backpatch_placeholder_with_current_address(chunk, placeholder_offset);
         		compileTree(condition, chunk);
-
-        		writeChunk(chunk, OP_JUMP_IF_FALSE);
-        		placeholderOffset = chunk->count;
-				writeChunk(chunk, 0);
-				writeChunk(chunk, 0);
-
+				placeholder_offset = emit_opcode_with_short_placeholder(chunk, OP_JUMP_IF_FALSE);
 				compileTree((AstNode*) body, chunk);
 			}
 
-        	bool haveElse = nodeIf->elseBody != NULL;
-        	if (haveElse) {
-        		writeChunk(chunk, OP_JUMP);
-				size_t elsePlaceholderOffset = chunk->count;
-				writeChunk(chunk, 0);
-				writeChunk(chunk, 0);
-
-				setChunk(chunk, placeholderOffset, (chunk->count >> 8) & 0xFF);
-				setChunk(chunk, placeholderOffset + 1, (chunk->count) & 0xFF);
-
+        	bool have_else = nodeIf->elseBody != NULL;
+        	if (have_else) {
+				size_t elsePlaceholderOffset = emit_opcode_with_short_placeholder(chunk, OP_JUMP);
+				backpatch_placeholder_with_current_address(chunk, placeholder_offset);
 				compileTree((AstNode*) nodeIf->elseBody, chunk);
-
-	        	setChunk(chunk, elsePlaceholderOffset, (chunk->count >> 8) & 0xFF);
-	        	setChunk(chunk, elsePlaceholderOffset + 1, (chunk->count) & 0xFF);
-
+	        	backpatch_placeholder_with_current_address(chunk, elsePlaceholderOffset);
         	} else {
-        		setChunk(chunk, placeholderOffset, (chunk->count >> 8) & 0xFF);
-        		setChunk(chunk, placeholderOffset + 1, (chunk->count) & 0xFF);
+        		backpatch_placeholder_with_current_address(chunk, placeholder_offset);
         	}
 
-        	setChunk(chunk, skipElseClausesOffset, (chunk->count >> 8) & 0xFF);
-			setChunk(chunk, skipElseClausesOffset + 1, (chunk->count) & 0xFF);
+			backpatch_placeholder_with_current_address(chunk, skip_else_clauses_offset);
         	break;
         }
 
