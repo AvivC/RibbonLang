@@ -40,9 +40,13 @@ static size_t emit_opcode_with_short_placeholder(Chunk* chunk, OP_CODE opcode) {
 	return placeholder_offset;
 }
 
+static void backpatch_placeholder(Chunk* chunk, size_t placeholder_offset, size_t address) {
+	setChunk(chunk, placeholder_offset, (address >> 8) & 0xFF);
+	setChunk(chunk, placeholder_offset + 1, (address) & 0xFF);
+}
+
 static void backpatch_placeholder_with_current_address(Chunk* chunk, size_t placeholder_offset) {
-	setChunk(chunk, placeholder_offset, (chunk->count >> 8) & 0xFF);
-	setChunk(chunk, placeholder_offset + 1, (chunk->count) & 0xFF);
+	backpatch_placeholder(chunk, placeholder_offset, chunk->count);
 }
 
 static void compileTree(AstNode* node, Chunk* chunk) {
@@ -230,36 +234,47 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         }
 
         case AST_NODE_IF: {
-        	AstNodeIf* nodeIf = (AstNodeIf*) node;
-        	compileTree(nodeIf->condition, chunk);
+        	AstNodeIf* node_if = (AstNodeIf*) node;
 
-        	size_t placeholder_offset = emit_opcode_with_short_placeholder(chunk, OP_JUMP_IF_FALSE);
+        	IntegerArray jump_placeholder_offsets;
+        	integer_array_init(&jump_placeholder_offsets);
 
-        	compileTree((AstNode*) nodeIf->body, chunk);
+        	compileTree(node_if->condition, chunk);
+        	size_t if_condition_jump_address_offset = emit_opcode_with_short_placeholder(chunk, OP_JUMP_IF_FALSE);
 
-			size_t skip_else_clauses_offset = emit_opcode_with_short_placeholder(chunk, OP_JUMP);
+        	compileTree((AstNode*) node_if->body, chunk);
 
-        	for (int i = 0; i < nodeIf->elsifClauses.count; i += 2) {
-        		AstNode* condition = nodeIf->elsifClauses.values[i];
-        		AstNodeStatements* body = nodeIf->elsifClauses.values[i+1];
+        	size_t jump_to_end_address_offset = emit_opcode_with_short_placeholder(chunk, OP_JUMP);
+			integer_array_write(&jump_placeholder_offsets, &jump_to_end_address_offset);
 
-				backpatch_placeholder_with_current_address(chunk, placeholder_offset);
-        		compileTree(condition, chunk);
-				placeholder_offset = emit_opcode_with_short_placeholder(chunk, OP_JUMP_IF_FALSE);
+        	backpatch_placeholder_with_current_address(chunk, if_condition_jump_address_offset);
+
+        	for (int i = 0; i < node_if->elsifClauses.count; i += 2) {
+				AstNode* condition = node_if->elsifClauses.values[i];
+				AstNodeStatements* body = node_if->elsifClauses.values[i+1];
+
+				compileTree(condition, chunk);
+				if_condition_jump_address_offset = emit_opcode_with_short_placeholder(chunk, OP_JUMP_IF_FALSE);
 				compileTree((AstNode*) body, chunk);
+
+				jump_to_end_address_offset = emit_opcode_with_short_placeholder(chunk, OP_JUMP);
+				integer_array_write(&jump_placeholder_offsets, &jump_to_end_address_offset);
+
+				backpatch_placeholder_with_current_address(chunk, if_condition_jump_address_offset);
 			}
 
-        	bool have_else = nodeIf->elseBody != NULL;
-        	if (have_else) {
-				size_t elsePlaceholderOffset = emit_opcode_with_short_placeholder(chunk, OP_JUMP);
-				backpatch_placeholder_with_current_address(chunk, placeholder_offset);
-				compileTree((AstNode*) nodeIf->elseBody, chunk);
-	        	backpatch_placeholder_with_current_address(chunk, elsePlaceholderOffset);
-        	} else {
-        		backpatch_placeholder_with_current_address(chunk, placeholder_offset);
+        	if (node_if->elseBody != NULL) {
+        		compileTree((AstNode*) node_if->elseBody, chunk);
         	}
 
-			backpatch_placeholder_with_current_address(chunk, skip_else_clauses_offset);
+        	size_t end_address = chunk->count;
+        	for (int i = 0; i < jump_placeholder_offsets.count; i++) {
+				size_t placeholder_offset = jump_placeholder_offsets.values[i];
+				backpatch_placeholder(chunk, placeholder_offset, end_address);
+			}
+
+        	integer_array_free(&jump_placeholder_offsets);
+
         	break;
         }
 

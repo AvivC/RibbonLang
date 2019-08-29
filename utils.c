@@ -11,6 +11,10 @@ void short_to_two_bytes(uint16_t num, uint8_t* bytes_out) {
 	bytes_out[1] = num & 0xFF;
 }
 
+IMPLEMENT_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)
+
+// TODO: Make this work.
+
 //void printStack( void )
 //{
 //     unsigned int   i;
