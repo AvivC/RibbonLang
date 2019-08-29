@@ -73,10 +73,17 @@ def _run_test_file(absolute_path):
         while line.isspace():
             line = next(lines)
 
+        test_prefix, test_name = [s.strip() for s in line.split('test ')]
+
+        if test_prefix == 'skip':
+            while line.strip() != 'end':
+                line = next(lines)
+            line = next(lines)  # skip 'end'
+            print('Test %-48s [SKIPPED]' % test_name)
+            continue
+
         if not line.startswith('test '):
             raise RuntimeError('Text outside test bounds')
-
-        _, test_name = [s.strip() for s in line.split('test ')]
 
         print('Test %-50s' % test_name, end='')
 
@@ -110,15 +117,6 @@ def _run_test_file(absolute_path):
                     print('[DIFF]')
                 else:
                     print()
-            #
-            # print('=== Expected ===')
-            # for i, line in enumerate(expect_output.splitlines()):
-            #     print('%-3d %s' % (i, line))
-            # print('==============')
-            # print('=== Actual ===')
-            # for i, line in enumerate(output.splitlines()):
-            #     print('%-3d %s' % (i, line))
-            # print('==============')
 
     return all_success
 

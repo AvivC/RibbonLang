@@ -32,6 +32,13 @@ static void emit_short_as_two_bytes(Chunk* chunk, uint16_t number) {
 	emit_byte(chunk, bytes[1]);
 }
 
+static size_t emit_short_placeholder(Chunk* chunk) {
+	size_t placeholder_offset = chunk->count;
+	writeChunk(chunk, 0);
+	writeChunk(chunk, 0);
+	return placeholder_offset;
+}
+
 static void compileTree(AstNode* node, Chunk* chunk) {
     AstNodeType nodeType = node->type;
     
@@ -221,9 +228,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         	compileTree(nodeIf->condition, chunk);
 
         	writeChunk(chunk, OP_JUMP_IF_FALSE);
-        	size_t placeholderOffset = chunk->count;
-        	writeChunk(chunk, 0);
-        	writeChunk(chunk, 0);
+        	size_t placeholderOffset = emit_short_placeholder(chunk);
 
         	compileTree((AstNode*) nodeIf->body, chunk);
 

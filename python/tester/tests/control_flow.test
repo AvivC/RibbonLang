@@ -125,7 +125,7 @@ expect
     d.1
 end
 
-test more if elsif else
+skip test more if elsif else
     char = "b"
     if char == "a" {
 			upper_char = "A"
