@@ -376,18 +376,6 @@ InterpretResult interpret(Chunk* baseChunk) {
         if (a.type == VALUE_NUMBER && b.type == VALUE_NUMBER) { \
             result = MAKE_VALUE_NUMBER(a.as.number op b.as.number); \
             \
-        } else if (a.type == VALUE_OBJECT && b.type == VALUE_OBJECT) { \
-            ObjectString* aString = OBJECT_AS_STRING(a.as.object); \
-            ObjectString* bString = OBJECT_AS_STRING(b.as.object); \
-            char* buffer = allocate(aString->length + bString->length + 1, "Object string buffer"); \
-            memcpy(buffer, aString->chars, aString->length); \
-            memcpy(buffer + aString->length, bString->chars, bString->length); \
-            int stringLength = aString->length + bString->length; \
-            buffer[stringLength] = '\0'; \
-            ObjectString* objString = takeString(buffer, stringLength); \
-            result = MAKE_VALUE_OBJECT(objString); \
-             \
-             \
         } else { \
             result = MAKE_VALUE_NIL(); \
         } \
