@@ -40,7 +40,6 @@ typedef struct ObjectFunction {
     Object* self;
     union {
     	NativeFunction nativeFunction;
-//    	Chunk chunk;
     	ObjectCode* code;
     };
 } ObjectFunction;
