@@ -101,7 +101,6 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         case AST_NODE_VARIABLE: {
             AstNodeVariable* nodeVariable = (AstNodeVariable*) node;
             
-//            Value name_constant = MAKE_VALUE_RAW_STRING(nodeVariable->name, nodeVariable->length);
             Value name_constant = MAKE_VALUE_OBJECT(copyString(nodeVariable->name, nodeVariable->length));
             int constantIndex = addConstant(chunk, &name_constant);
             
@@ -115,7 +114,6 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             
             compileTree(nodeAssignment->value, chunk);
             
-//			Value name_constant = MAKE_VALUE_RAW_STRING(nodeAssignment->name, nodeAssignment->length);
 			Value name_constant = MAKE_VALUE_OBJECT(copyString(nodeAssignment->name, nodeAssignment->length));
 			int constantIndex = addConstant(chunk, &name_constant);
 
@@ -142,8 +140,6 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             compile((AstNode*) node_function->statements, &function_chunk);
 
             Value obj_code_constant = MAKE_VALUE_OBJECT(object_code_new(function_chunk));
-
-//            Value constant_chunk = MAKE_VALUE_CHUNK(function_chunk);
 
             emit_opcode_with_constant_operand(chunk, OP_MAKE_FUNCTION, obj_code_constant);
 
