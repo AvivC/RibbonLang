@@ -104,6 +104,8 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             // TODO: Why do we sometimes use ObjectString* constants and sometimes RawString constants?
             Value name_constant = MAKE_VALUE_OBJECT(copyString(nodeVariable->name, nodeVariable->length));
             int constantIndex = addConstant(chunk, &name_constant);
+
+            integer_array_write(&chunk->referenced_names_indices, (size_t*) &constantIndex);
             
             writeChunk(chunk, OP_LOAD_VARIABLE);
             writeChunk(chunk, constantIndex);
@@ -332,6 +334,8 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 /* Compile a program or a function */
 void compile(AstNode* node, Chunk* chunk) {
     compileTree(node, chunk);
+
+    // TODO: Ugly patch, and also sometimes unnecessary. Solve this in a different way.
     writeChunk(chunk, OP_NIL);
     writeChunk(chunk, OP_RETURN);
 }

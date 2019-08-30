@@ -8,6 +8,7 @@ void initChunk(Chunk* chunk) {
     chunk->count = 0;
     chunk->code = NULL;
     value_array_init(&chunk->constants);
+    integer_array_init(&chunk->referenced_names_indices);
 }
 
 void writeChunk(Chunk* chunk, uint8_t byte) {
@@ -31,6 +32,7 @@ void setChunk(Chunk* chunk, int position, uint8_t byte) {
 void freeChunk(Chunk* chunk) {
     deallocate(chunk->code, chunk->capacity * sizeof(uint8_t), "Chunk code buffer"); // the sizeof is probably stupid
     value_array_free(&chunk->constants);
+    integer_array_free(&chunk->referenced_names_indices);
     initChunk(chunk);
 }
 
