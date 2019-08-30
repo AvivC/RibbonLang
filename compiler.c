@@ -101,6 +101,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         case AST_NODE_VARIABLE: {
             AstNodeVariable* nodeVariable = (AstNodeVariable*) node;
             
+            // TODO: Why do we sometimes use ObjectString* constants and sometimes RawString constants?
             Value name_constant = MAKE_VALUE_OBJECT(copyString(nodeVariable->name, nodeVariable->length));
             int constantIndex = addConstant(chunk, &name_constant);
             
