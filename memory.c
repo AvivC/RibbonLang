@@ -68,7 +68,7 @@ static void manage_allocations_buffer_size(void) {
 }
 
 void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what) {
-//	manage_allocations_buffer_size();
+    manage_allocations_buffer_size();
 
     if (newSize == 0) {
         // Deallocation
