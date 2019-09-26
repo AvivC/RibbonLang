@@ -103,7 +103,7 @@ void set_string_add_method(ObjectString* objString) {
 	// TODO: Should "result" be listed in the internal parameter list?
 	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
 	params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");
-	ObjectFunction* string_add_function = newNativeObjectFunction(object_string_add, params, add_func_num_params, (Object*) objString);
+	ObjectFunction* string_add_function = object_native_function_new(object_string_add, params, add_func_num_params, (Object*) objString);
 	setTableCStringKey(&objString->base.attributes, "@add", MAKE_VALUE_OBJECT(string_add_function));
 }
 
@@ -112,7 +112,7 @@ void set_string_get_key_method(ObjectString* objString) {
 	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
 	params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");
-	ObjectFunction* string_add_function = newNativeObjectFunction(object_string_get_key, params, num_params, (Object*) objString);
+	ObjectFunction* string_add_function = object_native_function_new(object_string_get_key, params, num_params, (Object*) objString);
 	setTableCStringKey(&objString->base.attributes, "@get_key", MAKE_VALUE_OBJECT(string_add_function));
 }
 
@@ -120,7 +120,7 @@ void set_string_length_method(ObjectString* objString) {
 	int num_params = 1;
 	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
-	ObjectFunction* string_length_function = newNativeObjectFunction(object_string_length, params, num_params, (Object*) objString);
+	ObjectFunction* string_length_function = object_native_function_new(object_string_length, params, num_params, (Object*) objString);
 	setTableCStringKey(&objString->base.attributes, "length", MAKE_VALUE_OBJECT(string_length_function));
 }
 
@@ -149,10 +149,18 @@ char* copy_cstring(const char* string, int length, const char* what) {
     return chars;
 }
 
+char* copy_null_terminated_cstring(const char* string, const char* what) {
+	return copy_cstring(string, strlen(string), what);
+}
+
 ObjectString* copyString(const char* string, int length) {
 	// argument length should not include the null-terminator
     char* chars = copy_cstring(string, length, "Object string buffer");
     return newObjectString(chars, length);
+}
+
+ObjectString* object_string_copy_from_null_terminated(const char* string) {
+	return copyString(string, strlen(string));
 }
 
 ObjectString* takeString(char* chars, int length) {
@@ -177,8 +185,9 @@ bool stringsEqual(ObjectString* a, ObjectString* b) {
     return (a->length == b->length) && (cstringsEqual(a->chars, b->chars));
 }
 
-static ObjectFunction* newPartialObjectFunction(bool isNative, char** parameters, int numParams, Object* self) {
+static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, Object* self) {
     ObjectFunction* objFunc = (ObjectFunction*) allocateObject(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
+    objFunc->name = copy_null_terminated_cstring("<Anonymous function>", "Function name");
     objFunc->isNative = isNative;
     objFunc->parameters = parameters;
     objFunc->numParams = numParams;
@@ -186,18 +195,22 @@ static ObjectFunction* newPartialObjectFunction(bool isNative, char** parameters
     return objFunc;
 }
 
-ObjectFunction* newUserObjectFunction(ObjectCode* code, char** parameters, int numParams, Object* self) {
+ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self) {
     DEBUG_OBJECTS_PRINT("Creating user function object.");
-    ObjectFunction* objFunc = newPartialObjectFunction(false, parameters, numParams, self);
+    ObjectFunction* objFunc = object_function_base_new(false, parameters, numParams, self);
     objFunc->code = code;
     return objFunc;
 }
 
-ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, char** parameters, int numParams, Object* self) {
+ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams, Object* self) {
     DEBUG_OBJECTS_PRINT("Creating native function object.");
-    ObjectFunction* objFunc = newPartialObjectFunction(true, parameters, numParams, self);
+    ObjectFunction* objFunc = object_function_base_new(true, parameters, numParams, self);
     objFunc->nativeFunction = nativeFunction;
     return objFunc;
+}
+
+void object_function_set_name(ObjectFunction* function, char* name) {
+	function->name = name;
 }
 
 ObjectCode* object_code_new(Chunk chunk) {
@@ -233,6 +246,7 @@ void freeObject(Object* o) {
             if (func->numParams > 0) {
             	deallocate(func->parameters, sizeof(char*) * func->numParams, "Parameters list cstrings");
             }
+            deallocate(func->name, strlen(func->name) + 1, "Function name");
             deallocate(func, sizeof(ObjectFunction), "ObjectFunction");
             break;
         }

@@ -67,7 +67,7 @@ static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc)
 
 static StackFrame makeBaseStackFrame(Chunk* base_chunk) {
 	ObjectCode* code = object_code_new(*base_chunk);
-	ObjectFunction* baseObjFunc = newUserObjectFunction(code, NULL, 0, NULL);
+	ObjectFunction* baseObjFunc = object_user_function_new(code, NULL, 0, NULL);
 	return newStackFrame(NULL, baseObjFunc);
 }
 
@@ -126,6 +126,11 @@ static void gcMarkCodeConstants(ObjectCode* code) {
 }
 
 static void gcMarkObject(Object* object) {
+	bool is_probably_valid_object = (object->isReachable == true) || (object->isReachable == false); // Not the best check, but maybe helpful?
+	if (!is_probably_valid_object) {
+		FAIL("Illegal object passed to gcMarkObject.");
+	}
+
 	if (object->isReachable) {
 		return;
 	}
@@ -144,6 +149,10 @@ static void gcMarkObject(Object* object) {
 	if (object->type == OBJECT_FUNCTION) {
 		ObjectFunction* objFunc = OBJECT_AS_FUNCTION(object);
 
+		if (objFunc->self != NULL) {
+			gcMarkObject((Object*) objFunc->self);
+		}
+
 		if (!objFunc->isNative) {
 			ObjectCode* code_object = objFunc->code;
 			gcMarkObject((Object*) code_object);
@@ -153,43 +162,6 @@ static void gcMarkObject(Object* object) {
 		gcMarkCodeConstants((ObjectCode*) object);
 	}
 }
-
-//static void gcMark(void) {
-//	for (Value* value = vm.evalStack; value != vm.stackTop; value++) {
-//		if (value->type == VALUE_OBJECT) {
-//			gcMarkObject(value->as.object);
-//		} else if (value->type == VALUE_CHUNK) {
-//			gcMarkChunkConstants(&value->as.chunk);
-//		}
-//	}
-//
-//	for (StackFrame* frame = vm.callStack; frame != vm.callStackTop; frame++) {
-//		gcMarkObject((Object*) frame->objFunc);
-//		gcMarkChunkConstants(&frame->objFunc->code->chunk);
-//
-//		// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
-//		// many entries are likely to be empty
-//		for (int i = 0; i < frame->localVariables.capacity; i++) {
-//			Entry* entry = &frame->localVariables.entries[i];
-//			if (entry->value.type == VALUE_OBJECT) {
-//				gcMarkObject(entry->value.as.object);
-//			} else if (entry->value.type == VALUE_CHUNK) {
-//				gcMarkChunkConstants(&entry->value.as.chunk);
-//			}
-//		}
-//	}
-//
-//	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
-//	// many entries are likely to be empty
-//	for (int i = 0; i < vm.globals.capacity; i++) {
-//		Entry* entry = &vm.globals.entries[i];
-//		if (entry->value.type == VALUE_OBJECT) {
-//			gcMarkObject(entry->value.as.object);
-//		} else if (entry->value.type == VALUE_CHUNK) {
-//			gcMarkChunkConstants(&entry->value.as.chunk);
-//		}
-//	}
-//}
 
 static void gcMark(void) {
 	for (Value* value = vm.evalStack; value != vm.stackTop; value++) {
@@ -276,7 +248,7 @@ static void register_builtin_function(const char* name, int num_params, char** p
 	for (int i = 0; i < num_params; i++) {
 		params_buffer[i] = copy_cstring(params[i], strlen(params[i]), "ObjectFunction param cstring");
 	}
-	ObjectFunction* obj_function = newNativeObjectFunction(function, params_buffer, num_params, NULL);
+	ObjectFunction* obj_function = object_native_function_new(function, params_buffer, num_params, NULL);
 	setTableCStringKey(&vm.globals, name, MAKE_VALUE_OBJECT(obj_function));
 }
 
@@ -350,6 +322,10 @@ void freeVM(void) {
     vm.numObjects = 0;
     vm.maxObjects = INITIAL_GC_THRESHOLD;
     vm.allowGC = false;
+}
+
+static void print_stack_trace(void) {
+
 }
 
 #define READ_BYTE() (*vm.ip++)
@@ -684,7 +660,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 					params_buffer[i] = copy_cstring(param_raw_string.data, param_raw_string.length, "ObjectFunction param cstring");
 				}
 
-				ObjectFunction* obj_function = newUserObjectFunction(obj_code, params_buffer, num_params, NULL);
+				ObjectFunction* obj_function = object_user_function_new(obj_code, params_buffer, num_params, NULL);
 				push(MAKE_VALUE_OBJECT(obj_function));
 				break;
 			}
@@ -743,6 +719,16 @@ InterpretResult interpret(Chunk* baseChunk) {
                 ObjectString* name = OBJECT_AS_STRING(name_val.as.object);
 
                 Value value = pop();
+
+                if (is_value_object_of_type(value, OBJECT_FUNCTION)) {
+                	ObjectFunction* function = (ObjectFunction*) value.as.object;
+                	deallocate(function->name, strlen(function->name) + 1, "Function name");
+                	char* new_cstring_name = copy_null_terminated_cstring(name->chars, "Function name");
+                	object_function_set_name(function, new_cstring_name); // TODO: Consider concatenating assigned names, or something.
+                																		// In case a function has more than one name.
+                																		// Or maybe a function should have a list of names?
+                }
+
                 setTable(&currentFrame()->localVariables, name, value);
                 break;
             }

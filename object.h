@@ -34,6 +34,7 @@ typedef bool (*NativeFunction)(ValueArray, Value*);
 
 typedef struct ObjectFunction {
     Object base;
+    char* name;
     char** parameters;
     int numParams;
     bool isNative;
@@ -45,12 +46,15 @@ typedef struct ObjectFunction {
 } ObjectFunction;
 
 char* copy_cstring(const char* string, int length, const char* what);
+char* copy_null_terminated_cstring(const char* string, const char* what);
 ObjectString* copyString(const char* string, int length);
 ObjectString* takeString(char* chars, int length);
 ObjectString** createCopiedStringsArray(const char** strings, int num, const char* allocDescription);
+ObjectString* object_string_copy_from_null_terminated(const char* string);
 
-ObjectFunction* newUserObjectFunction(ObjectCode* code, char** parameters, int numParams, Object* self);
-ObjectFunction* newNativeObjectFunction(NativeFunction nativeFunction, char** parameters, int numParams, Object* self);
+ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self);
+ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams, Object* self);
+void object_function_set_name(ObjectFunction* function, char* name);
 
 ObjectCode* object_code_new(Chunk chunk);
 
