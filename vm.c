@@ -325,7 +325,10 @@ void freeVM(void) {
 }
 
 static void print_stack_trace(void) {
-
+	printf("Stack trace:\n");
+	for (StackFrame* frame = vm.callStack; frame < vm.callStackTop; frame++) {
+		printf("    - %s\n", frame->objFunc->name);
+	}
 }
 
 #define READ_BYTE() (*vm.ip++)
@@ -360,6 +363,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 
 	// TODO: Implement an actual runtime error mechanism. This is a placeholder.
 	#define RUNTIME_ERROR(...) do { \
+		print_stack_trace(); \
 		fprintf(stderr, "Runtime error: " __VA_ARGS__); \
 		fprintf(stderr, "\n"); \
 		runtimeErrorOccured = true; \
