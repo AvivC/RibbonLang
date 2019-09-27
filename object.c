@@ -63,6 +63,29 @@ static bool object_string_length(ValueArray args, Value* result) {
     return true;
 }
 
+static bool object_table_length(ValueArray args, Value* result) {
+	Value self_value = args.values[0];
+
+    if (!is_value_object_of_type(self_value, OBJECT_TABLE)) {
+    	FAIL("Table length method called on none ObjectTable.");
+    }
+
+    ObjectTable* self_table = (ObjectTable*) self_value.as.object;
+
+    // TODO: Maybe much better way to do this?
+
+    int length = 0;
+	for (int i = 0; i < self_table->table.capacity; i++) {
+		Entry* entry = &self_table->table.entries[i];
+		if (entry->key != NULL) {
+			length++;
+		}
+	}
+
+    *result = MAKE_VALUE_NUMBER(length);
+    return true;
+}
+
 static bool object_string_get_key(ValueArray args, Value* result) {
 	// TODO: Proper error reporting mechanisms! not just a boolean which tells the user nothing.
 
@@ -122,6 +145,51 @@ void set_string_length_method(ObjectString* objString) {
 	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
 	ObjectFunction* string_length_function = object_native_function_new(object_string_length, params, num_params, (Object*) objString);
 	setTableCStringKey(&objString->base.attributes, "length", MAKE_VALUE_OBJECT(string_length_function));
+}
+
+static void set_table_length_method(ObjectTable* table) {
+	int num_params = 1;
+	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+	params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+	ObjectFunction* table_length_function = object_native_function_new(object_table_length, params, num_params, (Object*) table);
+	setTableCStringKey(&table->base.attributes, "length", MAKE_VALUE_OBJECT(table_length_function));
+}
+
+static bool table_get_key_function(ValueArray args, Value* result) {
+	// TODO: Proper error reporting mechanisms! not just a boolean which tells the user nothing.
+
+	Value self_value = args.values[0];
+	Value other_value = args.values[1];
+
+    if (!is_value_object_of_type(self_value, OBJECT_TABLE)) {
+    	FAIL("Table @get_key called on none ObjectTable.");
+    }
+
+    if (!is_value_object_of_type(other_value, OBJECT_STRING))  {
+    	*result = MAKE_VALUE_NIL();
+    	return false;
+    }
+
+    ObjectTable* self_table = (ObjectTable*) self_value.as.object;
+    ObjectString* key_string = (ObjectString*) other_value.as.object;
+
+    Value value;
+    if (getTable(&self_table->table, key_string, &value)) {
+    	*result = value;
+    } else {
+    	*result = MAKE_VALUE_NIL();
+    }
+
+    return true;
+}
+
+static void set_table_key_accessor_method(ObjectTable* table) {
+	int num_params = 2;
+	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+	params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+	params[1] = copy_null_terminated_cstring("other", "ObjectFunction param cstring");
+	ObjectFunction* method = object_native_function_new(table_get_key_function, params, num_params, (Object*) table);
+	setTableCStringKey(&table->base.attributes, "@get_key", MAKE_VALUE_OBJECT(method));
 }
 
 static ObjectString* newObjectString(char* chars, int length) {
@@ -219,8 +287,13 @@ ObjectCode* object_code_new(Chunk chunk) {
 	return obj_code;
 }
 
-ObjectTable* object_table_new(void) {
+ObjectTable* object_table_new(Table table) {
 	ObjectTable* obj_table = (ObjectTable*) allocateObject(sizeof(ObjectTable), "ObjectTable", OBJECT_TABLE);
+	obj_table->table = table;
+
+	set_table_length_method(obj_table);
+	set_table_key_accessor_method(obj_table);
+
 	return obj_table;
 }
 
@@ -262,6 +335,13 @@ void freeObject(Object* o) {
         	deallocate(code, sizeof(ObjectCode), "ObjectCode");
         	break;
         }
+        case OBJECT_TABLE: {
+        	ObjectTable* table = (ObjectTable*) o;
+        	DEBUG_OBJECTS_PRINT("Freeing ObjectTable at '%p'", table);
+        	freeTable(&table->table);
+        	deallocate(table, sizeof(ObjectTable), "ObjectTable");
+        	break;
+        }
     }
     
     vm.numObjects--;
@@ -285,6 +365,10 @@ void printObject(Object* o) {
         }
         case OBJECT_CODE: {
         	printf("<Code object at %p>", o);
+            return;
+        }
+        case OBJECT_TABLE: {
+        	printf("<Table at %p>", o);
             return;
         }
     }

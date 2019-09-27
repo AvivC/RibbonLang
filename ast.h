@@ -23,7 +23,8 @@ typedef enum {
 	AST_NODE_ATTRIBUTE,
 	AST_NODE_ATTRIBUTE_ASSIGNMENT,
 	AST_NODE_STRING,
-	AST_NODE_KEY_ACCESS
+	AST_NODE_KEY_ACCESS,
+	AST_NODE_TABLE
 } AstNodeType;
 
 // for debugging purposes
@@ -143,6 +144,18 @@ typedef struct {
 	AstNode* subject;
 } AstNodeKeyAccess;
 
+typedef struct {
+	AstNode* key;
+	AstNode* value;
+} AstNodesKeyValuePair;
+
+DEFINE_DYNAMIC_ARRAY(AstNodesKeyValuePair, AstKeyValuePairArray, ast_key_value_pair_array)
+
+typedef struct {
+	AstNode base;
+	AstKeyValuePairArray pairs;
+} AstNodeTable;
+
 void printTree(AstNode* tree);
 void freeTree(AstNode* node);
 
@@ -161,6 +174,9 @@ AstNodeAttributeAssignment* new_ast_node_attribute_assignment(AstNode* object, c
 AstNodeString* new_ast_node_string(const char* string, int length);
 AstNodeKeyAccess* new_ast_node_key_access(AstNode* key, AstNode* subject);
 AstNodeUnary* new_ast_node_unary(AstNode* expression);
+AstNodeTable* new_ast_node_table(AstKeyValuePairArray pairs);
+
+AstNodesKeyValuePair ast_new_key_value_pair(AstNode* key, AstNode* value);
 
 #define ALLOCATE_AST_NODE(type, tag) (type*) allocateAstNode(tag, sizeof(type))
 

@@ -63,7 +63,7 @@ ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char**
 void object_function_set_name(ObjectFunction* function, char* name);
 
 ObjectCode* object_code_new(Chunk chunk);
-ObjectTable* object_table_new(void);
+ObjectTable* object_table_new(Table table);
 
 bool compareObjects(Object* a, Object* b);
 

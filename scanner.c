@@ -227,6 +227,7 @@ Token scanToken() {
         case '[': return makeToken(TOKEN_LEFT_SQUARE_BRACE);
         case ']': return makeToken(TOKEN_RIGHT_SQUARE_BRACE);
         case '\n': return makeToken(TOKEN_NEWLINE);
+        case ':': return makeToken(TOKEN_COLON);
         case '!': {
 			if (match('=')) {
 				return makeToken(TOKEN_BANG_EQUAL);

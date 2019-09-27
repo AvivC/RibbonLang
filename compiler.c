@@ -189,6 +189,25 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             break;
         }
 
+        case AST_NODE_TABLE: {
+        	AstNodeTable* node_table = (AstNodeTable*) node;
+
+        	if (node_table->pairs.count > 255) {
+        		FAIL("Currently not supporting table literals with more than 255 entries.");
+        	}
+
+			for (int i = 0; i < node_table->pairs.count; i++) {
+				AstNodesKeyValuePair pair = node_table->pairs.values[i];
+				compileTree(pair.value, chunk);
+				compileTree(pair.key, chunk);
+			}
+
+            writeChunk(chunk, OP_MAKE_TABLE);
+			writeChunk(chunk, node_table->pairs.count);
+
+        	break;
+        }
+
         case AST_NODE_ATTRIBUTE: {
             AstNodeAttribute* node_attr = (AstNodeAttribute*) node;
 

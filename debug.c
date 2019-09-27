@@ -151,6 +151,10 @@ int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
 			return constantInstruction("OP_MAKE_STRING", chunk, offset);
 			break;
 		}
+		case OP_MAKE_TABLE: {
+			return singleOperandInstruction("OP_MAKE_TABLE", chunk, offset);
+			break;
+		}
 		case OP_MAKE_FUNCTION: {
 			return constantAndVariableLengthConstantsInstruction("OP_MAKE_FUNCTION", chunk, offset);
 			break;

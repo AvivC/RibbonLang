@@ -669,6 +669,31 @@ InterpretResult interpret(Chunk* baseChunk) {
 				break;
 			}
 
+            case OP_MAKE_TABLE: {
+            	Table table;
+            	initTable(&table);
+
+            	uint8_t num_entries = READ_BYTE();
+
+            	for (int i = 0; i < num_entries; i++) {
+					Value key = pop();
+					if (!is_value_object_of_type(key, OBJECT_STRING)) {
+						RUNTIME_ERROR("Currently only strings supported as table keys.");
+						break;
+					}
+
+					ObjectString* string_key = (ObjectString*) key.as.object;
+
+					Value value = pop();
+					setTable(&table, string_key, value);
+				}
+
+            	ObjectTable* table_object = object_table_new(table);
+            	push(MAKE_VALUE_OBJECT(table_object));
+
+            	break;
+            }
+
             case OP_NIL: {
             	push(MAKE_VALUE_NIL());
             	break;
@@ -741,7 +766,6 @@ InterpretResult interpret(Chunk* baseChunk) {
             	int explicit_arg_count = READ_BYTE();
 
                 if (peek().type != VALUE_OBJECT || (peek().type == VALUE_OBJECT && peek().as.object->type != OBJECT_FUNCTION)) {
-                	printValue(peek());
                 	RUNTIME_ERROR("Illegal call target. Target type: %d.", peek().type);
                 	break;
                 }

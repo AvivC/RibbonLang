@@ -23,7 +23,8 @@ const char* AST_NODE_TYPE_NAMES[] = {
 	"AST_NODE_ATTRIBUTE",
 	"AST_NODE_ATTRIBUTE_ASSIGNMENT",
 	"AST_NODE_STRING",
-	"AST_NODE_KEY_ACCESS"
+	"AST_NODE_KEY_ACCESS",
+	"AST_NODE_TABLE"
 };
 
 static void printNestingString(int nesting) {
@@ -160,6 +161,24 @@ static void printNode(AstNode* node, int nesting) {
             break;
         }
         
+        case AST_NODE_TABLE: {
+        	AstNodeTable* node_table = (AstNodeTable*) node;
+            printNestingString(nesting);
+            printf("TABLE\n");
+
+            for (int i = 0; i < node_table->pairs.count; i++) {
+            	AstNodesKeyValuePair pair = node_table->pairs.values[i];
+                printNestingString(nesting);
+				printf("Key:\n");
+				printNode(pair.key, nesting + 1);
+                printNestingString(nesting);
+                printf("Value:\n");
+                printNode(pair.value, nesting + 1);
+			}
+
+            break;
+        }
+
         case AST_NODE_CALL: {
             AstNodeCall* nodeCall = (AstNodeCall*) node;
             printNestingString(nesting);
@@ -365,6 +384,20 @@ static void freeNode(AstNode* node, int nesting) {
             break;
         }
         
+        case AST_NODE_TABLE: {
+        	AstNodeTable* node_table = (AstNodeTable*) node;
+
+        	for (int i = 0; i < node_table->pairs.count; i++) {
+        		AstNodesKeyValuePair pair = node_table->pairs.values[i];
+        		freeNode(pair.key, nesting + 1);
+        		freeNode(pair.value, nesting + 1);
+			}
+
+        	ast_key_value_pair_array_free(&node_table->pairs);
+			deallocate(node_table, sizeof(AstNodeTable), deallocationString);
+			break;
+        }
+
         case AST_NODE_CALL: {
             AstNodeCall* nodeCall = (AstNodeCall*) node;
             freeNode((AstNode*) nodeCall->callTarget, nesting + 1);
@@ -556,8 +589,23 @@ AstNodeUnary* new_ast_node_unary(AstNode* expression) {
 	return node;
 }
 
+AstNodeTable* new_ast_node_table(AstKeyValuePairArray pairs) {
+	AstNodeTable* node = ALLOCATE_AST_NODE(AstNodeTable, AST_NODE_TABLE);
+	node->pairs = pairs;
+	return node;
+}
+
 AstNode* allocateAstNode(AstNodeType type, size_t size) {
     AstNode* node = allocate(size, AST_NODE_TYPE_NAMES[type]);
     node->type = type;
     return node;
 }
+
+AstNodesKeyValuePair ast_new_key_value_pair(AstNode* key, AstNode* value) {
+	AstNodesKeyValuePair pair;
+	pair.key = key;
+	pair.value = value;
+	return pair;
+}
+
+IMPLEMENT_DYNAMIC_ARRAY(AstNodesKeyValuePair, AstKeyValuePairArray, ast_key_value_pair_array)

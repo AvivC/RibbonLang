@@ -1,0 +1,15 @@
+test empty table
+    t = []
+    print(t["something"])
+expect
+    nil
+end
+
+test table literal
+    t = ["a": 10, "b": "thing"]
+    print(t["b")
+    print(t["a"])
+expect
+    thing
+    10
+end

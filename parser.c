@@ -118,6 +118,23 @@ static AstNode* key_access(AstNode* left_node, int expression_level) {
 	return (AstNode*) new_ast_node_key_access(key_expression, left_node);
 }
 
+static AstNode* table(int expression_level) {
+	AstKeyValuePairArray pairs;
+	ast_key_value_pair_array_init(&pairs);
+
+	while (!match(TOKEN_RIGHT_SQUARE_BRACE)) {
+		do {
+			AstNode* key = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+			consume(TOKEN_COLON, "Expected ':' after key in table literal.");
+			AstNode* value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+			AstNodesKeyValuePair key_value = ast_new_key_value_pair(key, value);
+			ast_key_value_pair_array_write(&pairs, &key_value);
+		} while (match(TOKEN_COMMA));
+	}
+
+	return (AstNode*) new_ast_node_table(pairs);
+}
+
 static AstNode* dot(AstNode* leftNode, int expression_level) {
 	// TODO: Very possibly not the best solution for attribute setting. Maybe refactor later.
 
@@ -139,7 +156,7 @@ static AstNode* dot(AstNode* leftNode, int expression_level) {
 	}
 }
 
-static AstNode* return_statement(void) {
+static AstNode* return_statement(void) { // TODO: Add expression_level here?
 	return (AstNode*) newAstNodeReturn(parse_expression(PREC_ASSIGNMENT, 0));
 }
 
@@ -288,8 +305,9 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_COMMA
     {NULL, NULL, PREC_NONE},     // TOKEN_NEWLINE
     {NULL, dot, PREC_GROUPING},     // TOKEN_DOT
-    {NULL, key_access, PREC_GROUPING},     // TOKEN_LEFT_SQUARE_BRACE
+    {table, key_access, PREC_GROUPING},     // TOKEN_LEFT_SQUARE_BRACE
     {NULL, NULL, PREC_NONE},     // TOKEN_RIGHT_SQUARE_BRACE
+    {NULL, NULL, PREC_NONE},     // TOKEN_COLON
     {NULL, binary, PREC_COMPARISON},     // TOKEN_EQUAL_EQUAL
     {NULL, binary, PREC_COMPARISON},     // TOKEN_BANG_EQUAL
     {NULL, binary, PREC_COMPARISON},     // TOKEN_GREATER_EQUAL
