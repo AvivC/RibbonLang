@@ -112,7 +112,7 @@ static AstNode* binary(AstNode* leftNode, int expression_level) {
     return (AstNode*) node;
 }
 
-static AstNode* left_square_brace(AstNode* left_node, int expression_level) {
+static AstNode* key_access(AstNode* left_node, int expression_level) {
 	AstNode* key_expression = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
 	consume(TOKEN_RIGHT_SQUARE_BRACE, "Expected ']' after key.");
 	return (AstNode*) new_ast_node_key_access(key_expression, left_node);
@@ -288,7 +288,7 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_COMMA
     {NULL, NULL, PREC_NONE},     // TOKEN_NEWLINE
     {NULL, dot, PREC_GROUPING},     // TOKEN_DOT
-    {NULL, left_square_brace, PREC_GROUPING},     // TOKEN_LEFT_SQUARE_BRACE
+    {NULL, key_access, PREC_GROUPING},     // TOKEN_LEFT_SQUARE_BRACE
     {NULL, NULL, PREC_NONE},     // TOKEN_RIGHT_SQUARE_BRACE
     {NULL, binary, PREC_COMPARISON},     // TOKEN_EQUAL_EQUAL
     {NULL, binary, PREC_COMPARISON},     // TOKEN_BANG_EQUAL

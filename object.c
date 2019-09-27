@@ -219,6 +219,11 @@ ObjectCode* object_code_new(Chunk chunk) {
 	return obj_code;
 }
 
+ObjectTable* object_table_new(void) {
+	ObjectTable* obj_table = (ObjectTable*) allocateObject(sizeof(ObjectTable), "ObjectTable", OBJECT_TABLE);
+	return obj_table;
+}
+
 void freeObject(Object* o) {
 	freeTable(&o->attributes);
 

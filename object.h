@@ -9,7 +9,8 @@
 typedef enum {
     OBJECT_STRING,
     OBJECT_FUNCTION,
-	OBJECT_CODE
+	OBJECT_CODE,
+	OBJECT_TABLE
 } ObjectType;
 
 typedef struct Object {
@@ -24,6 +25,11 @@ typedef struct ObjectString {
     char* chars;
     int length;
 } ObjectString;
+
+typedef struct ObjectTable {
+    Object base;
+    Table table;
+} ObjectTable;
 
 typedef struct ObjectCode {
     Object base;
@@ -57,6 +63,7 @@ ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char**
 void object_function_set_name(ObjectFunction* function, char* name);
 
 ObjectCode* object_code_new(Chunk chunk);
+ObjectTable* object_table_new(void);
 
 bool compareObjects(Object* a, Object* b);
 
