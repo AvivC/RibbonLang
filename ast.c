@@ -24,6 +24,7 @@ const char* AST_NODE_TYPE_NAMES[] = {
 	"AST_NODE_ATTRIBUTE_ASSIGNMENT",
 	"AST_NODE_STRING",
 	"AST_NODE_KEY_ACCESS",
+	"AST_NODE_KEY_ASSIGNMENT",
 	"AST_NODE_TABLE"
 };
 
@@ -112,6 +113,23 @@ static void printNode(AstNode* node, int nesting) {
 			break;
 		}
 
+        case AST_NODE_KEY_ASSIGNMENT: {
+        	AstNodeKeyAssignment* node_key_assignment = (AstNodeKeyAssignment*) node;
+			printNestingString(nesting);
+			printf("KEY_ASSIGNMENT\n");
+			printNestingString(nesting);
+			printf("Of object:\n");
+			printNode(node_key_assignment->subject, nesting + 1);
+			printNestingString(nesting);
+			printf("Key:\n");
+			printNode(node_key_assignment->key, nesting + 1);
+			printNestingString(nesting);
+			printf("Value:\n");
+			printNode(node_key_assignment->value, nesting + 1);
+
+        	break;
+        }
+
         case AST_NODE_ASSIGNMENT: {
             AstNodeAssignment* nodeAssignment = (AstNodeAssignment*) node;
             printNestingString(nesting);
@@ -197,6 +215,8 @@ static void printNode(AstNode* node, int nesting) {
             AstNodeKeyAccess* node_key_access = (AstNodeKeyAccess*) node;
             printNestingString(nesting);
             printf("KEY_ACCESS\n");
+            printNestingString(nesting);
+            printf("On object:\n");
             printNode((AstNode*) node_key_access->subject, nesting + 1);
             printNestingString(nesting);
             printf("Key:\n");
@@ -330,6 +350,15 @@ static void freeNode(AstNode* node, int nesting) {
 			freeNode(node_attr->value, nesting + 1);
 			deallocate(node_attr, sizeof(AstNodeAttributeAssignment), deallocationString);
         	break;
+        }
+
+        case AST_NODE_KEY_ASSIGNMENT: {
+        	AstNodeKeyAssignment* node_key_assignment = (AstNodeKeyAssignment*) node;
+			freeNode(node_key_assignment->subject, nesting + 1);
+			freeNode(node_key_assignment->key, nesting + 1);
+			freeNode(node_key_assignment->value, nesting + 1);
+			deallocate(node_key_assignment, sizeof(AstNodeKeyAssignment), deallocationString);
+			break;
         }
 
         case AST_NODE_BINARY: {
@@ -579,6 +608,14 @@ AstNodeString* new_ast_node_string(const char* string, int length) {
 AstNodeKeyAccess* new_ast_node_key_access(AstNode* key, AstNode* subject) {
 	AstNodeKeyAccess* node = ALLOCATE_AST_NODE(AstNodeKeyAccess, AST_NODE_KEY_ACCESS);
 	node->key = key;
+	node->subject = subject;
+	return node;
+}
+
+AstNodeKeyAssignment* new_ast_node_key_assignment(AstNode* key, AstNode* value, AstNode* subject) {
+	AstNodeKeyAssignment* node = ALLOCATE_AST_NODE(AstNodeKeyAssignment, AST_NODE_KEY_ASSIGNMENT);
+	node->key = key;
+	node->value = value;
 	node->subject = subject;
 	return node;
 }

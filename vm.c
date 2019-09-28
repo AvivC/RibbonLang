@@ -10,6 +10,7 @@
 #include "builtins.h"
 #include "debug.h"
 #include "utils.h"
+#include "pointerarray.h"
 
 #define INITIAL_GC_THRESHOLD 1024 * 1024
 
@@ -110,14 +111,14 @@ static Value loadVariable(ObjectString* name) {
 	return MAKE_VALUE_NIL();
 }
 
-static void gcMarkObject(Object* object);
+static void gc_mark_object(Object* object);
 
-static void gcMarkCodeConstants(ObjectCode* code) {
+static void gc_mark_code_constants(ObjectCode* code) {
 	Chunk* chunk = &code->chunk;
 	for (int i = 0; i < chunk->constants.count; i++) {
 		Value* constant = &chunk->constants.values[i];
 		if (constant->type == VALUE_OBJECT) {
-			gcMarkObject(chunk->constants.values[i].as.object);
+			gc_mark_object(chunk->constants.values[i].as.object);
 		}
 	}
 
@@ -125,60 +126,92 @@ static void gcMarkCodeConstants(ObjectCode* code) {
 	// Chunks should always be wrapped in ObjectCode in order to be managed "automatically" by the GC system.
 }
 
-static void gcMarkObject(Object* object) {
-	bool is_probably_valid_object = (object->isReachable == true) || (object->isReachable == false); // Not the best check, but maybe helpful?
-	if (!is_probably_valid_object) {
-		FAIL("Illegal object passed to gcMarkObject.");
-	}
-
-	if (object->isReachable) {
-		return;
-	}
-
-	object->isReachable = true;
-
+void gc_mark_object_attributes(Object* object) {
 	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
 	// many entries are likely to be empty
 	for (int i = 0; i < object->attributes.capacity; i++) {
 		Entry* entry = &object->attributes.entries[i];
 		if (entry->value.type == VALUE_OBJECT) {
-			gcMarkObject(entry->value.as.object);
+			gc_mark_object(entry->value.as.object);
 		}
-	}
-
-	if (object->type == OBJECT_FUNCTION) {
-		ObjectFunction* objFunc = OBJECT_AS_FUNCTION(object);
-
-		if (objFunc->self != NULL) {
-			gcMarkObject((Object*) objFunc->self);
-		}
-
-		if (!objFunc->isNative) {
-			ObjectCode* code_object = objFunc->code;
-			gcMarkObject((Object*) code_object);
-			gcMarkCodeConstants(code_object);
-		}
-	} else if (object->type == OBJECT_CODE) { // Code objects can also be by themselves sometimes, on the eval stack for example
-		gcMarkCodeConstants((ObjectCode*) object);
 	}
 }
 
-static void gcMark(void) {
+void assert_is_probably_valid_object(Object* object) {
+	bool is_probably_valid_object = (object->is_reachable == true)
+			|| (object->is_reachable == false);
+	if (!is_probably_valid_object) {
+		FAIL("Illegal object passed to gcMarkObject.");
+	}
+}
+
+void gc_mark_object_function(Object* object) {
+	ObjectFunction* objFunc = OBJECT_AS_FUNCTION(object);
+	if (objFunc->self != NULL) {
+		gc_mark_object((Object*) objFunc->self);
+	}
+	if (!objFunc->isNative) {
+		ObjectCode* code_object = objFunc->code;
+		gc_mark_object((Object*) code_object);
+		gc_mark_code_constants(code_object);
+	}
+}
+
+void gc_mark_object_table(Object* object) {
+	Table* table = &((ObjectTable*) object)->table;
+	PointerArray entries = table_iterate(table);
+
+	for (int i = 0; i < entries.count; i++) {
+		Entry* entry = entries.values[i];
+
+		if (entry->key == NULL) {
+			FAIL("Calling table_iterate returned an entry with a NULL key, shouldn't happen.");
+		}
+
+		Value* value = &entry->value;
+		if (value->type == VALUE_OBJECT) {
+			gc_mark_object(value->as.object);
+		}
+	}
+
+	freePointerArray(&entries);
+}
+
+static void gc_mark_object(Object* object) {
+	assert_is_probably_valid_object(object);
+
+	if (object->is_reachable) {
+		return;
+	}
+	object->is_reachable = true;
+
+	gc_mark_object_attributes(object);
+
+	if (object->type == OBJECT_FUNCTION) {
+		gc_mark_object_function(object);
+	} else if (object->type == OBJECT_CODE) {
+		gc_mark_code_constants((ObjectCode*) object);
+	} else if (object->type == OBJECT_TABLE) {
+		gc_mark_object_table(object);
+	}
+}
+
+static void gc_mark(void) {
 	for (Value* value = vm.evalStack; value != vm.stackTop; value++) {
 		if (value->type == VALUE_OBJECT) {
-			gcMarkObject(value->as.object);
+			gc_mark_object(value->as.object);
 		}
 	}
 
 	for (StackFrame* frame = vm.callStack; frame != vm.callStackTop; frame++) {
-		gcMarkObject((Object*) frame->objFunc);
+		gc_mark_object((Object*) frame->objFunc);
 
 		// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
 		// many entries are likely to be empty
 		for (int i = 0; i < frame->localVariables.capacity; i++) {
 			Entry* entry = &frame->localVariables.entries[i];
 			if (entry->value.type == VALUE_OBJECT) {
-				gcMarkObject(entry->value.as.object);
+				gc_mark_object(entry->value.as.object);
 			}
 		}
 	}
@@ -188,21 +221,21 @@ static void gcMark(void) {
 	for (int i = 0; i < vm.globals.capacity; i++) {
 		Entry* entry = &vm.globals.entries[i];
 		if (entry->value.type == VALUE_OBJECT) {
-			gcMarkObject(entry->value.as.object);
+			gc_mark_object(entry->value.as.object);
 		}
 	}
 }
 
-static void gcSweep(void) {
+static void gc_sweep(void) {
 	Object** current = &vm.objects;
 	while (*current != NULL) {
-		if ((*current)->isReachable) {
-			(*current)->isReachable = false;
+		if ((*current)->is_reachable) {
+			(*current)->is_reachable = false;
 			current = &((*current)->next);
 		} else {
 			Object* unreachable = *current;
 			*current = unreachable->next;
-			freeObject(unreachable);
+			free_object(unreachable);
 		}
 	}
 }
@@ -221,8 +254,8 @@ void gc(void) {
 		DEBUG_GC_PRINT("Allocated memory: %d bytes", memory_before_gc);
 		DEBUG_GC_PRINT("=======================");
 
-		gcMark();
-		gcSweep();
+		gc_mark();
+		gc_sweep();
 
 		vm.maxObjects = vm.numObjects * 2;
 
@@ -851,7 +884,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 				}
 
 				if (!is_value_object_of_type(key_access_method_value, OBJECT_FUNCTION)) {
-					RUNTIME_ERROR("Objects @get_key isn't a function.");
+					RUNTIME_ERROR("Object's @get_key isn't a function.");
 					break;
 				}
 
@@ -875,6 +908,53 @@ InterpretResult interpret(Chunk* baseChunk) {
 
 				op_access_key_cleanup:
 				value_array_free(&arguments);
+
+            	break;
+            }
+
+            case OP_SET_KEY: {
+            	Value subject_as_value = pop();
+            	Value key = pop();
+            	Value value = pop();
+
+            	if (subject_as_value.type != VALUE_OBJECT) {
+            		RUNTIME_ERROR("Cannot set key on non-object.");
+            		break;
+            	}
+
+            	Object* subject = subject_as_value.as.object;
+
+            	ObjectFunction* set_method = NULL;
+            	MethodAccessResult access_result = -1;
+            	if ((access_result = object_get_method(subject, "@set_key", &set_method)) == METHOD_ACCESS_SUCCESS) {
+    				ValueArray arguments;
+    				value_array_init(&arguments);
+    				value_array_write(&arguments, &subject_as_value);
+    				value_array_write(&arguments, &key);
+    				value_array_write(&arguments, &value);
+
+    				Value result;
+    				if (set_method->isNative) {
+    					if (!set_method->nativeFunction(arguments, &result)) {
+    						RUNTIME_ERROR("@set_key function failed.");
+    						goto op_set_key_cleanup;
+    					}
+    					push(result);
+    				} else {
+    					// TODO: user function
+    				}
+
+    				op_set_key_cleanup:
+    				value_array_free(&arguments);
+            	} else if (access_result == METHOD_ACCESS_NO_SUCH_ATTR) {
+            		RUNTIME_ERROR("Object doesn't support @set_key method.");
+            		break;
+            	} else if (access_result == METHOD_ACCESS_ATTR_NOT_FUNCTION) {
+            		RUNTIME_ERROR("Object's @set_key isn't a function.");
+            		break;
+            	} else {
+            		FAIL("Illegal value for access_result: %d", access_result);
+            	}
 
             	break;
             }

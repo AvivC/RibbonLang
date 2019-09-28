@@ -6,13 +6,14 @@
 #include "vm.h"
 #include "value.h"
 #include "memory.h"
+#include "table.h"
 
 static Object* allocateObject(size_t size, const char* what, ObjectType type) {
 	DEBUG_OBJECTS_PRINT("Allocating object '%s' of size %d and type %d.", what, size, type);
 
     Object* object = allocate(size, what);
     object->type = type;    
-    object->isReachable = false;
+    object->is_reachable = false;
     object->next = vm.objects;
     vm.objects = object;
     initTable(&object->attributes);
@@ -183,6 +184,31 @@ static bool table_get_key_function(ValueArray args, Value* result) {
     return true;
 }
 
+static bool table_set_key_function(ValueArray args, Value* result) {
+	if (args.count != 3) {
+		FAIL("Table @set_key called with argument number other than 3: %d", args.count);
+	}
+
+	Value self_value = args.values[0];
+	Value key_value = args.values[1];
+	Value value_to_set = args.values[2];
+
+    if (!is_value_object_of_type(self_value, OBJECT_TABLE)) {
+    	FAIL("Table @set_key called on none ObjectTable.");
+    }
+
+    if (!is_value_object_of_type(key_value, OBJECT_STRING)) {
+    	return false;
+    }
+
+    ObjectTable* self_table = (ObjectTable*) self_value.as.object;
+    ObjectString* key_string = (ObjectString*) key_value.as.object;
+
+    setTable(&self_table->table, key_string, value_to_set);
+
+    return true;
+}
+
 static void set_table_key_accessor_method(ObjectTable* table) {
 	int num_params = 2;
 	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
@@ -190,6 +216,16 @@ static void set_table_key_accessor_method(ObjectTable* table) {
 	params[1] = copy_null_terminated_cstring("other", "ObjectFunction param cstring");
 	ObjectFunction* method = object_native_function_new(table_get_key_function, params, num_params, (Object*) table);
 	setTableCStringKey(&table->base.attributes, "@get_key", MAKE_VALUE_OBJECT(method));
+}
+
+static void set_table_key_setter_method(ObjectTable* table) {
+	int num_params = 3;
+	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+	params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+	params[1] = copy_null_terminated_cstring("key", "ObjectFunction param cstring");
+	params[2] = copy_null_terminated_cstring("value", "ObjectFunction param cstring");
+	ObjectFunction* method = object_native_function_new(table_set_key_function, params, num_params, (Object*) table);
+	setTableCStringKey(&table->base.attributes, "@set_key", MAKE_VALUE_OBJECT(method));
 }
 
 static ObjectString* newObjectString(char* chars, int length) {
@@ -293,11 +329,12 @@ ObjectTable* object_table_new(Table table) {
 
 	set_table_length_method(obj_table);
 	set_table_key_accessor_method(obj_table);
+	set_table_key_setter_method(obj_table);
 
 	return obj_table;
 }
 
-void freeObject(Object* o) {
+void free_object(Object* o) {
 	freeTable(&o->attributes);
 
 	ObjectType type = o->type;
@@ -368,7 +405,8 @@ void printObject(Object* o) {
             return;
         }
         case OBJECT_TABLE: {
-        	printf("<Table at %p>", o);
+        	ObjectTable* table = (ObjectTable*) o;
+        	table_print(&table->table);
             return;
         }
     }
@@ -402,13 +440,31 @@ ObjectString* objectAsString(Object* o) {
 	return (ObjectString*) o;
 }
 
+#define OBJECT_GET_METHOD_SUCCCESS 1
+#define OBJECT_NO_SUCH_ATTRIBUTE 2
+#define OBJECT_ATTRIBUTE_NOT_FUNCTION 3
+
+MethodAccessResult object_get_method(Object* object, const char* method_name, ObjectFunction** out) {
+	Value method_value;
+	if (!getTableCStringKey(&object->attributes, method_name, &method_value)) {
+		return METHOD_ACCESS_NO_SUCH_ATTR;
+	}
+
+	if (!is_value_object_of_type(method_value, OBJECT_FUNCTION)) {
+		return METHOD_ACCESS_ATTR_NOT_FUNCTION;
+	}
+
+	*out = (ObjectFunction*) method_value.as.object;
+	return METHOD_ACCESS_SUCCESS;
+}
+
 // For debugging
 void printAllObjects(void) {
 	if (vm.objects != NULL) {
 		printf("All live objects:\n");
 		int counter = 0;
 		for (Object* object = vm.objects; object != NULL; object = object->next) {
-			printf("%-2d | Type: %d | isReachable: %d | Print: ", counter, object->type, object->isReachable);
+			printf("%-2d | Type: %d | isReachable: %d | Print: ", counter, object->type, object->is_reachable);
 			printObject(object);
 			printf("\n");
 			counter++;

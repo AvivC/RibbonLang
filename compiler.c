@@ -189,6 +189,17 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             break;
         }
 
+        case AST_NODE_KEY_ASSIGNMENT: {
+        	AstNodeKeyAssignment* node_key_assignment = (AstNodeKeyAssignment*) node;
+
+			compileTree(node_key_assignment->value, chunk);
+			compileTree(node_key_assignment->key, chunk);
+            compileTree(node_key_assignment->subject, chunk);
+            writeChunk(chunk, OP_SET_KEY);
+
+        	break;
+        }
+
         case AST_NODE_TABLE: {
         	AstNodeTable* node_table = (AstNodeTable*) node;
 

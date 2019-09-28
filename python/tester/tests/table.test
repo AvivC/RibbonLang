@@ -5,11 +5,24 @@ expect
     nil
 end
 
-skip test table literal
+test table operations
     t = ["a": 10, "b": "thing"]
-    print(t["b")
+    print(t["b"])
+    print(t["a"])
+    t["c"] = 20
+    t["a"] = 30
+    print(t["c"])
     print(t["a"])
 expect
     thing
     10
+    20
+    30
+end
+
+test nested tables
+    t1 = ["a": 10, "t2": ["b": 1000]]
+    print(t1["t2"]["b"])
+expect
+    1000
 end

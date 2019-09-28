@@ -112,12 +112,6 @@ static AstNode* binary(AstNode* leftNode, int expression_level) {
     return (AstNode*) node;
 }
 
-static AstNode* key_access(AstNode* left_node, int expression_level) {
-	AstNode* key_expression = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
-	consume(TOKEN_RIGHT_SQUARE_BRACE, "Expected ']' after key.");
-	return (AstNode*) new_ast_node_key_access(key_expression, left_node);
-}
-
 static AstNode* table(int expression_level) {
 	AstKeyValuePairArray pairs;
 	ast_key_value_pair_array_init(&pairs);
@@ -135,6 +129,26 @@ static AstNode* table(int expression_level) {
 	return (AstNode*) new_ast_node_table(pairs);
 }
 
+static AstNode* key_access(AstNode* left_node, int expression_level) {
+	AstNode* key_node = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+	consume(TOKEN_RIGHT_SQUARE_BRACE, "Expected ']' after key.");
+
+	if (match(TOKEN_EQUAL)) {
+		// Set key
+
+		if (expression_level != 0) {
+			error("Key assignment illegal inside expression");
+			return NULL;
+		}
+
+		AstNode* value_node = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+		return (AstNode*) new_ast_node_key_assignment(key_node, value_node, left_node);
+	} else {
+		// Get key
+		return (AstNode*) new_ast_node_key_access(key_node, left_node);
+	}
+}
+
 static AstNode* dot(AstNode* leftNode, int expression_level) {
 	// TODO: Very possibly not the best solution for attribute setting. Maybe refactor later.
 
@@ -142,7 +156,7 @@ static AstNode* dot(AstNode* leftNode, int expression_level) {
 	const char* attr_name = parser.previous.start;
 	int name_length = parser.previous.length;
 
-	if (match(TOKEN_EQUAL)) { // TODO: Validate assignment is legal here
+	if (match(TOKEN_EQUAL)) {
 		if (expression_level != 0) {
 			error("Attribute assignment illegal inside expression");
 			return NULL;
@@ -390,11 +404,12 @@ static AstNode* statements(void) {
         } else if (match(TOKEN_WHILE)) {
         	child_node = (AstNode*) while_statement();
     	} else {
-    		AstNode* expression_or_attr_assignment = parse_expression(PREC_ASSIGNMENT, 0);
-    		if (expression_or_attr_assignment->type == AST_NODE_ATTRIBUTE_ASSIGNMENT) {
-    			child_node = expression_or_attr_assignment;
+    		AstNode* expr_or_attr_assignment_or_key_assignment = parse_expression(PREC_ASSIGNMENT, 0);
+    		AstNodeType node_type = expr_or_attr_assignment_or_key_assignment->type;
+    		if (node_type == AST_NODE_ATTRIBUTE_ASSIGNMENT || node_type == AST_NODE_KEY_ASSIGNMENT) {
+    			child_node = expr_or_attr_assignment_or_key_assignment;
     		} else {
-    			child_node = (AstNode*) new_ast_node_expr_statement(expression_or_attr_assignment);
+    			child_node = (AstNode*) new_ast_node_expr_statement(expr_or_attr_assignment_or_key_assignment);
     		}
         }
 

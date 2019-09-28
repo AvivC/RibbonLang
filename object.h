@@ -13,11 +13,17 @@ typedef enum {
 	OBJECT_TABLE
 } ObjectType;
 
+typedef enum {
+	METHOD_ACCESS_SUCCESS,
+	METHOD_ACCESS_NO_SUCH_ATTR,
+	METHOD_ACCESS_ATTR_NOT_FUNCTION
+} MethodAccessResult;
+
 typedef struct Object {
     ObjectType type;
     struct Object* next;
     Table attributes;
-    bool isReachable;
+    bool is_reachable;
 } Object;
 
 typedef struct ObjectString {
@@ -70,9 +76,11 @@ bool compareObjects(Object* a, Object* b);
 bool cstringsEqual(const char* a, const char* b);
 bool stringsEqual(ObjectString* a, ObjectString* b);
 
-void freeObject(Object* object);
+void free_object(Object* object);
 void printObject(Object* o);
 void printAllObjects(void);
+
+MethodAccessResult object_get_method(Object* object, const char* method_name, ObjectFunction** out);
 
 #define OBJECT_AS_STRING(o) (objectAsString(o))
 #define OBJECT_AS_FUNCTION(o) (objectAsFunction(o))

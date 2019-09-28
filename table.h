@@ -3,9 +3,10 @@
 
 #include "common.h"
 #include "value.h"
+#include "pointerarray.h"
 
 typedef struct {
-    const char* key;
+    char* key; // TODO: Not only strings
     Value value;
 } Entry;
 
@@ -28,6 +29,9 @@ bool getTableCStringKey(Table* table, const char* key, Value* out);
 
 void freeTable(Table* table);
 
-void printTable(Table* table); /* for trace execution and debugging */
+PointerArray table_iterate(Table* table);
+
+void table_print(Table* table); /* For user display */
+void table_print_debug(Table* table); /* for trace execution and debugging */
 
 #endif

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "table.h"
 #include "object.h"
 #include "memory.h"
@@ -85,16 +86,29 @@ void initTable(Table* table) {
 }
 
 void setTableCStringKey(Table* table, const char* key, Value value) {
+	/*
+	 * TODO: Currently we're doing defensive copying of the incoming key,
+	 * to prevent it from being collected along with an external ObjectString later on.
+	 * The correct thing to do is to work with ObjectString here, or just generally Values. That's a pretty big refactor, to be done later.
+	*/
+
+	char* copied_key = allocate(strlen(key) + 1, "Table cstring key");
+	strcpy(copied_key, key);
+
     if (table->count + 1 > table->capacity * MAX_LOAD_FACTOR) {
         growTable(table);
     }
     
     DEBUG_MEMORY("Finding entry '%s' in hash table.", key);
-    Entry* entry = findEntry(table, key, true);
+    Entry* entry = findEntry(table, copied_key, true);
+
     if (entry->key == NULL) {
         table->count++;
+    } else {
+		deallocate(entry->key, strlen(entry->key) + 1, "Table cstring key");
     }
-    entry->key = key; // If it's not NULL, we're needlessly overriding the same key
+
+    entry->key = copied_key; // If it's not NULL, we're needlessly overriding the same key
     entry->value = value;
 }
 
@@ -119,7 +133,44 @@ bool getTable(Table* table, struct ObjectString* key, Value* out) {
     return getTableCStringKey(table, key->chars, out);
 }
 
-void printTable(Table* table) {
+/* Get a PointerArray of Value* of all set entries in the table. */
+PointerArray table_iterate(Table* table) {
+	PointerArray array;
+	init_pointer_array(&array);
+
+	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
+	// many entries are likely to be empty
+	for (int i = 0; i < table->capacity; i++) {
+		Entry* entry = &table->entries[i];
+		if (entry->key != NULL) {
+			write_pointer_array(&array, entry);
+		}
+	}
+
+	return array;
+}
+
+void table_print(Table* table) {
+	PointerArray entries = table_iterate(table);
+
+	printf("[");
+	for (int i = 0; i < entries.count; i++) {
+		Entry* entry = entries.values[i];
+		const char* key = entry->key; // TODO: Not only strings as keys
+		Value value = entry->value;
+		printf("\"%s\": ", key);
+		printValue(value);
+
+		if (i < entries.count - 1) {
+			printf(", ");
+		}
+	}
+	printf("]");
+
+	freePointerArray(&entries);
+}
+
+void table_print_debug(Table* table) {
     printf("Capacity: %d \nCount: %d \nCollisions: %d \n", table->capacity, table->count, table->collisionsCounter);
     
     if (table->capacity > 0) {
@@ -137,6 +188,13 @@ void printTable(Table* table) {
 }
 
 void freeTable(Table* table) {
+	PointerArray entries = table_iterate(table);
+	for (int i = 0; i < entries.count; i++) {
+		Entry* entry = entries.values[i];
+		deallocate(entry->key, strlen(entry->key) + 1, "Table cstring key");
+	}
+	freePointerArray(&entries);
+
     deallocate(table->entries, sizeof(Entry) * table->capacity, "Hash table array");
     initTable(table);
 }
