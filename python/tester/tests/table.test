@@ -23,6 +23,8 @@ end
 test nested tables
     t1 = ["a": 10, "t2": ["b": 1000]]
     print(t1["t2"]["b"])
+    print(t1["t2"]["b"] + t1["a"])
 expect
     1000
+    1010
 end
