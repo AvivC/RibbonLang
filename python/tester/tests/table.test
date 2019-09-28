@@ -5,7 +5,7 @@ expect
     nil
 end
 
-test table literal
+skip test table literal
     t = ["a": 10, "b": "thing"]
     print(t["b")
     print(t["a"])

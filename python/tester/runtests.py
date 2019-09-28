@@ -78,7 +78,11 @@ def _run_test_file(absolute_path):
         if test_prefix == 'skip':
             while line.strip() != 'end':
                 line = next(lines)
-            line = next(lines)  # skip 'end'
+            try:
+                line = next(lines)  # skip 'end'
+            except StopIteration:
+                # This was the last test
+                pass
             print('Test %-48s [SKIPPED]' % test_name)
             continue
 
