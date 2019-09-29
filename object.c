@@ -289,26 +289,29 @@ bool stringsEqual(ObjectString* a, ObjectString* b) {
     return (a->length == b->length) && (cstringsEqual(a->chars, b->chars));
 }
 
-static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, Object* self) {
+static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, Object* self, ValueArray upvalues) {
     ObjectFunction* objFunc = (ObjectFunction*) allocateObject(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
     objFunc->name = copy_null_terminated_cstring("<Anonymous function>", "Function name");
     objFunc->isNative = isNative;
     objFunc->parameters = parameters;
     objFunc->numParams = numParams;
     objFunc->self = self;
+    objFunc->upvalues = upvalues;
     return objFunc;
 }
 
-ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self) {
+ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self, ValueArray upvalues) {
     DEBUG_OBJECTS_PRINT("Creating user function object.");
-    ObjectFunction* objFunc = object_function_base_new(false, parameters, numParams, self);
+    ObjectFunction* objFunc = object_function_base_new(false, parameters, numParams, self, upvalues);
     objFunc->code = code;
     return objFunc;
 }
 
 ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams, Object* self) {
     DEBUG_OBJECTS_PRINT("Creating native function object.");
-    ObjectFunction* objFunc = object_function_base_new(true, parameters, numParams, self);
+    ValueArray empty_upvalues;
+    value_array_init(&empty_upvalues);
+    ObjectFunction* objFunc = object_function_base_new(true, parameters, numParams, self, empty_upvalues);
     objFunc->nativeFunction = nativeFunction;
     return objFunc;
 }
@@ -361,6 +364,7 @@ void free_object(Object* o) {
             if (func->numParams > 0) {
             	deallocate(func->parameters, sizeof(char*) * func->numParams, "Parameters list cstrings");
             }
+            value_array_free(&func->upvalues);
             deallocate(func->name, strlen(func->name) + 1, "Function name");
             deallocate(func, sizeof(ObjectFunction), "ObjectFunction");
             break;

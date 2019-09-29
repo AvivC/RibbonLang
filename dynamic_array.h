@@ -36,7 +36,9 @@ void FUNCTIONS_PERFIX##_write(ARRAY_NAME* array, TYPE* value) {\
 }\
 \
 void FUNCTIONS_PERFIX##_free(ARRAY_NAME* array) {\
-    deallocate(array->values, array->capacity * sizeof(TYPE), "Dynamic array buffer");\
+	if (array->values != NULL) {\
+    	deallocate(array->values, array->capacity * sizeof(TYPE), "Dynamic array buffer");\
+    }\
     FUNCTIONS_PERFIX##_init(array);\
 }\
 

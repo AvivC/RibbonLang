@@ -44,6 +44,11 @@ typedef struct ObjectCode {
 
 typedef bool (*NativeFunction)(ValueArray, Value*);
 
+typedef struct {
+	const char* name;
+	int name_length;
+} Upvalue;
+
 typedef struct ObjectFunction {
     Object base;
     char* name;
@@ -51,6 +56,7 @@ typedef struct ObjectFunction {
     int numParams;
     bool isNative;
     Object* self;
+    ValueArray upvalues;
     union {
     	NativeFunction nativeFunction;
     	ObjectCode* code;
@@ -64,7 +70,7 @@ ObjectString* takeString(char* chars, int length);
 ObjectString** createCopiedStringsArray(const char** strings, int num, const char* allocDescription);
 ObjectString* object_string_copy_from_null_terminated(const char* string);
 
-ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self);
+ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self, ValueArray upvalues);
 ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams, Object* self);
 void object_function_set_name(ObjectFunction* function, char* name);
 

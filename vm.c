@@ -69,7 +69,10 @@ static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc)
 
 static StackFrame makeBaseStackFrame(Chunk* base_chunk) {
 	ObjectCode* code = object_code_new(*base_chunk);
-	ObjectFunction* baseObjFunc = object_user_function_new(code, NULL, 0, NULL);
+	ValueArray empty_upvalues;
+	value_array_init(&empty_upvalues);
+//	value_array_write(&empty_upvalues, &MAKE_VALUE_NIL());
+	ObjectFunction* baseObjFunc = object_user_function_new(code, NULL, 0, NULL, empty_upvalues);
 	return newStackFrame(NULL, baseObjFunc);
 }
 
@@ -698,7 +701,25 @@ InterpretResult interpret(Chunk* baseChunk) {
 					params_buffer[i] = copy_cstring(param_raw_string.data, param_raw_string.length, "ObjectFunction param cstring");
 				}
 
-				ObjectFunction* obj_function = object_user_function_new(obj_code, params_buffer, num_params, NULL);
+				int upvalue_count = obj_code->chunk.referenced_names_indices.count;
+				ValueArray upvalues;
+				value_array_init(&upvalues);
+				for (int i = 0; i < upvalue_count; i++) {
+					size_t name_index = obj_code->chunk.referenced_names_indices.values[i];
+					Value name_value = obj_code->chunk.constants.values[name_index];
+					if (!is_value_object_of_type(name_value, OBJECT_STRING)) {
+						FAIL("Upvalue name should be an ObjectString*");
+					}
+					ObjectString* name_string = (ObjectString*) name_value.as.object;
+
+					Value value;
+					if (table_get(&currentFrame()->localVariables, name_string, &value) || table_get(&vm.callStack->localVariables, name_string, &value)
+							|| table_get(&vm.globals, name_string, &value)) {
+						value_array_write(&upvalues, &value);
+					}
+				}
+
+				ObjectFunction* obj_function = object_user_function_new(obj_code, params_buffer, num_params, NULL, upvalues);
 				push(MAKE_VALUE_OBJECT(obj_function));
 				break;
 			}
