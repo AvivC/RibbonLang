@@ -11,6 +11,7 @@
 #include "debug.h"
 #include "utils.h"
 #include "pointerarray.h"
+#include "io.h"
 
 #define INITIAL_GC_THRESHOLD 1024 * 1024
 
@@ -996,30 +997,36 @@ InterpretResult interpret(Chunk* baseChunk) {
 				file_name_buffer[module_name->length + strlen(file_name_suffix)] = '\0';
 
 				char* source = NULL;
-				int file_read_success = read_file(file_name_buffer, &source); // TODO: Figure out how to manage this memory
-				if (file_read_success == IO_SUCCESS) {
-//            	    initVM();
-					Chunk module_chunk;
-					initChunk(&module_chunk);
-					AstNode* module_ast = parse(source);
-					compile(module_ast, &module_chunk);
+				size_t source_buffer_size = -1;
+				int file_read_success = read_file(file_name_buffer, &source, &source_buffer_size); // TODO: Figure out how to manage this memory
 
-					ImportFrame = new_import_frame(vm.ip, )
-					uint8_t* return_ip = vm.ip;
-					InterpretResult result = interpret(&module_chunk);
-					vm.ip = return_ip;
+				// TODO: This is the basis for the module system. Come back to this after we have closures.
 
+//				if (file_read_success == IO_SUCCESS) {
+////            	    initVM();
+//					Chunk module_chunk;
+//					initChunk(&module_chunk);
+//					AstNode* module_ast = parse(source);
+//					compile(module_ast, &module_chunk);
+//
+//					ImportFrame = new_import_frame(vm.ip, )
+//					uint8_t* return_ip = vm.ip;
+//					InterpretResult result = interpret(&module_chunk);
+//					vm.ip = return_ip;
+//
+//
+////					if (result == INTERPRET_SUCCESS) {
+//
+////					} else {
+//
+////					}
+//
+//					freeTree(module_ast);
+////            	    freeVM();
+////            	    free(source);
 
-//					if (result == INTERPRET_SUCCESS) {
-
-//					} else {
-
-//					}
-
-					freeTree(module_ast);
-//            	    freeVM();
-//            	    free(source);
-
+				deallocate(file_name_buffer, file_name_buffer_size, "File name buffer");
+				deallocate(source, source_buffer_size, "File content buffer");
             	break;
             }
 
