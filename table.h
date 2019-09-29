@@ -19,15 +19,15 @@ typedef struct {
 
 struct ObjectString;
 
-void initTable(Table* table);
+void table_init(Table* table);
 
-void setTable(Table* table, struct ObjectString* key, Value value); // TODO: report success or failure
-bool getTable(Table* table, struct ObjectString* key, Value* out);
+void table_set(Table* table, struct ObjectString* key, Value value); // TODO: report success or failure
+bool table_get(Table* table, struct ObjectString* key, Value* out);
 
-void setTableCStringKey(Table* table, const char* key, Value value); // TODO: report success or failure
-bool getTableCStringKey(Table* table, const char* key, Value* out);
+void table_set_cstring_key(Table* table, const char* key, Value value); // TODO: report success or failure
+bool table_get_cstring_key(Table* table, const char* key, Value* out);
 
-void freeTable(Table* table);
+void table_free(Table* table);
 
 PointerArray table_iterate(Table* table);
 

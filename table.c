@@ -78,14 +78,14 @@ static void growTable(Table* table) {
     deallocate(oldEntries, sizeof(Entry) * oldCapacity, "Hash table array");
 }
 
-void initTable(Table* table) {
+void table_init(Table* table) {
     table->count = 0;
     table->capacity = 0;
     table->collisionsCounter = 0;
     table->entries = NULL;
 }
 
-void setTableCStringKey(Table* table, const char* key, Value value) {
+void table_set_cstring_key(Table* table, const char* key, Value value) {
 	/*
 	 * TODO: Currently we're doing defensive copying of the incoming key,
 	 * to prevent it from being collected along with an external ObjectString later on.
@@ -112,11 +112,11 @@ void setTableCStringKey(Table* table, const char* key, Value value) {
     entry->value = value;
 }
 
-void setTable(Table* table, struct ObjectString* key, Value value) {
-    setTableCStringKey(table, key->chars, value);
+void table_set(Table* table, struct ObjectString* key, Value value) {
+    table_set_cstring_key(table, key->chars, value);
 }
 
-bool getTableCStringKey(Table* table, const char* key, Value* out) {
+bool table_get_cstring_key(Table* table, const char* key, Value* out) {
     if (table->entries == NULL) {
         return false;
     }
@@ -129,8 +129,8 @@ bool getTableCStringKey(Table* table, const char* key, Value* out) {
     return true;
 }
 
-bool getTable(Table* table, struct ObjectString* key, Value* out) {
-    return getTableCStringKey(table, key->chars, out);
+bool table_get(Table* table, struct ObjectString* key, Value* out) {
+    return table_get_cstring_key(table, key->chars, out);
 }
 
 /* Get a PointerArray of Value* of all set entries in the table. */
@@ -187,7 +187,7 @@ void table_print_debug(Table* table) {
     }
 }
 
-void freeTable(Table* table) {
+void table_free(Table* table) {
 	PointerArray entries = table_iterate(table);
 	for (int i = 0; i < entries.count; i++) {
 		Entry* entry = entries.values[i];
@@ -196,5 +196,5 @@ void freeTable(Table* table) {
 	freePointerArray(&entries);
 
     deallocate(table->entries, sizeof(Entry) * table->capacity, "Hash table array");
-    initTable(table);
+    table_init(table);
 }

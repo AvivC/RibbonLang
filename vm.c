@@ -55,7 +55,7 @@ static Value peek(void) {
 static void initStackFrame(StackFrame* frame) {
 	frame->returnAddress = NULL;
 	frame->objFunc = NULL;
-	initTable(&frame->localVariables);
+	table_init(&frame->localVariables);
 }
 
 static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc) {
@@ -78,7 +78,7 @@ static void pushFrame(StackFrame frame) {
 }
 
 static void freeStackFrame(StackFrame* frame) {
-	freeTable(&frame->localVariables);
+	table_free(&frame->localVariables);
 	initStackFrame(frame);
 }
 
@@ -99,12 +99,12 @@ static Value loadVariable(ObjectString* name) {
 	for (StackFrame* frame = vm.callStackTop; frame > vm.callStack;) {
 		frame--;
 
-		if (getTable(&frame->localVariables, name, &value)) {
+		if (table_get(&frame->localVariables, name, &value)) {
 			return value;
 		}
 	}
 
-	if (getTable(&vm.globals, name, &value)) {
+	if (table_get(&vm.globals, name, &value)) {
 		return value;
 	}
 
@@ -282,7 +282,7 @@ static void register_builtin_function(const char* name, int num_params, char** p
 		params_buffer[i] = copy_cstring(params[i], strlen(params[i]), "ObjectFunction param cstring");
 	}
 	ObjectFunction* obj_function = object_native_function_new(function, params_buffer, num_params, NULL);
-	setTableCStringKey(&vm.globals, name, MAKE_VALUE_OBJECT(obj_function));
+	table_set_cstring_key(&vm.globals, name, MAKE_VALUE_OBJECT(obj_function));
 }
 
 static void setBuiltinGlobals(void) {
@@ -300,7 +300,7 @@ static void callUserFunction(ObjectFunction* function) {
 	for (int i = 0; i < function->numParams; i++) {
 		const char* paramName = function->parameters[i];
 		Value argument = pop();
-		setTableCStringKey(&frame.localVariables, paramName, argument);
+		table_set_cstring_key(&frame.localVariables, paramName, argument);
 	}
 	pushFrame(frame);
 	vm.ip = function->code->chunk.code;
@@ -338,7 +338,7 @@ void initVM(void) {
     vm.maxObjects = INITIAL_GC_THRESHOLD;
     vm.allowGC = false;
 
-    initTable(&vm.globals);
+    table_init(&vm.globals);
     setBuiltinGlobals();
 }
 
@@ -347,7 +347,7 @@ void freeVM(void) {
 		freeStackFrame(frame);
 	}
 	resetStacks();
-	freeTable(&vm.globals);
+	table_free(&vm.globals);
 
 	gc(); // TODO: probably move upper
 
@@ -497,7 +497,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 
             		Object* self = self_val.as.object;
             		Value add_method;
-            		if (!getTableCStringKey(&self->attributes, "@add", &add_method)) {
+            		if (!table_get_cstring_key(&self->attributes, "@add", &add_method)) {
             			RUNTIME_ERROR("Object doesn't support @add method.");
             			break;
             		}
@@ -704,7 +704,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 
             case OP_MAKE_TABLE: {
             	Table table;
-            	initTable(&table);
+            	table_init(&table);
 
             	uint8_t num_entries = READ_BYTE();
 
@@ -718,7 +718,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 					ObjectString* string_key = (ObjectString*) key.as.object;
 
 					Value value = pop();
-					setTable(&table, string_key, value);
+					table_set(&table, string_key, value);
 				}
 
             	ObjectTable* table_object = object_table_new(table);
@@ -791,7 +791,7 @@ InterpretResult interpret(Chunk* baseChunk) {
                 																		// Or maybe a function should have a list of names?
                 }
 
-                setTable(&currentFrame()->localVariables, name, value);
+                table_set(&currentFrame()->localVariables, name, value);
                 break;
             }
             
@@ -839,7 +839,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 
                 Object* object = obj_val.as.object;
                 Value attr_value;
-                if (getTable(&object->attributes, name, &attr_value)) {
+                if (table_get(&object->attributes, name, &attr_value)) {
                 	push(attr_value);
                 } else {
                 	push(MAKE_VALUE_NIL());
@@ -861,7 +861,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 
                 Object* object = obj_value.as.object;
                 Value attribute_value = pop();
-                setTable(&object->attributes, name, attribute_value);
+                table_set(&object->attributes, name, attribute_value);
 
                 break;
             }
@@ -878,7 +878,7 @@ InterpretResult interpret(Chunk* baseChunk) {
             	Value key = pop();
 
 				Value key_access_method_value;
-				if (!getTableCStringKey(&subject->attributes, "@get_key", &key_access_method_value)) {
+				if (!table_get_cstring_key(&subject->attributes, "@get_key", &key_access_method_value)) {
 					RUNTIME_ERROR("Object doesn't support @get_key method.");
 					break;
 				}

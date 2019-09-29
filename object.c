@@ -16,7 +16,7 @@ static Object* allocateObject(size_t size, const char* what, ObjectType type) {
     object->is_reachable = false;
     object->next = vm.objects;
     vm.objects = object;
-    initTable(&object->attributes);
+    table_init(&object->attributes);
     
     vm.numObjects++;
     DEBUG_OBJECTS_PRINT("Incremented numObjects to %d", vm.numObjects);
@@ -128,7 +128,7 @@ void set_string_add_method(ObjectString* objString) {
 	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
 	params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");
 	ObjectFunction* string_add_function = object_native_function_new(object_string_add, params, add_func_num_params, (Object*) objString);
-	setTableCStringKey(&objString->base.attributes, "@add", MAKE_VALUE_OBJECT(string_add_function));
+	table_set_cstring_key(&objString->base.attributes, "@add", MAKE_VALUE_OBJECT(string_add_function));
 }
 
 void set_string_get_key_method(ObjectString* objString) {
@@ -137,7 +137,7 @@ void set_string_get_key_method(ObjectString* objString) {
 	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
 	params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");
 	ObjectFunction* string_add_function = object_native_function_new(object_string_get_key, params, num_params, (Object*) objString);
-	setTableCStringKey(&objString->base.attributes, "@get_key", MAKE_VALUE_OBJECT(string_add_function));
+	table_set_cstring_key(&objString->base.attributes, "@get_key", MAKE_VALUE_OBJECT(string_add_function));
 }
 
 void set_string_length_method(ObjectString* objString) {
@@ -145,7 +145,7 @@ void set_string_length_method(ObjectString* objString) {
 	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
 	ObjectFunction* string_length_function = object_native_function_new(object_string_length, params, num_params, (Object*) objString);
-	setTableCStringKey(&objString->base.attributes, "length", MAKE_VALUE_OBJECT(string_length_function));
+	table_set_cstring_key(&objString->base.attributes, "length", MAKE_VALUE_OBJECT(string_length_function));
 }
 
 static void set_table_length_method(ObjectTable* table) {
@@ -153,7 +153,7 @@ static void set_table_length_method(ObjectTable* table) {
 	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 	params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
 	ObjectFunction* table_length_function = object_native_function_new(object_table_length, params, num_params, (Object*) table);
-	setTableCStringKey(&table->base.attributes, "length", MAKE_VALUE_OBJECT(table_length_function));
+	table_set_cstring_key(&table->base.attributes, "length", MAKE_VALUE_OBJECT(table_length_function));
 }
 
 static bool table_get_key_function(ValueArray args, Value* result) {
@@ -175,7 +175,7 @@ static bool table_get_key_function(ValueArray args, Value* result) {
     ObjectString* key_string = (ObjectString*) other_value.as.object;
 
     Value value;
-    if (getTable(&self_table->table, key_string, &value)) {
+    if (table_get(&self_table->table, key_string, &value)) {
     	*result = value;
     } else {
     	*result = MAKE_VALUE_NIL();
@@ -204,7 +204,7 @@ static bool table_set_key_function(ValueArray args, Value* result) {
     ObjectTable* self_table = (ObjectTable*) self_value.as.object;
     ObjectString* key_string = (ObjectString*) key_value.as.object;
 
-    setTable(&self_table->table, key_string, value_to_set);
+    table_set(&self_table->table, key_string, value_to_set);
 
     return true;
 }
@@ -215,7 +215,7 @@ static void set_table_key_accessor_method(ObjectTable* table) {
 	params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
 	params[1] = copy_null_terminated_cstring("other", "ObjectFunction param cstring");
 	ObjectFunction* method = object_native_function_new(table_get_key_function, params, num_params, (Object*) table);
-	setTableCStringKey(&table->base.attributes, "@get_key", MAKE_VALUE_OBJECT(method));
+	table_set_cstring_key(&table->base.attributes, "@get_key", MAKE_VALUE_OBJECT(method));
 }
 
 static void set_table_key_setter_method(ObjectTable* table) {
@@ -225,7 +225,7 @@ static void set_table_key_setter_method(ObjectTable* table) {
 	params[1] = copy_null_terminated_cstring("key", "ObjectFunction param cstring");
 	params[2] = copy_null_terminated_cstring("value", "ObjectFunction param cstring");
 	ObjectFunction* method = object_native_function_new(table_set_key_function, params, num_params, (Object*) table);
-	setTableCStringKey(&table->base.attributes, "@set_key", MAKE_VALUE_OBJECT(method));
+	table_set_cstring_key(&table->base.attributes, "@set_key", MAKE_VALUE_OBJECT(method));
 }
 
 static ObjectString* newObjectString(char* chars, int length) {
@@ -335,7 +335,7 @@ ObjectTable* object_table_new(Table table) {
 }
 
 void free_object(Object* o) {
-	freeTable(&o->attributes);
+	table_free(&o->attributes);
 
 	ObjectType type = o->type;
 
@@ -375,7 +375,7 @@ void free_object(Object* o) {
         case OBJECT_TABLE: {
         	ObjectTable* table = (ObjectTable*) o;
         	DEBUG_OBJECTS_PRINT("Freeing ObjectTable at '%p'", table);
-        	freeTable(&table->table);
+        	table_free(&table->table);
         	deallocate(table, sizeof(ObjectTable), "ObjectTable");
         	break;
         }
@@ -446,7 +446,7 @@ ObjectString* objectAsString(Object* o) {
 
 MethodAccessResult object_get_method(Object* object, const char* method_name, ObjectFunction** out) {
 	Value method_value;
-	if (!getTableCStringKey(&object->attributes, method_name, &method_value)) {
+	if (!table_get_cstring_key(&object->attributes, method_name, &method_value)) {
 		return METHOD_ACCESS_NO_SUCH_ATTR;
 	}
 
