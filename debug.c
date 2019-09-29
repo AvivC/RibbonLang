@@ -131,6 +131,10 @@ int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
 			return simpleInstruction("OP_SET_KEY", chunk, offset);
 			break;
 		}
+		case OP_IMPORT: {
+			return constantInstruction("OP_IMPORT", chunk, offset);
+			break;
+		}
 		case OP_GET_ATTRIBUTE: {
 			return constantInstruction("OP_GET_ATTRIBUTE", chunk, offset);
 			break;

@@ -219,6 +219,16 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         	break;
         }
 
+        case AST_NODE_IMPORT: {
+        	AstNodeImport* node_import = (AstNodeImport*) node;
+
+        	// TODO: Not sure when the constant should be an ObjectString and when simply a RawString. Currently improvising.
+        	Value module_name_constant = MAKE_VALUE_OBJECT(copyString(node_import->name, node_import->name_length));
+        	emit_opcode_with_constant_operand(chunk, OP_IMPORT, module_name_constant);
+
+        	break;
+        }
+
         case AST_NODE_ATTRIBUTE: {
             AstNodeAttribute* node_attr = (AstNodeAttribute*) node;
 

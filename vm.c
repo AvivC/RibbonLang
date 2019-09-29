@@ -984,6 +984,13 @@ InterpretResult interpret(Chunk* baseChunk) {
             	break;
             }
 
+            case OP_IMPORT: {
+            	ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
+
+
+            	break;
+            }
+
             default: {
             	FAIL("Unknown opcode: %d", opcode);
             }

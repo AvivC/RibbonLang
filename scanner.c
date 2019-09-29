@@ -111,6 +111,8 @@ static Token parseIdentifier() {
     	return makeToken(TOKEN_FALSE);
     } else if (checkToken("not")) {
     	return makeToken(TOKEN_NOT);
+    } else if (checkToken("import")) {
+    	return makeToken(TOKEN_IMPORT);
     }
     
     return makeToken(TOKEN_IDENTIFIER);

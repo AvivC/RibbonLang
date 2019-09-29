@@ -300,6 +300,13 @@ static AstNode* while_statement(void) {
 	return (AstNode*) new_ast_node_while(condition, body);
 }
 
+static AstNode* import_statement(void) {
+	consume(TOKEN_IDENTIFIER, "Expected module name after 'import'.");
+	const char* name = parser.previous.start;
+	int name_length = parser.previous.length;
+	return (AstNode*) new_ast_node_import(name, name_length);
+}
+
 static ParseRule rules[] = {
     {identifier, NULL, PREC_NONE},           // TOKEN_IDENTIFIER
     {number, NULL, PREC_NONE},         // TOKEN_NUMBER
@@ -340,6 +347,7 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_RETURN
     {boolean, NULL, PREC_NONE},     // TOKEN_TRUE
     {boolean, NULL, PREC_NONE},     // TOKEN_FALSE
+    {NULL, NULL, PREC_NONE},     // TOKEN_IMPORT
     {NULL, NULL, PREC_NONE},           // TOKEN_EOF
     {NULL, NULL, PREC_NONE}            // TOKEN_ERROR
 };
@@ -403,6 +411,8 @@ static AstNode* statements(void) {
         	child_node = (AstNode*) if_statement();
         } else if (match(TOKEN_WHILE)) {
         	child_node = (AstNode*) while_statement();
+    	} else if (match(TOKEN_IMPORT)) {
+    		child_node = (AstNode*) import_statement();
     	} else {
     		AstNode* expr_or_attr_assignment_or_key_assignment = parse_expression(PREC_ASSIGNMENT, 0);
     		AstNodeType node_type = expr_or_attr_assignment_or_key_assignment->type;

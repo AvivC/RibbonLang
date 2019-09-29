@@ -25,10 +25,10 @@ typedef enum {
 	AST_NODE_STRING,
 	AST_NODE_KEY_ACCESS,
 	AST_NODE_KEY_ASSIGNMENT,
-	AST_NODE_TABLE
+	AST_NODE_TABLE,
+	AST_NODE_IMPORT
 } AstNodeType;
 
-// for debugging purposes
 extern const char* AST_NODE_TYPE_NAMES[];
 
 typedef struct {
@@ -153,6 +153,12 @@ typedef struct {
 } AstNodeKeyAssignment;
 
 typedef struct {
+    AstNode base;
+    const char* name; // Points to source code - do not free!
+    int name_length;
+} AstNodeImport;
+
+typedef struct {
 	AstNode* key;
 	AstNode* value;
 } AstNodesKeyValuePair;
@@ -184,6 +190,7 @@ AstNodeKeyAccess* new_ast_node_key_access(AstNode* key, AstNode* subject);
 AstNodeKeyAssignment* new_ast_node_key_assignment(AstNode* key, AstNode* value, AstNode* subject);
 AstNodeUnary* new_ast_node_unary(AstNode* expression);
 AstNodeTable* new_ast_node_table(AstKeyValuePairArray pairs);
+AstNodeImport* new_ast_node_import(const char* name, int name_length);
 
 AstNodesKeyValuePair ast_new_key_value_pair(AstNode* key, AstNode* value);
 

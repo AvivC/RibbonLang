@@ -25,7 +25,8 @@ const char* AST_NODE_TYPE_NAMES[] = {
 	"AST_NODE_STRING",
 	"AST_NODE_KEY_ACCESS",
 	"AST_NODE_KEY_ASSIGNMENT",
-	"AST_NODE_TABLE"
+	"AST_NODE_TABLE",
+	"AST_NODE_IMPORT"
 };
 
 static void printNestingString(int nesting) {
@@ -211,6 +212,14 @@ static void printNode(AstNode* node, int nesting) {
             break;
         }
 
+        case AST_NODE_IMPORT: {
+            AstNodeImport* node_import = (AstNodeImport*) node;
+            printNestingString(nesting);
+            printf("IMPORT: %.*s\n", node_import->name_length, node_import->name);
+
+            break;
+        }
+
         case AST_NODE_KEY_ACCESS: {
             AstNodeKeyAccess* node_key_access = (AstNodeKeyAccess*) node;
             printNestingString(nesting);
@@ -337,6 +346,13 @@ static void freeNode(AstNode* node, int nesting) {
             break;
         }
         
+        case AST_NODE_IMPORT: {
+        	AstNodeImport* node_import = (AstNodeImport*) node;
+        	// The name in the node points into the source code, do not free it. Maybe change that later?
+			deallocate(node_import, sizeof(AstNodeImport), deallocationString);
+        	break;
+        }
+
         case AST_NODE_ATTRIBUTE: {
             AstNodeAttribute* node_attr = (AstNodeAttribute*) node;
             freeNode(node_attr ->object, nesting + 1);
@@ -629,6 +645,13 @@ AstNodeUnary* new_ast_node_unary(AstNode* expression) {
 AstNodeTable* new_ast_node_table(AstKeyValuePairArray pairs) {
 	AstNodeTable* node = ALLOCATE_AST_NODE(AstNodeTable, AST_NODE_TABLE);
 	node->pairs = pairs;
+	return node;
+}
+
+AstNodeImport* new_ast_node_import(const char* name, int name_length) {
+	AstNodeImport* node = ALLOCATE_AST_NODE(AstNodeImport, AST_NODE_IMPORT);
+	node->name = name;
+	node->name_length = name_length;
 	return node;
 }
 
