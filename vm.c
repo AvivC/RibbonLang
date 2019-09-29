@@ -987,6 +987,38 @@ InterpretResult interpret(Chunk* baseChunk) {
             case OP_IMPORT: {
             	ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
 
+            	const char* file_name_suffix = ".pln";
+				const char* file_name_alloc_string = "File name buffer";
+				size_t file_name_buffer_size = module_name->length + strlen(file_name_suffix) + 1;
+				char* file_name_buffer = allocate(file_name_buffer_size, file_name_alloc_string);
+				memcpy(file_name_buffer, module_name->chars, module_name->length);
+				memcpy(file_name_buffer + module_name->length, file_name_suffix, strlen(file_name_suffix));
+				file_name_buffer[module_name->length + strlen(file_name_suffix)] = '\0';
+
+				char* source = NULL;
+				int file_read_success = read_file(file_name_buffer, &source); // TODO: Figure out how to manage this memory
+				if (file_read_success == IO_SUCCESS) {
+//            	    initVM();
+					Chunk module_chunk;
+					initChunk(&module_chunk);
+					AstNode* module_ast = parse(source);
+					compile(module_ast, &module_chunk);
+
+					ImportFrame = new_import_frame(vm.ip, )
+					uint8_t* return_ip = vm.ip;
+					InterpretResult result = interpret(&module_chunk);
+					vm.ip = return_ip;
+
+
+//					if (result == INTERPRET_SUCCESS) {
+
+//					} else {
+
+//					}
+
+					freeTree(module_ast);
+//            	    freeVM();
+//            	    free(source);
 
             	break;
             }
