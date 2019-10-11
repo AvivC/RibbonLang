@@ -2,54 +2,54 @@
 #include "compiler.h"
 #include "parser.h"
 #include "object.h"
-#include "chunk.h"
 #include "ast.h"
+#include "bytecode.h"
 #include "value.h"
 #include "memory.h"
 #include "utils.h"
 
-static void emit_byte(Chunk* chunk, uint8_t byte) {
-	writeChunk(chunk, byte);
+static void emit_byte(Bytecode* chunk, uint8_t byte) {
+	bytecode_write(chunk, byte);
 }
 
-static void emit_two_bytes(Chunk* chunk, uint8_t byte1, uint8_t byte2) {
-	writeChunk(chunk, byte1);
-	writeChunk(chunk, byte2);
+static void emit_two_bytes(Bytecode* chunk, uint8_t byte1, uint8_t byte2) {
+	bytecode_write(chunk, byte1);
+	bytecode_write(chunk, byte2);
 }
 
-static void emit_opcode_with_constant_operand(Chunk* chunk, OP_CODE instruction, Value constant) {
-	emit_two_bytes(chunk, instruction, addConstant(chunk, &constant));
+static void emit_opcode_with_constant_operand(Bytecode* chunk, OP_CODE instruction, Value constant) {
+	emit_two_bytes(chunk, instruction, bytecode_add_constant(chunk, &constant));
 }
 
-static void emit_constant(Chunk* chunk, Value constant) {
-	emit_byte(chunk, addConstant(chunk, &constant));
+static void emit_constant(Bytecode* chunk, Value constant) {
+	emit_byte(chunk, bytecode_add_constant(chunk, &constant));
 }
 
-static void emit_short_as_two_bytes(Chunk* chunk, uint16_t number) {
+static void emit_short_as_two_bytes(Bytecode* chunk, uint16_t number) {
 	uint8_t bytes[2];
 	short_to_two_bytes(number, bytes);
 	emit_byte(chunk, bytes[0]);
 	emit_byte(chunk, bytes[1]);
 }
 
-static size_t emit_opcode_with_short_placeholder(Chunk* chunk, OP_CODE opcode) {
-	writeChunk(chunk, opcode);
+static size_t emit_opcode_with_short_placeholder(Bytecode* chunk, OP_CODE opcode) {
+	bytecode_write(chunk, opcode);
 	size_t placeholder_offset = chunk->count;
-	writeChunk(chunk, 0);
-	writeChunk(chunk, 0);
+	bytecode_write(chunk, 0);
+	bytecode_write(chunk, 0);
 	return placeholder_offset;
 }
 
-static void backpatch_placeholder(Chunk* chunk, size_t placeholder_offset, size_t address) {
-	setChunk(chunk, placeholder_offset, (address >> 8) & 0xFF);
-	setChunk(chunk, placeholder_offset + 1, (address) & 0xFF);
+static void backpatch_placeholder(Bytecode* chunk, size_t placeholder_offset, size_t address) {
+	bytecode_set(chunk, placeholder_offset, (address >> 8) & 0xFF);
+	bytecode_set(chunk, placeholder_offset + 1, (address) & 0xFF);
 }
 
-static void backpatch_placeholder_with_current_address(Chunk* chunk, size_t placeholder_offset) {
+static void backpatch_placeholder_with_current_address(Bytecode* chunk, size_t placeholder_offset) {
 	backpatch_placeholder(chunk, placeholder_offset, chunk->count);
 }
 
-static void compileTree(AstNode* node, Chunk* chunk) {
+static void compileTree(AstNode* node, Bytecode* chunk) {
     AstNodeType nodeType = node->type;
     
     switch (nodeType) {
@@ -57,23 +57,23 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             AstNodeBinary* nodeBinary = (AstNodeBinary*) node;
             
             ScannerTokenType operator = nodeBinary->operator;
-            AstNode* leftOperand = nodeBinary->leftOperand;
-            AstNode* rightOperand = nodeBinary->rightOperand;
+            AstNode* leftOperand = nodeBinary->left_operand;
+            AstNode* rightOperand = nodeBinary->right_operand;
             
             compileTree(leftOperand, chunk);
             compileTree(rightOperand, chunk);
             
             switch (operator) {
-                case TOKEN_PLUS: writeChunk(chunk, OP_ADD); break;
-                case TOKEN_MINUS: writeChunk(chunk, OP_SUBTRACT); break;
-                case TOKEN_STAR: writeChunk(chunk, OP_MULTIPLY); break;
-                case TOKEN_SLASH: writeChunk(chunk, OP_DIVIDE); break;
-                case TOKEN_GREATER_THAN: writeChunk(chunk, OP_GREATER_THAN); break;
-                case TOKEN_LESS_THAN: writeChunk(chunk, OP_LESS_THAN); break;
-                case TOKEN_GREATER_EQUAL: writeChunk(chunk, OP_GREATER_EQUAL); break;
-                case TOKEN_LESS_EQUAL: writeChunk(chunk, OP_LESS_EQUAL); break;
-                case TOKEN_EQUAL_EQUAL: writeChunk(chunk, OP_EQUAL); break;
-                case TOKEN_BANG_EQUAL: writeChunk(chunk, OP_EQUAL); writeChunk(chunk, OP_NEGATE); break;
+                case TOKEN_PLUS: bytecode_write(chunk, OP_ADD); break;
+                case TOKEN_MINUS: bytecode_write(chunk, OP_SUBTRACT); break;
+                case TOKEN_STAR: bytecode_write(chunk, OP_MULTIPLY); break;
+                case TOKEN_SLASH: bytecode_write(chunk, OP_DIVIDE); break;
+                case TOKEN_GREATER_THAN: bytecode_write(chunk, OP_GREATER_THAN); break;
+                case TOKEN_LESS_THAN: bytecode_write(chunk, OP_LESS_THAN); break;
+                case TOKEN_GREATER_EQUAL: bytecode_write(chunk, OP_GREATER_EQUAL); break;
+                case TOKEN_LESS_EQUAL: bytecode_write(chunk, OP_LESS_EQUAL); break;
+                case TOKEN_EQUAL_EQUAL: bytecode_write(chunk, OP_EQUAL); break;
+                case TOKEN_BANG_EQUAL: bytecode_write(chunk, OP_EQUAL); bytecode_write(chunk, OP_NEGATE); break;
                 default: FAIL("Weird operator type"); break;
             }
             
@@ -83,10 +83,10 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         case AST_NODE_CONSTANT: {
             AstNodeConstant* nodeConstant = (AstNodeConstant*) node;
             
-            int constantIndex = addConstant(chunk, &nodeConstant->value);
+            int constantIndex = bytecode_add_constant(chunk, &nodeConstant->value);
             
-            writeChunk(chunk, OP_CONSTANT);
-            writeChunk(chunk, (uint8_t) constantIndex);
+            bytecode_write(chunk, OP_CONSTANT);
+            bytecode_write(chunk, (uint8_t) constantIndex);
             
             break;
         }
@@ -94,7 +94,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         case AST_NODE_UNARY: {
             AstNodeUnary* nodeUnary = (AstNodeUnary*) node;
             compileTree(nodeUnary->operand, chunk);
-            writeChunk(chunk, OP_NEGATE);
+            bytecode_write(chunk, OP_NEGATE);
             break;
         }
         
@@ -103,12 +103,12 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             
             // TODO: Why do we sometimes use ObjectString* constants and sometimes RawString constants?
             Value name_constant = MAKE_VALUE_OBJECT(copyString(nodeVariable->name, nodeVariable->length));
-            int constantIndex = addConstant(chunk, &name_constant);
+            int constantIndex = bytecode_add_constant(chunk, &name_constant);
 
             integer_array_write(&chunk->referenced_names_indices, (size_t*) &constantIndex);
             
-            writeChunk(chunk, OP_LOAD_VARIABLE);
-            writeChunk(chunk, constantIndex);
+            bytecode_write(chunk, OP_LOAD_VARIABLE);
+            bytecode_write(chunk, constantIndex);
             break;
         }
         
@@ -118,10 +118,10 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             compileTree(nodeAssignment->value, chunk);
             
 			Value name_constant = MAKE_VALUE_OBJECT(copyString(nodeAssignment->name, nodeAssignment->length));
-			int constantIndex = addConstant(chunk, &name_constant);
+			int constantIndex = bytecode_add_constant(chunk, &name_constant);
 
-            writeChunk(chunk, OP_SET_VARIABLE);
-            writeChunk(chunk, constantIndex);
+            bytecode_write(chunk, OP_SET_VARIABLE);
+            bytecode_write(chunk, constantIndex);
             break;
         }
         
@@ -138,8 +138,8 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         case AST_NODE_FUNCTION: {
             AstNodeFunction* node_function = (AstNodeFunction*) node;
             
-            Chunk function_chunk;
-            initChunk(&function_chunk);
+            Bytecode function_chunk;
+            bytecode_init(&function_chunk);
             compile((AstNode*) node_function->statements, &function_chunk);
 
             Value obj_code_constant = MAKE_VALUE_OBJECT(object_code_new(function_chunk));
@@ -172,9 +172,9 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 				compileTree(argument, chunk);
 			}
 
-            compileTree(nodeCall->callTarget, chunk);
-            writeChunk(chunk, OP_CALL);
-			writeChunk(chunk, nodeCall->arguments.count);
+            compileTree(nodeCall->target, chunk);
+            bytecode_write(chunk, OP_CALL);
+			bytecode_write(chunk, nodeCall->arguments.count);
 
             break;
         }
@@ -184,7 +184,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 
 			compileTree(node_key_access->key, chunk);
             compileTree(node_key_access->subject, chunk);
-            writeChunk(chunk, OP_ACCESS_KEY);
+            bytecode_write(chunk, OP_ACCESS_KEY);
 
             break;
         }
@@ -195,7 +195,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 			compileTree(node_key_assignment->value, chunk);
 			compileTree(node_key_assignment->key, chunk);
             compileTree(node_key_assignment->subject, chunk);
-            writeChunk(chunk, OP_SET_KEY);
+            bytecode_write(chunk, OP_SET_KEY);
 
         	break;
         }
@@ -213,8 +213,8 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 				compileTree(pair.key, chunk);
 			}
 
-            writeChunk(chunk, OP_MAKE_TABLE);
-			writeChunk(chunk, node_table->pairs.count);
+            bytecode_write(chunk, OP_MAKE_TABLE);
+			bytecode_write(chunk, node_table->pairs.count);
 
         	break;
         }
@@ -235,10 +235,10 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             compileTree(node_attr->object, chunk);
 
             Value constant = MAKE_VALUE_OBJECT(copyString(node_attr->name, node_attr->length));
-            int constant_index = addConstant(chunk, &constant);
+            int constant_index = bytecode_add_constant(chunk, &constant);
 
-            writeChunk(chunk, OP_GET_ATTRIBUTE);
-            writeChunk(chunk, constant_index);
+            bytecode_write(chunk, OP_GET_ATTRIBUTE);
+            bytecode_write(chunk, constant_index);
 
             break;
         }
@@ -250,10 +250,10 @@ static void compileTree(AstNode* node, Chunk* chunk) {
             compileTree(node_attr->object, chunk);
 
             Value constant = MAKE_VALUE_OBJECT(copyString(node_attr->name, node_attr->length));
-            int constant_index = addConstant(chunk, &constant);
+            int constant_index = bytecode_add_constant(chunk, &constant);
 
-            writeChunk(chunk, OP_SET_ATTRIBUTE);
-            writeChunk(chunk, constant_index);
+            bytecode_write(chunk, OP_SET_ATTRIBUTE);
+            bytecode_write(chunk, constant_index);
 
             break;
         }
@@ -261,14 +261,14 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         case AST_NODE_EXPR_STATEMENT: {
         	AstNodeExprStatement* nodeExprStatement = (AstNodeExprStatement*) node;
         	compileTree(nodeExprStatement->expression, chunk);
-        	writeChunk(chunk, OP_POP);
+        	bytecode_write(chunk, OP_POP);
         	break;
         }
 
         case AST_NODE_RETURN: {
         	AstNodeReturn* nodeReturn = (AstNodeReturn*) node;
         	compileTree(nodeReturn->expression, chunk);
-        	writeChunk(chunk, OP_RETURN);
+        	bytecode_write(chunk, OP_RETURN);
         	break;
         }
 
@@ -288,9 +288,9 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 
         	backpatch_placeholder_with_current_address(chunk, if_condition_jump_address_offset);
 
-        	for (int i = 0; i < node_if->elsifClauses.count; i += 2) {
-				AstNode* condition = node_if->elsifClauses.values[i];
-				AstNodeStatements* body = node_if->elsifClauses.values[i+1];
+        	for (int i = 0; i < node_if->elsif_clauses.count; i += 2) {
+				AstNode* condition = node_if->elsif_clauses.values[i];
+				AstNodeStatements* body = node_if->elsif_clauses.values[i+1];
 
 				compileTree(condition, chunk);
 				if_condition_jump_address_offset = emit_opcode_with_short_placeholder(chunk, OP_JUMP_IF_FALSE);
@@ -302,8 +302,8 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 				backpatch_placeholder_with_current_address(chunk, if_condition_jump_address_offset);
 			}
 
-        	if (node_if->elseBody != NULL) {
-        		compileTree((AstNode*) node_if->elseBody, chunk);
+        	if (node_if->else_body != NULL) {
+        		compileTree((AstNode*) node_if->else_body, chunk);
         	}
 
         	size_t end_address = chunk->count;
@@ -323,21 +323,21 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 			int before_condition = chunk->count;
 			compileTree(nodeWhile->condition, chunk);
 
-			writeChunk(chunk, OP_JUMP_IF_FALSE);
+			bytecode_write(chunk, OP_JUMP_IF_FALSE);
 			size_t placeholderOffset = chunk->count;
-			writeChunk(chunk, 0);
-			writeChunk(chunk, 0);
+			bytecode_write(chunk, 0);
+			bytecode_write(chunk, 0);
 
 			compileTree((AstNode*) nodeWhile->body, chunk);
 
-			writeChunk(chunk, OP_JUMP);
+			bytecode_write(chunk, OP_JUMP);
 			uint8_t before_condition_addr_bytes[2];
 			short_to_two_bytes(before_condition, before_condition_addr_bytes);
-			writeChunk(chunk, before_condition_addr_bytes[0]);
-			writeChunk(chunk, before_condition_addr_bytes[1]);
+			bytecode_write(chunk, before_condition_addr_bytes[0]);
+			bytecode_write(chunk, before_condition_addr_bytes[1]);
 
-			setChunk(chunk, placeholderOffset, (chunk->count >> 8) & 0xFF);
-			setChunk(chunk, placeholderOffset + 1, (chunk->count) & 0xFF);
+			bytecode_set(chunk, placeholderOffset, (chunk->count >> 8) & 0xFF);
+			bytecode_set(chunk, placeholderOffset + 1, (chunk->count) & 0xFF);
 
 			break;
 		}
@@ -346,7 +346,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         	AstNodeAnd* node_and = (AstNodeAnd*) node;
         	compileTree((AstNode*) node_and->left, chunk);
         	compileTree((AstNode*) node_and->right, chunk);
-        	writeChunk(chunk, OP_AND);
+        	bytecode_write(chunk, OP_AND);
 
         	break;
         }
@@ -355,7 +355,7 @@ static void compileTree(AstNode* node, Chunk* chunk) {
         	AstNodeOr* node_or = (AstNodeOr*) node;
         	compileTree((AstNode*) node_or->left, chunk);
         	compileTree((AstNode*) node_or->right, chunk);
-        	writeChunk(chunk, OP_OR);
+        	bytecode_write(chunk, OP_OR);
 
         	break;
         }
@@ -372,10 +372,10 @@ static void compileTree(AstNode* node, Chunk* chunk) {
 }
 
 /* Compile a program or a function */
-void compile(AstNode* node, Chunk* chunk) {
+void compile(AstNode* node, Bytecode* chunk) {
     compileTree(node, chunk);
 
     // TODO: Ugly patch, and also sometimes unnecessary. Solve this in a different way.
-    writeChunk(chunk, OP_NIL);
-    writeChunk(chunk, OP_RETURN);
+    bytecode_write(chunk, OP_NIL);
+    bytecode_write(chunk, OP_RETURN);
 }

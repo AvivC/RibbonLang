@@ -1,9 +1,9 @@
-#include "chunk.h"
+#include "bytecode.h"
 #include "common.h"
 #include "memory.h"
 #include "value.h"
 
-void initChunk(Chunk* chunk) {
+void bytecode_init(Bytecode* chunk) {
     chunk->capacity = 0;
     chunk->count = 0;
     chunk->code = NULL;
@@ -11,7 +11,7 @@ void initChunk(Chunk* chunk) {
     integer_array_init(&chunk->referenced_names_indices);
 }
 
-void writeChunk(Chunk* chunk, uint8_t byte) {
+void bytecode_write(Bytecode* chunk, uint8_t byte) {
     if (chunk->count == chunk->capacity) {
         int oldCapacity = chunk->capacity;
         chunk->capacity = GROW_CAPACITY(oldCapacity);
@@ -21,7 +21,7 @@ void writeChunk(Chunk* chunk, uint8_t byte) {
     chunk->code[chunk->count++] = byte;
 }
 
-void setChunk(Chunk* chunk, int position, uint8_t byte) {
+void bytecode_set(Bytecode* chunk, int position, uint8_t byte) {
 	if (position >= chunk->count || position < 0) {
 		FAIL("Position out of bounds for chunk writing.");
 	}
@@ -29,19 +29,19 @@ void setChunk(Chunk* chunk, int position, uint8_t byte) {
 	chunk->code[position] = byte;
 }
 
-void freeChunk(Chunk* chunk) {
+void bytecode_free(Bytecode* chunk) {
     deallocate(chunk->code, chunk->capacity * sizeof(uint8_t), "Chunk code buffer"); // the sizeof is probably stupid
     value_array_free(&chunk->constants);
     integer_array_free(&chunk->referenced_names_indices);
-    initChunk(chunk);
+    bytecode_init(chunk);
 }
 
-int addConstant(Chunk* chunk, struct Value* constant) {
+int bytecode_add_constant(Bytecode* chunk, struct Value* constant) {
 	value_array_write(&chunk->constants, constant);
     return chunk->constants.count - 1;
 }
 
-void chunk_print_constant_table(Chunk* chunk) { // For debugging
+void bytecode_print_constant_table(Bytecode* chunk) { // For debugging
 	printf("\nConstant table of chunk pointing at '%p':\n", chunk->code);
 	for (int i = 0; i < chunk->constants.count; i++) {
 		Value constant = chunk->constants.values[i];

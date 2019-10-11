@@ -106,8 +106,8 @@ static AstNode* binary(AstNode* leftNode, int expression_level) {
     
     AstNodeBinary* node = ALLOCATE_AST_NODE(AstNodeBinary, AST_NODE_BINARY);
     node->operator = operator;
-    node->leftOperand = leftNode;
-    node->rightOperand = rightNode;
+    node->left_operand = leftNode;
+    node->right_operand = rightNode;
     
     return (AstNode*) node;
 }
@@ -126,7 +126,7 @@ static AstNode* table(int expression_level) {
 		} while (match(TOKEN_COMMA));
 	}
 
-	return (AstNode*) new_ast_node_table(pairs);
+	return (AstNode*) ast_new_node_table(pairs);
 }
 
 static AstNode* key_access(AstNode* left_node, int expression_level) {
@@ -142,10 +142,10 @@ static AstNode* key_access(AstNode* left_node, int expression_level) {
 		}
 
 		AstNode* value_node = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
-		return (AstNode*) new_ast_node_key_assignment(key_node, value_node, left_node);
+		return (AstNode*) ast_new_node_key_assignment(key_node, value_node, left_node);
 	} else {
 		// Get key
-		return (AstNode*) new_ast_node_key_access(key_node, left_node);
+		return (AstNode*) ast_new_node_key_access(key_node, left_node);
 	}
 }
 
@@ -163,15 +163,15 @@ static AstNode* dot(AstNode* leftNode, int expression_level) {
 		}
 		// Set attribute
 		AstNode* value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
-		return (AstNode*) new_ast_node_attribute_assignment(leftNode, attr_name, name_length, value);
+		return (AstNode*) ast_new_node_attribute_assignment(leftNode, attr_name, name_length, value);
 	} else {
 		// Get attribute
-		return (AstNode*) new_ast_node_attribute(leftNode, attr_name, name_length);
+		return (AstNode*) ast_new_node_attribute(leftNode, attr_name, name_length);
 	}
 }
 
 static AstNode* return_statement(void) { // TODO: Add expression_level here?
-	return (AstNode*) newAstNodeReturn(parse_expression(PREC_ASSIGNMENT, 0));
+	return (AstNode*) ast_new_node_return(parse_expression(PREC_ASSIGNMENT, 0));
 }
 
 static AstNode* identifier(int expression_level) {
@@ -189,15 +189,15 @@ static AstNode* number(int expression_level) {
 }
 
 static AstNode* string(int expression_level) {
-    return (AstNode*) new_ast_node_string(parser.previous.start + 1, parser.previous.length - 2);
+    return (AstNode*) ast_new_node_string(parser.previous.start + 1, parser.previous.length - 2);
 }
 
 static AstNode* and(AstNode* leftNode, int expression_level) {
-	return (AstNode*) new_ast_node_and(leftNode, parse_expression(PREC_AND + 1, expression_level + 1));
+	return (AstNode*) ast_new_node_and(leftNode, parse_expression(PREC_AND + 1, expression_level + 1));
 }
 
 static AstNode* or(AstNode* leftNode, int expression_level) {
-	return (AstNode*) new_ast_node_or(leftNode, parse_expression(PREC_OR + 1, expression_level + 1));
+	return (AstNode*) ast_new_node_or(leftNode, parse_expression(PREC_OR + 1, expression_level + 1));
 }
 
 static AstNode* function(int expression_level) {
@@ -234,7 +234,7 @@ static AstNode* call(AstNode* leftNode, int expression_level) {
 		} while (match(TOKEN_COMMA));
 	}
 
-	return (AstNode*) newAstNodeCall(leftNode, arguments);
+	return (AstNode*) ast_new_node_call(leftNode, arguments);
 }
 
 static AstNode* grouping(int expression_level) {
@@ -244,7 +244,7 @@ static AstNode* grouping(int expression_level) {
 }
 
 static AstNode* unary(int expression_level) {
-    return (AstNode*) new_ast_node_unary(parse_expression(PREC_UNARY, expression_level + 1)); // so-called right associativity
+    return (AstNode*) ast_new_node_unary(parse_expression(PREC_UNARY, expression_level + 1)); // so-called right associativity
 }
 
 static AstNode* boolean(int expression_level) {
@@ -256,7 +256,7 @@ static AstNode* boolean(int expression_level) {
 	} else {
 		FAIL("Illegal literal identified as boolean.");
 	}
-	return (AstNode*) newAstNodeConstant(MAKE_VALUE_BOOLEAN(booleanValue));
+	return (AstNode*) ast_new_node_constant(MAKE_VALUE_BOOLEAN(booleanValue));
 }
 
 static void conditioned_clause(AstNodeStatements** body_out, AstNode** condition_out, int expression_level) {
@@ -289,7 +289,7 @@ static AstNode* if_statement(void) {
 		else_body = statements();
 		consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of else-body.");
 	}
-	return (AstNode*) new_ast_node_ff(condition, (AstNodeStatements*) body, elsif_clauses, (AstNodeStatements*) else_body);
+	return (AstNode*) ast_new_node_if(condition, (AstNodeStatements*) body, elsif_clauses, (AstNodeStatements*) else_body);
 }
 
 static AstNode* while_statement(void) {
@@ -297,14 +297,14 @@ static AstNode* while_statement(void) {
 	AstNode* condition;
 	conditioned_clause(&body, &condition, 0);
 
-	return (AstNode*) new_ast_node_while(condition, body);
+	return (AstNode*) ast_new_node_while(condition, body);
 }
 
 static AstNode* import_statement(void) {
 	consume(TOKEN_IDENTIFIER, "Expected module name after 'import'.");
 	const char* name = parser.previous.start;
 	int name_length = parser.previous.length;
-	return (AstNode*) new_ast_node_import(name, name_length);
+	return (AstNode*) ast_new_node_import(name, name_length);
 }
 
 static ParseRule rules[] = {
@@ -394,7 +394,7 @@ static ParseRule get_rule(ScannerTokenType type) {
 }
 
 static AstNode* statements(void) {
-    AstNodeStatements* statements_node = newAstNodeStatements();
+    AstNodeStatements* statements_node = ast_new_node_statements();
     
     while (!check(TOKEN_EOF) && !check(TOKEN_RIGHT_BRACE)) {
         if (match(TOKEN_NEWLINE)) {
@@ -419,7 +419,7 @@ static AstNode* statements(void) {
     		if (node_type == AST_NODE_ATTRIBUTE_ASSIGNMENT || node_type == AST_NODE_KEY_ASSIGNMENT) {
     			child_node = expr_or_attr_assignment_or_key_assignment;
     		} else {
-    			child_node = (AstNode*) new_ast_node_expr_statement(expr_or_attr_assignment_or_key_assignment);
+    			child_node = (AstNode*) ast_new_node_expr_statement(expr_or_attr_assignment_or_key_assignment);
     		}
         }
 

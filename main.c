@@ -3,11 +3,11 @@
 #include <string.h>
 
 #include "common.h"
-#include "chunk.h"
 #include "debug.h"
 #include "compiler.h"
 #include "parser.h"
 #include "ast.h"
+#include "bytecode.h"
 #include "value.h"
 #include "object.h"
 #include "vm.h"
@@ -63,13 +63,13 @@ static bool cmdArgExists(char** argv, int argc, const char* value) {
 	return false;
 }
 
-static void printStructures(int argc, char* argv[], Chunk* chunk, AstNode* ast) {
+static void printStructures(int argc, char* argv[], Bytecode* chunk, AstNode* ast) {
     bool showBytecode = cmdArgExists(argv, argc, "-asm");
     bool showTree = cmdArgExists(argv, argc, "-tree");
     
     if (showTree) {
         printf("==== AST ====\n\n");
-        printTree(ast);
+        ast_print_tree(ast);
         printf("\n");
     }
     
@@ -138,8 +138,8 @@ int main(int argc, char* argv[]) {
     // Must first init the VM, because some parts of the compiler depend on it
     initVM();
 
-    Chunk chunk;
-    initChunk(&chunk);
+    Bytecode chunk;
+    bytecode_init(&chunk);
     AstNode* ast = parse(source);
     compile(ast, &chunk);
     
@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
     	InterpretResult result = interpret(&chunk);
     }
     
-    freeTree(ast);
+    ast_free_tree(ast);
     freeVM();
     free(source);
     

@@ -2,7 +2,7 @@
 #define plane_parser_h
 
 #include "ast.h"
-#include "chunk.h"
+#include "bytecode.h"
 
 AstNode* parse(const char* source);
 

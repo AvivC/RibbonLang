@@ -1,5 +1,5 @@
-#ifndef plane_chunk_h
-#define plane_chunk_h
+#ifndef plane_bytecode_h
+#define plane_bytecode_h
 
 #include "common.h"
 #include "value_array.h"
@@ -43,14 +43,14 @@ typedef struct {
     int capacity;
     int count;
     IntegerArray referenced_names_indices;
-} Chunk;
+} Bytecode;
 
-void initChunk(Chunk* chunk);
-void writeChunk(Chunk* chunk, uint8_t byte);
-void setChunk(Chunk* chunk, int position, uint8_t byte);
-void freeChunk(Chunk* chunk);
-int addConstant(Chunk* chunk, struct Value* constant);
+void bytecode_init(Bytecode* chunk);
+void bytecode_write(Bytecode* chunk, uint8_t byte);
+void bytecode_set(Bytecode* chunk, int position, uint8_t byte);
+void bytecode_free(Bytecode* chunk);
+int bytecode_add_constant(Bytecode* chunk, struct Value* constant);
 
-void chunk_print_constant_table(Chunk* chunk); // For debugging
+void bytecode_print_constant_table(Bytecode* chunk); // For debugging
 
 #endif

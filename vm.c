@@ -2,12 +2,12 @@
 
 #include "vm.h"
 #include "common.h"
-#include "chunk.h"
 #include "value.h"
 #include "object.h"
 #include "memory.h"
 #include "table.h"
 #include "builtins.h"
+#include "bytecode.h"
 #include "debug.h"
 #include "utils.h"
 #include "pointerarray.h"
@@ -21,7 +21,7 @@ static StackFrame* currentFrame(void) {
 	return vm.callStackTop - 1;
 }
 
-static Chunk* currentChunk(void) {
+static Bytecode* currentChunk(void) {
 	return &currentFrame()->objFunc->code->chunk;
 }
 
@@ -67,7 +67,7 @@ static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc)
 	return frame;
 }
 
-static StackFrame makeBaseStackFrame(Chunk* base_chunk) {
+static StackFrame makeBaseStackFrame(Bytecode* base_chunk) {
 	ObjectCode* code = object_code_new(*base_chunk);
 	ValueArray empty_upvalues;
 	value_array_init(&empty_upvalues);
@@ -118,7 +118,7 @@ static Value loadVariable(ObjectString* name) {
 static void gc_mark_object(Object* object);
 
 static void gc_mark_code_constants(ObjectCode* code) {
-	Chunk* chunk = &code->chunk;
+	Bytecode* chunk = &code->chunk;
 	for (int i = 0; i < chunk->constants.count; i++) {
 		Value* constant = &chunk->constants.values[i];
 		if (constant->type == VALUE_OBJECT) {
@@ -383,7 +383,7 @@ static Object* read_constant_as_object(ObjectType type) {
 
 #define READ_CONSTANT_AS_OBJECT(type, cast) (cast*) read_constant_as_object(type)
 
-InterpretResult interpret(Chunk* baseChunk) {
+InterpretResult interpret(Bytecode* baseChunk) {
     #define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
         Value a = pop(); \
@@ -689,7 +689,7 @@ InterpretResult interpret(Chunk* baseChunk) {
 
 				uint8_t num_params_byte1 = READ_BYTE();
 				uint8_t num_params_byte2 = READ_BYTE();
-				uint16_t num_params = twoBytesToShort(num_params_byte1, num_params_byte2);
+				uint16_t num_params = two_bytes_to_short(num_params_byte1, num_params_byte2);
 
 				char** params_buffer = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 				for (int i = 0; i < num_params; i++) {
@@ -984,7 +984,7 @@ InterpretResult interpret(Chunk* baseChunk) {
             case OP_JUMP_IF_FALSE: {
             	uint8_t addr_byte1 = READ_BYTE();
             	uint8_t addr_byte2 = READ_BYTE();
-            	uint16_t address = twoBytesToShort(addr_byte1, addr_byte2);
+            	uint16_t address = two_bytes_to_short(addr_byte1, addr_byte2);
 				Value condition = pop();
 
 				ERROR_IF_NON_BOOLEAN(condition, "Expected boolean as condition");
@@ -999,7 +999,7 @@ InterpretResult interpret(Chunk* baseChunk) {
             case OP_JUMP: {
             	uint8_t addr_byte1 = READ_BYTE();
             	uint8_t addr_byte2 = READ_BYTE();
-            	uint16_t address = twoBytesToShort(addr_byte1, addr_byte2);
+            	uint16_t address = two_bytes_to_short(addr_byte1, addr_byte2);
 
             	vm.ip = currentChunk()->code + address;
 

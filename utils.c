@@ -2,7 +2,7 @@
 //#include <windows.h>
 //#include <dbghelp.h>
 
-uint16_t twoBytesToShort(uint8_t a, uint8_t b) {
+uint16_t two_bytes_to_short(uint8_t a, uint8_t b) {
 	return (a << 8) + b;
 }
 

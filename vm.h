@@ -1,7 +1,7 @@
 #ifndef plane_vm_h
 #define plane_vm_h
 
-#include "chunk.h"
+#include "bytecode.h"
 #include "table.h"
 #include "object.h"
 #include "value.h"
@@ -42,7 +42,7 @@ extern VM vm;
 
 void initVM(void);
 void freeVM(void);
-InterpretResult interpret(Chunk* chunk);
+InterpretResult interpret(Bytecode* chunk);
 
 void gc(void);
 

@@ -69,8 +69,8 @@ typedef struct {
 typedef struct {
     AstNode base;
     ScannerTokenType operator;
-    AstNode* leftOperand;
-    AstNode* rightOperand;
+    AstNode* left_operand;
+    AstNode* right_operand;
 } AstNodeBinary;
 
 typedef struct {
@@ -93,7 +93,7 @@ typedef struct {
 
 typedef struct {
     AstNode base;
-    AstNode* callTarget;
+    AstNode* target;
     PointerArray arguments;
 } AstNodeCall;
 
@@ -111,8 +111,8 @@ typedef struct {
     AstNode base;
     AstNode* condition;
     AstNodeStatements* body;
-    PointerArray elsifClauses;
-    AstNodeStatements* elseBody;
+    PointerArray elsif_clauses;
+    AstNodeStatements* else_body;
 } AstNodeIf;
 
 typedef struct {
@@ -170,32 +170,32 @@ typedef struct {
 	AstKeyValuePairArray pairs;
 } AstNodeTable;
 
-void printTree(AstNode* tree);
-void freeTree(AstNode* node);
+void ast_print_tree(AstNode* tree);
+void ast_free_tree(AstNode* node);
 
-AstNodeConstant* newAstNodeConstant(Value value);
-AstNodeStatements* newAstNodeStatements(void);
-AstNodeExprStatement* new_ast_node_expr_statement(AstNode* expression);
-AstNodeReturn* newAstNodeReturn(AstNode* expression);
-AstNodeCall* newAstNodeCall(AstNode* expression, PointerArray arguments);
+AstNodeConstant* ast_new_node_constant(Value value);
+AstNodeStatements* ast_new_node_statements(void);
+AstNodeExprStatement* ast_new_node_expr_statement(AstNode* expression);
+AstNodeReturn* ast_new_node_return(AstNode* expression);
+AstNodeCall* ast_new_node_call(AstNode* expression, PointerArray arguments);
 AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, ValueArray parameters);
-AstNodeIf* new_ast_node_ff(AstNode* condition, AstNodeStatements* body, PointerArray elsifClauses, AstNodeStatements* elseBody);
-AstNodeWhile* new_ast_node_while(AstNode* condition, AstNodeStatements* body);
-AstNodeAnd* new_ast_node_and(AstNode* left, AstNode* right);
-AstNodeOr* new_ast_node_or(AstNode* left, AstNode* right);
-AstNodeAttribute* new_ast_node_attribute(AstNode* object, const char* name, int length);
-AstNodeAttributeAssignment* new_ast_node_attribute_assignment(AstNode* object, const char* name, int length, AstNode* value);
-AstNodeString* new_ast_node_string(const char* string, int length);
-AstNodeKeyAccess* new_ast_node_key_access(AstNode* key, AstNode* subject);
-AstNodeKeyAssignment* new_ast_node_key_assignment(AstNode* key, AstNode* value, AstNode* subject);
-AstNodeUnary* new_ast_node_unary(AstNode* expression);
-AstNodeTable* new_ast_node_table(AstKeyValuePairArray pairs);
-AstNodeImport* new_ast_node_import(const char* name, int name_length);
+AstNodeIf* ast_new_node_if(AstNode* condition, AstNodeStatements* body, PointerArray elsif_clauses, AstNodeStatements* else_body);
+AstNodeWhile* ast_new_node_while(AstNode* condition, AstNodeStatements* body);
+AstNodeAnd* ast_new_node_and(AstNode* left, AstNode* right);
+AstNodeOr* ast_new_node_or(AstNode* left, AstNode* right);
+AstNodeAttribute* ast_new_node_attribute(AstNode* object, const char* name, int length);
+AstNodeAttributeAssignment* ast_new_node_attribute_assignment(AstNode* object, const char* name, int length, AstNode* value);
+AstNodeString* ast_new_node_string(const char* string, int length);
+AstNodeKeyAccess* ast_new_node_key_access(AstNode* key, AstNode* subject);
+AstNodeKeyAssignment* ast_new_node_key_assignment(AstNode* key, AstNode* value, AstNode* subject);
+AstNodeUnary* ast_new_node_unary(AstNode* expression);
+AstNodeTable* ast_new_node_table(AstKeyValuePairArray pairs);
+AstNodeImport* ast_new_node_import(const char* name, int name_length);
 
 AstNodesKeyValuePair ast_new_key_value_pair(AstNode* key, AstNode* value);
 
-#define ALLOCATE_AST_NODE(type, tag) (type*) allocateAstNode(tag, sizeof(type))
+#define ALLOCATE_AST_NODE(type, tag) (type*) ast_allocate_node(tag, sizeof(type))
 
-AstNode* allocateAstNode(AstNodeType type, size_t size);
+AstNode* ast_allocate_node(AstNodeType type, size_t size);
 
 #endif

@@ -1,10 +1,10 @@
 #ifndef plane_object_h
 #define plane_object_h
 
+#include "bytecode.h"
 #include "common.h"
 #include "table.h"
 #include "value.h"
-#include "chunk.h"
 
 typedef enum {
     OBJECT_STRING,
@@ -39,7 +39,7 @@ typedef struct ObjectTable {
 
 typedef struct ObjectCode {
     Object base;
-    Chunk chunk;
+    Bytecode chunk;
 } ObjectCode;
 
 typedef bool (*NativeFunction)(ValueArray, Value*);
@@ -74,7 +74,7 @@ ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, in
 ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams, Object* self);
 void object_function_set_name(ObjectFunction* function, char* name);
 
-ObjectCode* object_code_new(Chunk chunk);
+ObjectCode* object_code_new(Bytecode chunk);
 ObjectTable* object_table_new(Table table);
 
 bool compareObjects(Object* a, Object* b);

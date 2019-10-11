@@ -4,21 +4,21 @@
 #include "value.h"
 #include "utils.h"
 
-static int singleOperandInstruction(const char* name, Chunk* chunk, int offset) {
+static int singleOperandInstruction(const char* name, Bytecode* chunk, int offset) {
     int operand = chunk->code[offset + 1];
 
     printf("%p %-28s %d\n", chunk->code + offset, name, operand);
     return offset + 2;
 }
 
-static int shortOperandInstruction(const char* name, Chunk* chunk, int offset) {
-    uint16_t operand = twoBytesToShort(chunk->code[offset + 1], chunk->code[offset + 2]);
+static int shortOperandInstruction(const char* name, Bytecode* chunk, int offset) {
+    uint16_t operand = two_bytes_to_short(chunk->code[offset + 1], chunk->code[offset + 2]);
 
     printf("%p %-28s %d\n", chunk->code + offset, name, operand);
     return offset + 3;
 }
 
-static int constantInstruction(const char* name, Chunk* chunk, int offset) {
+static int constantInstruction(const char* name, Bytecode* chunk, int offset) {
     int constantIndex = chunk->code[offset + 1];
     Value constant = chunk->constants.values[constantIndex];
     
@@ -29,14 +29,14 @@ static int constantInstruction(const char* name, Chunk* chunk, int offset) {
     return offset + 2;
 }
 
-static int constantAndVariableLengthConstantsInstruction(const char* name, Chunk* chunk, int offset) {
+static int constantAndVariableLengthConstantsInstruction(const char* name, Bytecode* chunk, int offset) {
     int constantIndex = chunk->code[offset + 1];
     Value constant = chunk->constants.values[constantIndex];
 
     printf("%p %-28s ", chunk->code + offset, name);
     printValue(constant);
 
-    uint16_t additional_operands_count = twoBytesToShort(chunk->code[offset + 2], chunk->code[offset + 3]);
+    uint16_t additional_operands_count = two_bytes_to_short(chunk->code[offset + 2], chunk->code[offset + 3]);
     for (int i = 0; i < additional_operands_count; i++) {
 		int additional_operand_offset = offset + 4 + i;
 		uint8_t additional_operand_index = chunk->code[additional_operand_offset];
@@ -50,12 +50,12 @@ static int constantAndVariableLengthConstantsInstruction(const char* name, Chunk
     return offset + 4 + additional_operands_count;
 }
 
-static int simpleInstruction(const char* name, Chunk* chunk, int offset) {
+static int simpleInstruction(const char* name, Bytecode* chunk, int offset) {
     printf("%p %s\n", chunk->code + offset, name);
     return offset + 1;
 }
 
-int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
+int disassembleInstruction(OP_CODE opcode, Bytecode* chunk, int offset) {
 	printf("%-3d ", offset);
 
 	switch (opcode) {
@@ -182,7 +182,7 @@ int disassembleInstruction(OP_CODE opcode, Chunk* chunk, int offset) {
 	}
 }
 
-void disassembleChunk(Chunk* chunk) {
+void disassembleChunk(Bytecode* chunk) {
     int offset = 0; 
     for (; offset < chunk->count; ) {
 		offset = disassembleInstruction(chunk->code[offset], chunk, offset);
@@ -193,10 +193,10 @@ void disassembleChunk(Chunk* chunk) {
         if (constant.type == VALUE_OBJECT && constant.as.object->type == OBJECT_CODE) {
             printf("\nInner chunk [index %d]:\n", i);
             ObjectCode* inner_code_object = (ObjectCode*) constant.as.object;
-            Chunk inner_chunk = inner_code_object->chunk;
+            Bytecode inner_chunk = inner_code_object->chunk;
             disassembleChunk(&inner_chunk);
         }
     }
 
-    chunk_print_constant_table(chunk);
+    bytecode_print_constant_table(chunk);
 }

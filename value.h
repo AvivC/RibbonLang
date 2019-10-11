@@ -1,8 +1,8 @@
 #ifndef plane_value_h
 #define plane_value_h
 
+#include "bytecode.h"
 #include "common.h"
-#include "chunk.h"
 #include "dynamic_array.h"
 
 typedef enum {
@@ -25,7 +25,7 @@ typedef struct Value {
         double number;
         bool boolean;
         RawString raw_string;
-        Chunk chunk;
+        Bytecode chunk;
         struct Object* object;
     } as;
 } Value;

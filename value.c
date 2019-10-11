@@ -23,7 +23,7 @@ void printValue(Value value) {
 			return;
 		}
         case VALUE_CHUNK: {
-        	Chunk chunk = value.as.chunk;
+        	Bytecode chunk = value.as.chunk;
         	printf("< Chunk of size %d pointing at '%p' >", chunk.count, chunk.code);
         	return;
         }
