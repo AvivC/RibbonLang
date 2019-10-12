@@ -19,6 +19,8 @@ typedef struct {
 
 struct ObjectString;
 
+Table table_new_empty(void);
+
 void table_init(Table* table);
 
 void table_set(Table* table, struct ObjectString* key, Value value); // TODO: report success or failure

@@ -110,3 +110,76 @@ expect
     I received a steak
     I received a orange
 end
+
+test basic closures
+    outer = {
+        x = 10
+        inner = {
+            print(x)
+        }
+        return inner
+    }
+    inner = outer()
+    inner()
+expect
+    10
+end
+
+test deeply nested closures
+    outer = {
+        x = "abc"
+        middle = {
+            inner = {
+                print(x)
+            }
+            return inner
+        }
+        return middle
+    }
+    middle = outer()
+    inner = middle()
+    inner()
+expect
+    abc
+end
+
+test deeply nested closures with different names
+    outer = {
+        x = "abc"
+        middle = {
+            inner = {
+                print(x)
+            }
+            return inner
+        }
+        return middle
+    }
+
+    a = outer()
+    b = a()
+    b()
+expect
+    abc
+end
+
+test higher order closures
+    concat = { takes value, concat_fn to
+        result = concat_fn(value)
+        print(result)
+    }
+
+    concat_factory = { takes x to
+        return { takes y to
+            return x + " " + y
+        }
+    }
+
+    concat_hello = concat_factory("hello")
+    concat_hi = concat_factory("hi")
+
+    concat("Aviv", concat_hello)
+    concat("Aviv", concat_hi)
+expect
+    hello Aviv
+    hi Aviv
+end

@@ -44,21 +44,22 @@ typedef struct ObjectCode {
 
 typedef bool (*NativeFunction)(ValueArray, Value*);
 
-typedef struct {
-	const char* name;
-	int name_length;
-} Upvalue;
+//typedef struct {
+//	const char* name;
+//	int name_length;
+//} Upvalue;
 
 typedef struct ObjectFunction {
     Object base;
     char* name;
     char** parameters;
-    int numParams;
-    bool isNative;
+    int num_params;
+    bool is_native;
     Object* self;
-    ValueArray upvalues;
+//    ValueArray upvalues;
+    Table free_vars;
     union {
-    	NativeFunction nativeFunction;
+    	NativeFunction native_function;
     	ObjectCode* code;
     };
 } ObjectFunction;
@@ -68,12 +69,13 @@ ObjectString* object_string_take(char* chars, int length);
 ObjectString** object_create_copied_strings_array(const char** strings, int num, const char* allocDescription);
 ObjectString* object_string_copy_from_null_terminated(const char* string);
 
-ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self, ValueArray upvalues);
+ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self, Table free_vars);
 ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams, Object* self);
 void object_function_set_name(ObjectFunction* function, char* name);
 
 ObjectCode* object_code_new(Bytecode chunk);
 ObjectTable* object_table_new(Table table);
+ObjectTable* object_table_new_empty(void);
 
 bool object_compare(Object* a, Object* b);
 

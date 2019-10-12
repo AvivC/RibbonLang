@@ -69,10 +69,7 @@ static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc)
 
 static StackFrame makeBaseStackFrame(Bytecode* base_chunk) {
 	ObjectCode* code = object_code_new(*base_chunk);
-	ValueArray empty_upvalues;
-	value_array_init(&empty_upvalues);
-//	value_array_write(&empty_upvalues, &MAKE_VALUE_NIL());
-	ObjectFunction* baseObjFunc = object_user_function_new(code, NULL, 0, NULL, empty_upvalues);
+	ObjectFunction* baseObjFunc = object_user_function_new(code, NULL, 0, NULL, table_new_empty());
 	return newStackFrame(NULL, baseObjFunc);
 }
 
@@ -95,23 +92,21 @@ static bool isInFrame(void) {
 	return vm.callStackTop != vm.callStack;
 }
 
-static Value loadVariable(ObjectString* name) {
-	// TODO: Fix this weird semantics thing
-
+static Value load_variable(ObjectString* name) {
 	Value value;
 
-	for (StackFrame* frame = vm.callStackTop; frame > vm.callStack;) {
-		frame--;
+	Table* locals = &currentFrame()->localVariables;
+	Table* free_vars = &currentFrame()->objFunc->free_vars;
+	Table* globals = &vm.globals;
 
-		if (table_get(&frame->localVariables, name, &value)) {
-			return value;
-		}
-	}
+	bool variable_found = table_get(locals, name, &value) || table_get(free_vars, name, &value) || table_get(globals, name, &value);
+//	bool variable_found = table_get(locals, name, &value) || table_get(globals, name, &value);
 
-	if (table_get(&vm.globals, name, &value)) {
+	if (variable_found) {
 		return value;
 	}
 
+	// TODO: Nil when variable not found..? Should be an error
 	return MAKE_VALUE_NIL();
 }
 
@@ -130,7 +125,7 @@ static void gc_mark_code_constants(ObjectCode* code) {
 	// Chunks should always be wrapped in ObjectCode in order to be managed "automatically" by the GC system.
 }
 
-void gc_mark_object_attributes(Object* object) {
+static void gc_mark_object_attributes(Object* object) {
 	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
 	// many entries are likely to be empty
 	for (int i = 0; i < object->attributes.capacity; i++) {
@@ -141,7 +136,7 @@ void gc_mark_object_attributes(Object* object) {
 	}
 }
 
-void assert_is_probably_valid_object(Object* object) {
+static void assert_is_probably_valid_object(Object* object) {
 	bool is_probably_valid_object = (object->is_reachable == true)
 			|| (object->is_reachable == false);
 	if (!is_probably_valid_object) {
@@ -149,19 +144,31 @@ void assert_is_probably_valid_object(Object* object) {
 	}
 }
 
-void gc_mark_object_function(Object* object) {
-	ObjectFunction* objFunc = OBJECT_AS_FUNCTION(object);
-	if (objFunc->self != NULL) {
-		gc_mark_object((Object*) objFunc->self);
-	}
-	if (!objFunc->isNative) {
-		ObjectCode* code_object = objFunc->code;
-		gc_mark_object((Object*) code_object);
-		gc_mark_code_constants(code_object);
+static void gc_mark_function_free_vars(ObjectFunction* function) {
+	Table* free_vars = &function->free_vars; // Using a pointer locally for efficiency.. Is this common practice? Read on this.
+	PointerArray free_vars_entries = table_iterate(free_vars);
+	for (int i = 0; i < free_vars_entries.count; i++) {
+		Entry* entry = free_vars_entries.values[i];
+		if (entry->value.type == VALUE_OBJECT) {
+			gc_mark_object(entry->value.as.object);
+		}
 	}
 }
 
-void gc_mark_object_table(Object* object) {
+static void gc_mark_object_function(Object* object) {
+	ObjectFunction* function = OBJECT_AS_FUNCTION(object);
+	if (function->self != NULL) {
+		gc_mark_object((Object*) function->self);
+	}
+	if (!function->is_native) {
+		ObjectCode* code_object = function->code;
+		gc_mark_object((Object*) code_object);
+		gc_mark_code_constants(code_object);
+		gc_mark_function_free_vars(function);
+	}
+}
+
+static void gc_mark_object_table(Object* object) {
 	Table* table = &((ObjectTable*) object)->table;
 	PointerArray entries = table_iterate(table);
 
@@ -275,7 +282,7 @@ void gc(void) {
 	#endif
 }
 
-static void resetStacks(void) {
+static void reset_stacks(void) {
 	vm.stackTop = vm.evalStack;
 	vm.callStackTop = vm.callStack;
 }
@@ -301,7 +308,7 @@ static void callUserFunction(ObjectFunction* function) {
 	}
 
 	StackFrame frame = newStackFrame(vm.ip, function);
-	for (int i = 0; i < function->numParams; i++) {
+	for (int i = 0; i < function->num_params; i++) {
 		const char* paramName = function->parameters[i];
 		Value argument = pop();
 		table_set_cstring_key(&frame.localVariables, paramName, argument);
@@ -317,13 +324,13 @@ static bool callNativeFunction(ObjectFunction* function) {
 
 	ValueArray arguments;
 	value_array_init(&arguments);
-	for (int i = 0; i < function->numParams; i++) {
+	for (int i = 0; i < function->num_params; i++) {
 		Value value = pop();
 		value_array_write(&arguments, &value);
 	}
 
 	Value result;
-	bool func_success = function->nativeFunction(arguments, &result);
+	bool func_success = function->native_function(arguments, &result);
 	if (func_success) {
 		push(result);
 	} else {
@@ -337,7 +344,7 @@ static bool callNativeFunction(ObjectFunction* function) {
 void initVM(void) {
     vm.ip = NULL;
 
-	resetStacks();
+	reset_stacks();
     vm.numObjects = 0;
     vm.maxObjects = INITIAL_GC_THRESHOLD;
     vm.allowGC = false;
@@ -350,7 +357,7 @@ void freeVM(void) {
 	for (StackFrame* frame = vm.callStack; frame != vm.callStackTop; frame++) {
 		freeStackFrame(frame);
 	}
-	resetStacks();
+	reset_stacks();
 	table_free(&vm.globals);
 
 	gc(); // TODO: probably move upper
@@ -519,8 +526,8 @@ InterpretResult interpret(Bytecode* baseChunk) {
 					value_array_write(&arguments, &other);
 
 					Value result;
-					if (add_method_as_func->isNative) {
-						if (!add_method_as_func->nativeFunction(arguments, &result)) {
+					if (add_method_as_func->is_native) {
+						if (!add_method_as_func->native_function(arguments, &result)) {
 							RUNTIME_ERROR("@add function failed.");
 							goto cleanup;
 						}
@@ -702,11 +709,11 @@ InterpretResult interpret(Bytecode* baseChunk) {
 				}
 
 				IntegerArray referenced_names_indices = object_code->bytecode.referenced_names_indices;
-				int upvalue_count = referenced_names_indices.count; // referenced_names_indices is the indices in the code's constant table
-				ValueArray upvalues;
-				value_array_init(&upvalues);
+				int free_vars_count = referenced_names_indices.count; // referenced_names_indices is the indices in the code's constant table
+				Table free_vars;
+				table_init(&free_vars);
 
-				for (int i = 0; i < upvalue_count; i++) {
+				for (int i = 0; i < free_vars_count; i++) {
 					size_t name_index = referenced_names_indices.values[i];
 					Value name_value = object_code->bytecode.constants.values[name_index];
 
@@ -719,22 +726,17 @@ InterpretResult interpret(Bytecode* baseChunk) {
 					Value value;
 					if (table_get(&currentFrame()->localVariables, name_string, &value)) {
 						// Referenced name found in local variables of the enclosing function
+						table_set(&free_vars, name_string, value);
 					} else {
-
+						Table* current_func_free_vars = &currentFrame()->objFunc->free_vars;
+						if (table_get(current_func_free_vars, name_string, &value)) {
+							table_set(&free_vars, name_string, value);
+						}
+						// If not found, the referenced variable is probably a local, or a runtime error later.
 					}
-
-//					Value value;
-//					bool name_is_in_locals_or_baseframe_or_globals =
-//							table_get(&currentFrame()->localVariables, name_string, &value)
-//							|| table_get(&vm.callStack->localVariables, name_string, &value)
-//							|| table_get(&vm.globals, name_string, &value);
-//
-//					if (name_is_in_locals_or_baseframe_or_globals) {
-//						value_array_write(&upvalues, &value);
-//					}
 				}
 
-				ObjectFunction* obj_function = object_user_function_new(object_code, params_buffer, num_params, NULL, upvalues);
+				ObjectFunction* obj_function = object_user_function_new(object_code, params_buffer, num_params, NULL, free_vars);
 				push(MAKE_VALUE_OBJECT(obj_function));
 				break;
 			}
@@ -802,11 +804,10 @@ InterpretResult interpret(Bytecode* baseChunk) {
             }
             
             case OP_LOAD_VARIABLE: {
-                int constantIndex = READ_BYTE();
-                Value name_val = currentChunk()->constants.values[constantIndex];
-                ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
-                ObjectString* name_string = object_as_string(name_val.as.object);
-                push(loadVariable(name_string));
+                Value name_value = currentChunk()->constants.values[READ_BYTE()];
+                ASSERT_VALUE_TYPE(name_value, VALUE_OBJECT);
+                ObjectString* name_string = object_as_string(name_value.as.object);
+                push(load_variable(name_string));
 
                 break;
             }
@@ -844,12 +845,12 @@ InterpretResult interpret(Bytecode* baseChunk) {
 
                 bool is_method = function->self != NULL;
                 int actual_arg_count = explicit_arg_count + (is_method ? 1 : 0);
-                if (actual_arg_count != function->numParams) {
-                	RUNTIME_ERROR("Function called with %d arguments, needs %d.", explicit_arg_count, function->numParams);
+                if (actual_arg_count != function->num_params) {
+                	RUNTIME_ERROR("Function called with %d arguments, needs %d.", explicit_arg_count, function->num_params);
                 	break;
                 }
 
-                if (function->isNative) {
+                if (function->is_native) {
                 	if (!callNativeFunction(function)) {
                 		RUNTIME_ERROR("Native function failed.");
                 		break;
@@ -933,8 +934,8 @@ InterpretResult interpret(Bytecode* baseChunk) {
 				value_array_write(&arguments, &key);
 
 				Value result;
-				if (method_as_func->isNative) {
-					if (!method_as_func->nativeFunction(arguments, &result)) {
+				if (method_as_func->is_native) {
+					if (!method_as_func->native_function(arguments, &result)) {
 						RUNTIME_ERROR("@get_key function failed.");
 						goto op_access_key_cleanup;
 					}
@@ -971,8 +972,8 @@ InterpretResult interpret(Bytecode* baseChunk) {
     				value_array_write(&arguments, &value);
 
     				Value result;
-    				if (set_method->isNative) {
-    					if (!set_method->nativeFunction(arguments, &result)) {
+    				if (set_method->is_native) {
+    					if (!set_method->native_function(arguments, &result)) {
     						RUNTIME_ERROR("@set_key function failed.");
     						goto op_set_key_cleanup;
     					}

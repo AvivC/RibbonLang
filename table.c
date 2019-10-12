@@ -198,3 +198,9 @@ void table_free(Table* table) {
     deallocate(table->entries, sizeof(Entry) * table->capacity, "Hash table array");
     table_init(table);
 }
+
+Table table_new_empty(void) {
+	Table table;
+	table_init(&table);
+	return table;
+}

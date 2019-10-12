@@ -233,30 +233,28 @@ bool object_strings_equal(ObjectString* a, ObjectString* b) {
     return (a->length == b->length) && (object_cstrings_equal(a->chars, b->chars));
 }
 
-static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, Object* self, ValueArray upvalues) {
+static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, Object* self, Table free_vars) {
     ObjectFunction* objFunc = (ObjectFunction*) allocate_object(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
     objFunc->name = copy_null_terminated_cstring("<Anonymous function>", "Function name");
-    objFunc->isNative = isNative;
+    objFunc->is_native = isNative;
     objFunc->parameters = parameters;
-    objFunc->numParams = numParams;
+    objFunc->num_params = numParams;
     objFunc->self = self;
-    objFunc->upvalues = upvalues;
+    objFunc->free_vars = free_vars;
     return objFunc;
 }
 
-ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self, ValueArray upvalues) {
+ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self, Table free_vars) {
     DEBUG_OBJECTS_PRINT("Creating user function object.");
-    ObjectFunction* objFunc = object_function_base_new(false, parameters, numParams, self, upvalues);
+    ObjectFunction* objFunc = object_function_base_new(false, parameters, numParams, self, free_vars);
     objFunc->code = code;
     return objFunc;
 }
 
 ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams, Object* self) {
     DEBUG_OBJECTS_PRINT("Creating native function object.");
-    ValueArray empty_upvalues;
-    value_array_init(&empty_upvalues);
-    ObjectFunction* objFunc = object_function_base_new(true, parameters, numParams, self, empty_upvalues);
-    objFunc->nativeFunction = nativeFunction;
+    ObjectFunction* objFunc = object_function_base_new(true, parameters, numParams, self, table_new_empty());
+    objFunc->native_function = nativeFunction;
     return objFunc;
 }
 
@@ -281,6 +279,10 @@ ObjectTable* object_table_new(Table table) {
 	return object_table;
 }
 
+ObjectTable* object_table_new_empty(void) {
+	return object_table_new(table_new_empty());
+}
+
 void object_free(Object* o) {
 	table_free(&o->attributes);
 
@@ -296,19 +298,19 @@ void object_free(Object* o) {
         }
         case OBJECT_FUNCTION: {
             ObjectFunction* func = (ObjectFunction*) o;
-            if (func->isNative) {
+            if (func->is_native) {
             	DEBUG_OBJECTS_PRINT("Freeing native ObjectFunction");
 			} else {
 				DEBUG_OBJECTS_PRINT("Freeing user ObjectFunction");
 			}
-            for (int i = 0; i < func->numParams; i++) {
+            for (int i = 0; i < func->num_params; i++) {
             	char* param = func->parameters[i];
 				deallocate(param, strlen(param) + 1, "ObjectFunction param cstring");
 			}
-            if (func->numParams > 0) {
-            	deallocate(func->parameters, sizeof(char*) * func->numParams, "Parameters list cstrings");
+            if (func->num_params > 0) {
+            	deallocate(func->parameters, sizeof(char*) * func->num_params, "Parameters list cstrings");
             }
-            value_array_free(&func->upvalues);
+            table_free(&func->free_vars);
             deallocate(func->name, strlen(func->name) + 1, "Function name");
             deallocate(func, sizeof(ObjectFunction), "ObjectFunction");
             break;
@@ -341,7 +343,7 @@ void object_print(Object* o) {
             return;
         }
         case OBJECT_FUNCTION: {
-        	if (OBJECT_AS_FUNCTION(o)->isNative) {
+        	if (OBJECT_AS_FUNCTION(o)->is_native) {
         		printf("<Native function at %p>", o);
         	} else {
         		printf("<Function at %p>", o);
