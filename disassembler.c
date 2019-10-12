@@ -1,5 +1,6 @@
+#include "disassembler.h"
+
 #include <stdio.h>
-#include "debug.h"
 #include "object.h"
 #include "value.h"
 #include "utils.h"
@@ -55,7 +56,7 @@ static int simpleInstruction(const char* name, Bytecode* chunk, int offset) {
     return offset + 1;
 }
 
-int disassembleInstruction(OP_CODE opcode, Bytecode* chunk, int offset) {
+int disassembler_do_single_instruction(OP_CODE opcode, Bytecode* chunk, int offset) {
 	printf("%-3d ", offset);
 
 	switch (opcode) {
@@ -182,10 +183,10 @@ int disassembleInstruction(OP_CODE opcode, Bytecode* chunk, int offset) {
 	}
 }
 
-void disassembleChunk(Bytecode* chunk) {
+void disassembler_do_bytecode(Bytecode* chunk) {
     int offset = 0; 
     for (; offset < chunk->count; ) {
-		offset = disassembleInstruction(chunk->code[offset], chunk, offset);
+		offset = disassembler_do_single_instruction(chunk->code[offset], chunk, offset);
     }
     
     for (int i = 0; i < chunk->constants.count; i++) {
@@ -194,7 +195,7 @@ void disassembleChunk(Bytecode* chunk) {
             printf("\nInner chunk [index %d]:\n", i);
             ObjectCode* inner_code_object = (ObjectCode*) constant.as.object;
             Bytecode inner_chunk = inner_code_object->chunk;
-            disassembleChunk(&inner_chunk);
+            disassembler_do_bytecode(&inner_chunk);
         }
     }
 

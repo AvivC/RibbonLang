@@ -8,7 +8,7 @@
 #include "memory.h"
 #include "table.h"
 
-static Object* allocateObject(size_t size, const char* what, ObjectType type) {
+static Object* allocate_object(size_t size, const char* what, ObjectType type) {
 	DEBUG_OBJECTS_PRINT("Allocating object '%s' of size %d and type %d.", what, size, type);
 
     Object* object = allocate(size, what);
@@ -24,15 +24,28 @@ static Object* allocateObject(size_t size, const char* what, ObjectType type) {
     return object;
 }
 
-bool is_value_object_of_type(Value value, ObjectType type) {
+bool object_is_value_object_of_type(Value value, ObjectType type) {
 	return value.type == VALUE_OBJECT && value.as.object->type == type;
+}
+
+static void set_object_native_method(Object* object, const char* method_name, char** params, int num_params, NativeFunction function) {
+	int num_params_including_self = num_params + 1;
+	char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
+
+	copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+	for (int i = 0; i < num_params; i++) {
+		copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
+	}
+
+	ObjectFunction* method = object_native_function_new(function, copied_params, num_params_including_self, object);
+	table_set_cstring_key(&object->attributes, method_name, MAKE_VALUE_OBJECT(method));
 }
 
 static bool object_string_add(ValueArray args, Value* result) {
 	Value self_value = args.values[0];
 	Value other_value = args.values[1];
 
-    if (!is_value_object_of_type(self_value, OBJECT_STRING) || !is_value_object_of_type(other_value, OBJECT_STRING)) {
+    if (!object_is_value_object_of_type(self_value, OBJECT_STRING) || !object_is_value_object_of_type(other_value, OBJECT_STRING)) {
     	*result = MAKE_VALUE_NIL();
     	return false;
     }
@@ -45,7 +58,7 @@ static bool object_string_add(ValueArray args, Value* result) {
     memcpy(buffer + self_string->length, other_string->chars, other_string->length);
     int stringLength = self_string->length + other_string->length;
     buffer[stringLength] = '\0';
-    ObjectString* objString = takeString(buffer, stringLength);
+    ObjectString* objString = object_string_take(buffer, stringLength);
 
     *result = MAKE_VALUE_OBJECT(objString);
     return true;
@@ -54,7 +67,7 @@ static bool object_string_add(ValueArray args, Value* result) {
 static bool object_string_length(ValueArray args, Value* result) {
 	Value self_value = args.values[0];
 
-    if (!is_value_object_of_type(self_value, OBJECT_STRING)) {
+    if (!object_is_value_object_of_type(self_value, OBJECT_STRING)) {
     	FAIL("String length method called on none ObjectString.");
     }
 
@@ -67,7 +80,7 @@ static bool object_string_length(ValueArray args, Value* result) {
 static bool object_table_length(ValueArray args, Value* result) {
 	Value self_value = args.values[0];
 
-    if (!is_value_object_of_type(self_value, OBJECT_TABLE)) {
+    if (!object_is_value_object_of_type(self_value, OBJECT_TABLE)) {
     	FAIL("Table length method called on none ObjectTable.");
     }
 
@@ -93,7 +106,7 @@ static bool object_string_get_key(ValueArray args, Value* result) {
 	Value self_value = args.values[0];
 	Value other_value = args.values[1];
 
-    if (!is_value_object_of_type(self_value, OBJECT_STRING)) {
+    if (!object_is_value_object_of_type(self_value, OBJECT_STRING)) {
     	FAIL("String @get_key called on none ObjectString.");
     }
 
@@ -102,7 +115,7 @@ static bool object_string_get_key(ValueArray args, Value* result) {
     	return false;
     }
 
-    ObjectString* self_string = objectAsString(self_value.as.object);
+    ObjectString* self_string = object_as_string(self_value.as.object);
 
     double other_as_number = other_value.as.number;
     bool number_is_integer = floor(other_as_number) == other_as_number;
@@ -117,43 +130,8 @@ static bool object_string_get_key(ValueArray args, Value* result) {
     }
 
     char char_result = self_string->chars[(int) other_as_number];
-    *result = MAKE_VALUE_OBJECT(copyString(&char_result, 1));
+    *result = MAKE_VALUE_OBJECT(object_string_copy(&char_result, 1));
     return true;
-}
-
-void set_string_add_method(ObjectString* objString) {
-	int add_func_num_params = 2;
-	char** params = allocate(sizeof(char*) * add_func_num_params, "Parameters list cstrings");
-	// TODO: Should "result" be listed in the internal parameter list?
-	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
-	params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");
-	ObjectFunction* string_add_function = object_native_function_new(object_string_add, params, add_func_num_params, (Object*) objString);
-	table_set_cstring_key(&objString->base.attributes, "@add", MAKE_VALUE_OBJECT(string_add_function));
-}
-
-void set_string_get_key_method(ObjectString* objString) {
-	int num_params = 2;
-	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
-	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
-	params[1] = copy_cstring("other", 5, "ObjectFunction param cstring");
-	ObjectFunction* string_add_function = object_native_function_new(object_string_get_key, params, num_params, (Object*) objString);
-	table_set_cstring_key(&objString->base.attributes, "@get_key", MAKE_VALUE_OBJECT(string_add_function));
-}
-
-void set_string_length_method(ObjectString* objString) {
-	int num_params = 1;
-	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
-	params[0] = copy_cstring("self", 4, "ObjectFunction param cstring");
-	ObjectFunction* string_length_function = object_native_function_new(object_string_length, params, num_params, (Object*) objString);
-	table_set_cstring_key(&objString->base.attributes, "length", MAKE_VALUE_OBJECT(string_length_function));
-}
-
-static void set_table_length_method(ObjectTable* table) {
-	int num_params = 1;
-	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
-	params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
-	ObjectFunction* table_length_function = object_native_function_new(object_table_length, params, num_params, (Object*) table);
-	table_set_cstring_key(&table->base.attributes, "length", MAKE_VALUE_OBJECT(table_length_function));
 }
 
 static bool table_get_key_function(ValueArray args, Value* result) {
@@ -162,11 +140,11 @@ static bool table_get_key_function(ValueArray args, Value* result) {
 	Value self_value = args.values[0];
 	Value other_value = args.values[1];
 
-    if (!is_value_object_of_type(self_value, OBJECT_TABLE)) {
+    if (!object_is_value_object_of_type(self_value, OBJECT_TABLE)) {
     	FAIL("Table @get_key called on none ObjectTable.");
     }
 
-    if (!is_value_object_of_type(other_value, OBJECT_STRING))  {
+    if (!object_is_value_object_of_type(other_value, OBJECT_STRING))  {
     	*result = MAKE_VALUE_NIL();
     	return false;
     }
@@ -193,11 +171,11 @@ static bool table_set_key_function(ValueArray args, Value* result) {
 	Value key_value = args.values[1];
 	Value value_to_set = args.values[2];
 
-    if (!is_value_object_of_type(self_value, OBJECT_TABLE)) {
+    if (!object_is_value_object_of_type(self_value, OBJECT_TABLE)) {
     	FAIL("Table @set_key called on none ObjectTable.");
     }
 
-    if (!is_value_object_of_type(key_value, OBJECT_STRING)) {
+    if (!object_is_value_object_of_type(key_value, OBJECT_STRING)) {
     	return false;
     }
 
@@ -209,88 +187,54 @@ static bool table_set_key_function(ValueArray args, Value* result) {
     return true;
 }
 
-static void set_table_key_accessor_method(ObjectTable* table) {
-	int num_params = 2;
-	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
-	params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
-	params[1] = copy_null_terminated_cstring("other", "ObjectFunction param cstring");
-	ObjectFunction* method = object_native_function_new(table_get_key_function, params, num_params, (Object*) table);
-	table_set_cstring_key(&table->base.attributes, "@get_key", MAKE_VALUE_OBJECT(method));
-}
-
-static void set_table_key_setter_method(ObjectTable* table) {
-	int num_params = 3;
-	char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
-	params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
-	params[1] = copy_null_terminated_cstring("key", "ObjectFunction param cstring");
-	params[2] = copy_null_terminated_cstring("value", "ObjectFunction param cstring");
-	ObjectFunction* method = object_native_function_new(table_set_key_function, params, num_params, (Object*) table);
-	table_set_cstring_key(&table->base.attributes, "@set_key", MAKE_VALUE_OBJECT(method));
-}
-
-static ObjectString* newObjectString(char* chars, int length) {
+static ObjectString* object_string_new(char* chars, int length) {
     DEBUG_OBJECTS_PRINT("Allocating string object '%s' of length %d.", chars, length);
     
-    ObjectString* objString = (ObjectString*) allocateObject(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
+    ObjectString* string = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
     
-    objString->chars = chars;
-    objString->length = length;
+    string->chars = chars;
+    string->length = length;
 
-	set_string_add_method(objString);
-	set_string_get_key_method(objString);
-	set_string_length_method(objString);
-    return objString;
+	set_object_native_method((Object*) string, "@add", (char*[]){"other"}, 1, object_string_add);
+	set_object_native_method((Object*) string, "@get_key", (char*[]){"other"}, 1, object_string_get_key);
+	set_object_native_method((Object*) string, "length", (char*[]){}, 0, object_string_length);
+    return string;
 }
 
-char* copy_cstring(const char* string, int length, const char* what) {
-	// argument length should not include the null-terminator
-	DEBUG_OBJECTS_PRINT("Allocating string buffer '%.*s' of length %d.", length, string, length);
-
-    char* chars = allocate(sizeof(char) * length + 1, what);
-    memcpy(chars, string, length);
-    chars[length] = '\0';
-
-    return chars;
-}
-
-char* copy_null_terminated_cstring(const char* string, const char* what) {
-	return copy_cstring(string, strlen(string), what);
-}
-
-ObjectString* copyString(const char* string, int length) {
+ObjectString* object_string_copy(const char* string, int length) {
 	// argument length should not include the null-terminator
     char* chars = copy_cstring(string, length, "Object string buffer");
-    return newObjectString(chars, length);
+    return object_string_new(chars, length);
 }
 
 ObjectString* object_string_copy_from_null_terminated(const char* string) {
-	return copyString(string, strlen(string));
+	return object_string_copy(string, strlen(string));
 }
 
-ObjectString* takeString(char* chars, int length) {
+ObjectString* object_string_take(char* chars, int length) {
     // Assume chars is already null-terminated
-    return newObjectString(chars, length);
+    return object_string_new(chars, length);
 }
 
-ObjectString** createCopiedStringsArray(const char** strings, int num, const char* allocDescription) {
+ObjectString** object_create_copied_strings_array(const char** strings, int num, const char* allocDescription) {
 	ObjectString** array = allocate(sizeof(ObjectString*) * num, allocDescription);
 	for (int i = 0; i < num; i++) {
-		array[i] = copyString(strings[i], strlen(strings[i]));
+		array[i] = object_string_copy(strings[i], strlen(strings[i]));
 	}
 	return array;
 }
 
-bool cstringsEqual(const char* a, const char* b) {
+bool object_cstrings_equal(const char* a, const char* b) {
     // Assuming NULL-terminated strings
     return strcmp(a, b) == 0;
 }
 
-bool stringsEqual(ObjectString* a, ObjectString* b) {
-    return (a->length == b->length) && (cstringsEqual(a->chars, b->chars));
+bool object_strings_equal(ObjectString* a, ObjectString* b) {
+    return (a->length == b->length) && (object_cstrings_equal(a->chars, b->chars));
 }
 
 static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, Object* self, ValueArray upvalues) {
-    ObjectFunction* objFunc = (ObjectFunction*) allocateObject(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
+    ObjectFunction* objFunc = (ObjectFunction*) allocate_object(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
     objFunc->name = copy_null_terminated_cstring("<Anonymous function>", "Function name");
     objFunc->isNative = isNative;
     objFunc->parameters = parameters;
@@ -321,23 +265,23 @@ void object_function_set_name(ObjectFunction* function, char* name) {
 }
 
 ObjectCode* object_code_new(Bytecode chunk) {
-	ObjectCode* obj_code = (ObjectCode*) allocateObject(sizeof(ObjectCode), "ObjectCode", OBJECT_CODE);
+	ObjectCode* obj_code = (ObjectCode*) allocate_object(sizeof(ObjectCode), "ObjectCode", OBJECT_CODE);
 	obj_code->chunk = chunk;
 	return obj_code;
 }
 
 ObjectTable* object_table_new(Table table) {
-	ObjectTable* obj_table = (ObjectTable*) allocateObject(sizeof(ObjectTable), "ObjectTable", OBJECT_TABLE);
-	obj_table->table = table;
+	ObjectTable* object_table = (ObjectTable*) allocate_object(sizeof(ObjectTable), "ObjectTable", OBJECT_TABLE);
+	object_table->table = table;
 
-	set_table_length_method(obj_table);
-	set_table_key_accessor_method(obj_table);
-	set_table_key_setter_method(obj_table);
+	set_object_native_method((Object*) object_table, "length", (char*[]){}, 0, object_table_length);
+	set_object_native_method((Object*) object_table, "@get_key", (char*[]){"other"}, 1, table_get_key_function);
+	set_object_native_method((Object*) object_table, "@set_key", (char*[]){"key", "value"}, 2, table_set_key_function);
 
-	return obj_table;
+	return object_table;
 }
 
-void free_object(Object* o) {
+void object_free(Object* o) {
 	table_free(&o->attributes);
 
 	ObjectType type = o->type;
@@ -389,7 +333,7 @@ void free_object(Object* o) {
     DEBUG_OBJECTS_PRINT("Decremented numObjects to %d", vm.numObjects);
 }
 
-void printObject(Object* o) {
+void object_print(Object* o) {
     switch (o->type) {
         case OBJECT_STRING: {
         	// TODO: Maybe differentiate string printing and value printing which happens to be a string
@@ -418,35 +362,31 @@ void printObject(Object* o) {
     FAIL("Unrecognized object type: %d", o->type);
 }
 
-bool compareObjects(Object* a, Object* b) {
+bool object_compare(Object* a, Object* b) {
 	if (a->type != b->type) {
 		return false;
 	}
 
 	if (a->type == OBJECT_STRING) {
-		return stringsEqual(OBJECT_AS_STRING(a), OBJECT_AS_STRING(b));
+		return object_strings_equal(OBJECT_AS_STRING(a), OBJECT_AS_STRING(b));
 	} else {
 		return a == b;
 	}
 }
 
-ObjectFunction* objectAsFunction(Object* o) {
+ObjectFunction* object_as_function(Object* o) {
 	if (o->type != OBJECT_FUNCTION) {
 		FAIL("Object is not a function. Actual type: %d", o->type);
 	}
 	return (ObjectFunction*) o;
 }
 
-ObjectString* objectAsString(Object* o) {
+ObjectString* object_as_string(Object* o) {
 	if (o->type != OBJECT_STRING) {
 		FAIL("Object is not string. Actual type: %d", o->type);
 	}
 	return (ObjectString*) o;
 }
-
-#define OBJECT_GET_METHOD_SUCCCESS 1
-#define OBJECT_NO_SUCH_ATTRIBUTE 2
-#define OBJECT_ATTRIBUTE_NOT_FUNCTION 3
 
 MethodAccessResult object_get_method(Object* object, const char* method_name, ObjectFunction** out) {
 	Value method_value;
@@ -454,7 +394,7 @@ MethodAccessResult object_get_method(Object* object, const char* method_name, Ob
 		return METHOD_ACCESS_NO_SUCH_ATTR;
 	}
 
-	if (!is_value_object_of_type(method_value, OBJECT_FUNCTION)) {
+	if (!object_is_value_object_of_type(method_value, OBJECT_FUNCTION)) {
 		return METHOD_ACCESS_ATTR_NOT_FUNCTION;
 	}
 
@@ -463,13 +403,13 @@ MethodAccessResult object_get_method(Object* object, const char* method_name, Ob
 }
 
 // For debugging
-void printAllObjects(void) {
+void object_print_all_objects(void) {
 	if (vm.objects != NULL) {
 		printf("All live objects:\n");
 		int counter = 0;
 		for (Object* object = vm.objects; object != NULL; object = object->next) {
 			printf("%-2d | Type: %d | isReachable: %d | Print: ", counter, object->type, object->is_reachable);
-			printObject(object);
+			object_print(object);
 			printf("\n");
 			counter++;
 		}

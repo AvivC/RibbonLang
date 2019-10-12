@@ -3,11 +3,11 @@
 #include <string.h>
 
 #include "common.h"
-#include "debug.h"
 #include "compiler.h"
 #include "parser.h"
 #include "ast.h"
 #include "bytecode.h"
+#include "disassembler.h"
 #include "value.h"
 #include "object.h"
 #include "vm.h"
@@ -75,7 +75,7 @@ static void printStructures(int argc, char* argv[], Bytecode* chunk, AstNode* as
     
     if (showBytecode) {
         printf("==== Bytecode ====\n\n");
-        disassembleChunk(chunk);
+        disassembler_do_bytecode(chunk);
         printf("\n");
     }
     
@@ -110,7 +110,7 @@ static void printMemoryDiagnostic() {
     }
     
     printf("\n*******\n");
-    printAllObjects();
+    object_print_all_objects();
     printf("*******\n");
 
     printf("======== End memory diagnostics ========\n");

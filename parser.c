@@ -47,12 +47,12 @@ static bool check(ScannerTokenType type) {
 }
 
 static bool check_at_offset(ScannerTokenType type, int offset) {
-	return peek_token_at_offset(offset).type == type;
+	return scanner_peek_token_at_offset(offset).type == type;
 }
 
 static void advance() {
     parser.previous = parser.current;
-    parser.current = scanToken();
+    parser.current = scanner_next_token();
     if (parser.current.type == TOKEN_ERROR) {
         error(parser.current.start);
     }
@@ -75,7 +75,7 @@ static bool match(ScannerTokenType type) {
 }
 
 static bool matchNext(ScannerTokenType type) {
-    if (peekNextToken().type == type) {
+    if (scanner_peek_next_token().type == type) {
         advance();
         return true;
     }
@@ -83,7 +83,7 @@ static bool matchNext(ScannerTokenType type) {
 }
 
 static bool match_at_offset(ScannerTokenType type, int offset) {
-	if (peek_token_at_offset(offset).type == type) {
+	if (scanner_peek_token_at_offset(offset).type == type) {
 		advance();
 		return true;
 	}
@@ -223,7 +223,7 @@ static AstNode* function(int expression_level) {
     return (AstNode*) node;
 }
 
-static AstNode* call(AstNode* leftNode, int expression_level) {
+static AstNode* call(AstNode* left_node, int expression_level) {
 	PointerArray arguments;
 	init_pointer_array(&arguments);
 
@@ -234,7 +234,7 @@ static AstNode* call(AstNode* leftNode, int expression_level) {
 		} while (match(TOKEN_COMMA));
 	}
 
-	return (AstNode*) ast_new_node_call(leftNode, arguments);
+	return (AstNode*) ast_new_node_call(left_node, arguments);
 }
 
 static AstNode* grouping(int expression_level) {
@@ -443,7 +443,7 @@ static AstNode* statements(void) {
 }
 
 AstNode* parse(const char* source) {
-    init_scanner(source);
+    scanner_init(source);
     
     advance();
     parser.had_error = false;

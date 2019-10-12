@@ -41,7 +41,7 @@ bool builtin_input(ValueArray args, Value* out) {
 
 	user_input[length] = '\0';
 	user_input = reallocate(user_input, sizeof(char) * capacity, sizeof(char) * length + 1, alloc_string);
-	ObjectString* obj_string = takeString(user_input, length);
+	ObjectString* obj_string = object_string_take(user_input, length);
 
 	*out = MAKE_VALUE_OBJECT(obj_string);
 	return true;
@@ -51,7 +51,7 @@ bool builtin_read_file(ValueArray args, Value* out) {
 	// TODO: Proper systematic error handling, instead of ad-hoc printing
 	// TODO: Dedicated tests
 
-	if (!is_value_object_of_type(args.values[0], OBJECT_STRING)) {
+	if (!object_is_value_object_of_type(args.values[0], OBJECT_STRING)) {
 		return false;
 	}
 
@@ -85,6 +85,6 @@ bool builtin_read_file(ValueArray args, Value* out) {
 
     buffer[fileSize] = '\0';
 
-    *out = MAKE_VALUE_OBJECT(takeString(buffer, fileSize));
+    *out = MAKE_VALUE_OBJECT(object_string_take(buffer, fileSize));
     return true;
 }

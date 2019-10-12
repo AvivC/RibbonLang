@@ -7,8 +7,8 @@
 
 #define MAX_LOAD_FACTOR 0.75
 
-bool cstringsEqual(const char* a, const char* b);
-bool stringsEqual(ObjectString* a, ObjectString* b);
+bool object_cstrings_equal(const char* a, const char* b);
+bool object_strings_equal(ObjectString* a, ObjectString* b);
 
 static unsigned long hashString(const char* chars) {  // maybe should be unsigned char*?
     unsigned long hash = 5381;
@@ -36,7 +36,7 @@ static Entry* findEntry(Table* table, const char* key, bool settingValue) {
     }
     
     Entry* entry = &table->entries[slot];
-    while (entry->key != NULL && !cstringsEqual(entry->key, key)) {
+    while (entry->key != NULL && !object_cstrings_equal(entry->key, key)) {
         if (settingValue) {
             table->collisionsCounter++;
         }

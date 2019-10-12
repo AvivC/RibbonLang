@@ -8,7 +8,7 @@
 #include "table.h"
 #include "builtins.h"
 #include "bytecode.h"
-#include "debug.h"
+#include "disassembler.h"
 #include "utils.h"
 #include "pointerarray.h"
 #include "io.h"
@@ -239,7 +239,7 @@ static void gc_sweep(void) {
 		} else {
 			Object* unreachable = *current;
 			*current = unreachable->next;
-			free_object(unreachable);
+			object_free(unreachable);
 		}
 	}
 }
@@ -506,7 +506,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
             			break;
             		}
 
-					if (!is_value_object_of_type(add_method, OBJECT_FUNCTION)) {
+					if (!object_is_value_object_of_type(add_method, OBJECT_FUNCTION)) {
 						RUNTIME_ERROR("Objects @add isn't a function.");
 						break;
 					}
@@ -679,7 +679,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
 
             case OP_MAKE_STRING: {
             	RawString string = READ_CONSTANT().as.raw_string;
-            	ObjectString* obj_string = copyString(string.data, string.length);
+            	ObjectString* obj_string = object_string_copy(string.data, string.length);
             	push(MAKE_VALUE_OBJECT(obj_string));
             	break;
             }
@@ -707,7 +707,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
 				for (int i = 0; i < upvalue_count; i++) {
 					size_t name_index = obj_code->chunk.referenced_names_indices.values[i];
 					Value name_value = obj_code->chunk.constants.values[name_index];
-					if (!is_value_object_of_type(name_value, OBJECT_STRING)) {
+					if (!object_is_value_object_of_type(name_value, OBJECT_STRING)) {
 						FAIL("Upvalue name should be an ObjectString*");
 					}
 					ObjectString* name_string = (ObjectString*) name_value.as.object;
@@ -732,7 +732,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
 
             	for (int i = 0; i < num_entries; i++) {
 					Value key = pop();
-					if (!is_value_object_of_type(key, OBJECT_STRING)) {
+					if (!object_is_value_object_of_type(key, OBJECT_STRING)) {
 						RUNTIME_ERROR("Currently only strings supported as table keys.");
 						break;
 					}
@@ -790,7 +790,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
                 int constantIndex = READ_BYTE();
                 Value name_val = currentChunk()->constants.values[constantIndex];
                 ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
-                ObjectString* name_string = objectAsString(name_val.as.object);
+                ObjectString* name_string = object_as_string(name_val.as.object);
                 push(loadVariable(name_string));
 
                 break;
@@ -804,7 +804,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
 
                 Value value = pop();
 
-                if (is_value_object_of_type(value, OBJECT_FUNCTION)) {
+                if (object_is_value_object_of_type(value, OBJECT_FUNCTION)) {
                 	ObjectFunction* function = (ObjectFunction*) value.as.object;
                 	deallocate(function->name, strlen(function->name) + 1, "Function name");
                 	char* new_cstring_name = copy_null_terminated_cstring(name->chars, "Function name");
@@ -905,7 +905,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
 					break;
 				}
 
-				if (!is_value_object_of_type(key_access_method_value, OBJECT_FUNCTION)) {
+				if (!object_is_value_object_of_type(key_access_method_value, OBJECT_FUNCTION)) {
 					RUNTIME_ERROR("Object's @get_key isn't a function.");
 					break;
 				}

@@ -10,7 +10,7 @@ void printValue(Value value) {
             return;
         }
         case VALUE_OBJECT: {
-            printObject(value.as.object);
+            object_print(value.as.object);
             return;
         }
         case VALUE_BOOLEAN: {
@@ -65,7 +65,7 @@ bool compareValues(Value a, Value b, int* output) {
 		return true;
 
 	} else if (a.type == VALUE_OBJECT) {
-		bool objectsEqual = compareObjects(a.as.object, b.as.object);
+		bool objectsEqual = object_compare(a.as.object, b.as.object);
 		if (objectsEqual) {
 			*output = 0;
 		} else {

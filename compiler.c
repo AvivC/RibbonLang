@@ -102,7 +102,7 @@ static void compileTree(AstNode* node, Bytecode* chunk) {
             AstNodeVariable* nodeVariable = (AstNodeVariable*) node;
             
             // TODO: Why do we sometimes use ObjectString* constants and sometimes RawString constants?
-            Value name_constant = MAKE_VALUE_OBJECT(copyString(nodeVariable->name, nodeVariable->length));
+            Value name_constant = MAKE_VALUE_OBJECT(object_string_copy(nodeVariable->name, nodeVariable->length));
             int constantIndex = bytecode_add_constant(chunk, &name_constant);
 
             integer_array_write(&chunk->referenced_names_indices, (size_t*) &constantIndex);
@@ -117,7 +117,7 @@ static void compileTree(AstNode* node, Bytecode* chunk) {
             
             compileTree(nodeAssignment->value, chunk);
             
-			Value name_constant = MAKE_VALUE_OBJECT(copyString(nodeAssignment->name, nodeAssignment->length));
+			Value name_constant = MAKE_VALUE_OBJECT(object_string_copy(nodeAssignment->name, nodeAssignment->length));
 			int constantIndex = bytecode_add_constant(chunk, &name_constant);
 
             bytecode_write(chunk, OP_SET_VARIABLE);
@@ -223,7 +223,7 @@ static void compileTree(AstNode* node, Bytecode* chunk) {
         	AstNodeImport* node_import = (AstNodeImport*) node;
 
         	// TODO: Not sure when the constant should be an ObjectString and when simply a RawString. Currently improvising.
-        	Value module_name_constant = MAKE_VALUE_OBJECT(copyString(node_import->name, node_import->name_length));
+        	Value module_name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_import->name, node_import->name_length));
         	emit_opcode_with_constant_operand(chunk, OP_IMPORT, module_name_constant);
 
         	break;
@@ -234,7 +234,7 @@ static void compileTree(AstNode* node, Bytecode* chunk) {
 
             compileTree(node_attr->object, chunk);
 
-            Value constant = MAKE_VALUE_OBJECT(copyString(node_attr->name, node_attr->length));
+            Value constant = MAKE_VALUE_OBJECT(object_string_copy(node_attr->name, node_attr->length));
             int constant_index = bytecode_add_constant(chunk, &constant);
 
             bytecode_write(chunk, OP_GET_ATTRIBUTE);
@@ -249,7 +249,7 @@ static void compileTree(AstNode* node, Bytecode* chunk) {
             compileTree(node_attr->value, chunk);
             compileTree(node_attr->object, chunk);
 
-            Value constant = MAKE_VALUE_OBJECT(copyString(node_attr->name, node_attr->length));
+            Value constant = MAKE_VALUE_OBJECT(object_string_copy(node_attr->name, node_attr->length));
             int constant_index = bytecode_add_constant(chunk, &constant);
 
             bytecode_write(chunk, OP_SET_ATTRIBUTE);

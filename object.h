@@ -63,11 +63,9 @@ typedef struct ObjectFunction {
     };
 } ObjectFunction;
 
-char* copy_cstring(const char* string, int length, const char* what);
-char* copy_null_terminated_cstring(const char* string, const char* what);
-ObjectString* copyString(const char* string, int length);
-ObjectString* takeString(char* chars, int length);
-ObjectString** createCopiedStringsArray(const char** strings, int num, const char* allocDescription);
+ObjectString* object_string_copy(const char* string, int length);
+ObjectString* object_string_take(char* chars, int length);
+ObjectString** object_create_copied_strings_array(const char** strings, int num, const char* allocDescription);
 ObjectString* object_string_copy_from_null_terminated(const char* string);
 
 ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self, ValueArray upvalues);
@@ -77,23 +75,23 @@ void object_function_set_name(ObjectFunction* function, char* name);
 ObjectCode* object_code_new(Bytecode chunk);
 ObjectTable* object_table_new(Table table);
 
-bool compareObjects(Object* a, Object* b);
+bool object_compare(Object* a, Object* b);
 
-bool cstringsEqual(const char* a, const char* b);
-bool stringsEqual(ObjectString* a, ObjectString* b);
+bool object_cstrings_equal(const char* a, const char* b);
+bool object_strings_equal(ObjectString* a, ObjectString* b);
 
-void free_object(Object* object);
-void printObject(Object* o);
-void printAllObjects(void);
+void object_free(Object* object);
+void object_print(Object* o);
+void object_print_all_objects(void);
 
 MethodAccessResult object_get_method(Object* object, const char* method_name, ObjectFunction** out);
 
-#define OBJECT_AS_STRING(o) (objectAsString(o))
-#define OBJECT_AS_FUNCTION(o) (objectAsFunction(o))
+#define OBJECT_AS_STRING(o) (object_as_string(o))
+#define OBJECT_AS_FUNCTION(o) (object_as_function(o))
 
-ObjectFunction* objectAsFunction(Object* o);
-ObjectString* objectAsString(Object* o);
+ObjectString* object_as_string(Object* o);
+ObjectFunction* object_as_function(Object* o);
 
-bool is_value_object_of_type(Value value, ObjectType type);
+bool object_is_value_object_of_type(Value value, ObjectType type);
 
 #endif
