@@ -22,7 +22,7 @@ static StackFrame* currentFrame(void) {
 }
 
 static Bytecode* currentChunk(void) {
-	return &currentFrame()->objFunc->code->chunk;
+	return &currentFrame()->objFunc->code->bytecode;
 }
 
 static void push(Value value) {
@@ -118,7 +118,7 @@ static Value loadVariable(ObjectString* name) {
 static void gc_mark_object(Object* object);
 
 static void gc_mark_code_constants(ObjectCode* code) {
-	Bytecode* chunk = &code->chunk;
+	Bytecode* chunk = &code->bytecode;
 	for (int i = 0; i < chunk->constants.count; i++) {
 		Value* constant = &chunk->constants.values[i];
 		if (constant->type == VALUE_OBJECT) {
@@ -307,7 +307,7 @@ static void callUserFunction(ObjectFunction* function) {
 		table_set_cstring_key(&frame.localVariables, paramName, argument);
 	}
 	pushFrame(frame);
-	vm.ip = function->code->chunk.code;
+	vm.ip = function->code->bytecode.code;
 }
 
 static bool callNativeFunction(ObjectFunction* function) {
@@ -685,7 +685,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
             }
 
             case OP_MAKE_FUNCTION: {
-				ObjectCode* obj_code = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
+				ObjectCode* object_code = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
 
 				uint8_t num_params_byte1 = READ_BYTE();
 				uint8_t num_params_byte2 = READ_BYTE();
@@ -701,25 +701,40 @@ InterpretResult interpret(Bytecode* baseChunk) {
 					params_buffer[i] = copy_cstring(param_raw_string.data, param_raw_string.length, "ObjectFunction param cstring");
 				}
 
-				int upvalue_count = obj_code->chunk.referenced_names_indices.count;
+				IntegerArray referenced_names_indices = object_code->bytecode.referenced_names_indices;
+				int upvalue_count = referenced_names_indices.count; // referenced_names_indices is the indices in the code's constant table
 				ValueArray upvalues;
 				value_array_init(&upvalues);
+
 				for (int i = 0; i < upvalue_count; i++) {
-					size_t name_index = obj_code->chunk.referenced_names_indices.values[i];
-					Value name_value = obj_code->chunk.constants.values[name_index];
+					size_t name_index = referenced_names_indices.values[i];
+					Value name_value = object_code->bytecode.constants.values[name_index];
+
 					if (!object_is_value_object_of_type(name_value, OBJECT_STRING)) {
-						FAIL("Upvalue name should be an ObjectString*");
+						FAIL("Upvalue name must be an ObjectString*");
 					}
+
 					ObjectString* name_string = (ObjectString*) name_value.as.object;
 
 					Value value;
-					if (table_get(&currentFrame()->localVariables, name_string, &value) || table_get(&vm.callStack->localVariables, name_string, &value)
-							|| table_get(&vm.globals, name_string, &value)) {
-						value_array_write(&upvalues, &value);
+					if (table_get(&currentFrame()->localVariables, name_string, &value)) {
+						// Referenced name found in local variables of the enclosing function
+					} else {
+
 					}
+
+//					Value value;
+//					bool name_is_in_locals_or_baseframe_or_globals =
+//							table_get(&currentFrame()->localVariables, name_string, &value)
+//							|| table_get(&vm.callStack->localVariables, name_string, &value)
+//							|| table_get(&vm.globals, name_string, &value);
+//
+//					if (name_is_in_locals_or_baseframe_or_globals) {
+//						value_array_write(&upvalues, &value);
+//					}
 				}
 
-				ObjectFunction* obj_function = object_user_function_new(obj_code, params_buffer, num_params, NULL, upvalues);
+				ObjectFunction* obj_function = object_user_function_new(object_code, params_buffer, num_params, NULL, upvalues);
 				push(MAKE_VALUE_OBJECT(obj_function));
 				break;
 			}

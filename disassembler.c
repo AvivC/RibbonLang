@@ -194,7 +194,7 @@ void disassembler_do_bytecode(Bytecode* chunk) {
         if (constant.type == VALUE_OBJECT && constant.as.object->type == OBJECT_CODE) {
             printf("\nInner chunk [index %d]:\n", i);
             ObjectCode* inner_code_object = (ObjectCode*) constant.as.object;
-            Bytecode inner_chunk = inner_code_object->chunk;
+            Bytecode inner_chunk = inner_code_object->bytecode;
             disassembler_do_bytecode(&inner_chunk);
         }
     }

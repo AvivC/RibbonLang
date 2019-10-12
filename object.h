@@ -39,7 +39,7 @@ typedef struct ObjectTable {
 
 typedef struct ObjectCode {
     Object base;
-    Bytecode chunk;
+    Bytecode bytecode;
 } ObjectCode;
 
 typedef bool (*NativeFunction)(ValueArray, Value*);

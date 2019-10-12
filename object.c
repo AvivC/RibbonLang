@@ -266,7 +266,7 @@ void object_function_set_name(ObjectFunction* function, char* name) {
 
 ObjectCode* object_code_new(Bytecode chunk) {
 	ObjectCode* obj_code = (ObjectCode*) allocate_object(sizeof(ObjectCode), "ObjectCode", OBJECT_CODE);
-	obj_code->chunk = chunk;
+	obj_code->bytecode = chunk;
 	return obj_code;
 }
 
@@ -316,7 +316,7 @@ void object_free(Object* o) {
         case OBJECT_CODE: {
         	ObjectCode* code = (ObjectCode*) o;
         	DEBUG_OBJECTS_PRINT("Freeing ObjectCode at '%p'", code);
-        	bytecode_free(&code->chunk);
+        	bytecode_free(&code->bytecode);
         	deallocate(code, sizeof(ObjectCode), "ObjectCode");
         	break;
         }
