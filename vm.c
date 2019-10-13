@@ -17,12 +17,12 @@
 
 VM vm;
 
-static StackFrame* currentFrame(void) {
-	return vm.callStackTop - 1;
+static StackFrame* current_frame(void) {
+	return vm.call_stack_top - 1;
 }
 
 static Bytecode* currentChunk(void) {
-	return &currentFrame()->objFunc->code->bytecode;
+	return &current_frame()->function->code->bytecode;
 }
 
 static void push(Value value) {
@@ -45,62 +45,57 @@ static Value pop(void) {
     return *vm.stackTop;
 }
 
-static Value peekAt(int offset) {
+static Value peek_at(int offset) {
 	return *(vm.stackTop - offset);
 }
 
 static Value peek(void) {
-	return peekAt(1);
+	return peek_at(1);
 }
 
-static void initStackFrame(StackFrame* frame) {
+static void init_stack_frame(StackFrame* frame) {
 	frame->returnAddress = NULL;
-	frame->objFunc = NULL;
-	table_init(&frame->localVariables);
+	frame->function = NULL;
+	table_init(&frame->local_variables);
 }
 
-static StackFrame newStackFrame(uint8_t* returnAddress, ObjectFunction* objFunc) {
+static StackFrame new_stack_frame(uint8_t* returnAddress, ObjectFunction* objFunc) {
 	StackFrame frame;
-	initStackFrame(&frame);
+	init_stack_frame(&frame);
 	frame.returnAddress = returnAddress;
-	frame.objFunc = objFunc;
+	frame.function = objFunc;
 	return frame;
 }
 
-static StackFrame makeBaseStackFrame(Bytecode* base_chunk) {
+static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	ObjectCode* code = object_code_new(*base_chunk);
 	ObjectFunction* baseObjFunc = object_user_function_new(code, NULL, 0, NULL, table_new_empty());
-	return newStackFrame(NULL, baseObjFunc);
+	return new_stack_frame(NULL, baseObjFunc);
 }
 
-static void pushFrame(StackFrame frame) {
-	*vm.callStackTop = frame;
-	vm.callStackTop++;
+static void push_frame(StackFrame frame) {
+	*vm.call_stack_top = frame;
+	vm.call_stack_top++;
 }
 
 static void freeStackFrame(StackFrame* frame) {
-	table_free(&frame->localVariables);
-	initStackFrame(frame);
+	table_free(&frame->local_variables);
+	init_stack_frame(frame);
 }
 
 static StackFrame popFrame(void) {
-	vm.callStackTop--;
-	return *vm.callStackTop;
-}
-
-static bool isInFrame(void) {
-	return vm.callStackTop != vm.callStack;
+	vm.call_stack_top--;
+	return *vm.call_stack_top;
 }
 
 static Value load_variable(ObjectString* name) {
 	Value value;
 
-	Table* locals = &currentFrame()->localVariables;
-	Table* free_vars = &currentFrame()->objFunc->free_vars;
+	Table* locals = &current_frame()->local_variables;
+	Table* free_vars = &current_frame()->function->free_vars;
 	Table* globals = &vm.globals;
 
 	bool variable_found = table_get(locals, name, &value) || table_get(free_vars, name, &value) || table_get(globals, name, &value);
-//	bool variable_found = table_get(locals, name, &value) || table_get(globals, name, &value);
 
 	if (variable_found) {
 		return value;
@@ -185,7 +180,7 @@ static void gc_mark_object_table(Object* object) {
 		}
 	}
 
-	freePointerArray(&entries);
+	pointer_array_free(&entries);
 }
 
 static void gc_mark_object(Object* object) {
@@ -214,13 +209,13 @@ static void gc_mark(void) {
 		}
 	}
 
-	for (StackFrame* frame = vm.callStack; frame != vm.callStackTop; frame++) {
-		gc_mark_object((Object*) frame->objFunc);
+	for (StackFrame* frame = vm.callStack; frame != vm.call_stack_top; frame++) {
+		gc_mark_object((Object*) frame->function);
 
 		// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
 		// many entries are likely to be empty
-		for (int i = 0; i < frame->localVariables.capacity; i++) {
-			Entry* entry = &frame->localVariables.entries[i];
+		for (int i = 0; i < frame->local_variables.capacity; i++) {
+			Entry* entry = &frame->local_variables.entries[i];
 			if (entry->value.type == VALUE_OBJECT) {
 				gc_mark_object(entry->value.as.object);
 			}
@@ -258,25 +253,25 @@ void gc(void) {
 
 	#else
 
-	if (vm.allowGC) {
-		size_t memory_before_gc = getAllocatedMemory();
+	if (vm.allow_gc) {
+		size_t memory_before_gc = get_allocated_memory();
 		DEBUG_GC_PRINT("===== GC Running =====");
-		DEBUG_GC_PRINT("numObjects: %d. maxObjects: %d", vm.numObjects, vm.maxObjects);
+		DEBUG_GC_PRINT("num_objects: %d. max_objects: %d", vm.num_objects, vm.max_objects);
 		DEBUG_GC_PRINT("Allocated memory: %d bytes", memory_before_gc);
 		DEBUG_GC_PRINT("=======================");
 
 		gc_mark();
 		gc_sweep();
 
-		vm.maxObjects = vm.numObjects * 2;
+		vm.max_objects = vm.num_objects * 2;
 
 		DEBUG_GC_PRINT("===== GC Finished =====");
-		DEBUG_GC_PRINT("numObjects: %d. maxObjects: %d", vm.numObjects, vm.maxObjects);
+		DEBUG_GC_PRINT("numObjects: %d. maxObjects: %d", vm.num_objects, vm.max_objects);
 		DEBUG_GC_PRINT("Allocated memory before GC: %d bytes", memory_before_gc);
-		DEBUG_GC_PRINT("Allocated memory after GC: %d bytes", getAllocatedMemory());
+		DEBUG_GC_PRINT("Allocated memory after GC: %d bytes", get_allocated_memory());
 		DEBUG_GC_PRINT("=======================");
 	} else {
-		DEBUG_GC_PRINT("GC should run, but vm.allowGC is still false.");
+		DEBUG_GC_PRINT("GC should run, but vm.allow_gc is still false.");
 	}
 
 	#endif
@@ -284,7 +279,7 @@ void gc(void) {
 
 static void reset_stacks(void) {
 	vm.stackTop = vm.evalStack;
-	vm.callStackTop = vm.callStack;
+	vm.call_stack_top = vm.callStack;
 }
 
 static void register_builtin_function(const char* name, int num_params, char** params, NativeFunction function) {
@@ -296,24 +291,24 @@ static void register_builtin_function(const char* name, int num_params, char** p
 	table_set_cstring_key(&vm.globals, name, MAKE_VALUE_OBJECT(obj_function));
 }
 
-static void setBuiltinGlobals(void) {
+static void set_builtin_globals(void) {
 	register_builtin_function("print", 1, (char*[]) {"text"}, builtin_print);
 	register_builtin_function("input", 0, NULL, builtin_input);
 	register_builtin_function("read_file", 1, (char*[]) {"path"}, builtin_read_file);
 }
 
-static void callUserFunction(ObjectFunction* function) {
+static void call_user_function(ObjectFunction* function) {
 	if (function->self != NULL) {
 		push(MAKE_VALUE_OBJECT(function->self));
 	}
 
-	StackFrame frame = newStackFrame(vm.ip, function);
+	StackFrame frame = new_stack_frame(vm.ip, function);
 	for (int i = 0; i < function->num_params; i++) {
 		const char* paramName = function->parameters[i];
 		Value argument = pop();
-		table_set_cstring_key(&frame.localVariables, paramName, argument);
+		table_set_cstring_key(&frame.local_variables, paramName, argument);
 	}
-	pushFrame(frame);
+	push_frame(frame);
 	vm.ip = function->code->bytecode.code;
 }
 
@@ -341,20 +336,20 @@ static bool callNativeFunction(ObjectFunction* function) {
 	return func_success;
 }
 
-void initVM(void) {
+void vm_init(void) {
     vm.ip = NULL;
 
 	reset_stacks();
-    vm.numObjects = 0;
-    vm.maxObjects = INITIAL_GC_THRESHOLD;
-    vm.allowGC = false;
+    vm.num_objects = 0;
+    vm.max_objects = INITIAL_GC_THRESHOLD;
+    vm.allow_gc = false;
 
     table_init(&vm.globals);
-    setBuiltinGlobals();
+    set_builtin_globals();
 }
 
-void freeVM(void) {
-	for (StackFrame* frame = vm.callStack; frame != vm.callStackTop; frame++) {
+void vm_free(void) {
+	for (StackFrame* frame = vm.callStack; frame != vm.call_stack_top; frame++) {
 		freeStackFrame(frame);
 	}
 	reset_stacks();
@@ -363,15 +358,15 @@ void freeVM(void) {
 	gc(); // TODO: probably move upper
 
     vm.ip = NULL;
-    vm.numObjects = 0;
-    vm.maxObjects = INITIAL_GC_THRESHOLD;
-    vm.allowGC = false;
+    vm.num_objects = 0;
+    vm.max_objects = INITIAL_GC_THRESHOLD;
+    vm.allow_gc = false;
 }
 
 static void print_stack_trace(void) {
 	printf("Stack trace:\n");
-	for (StackFrame* frame = vm.callStack; frame < vm.callStackTop; frame++) {
-		printf("    - %s\n", frame->objFunc->name);
+	for (StackFrame* frame = vm.callStack; frame < vm.call_stack_top; frame++) {
+		printf("    - %s\n", frame->function->name);
 	}
 }
 
@@ -390,7 +385,7 @@ static Object* read_constant_as_object(ObjectType type) {
 
 #define READ_CONSTANT_AS_OBJECT(type, cast) (cast*) read_constant_as_object(type)
 
-InterpretResult interpret(Bytecode* baseChunk) {
+InterpretResult vm_interpret(Bytecode* base_bytecode) {
     #define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
         Value a = pop(); \
@@ -410,8 +405,8 @@ InterpretResult interpret(Bytecode* baseChunk) {
 		print_stack_trace(); \
 		fprintf(stderr, "Runtime error: " __VA_ARGS__); \
 		fprintf(stderr, "\n"); \
-		runtimeErrorOccured = true; \
-		runLoop = false; \
+		runtime_error_occured = true; \
+		is_executing = false; \
 		/* Remember to break manually after using this macro! */ \
 	} while(false)
 
@@ -437,26 +432,26 @@ InterpretResult interpret(Bytecode* baseChunk) {
 		ERROR_IF_WRONG_TYPE(value, VALUE_NIL, message); \
 	} while (false)
 
-	pushFrame(makeBaseStackFrame(baseChunk));
+	push_frame(make_base_stack_frame(base_bytecode));
 
-	vm.allowGC = true;
-	DEBUG_OBJECTS_PRINT("Set vm.allowGC = true.");
+	vm.allow_gc = true;
+	DEBUG_OBJECTS_PRINT("Set vm.allow_gc = true.");
 
-	vm.ip = baseChunk->code;
+	vm.ip = base_bytecode->code;
 	gc(); // Cleanup unused objects the compiler created
 
-	bool runLoop = true;
-	bool runtimeErrorOccured = false;
+	bool is_executing = true;
+	bool runtime_error_occured = false;
 
 	DEBUG_TRACE("Starting interpreter loop.");
 
-    while (runLoop) {
+    while (is_executing) {
 		DEBUG_TRACE("\n--------------------------\n");
     	DEBUG_TRACE("IP: %p", vm.ip);
-    	DEBUG_TRACE("numObjects: %d", vm.numObjects);
-    	DEBUG_TRACE("maxObjects: %d", vm.maxObjects);
+    	DEBUG_TRACE("numObjects: %d", vm.num_objects);
+    	DEBUG_TRACE("maxObjects: %d", vm.max_objects);
 
-    	uint8_t opcode = READ_BYTE();
+    	OP_CODE opcode = READ_BYTE();
         
 		#if DEBUG_TRACE_EXECUTION
 			disassembleInstruction(opcode, currentChunk(), vm.ip - 1 - currentChunk()->code);
@@ -474,7 +469,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
 			}
 			printf("\n\nLocal variables:\n");
 			if (isInFrame()) {
-				printTable(&currentFrame()->localVariables);
+				printTable(&current_frame()->local_variables);
 			} else {
 				printf("No stack frames.");
 			}
@@ -488,8 +483,8 @@ InterpretResult interpret(Bytecode* baseChunk) {
 			#endif
 		#endif
 
-		// Possible that vm.numObjects > vm.maxObjects if many objects were created during the compiling stage, where GC is disallowed
-		if (vm.numObjects >= vm.maxObjects) {
+		// Possible that vm.num_objects > vm.max_objects if many objects were created during the compiling stage, where GC is disallowed
+		if (vm.num_objects >= vm.max_objects) {
 			gc();
 		}
 
@@ -502,7 +497,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
             }
             
             case OP_ADD: {
-            	if (peekAt(2).type == VALUE_OBJECT) {
+            	if (peek_at(2).type == VALUE_OBJECT) {
             		Value other = pop();
             		Value self_val = pop();
 
@@ -724,11 +719,11 @@ InterpretResult interpret(Bytecode* baseChunk) {
 					ObjectString* name_string = (ObjectString*) name_value.as.object;
 
 					Value value;
-					if (table_get(&currentFrame()->localVariables, name_string, &value)) {
+					if (table_get(&current_frame()->local_variables, name_string, &value)) {
 						// Referenced name found in local variables of the enclosing function
 						table_set(&free_vars, name_string, value);
 					} else {
-						Table* current_func_free_vars = &currentFrame()->objFunc->free_vars;
+						Table* current_func_free_vars = &current_frame()->function->free_vars;
 						if (table_get(current_func_free_vars, name_string, &value)) {
 							table_set(&free_vars, name_string, value);
 						}
@@ -776,7 +771,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
                 StackFrame frame = popFrame();
                 bool atBaseFrame = frame.returnAddress == NULL;
                 if (atBaseFrame) {
-                	runLoop = false;
+                	is_executing = false;
                 } else {
                 	vm.ip = frame.returnAddress;
                 }
@@ -829,7 +824,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
                 																		// Or maybe a function should have a list of names?
                 }
 
-                table_set(&currentFrame()->localVariables, name, value);
+                table_set(&current_frame()->local_variables, name, value);
                 break;
             }
             
@@ -857,7 +852,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
                 	}
                 } else {
                 	// TODO: Handle errors
-                	callUserFunction(function);
+                	call_user_function(function);
                 }
 
                 break;
@@ -1078,7 +1073,7 @@ InterpretResult interpret(Bytecode* baseChunk) {
     
     #undef BINARY_MATH_OP
 
-    return runtimeErrorOccured ? INTERPRET_RUNTIME_ERROR : INTERPRET_SUCCESS;
+    return runtime_error_occured ? INTERPRET_RUNTIME_ERROR : INTERPRET_SUCCESS;
 }
 
 #undef READ_BYTE

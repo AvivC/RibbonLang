@@ -29,7 +29,7 @@ const char* AST_NODE_TYPE_NAMES[] = {
 	"AST_NODE_IMPORT"
 };
 
-static void printNestingString(int nesting) {
+static void print_nesting_string(int nesting) {
 	printf("\n");
 	for (int i = 0; i < nesting; i++) {
         printf(". . ");
@@ -40,9 +40,9 @@ static void print_node(AstNode* node, int nesting) {
     switch (node->type) {
         case AST_NODE_CONSTANT: {
             AstNodeConstant* nodeConstant = (AstNodeConstant*) node;
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("CONSTANT: ");
-            printValue(nodeConstant->value);
+            value_print(nodeConstant->value);
             printf("\n");
             break;
         }
@@ -65,12 +65,12 @@ static void print_node(AstNode* node, int nesting) {
                 default: operator = "Unrecognized";
             }
             
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("BINARY: %s\n", operator);
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("Left:\n");
             print_node(nodeBinary->left_operand, nesting + 1);
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("Right:\n");
             print_node(nodeBinary->right_operand, nesting + 1);
             break;
@@ -78,7 +78,7 @@ static void print_node(AstNode* node, int nesting) {
         
         case AST_NODE_UNARY: {
             AstNodeUnary* nodeUnary = (AstNodeUnary*) node;
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("UNARY\n");
             print_node(nodeUnary->operand, nesting + 1);
             break;
@@ -86,16 +86,16 @@ static void print_node(AstNode* node, int nesting) {
         
         case AST_NODE_VARIABLE: {
             AstNodeVariable* nodeVariable = (AstNodeVariable*) node;
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("VARIABLE: %.*s\n", nodeVariable->length, nodeVariable->name);
             break;
         }
         
         case AST_NODE_ATTRIBUTE: {
 			AstNodeAttribute* node_attr = (AstNodeAttribute*) node;
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("ATTRIBUTE: %.*s\n", node_attr->length, node_attr->name);
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Of object:\n");
 			print_node(node_attr->object, nesting + 1);
 			break;
@@ -103,12 +103,12 @@ static void print_node(AstNode* node, int nesting) {
 
         case AST_NODE_ATTRIBUTE_ASSIGNMENT: {
         	AstNodeAttributeAssignment* node_attr = (AstNodeAttributeAssignment*) node;
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("ATTRIBUTE_ASSIGNMENT: %.*s\n", node_attr->length, node_attr->name);
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Of object:\n");
 			print_node(node_attr->object, nesting + 1);
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Value:\n");
 			print_node(node_attr->value, nesting + 1);
 			break;
@@ -116,15 +116,15 @@ static void print_node(AstNode* node, int nesting) {
 
         case AST_NODE_KEY_ASSIGNMENT: {
         	AstNodeKeyAssignment* node_key_assignment = (AstNodeKeyAssignment*) node;
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("KEY_ASSIGNMENT\n");
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Of object:\n");
 			print_node(node_key_assignment->subject, nesting + 1);
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Key:\n");
 			print_node(node_key_assignment->key, nesting + 1);
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Value:\n");
 			print_node(node_key_assignment->value, nesting + 1);
 
@@ -133,7 +133,7 @@ static void print_node(AstNode* node, int nesting) {
 
         case AST_NODE_ASSIGNMENT: {
             AstNodeAssignment* nodeAssignment = (AstNodeAssignment*) node;
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("ASSIGNMENT: ");
             printf("%.*s\n", nodeAssignment->length, nodeAssignment->name);
             print_node(nodeAssignment->value, nesting + 1);
@@ -142,7 +142,7 @@ static void print_node(AstNode* node, int nesting) {
         
         case AST_NODE_STATEMENTS: {
             AstNodeStatements* nodeStatements = (AstNodeStatements*) node;
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("STATEMENTS\n");
             for (int i = 0; i < nodeStatements->statements.count; i++) {
                 print_node((AstNode*) nodeStatements->statements.values[i], nesting + 1);
@@ -153,9 +153,9 @@ static void print_node(AstNode* node, int nesting) {
         
         case AST_NODE_FUNCTION: {
             AstNodeFunction* nodeFunction = (AstNodeFunction*) node;
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("FUNCTION\n");
-            printNestingString(nesting);
+            print_nesting_string(nesting);
 			printf("Parameters: ");
 			ValueArray parameters = nodeFunction->parameters;
 			if (parameters.count == 0) {
@@ -170,7 +170,7 @@ static void print_node(AstNode* node, int nesting) {
 				}
 			}
 			printf("\n");
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Statements:\n");
             PointerArray* statements = &nodeFunction->statements->statements;
             for (int i = 0; i < statements->count; i++) {
@@ -182,15 +182,15 @@ static void print_node(AstNode* node, int nesting) {
         
         case AST_NODE_TABLE: {
         	AstNodeTable* node_table = (AstNodeTable*) node;
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("TABLE\n");
 
             for (int i = 0; i < node_table->pairs.count; i++) {
             	AstNodesKeyValuePair pair = node_table->pairs.values[i];
-                printNestingString(nesting);
+                print_nesting_string(nesting);
 				printf("Key:\n");
 				print_node(pair.key, nesting + 1);
-                printNestingString(nesting);
+                print_nesting_string(nesting);
                 printf("Value:\n");
                 print_node(pair.value, nesting + 1);
 			}
@@ -200,10 +200,10 @@ static void print_node(AstNode* node, int nesting) {
 
         case AST_NODE_CALL: {
             AstNodeCall* nodeCall = (AstNodeCall*) node;
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("CALL\n");
             print_node((AstNode*) nodeCall->target, nesting + 1);
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("Arguments:\n");
             for (int i = 0; i < nodeCall->arguments.count; i++) {
 				print_node(nodeCall->arguments.values[i], nesting + 1);
@@ -214,7 +214,7 @@ static void print_node(AstNode* node, int nesting) {
 
         case AST_NODE_IMPORT: {
             AstNodeImport* node_import = (AstNodeImport*) node;
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("IMPORT: %.*s\n", node_import->name_length, node_import->name);
 
             break;
@@ -222,12 +222,12 @@ static void print_node(AstNode* node, int nesting) {
 
         case AST_NODE_KEY_ACCESS: {
             AstNodeKeyAccess* node_key_access = (AstNodeKeyAccess*) node;
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("KEY_ACCESS\n");
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("On object:\n");
             print_node((AstNode*) node_key_access->subject, nesting + 1);
-            printNestingString(nesting);
+            print_nesting_string(nesting);
             printf("Key:\n");
 			print_node(node_key_access->key, nesting + 1);
 
@@ -236,7 +236,7 @@ static void print_node(AstNode* node, int nesting) {
 
         case AST_NODE_EXPR_STATEMENT: {
         	AstNodeExprStatement* nodeExprStatement = (AstNodeExprStatement*) node;
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("EXPR_STATEMENT\n");
 			print_node((AstNode*) nodeExprStatement->expression, nesting + 1);
 			break;
@@ -244,7 +244,7 @@ static void print_node(AstNode* node, int nesting) {
 
         case AST_NODE_RETURN: {
 			AstNodeReturn* nodeReturn = (AstNodeReturn*) node;
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("RETURN\n");
 			print_node((AstNode*) nodeReturn->expression, nesting + 1);
 			break;
@@ -252,26 +252,26 @@ static void print_node(AstNode* node, int nesting) {
 
         case AST_NODE_IF: {
 			AstNodeIf* nodeIf = (AstNodeIf*) node;
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("IF\n");
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Condition:\n");
 			print_node((AstNode*) nodeIf->condition, nesting + 1);
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Body:\n");
 			print_node((AstNode*) nodeIf->body, nesting + 1);
 
 			for (int i = 0; i < nodeIf->elsif_clauses.count; i += 2) {
-				printNestingString(nesting);
+				print_nesting_string(nesting);
 				printf("Elsif condition:\n");
 				print_node((AstNode*) nodeIf->elsif_clauses.values[i], nesting + 1);
-				printNestingString(nesting);
+				print_nesting_string(nesting);
 				printf("Elsif body:\n");
 				print_node((AstNode*) nodeIf->elsif_clauses.values[i+1], nesting + 1);
 			}
 
 			if (nodeIf->else_body != NULL) {
-				printNestingString(nesting);
+				print_nesting_string(nesting);
 				printf("Else:\n");
 				print_node((AstNode*) nodeIf->body, nesting + 1);
 			}
@@ -280,12 +280,12 @@ static void print_node(AstNode* node, int nesting) {
 
         case AST_NODE_WHILE: {
         	AstNodeWhile* nodeWhile = (AstNodeWhile*) node;
-        	printNestingString(nesting);
+        	print_nesting_string(nesting);
 			printf("WHILE\n");
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Condition:\n");
 			print_node((AstNode*) nodeWhile->condition, nesting + 1);
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Body:\n");
 			print_node((AstNode*) nodeWhile->body, nesting + 1);
         	break;
@@ -293,12 +293,12 @@ static void print_node(AstNode* node, int nesting) {
 
         case AST_NODE_AND: {
         	AstNodeAnd* nodeAnd = (AstNodeAnd*) node;
-        	printNestingString(nesting);
+        	print_nesting_string(nesting);
 			printf("AND\n");
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Left:\n");
 			print_node((AstNode*) nodeAnd->left, nesting + 1);
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Right:\n");
 			print_node((AstNode*) nodeAnd->right, nesting + 1);
         	break;
@@ -306,12 +306,12 @@ static void print_node(AstNode* node, int nesting) {
 
         case AST_NODE_OR: {
         	AstNodeOr* nodeOr = (AstNodeOr*) node;
-        	printNestingString(nesting);
+        	print_nesting_string(nesting);
 			printf("OR\n");
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Left:\n");
 			print_node((AstNode*) nodeOr->left, nesting + 1);
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("Right:\n");
 			print_node((AstNode*) nodeOr->right, nesting + 1);
         	break;
@@ -319,7 +319,7 @@ static void print_node(AstNode* node, int nesting) {
 
         case AST_NODE_STRING: {
 			AstNodeString* node_string = (AstNodeString*) node;
-			printNestingString(nesting);
+			print_nesting_string(nesting);
 			printf("STRING: %.*s\n", node_string->length, node_string->string);
 			break;
 		}
@@ -415,7 +415,7 @@ static void node_free(AstNode* node, int nesting) {
                 node_free((AstNode*) nodeStatements->statements.values[i], nesting + 1);
             }
             
-            freePointerArray(&nodeStatements->statements);
+            pointer_array_free(&nodeStatements->statements);
             deallocate(nodeStatements, sizeof(AstNodeStatements), deallocationString);
             
             break;
@@ -449,7 +449,7 @@ static void node_free(AstNode* node, int nesting) {
             for (int i = 0; i < nodeCall->arguments.count; i++) {
 				node_free(nodeCall->arguments.values[i], nesting + 1);
 			}
-            freePointerArray(&nodeCall->arguments);
+            pointer_array_free(&nodeCall->arguments);
             deallocate(nodeCall, sizeof(AstNodeCall), deallocationString);
             break;
         }
@@ -486,7 +486,7 @@ static void node_free(AstNode* node, int nesting) {
 			for (int i = 0; i < nodeIf->elsif_clauses.count; i++) {
 				node_free(nodeIf->elsif_clauses.values[i], nesting + 1);
 			}
-			freePointerArray(&nodeIf->elsif_clauses);
+			pointer_array_free(&nodeIf->elsif_clauses);
 			deallocate(nodeIf, sizeof(AstNodeIf), deallocationString);
 			break;
 		}
@@ -531,7 +531,7 @@ void ast_free_tree(AstNode* node) {
 
 AstNodeStatements* ast_new_node_statements(void) {
     AstNodeStatements* node = ALLOCATE_AST_NODE(AstNodeStatements, AST_NODE_STATEMENTS);
-    init_pointer_array(&node->statements);
+    pointer_array_init(&node->statements);
     return node;
 }
 
@@ -554,7 +554,7 @@ AstNodeReturn* ast_new_node_return(AstNode* expression) {
 	return node;
 }
 
-AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, ValueArray parameters) {
+AstNodeFunction* ast_new_node_function(AstNodeStatements* statements, ValueArray parameters) {
 	AstNodeFunction* node = ALLOCATE_AST_NODE(AstNodeFunction, AST_NODE_FUNCTION);
 	node->statements = statements;
 	node->parameters = parameters;

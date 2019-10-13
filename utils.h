@@ -14,6 +14,6 @@ char* copy_null_terminated_cstring(const char* string, const char* what);
 
 // TODO: void printStack(void);
 
-DEFINE_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)
+DECLARE_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)
 
 #endif

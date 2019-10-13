@@ -163,7 +163,7 @@ typedef struct {
 	AstNode* value;
 } AstNodesKeyValuePair;
 
-DEFINE_DYNAMIC_ARRAY(AstNodesKeyValuePair, AstKeyValuePairArray, ast_key_value_pair_array)
+DECLARE_DYNAMIC_ARRAY(AstNodesKeyValuePair, AstKeyValuePairArray, ast_key_value_pair_array)
 
 typedef struct {
 	AstNode base;
@@ -178,7 +178,7 @@ AstNodeStatements* ast_new_node_statements(void);
 AstNodeExprStatement* ast_new_node_expr_statement(AstNode* expression);
 AstNodeReturn* ast_new_node_return(AstNode* expression);
 AstNodeCall* ast_new_node_call(AstNode* expression, PointerArray arguments);
-AstNodeFunction* newAstNodeFunction(AstNodeStatements* statements, ValueArray parameters);
+AstNodeFunction* ast_new_node_function(AstNodeStatements* statements, ValueArray parameters);
 AstNodeIf* ast_new_node_if(AstNode* condition, AstNodeStatements* body, PointerArray elsif_clauses, AstNodeStatements* else_body);
 AstNodeWhile* ast_new_node_while(AstNode* condition, AstNodeStatements* body);
 AstNodeAnd* ast_new_node_and(AstNode* left, AstNode* right);

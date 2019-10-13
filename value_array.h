@@ -3,6 +3,6 @@
 
 #include "dynamic_array.h"
 
-DEFINE_DYNAMIC_ARRAY(struct Value, ValueArray, value_array)
+DECLARE_DYNAMIC_ARRAY(struct Value, ValueArray, value_array)
 
 #endif

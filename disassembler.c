@@ -5,37 +5,39 @@
 #include "value.h"
 #include "utils.h"
 
-static int singleOperandInstruction(const char* name, Bytecode* chunk, int offset) {
+// TODO: Add tests maybe?
+
+static int single_operand_instruction(const char* name, Bytecode* chunk, int offset) {
     int operand = chunk->code[offset + 1];
 
     printf("%p %-28s %d\n", chunk->code + offset, name, operand);
     return offset + 2;
 }
 
-static int shortOperandInstruction(const char* name, Bytecode* chunk, int offset) {
+static int short_operand_instruction(const char* name, Bytecode* chunk, int offset) {
     uint16_t operand = two_bytes_to_short(chunk->code[offset + 1], chunk->code[offset + 2]);
 
     printf("%p %-28s %d\n", chunk->code + offset, name, operand);
     return offset + 3;
 }
 
-static int constantInstruction(const char* name, Bytecode* chunk, int offset) {
+static int constant_instruction(const char* name, Bytecode* chunk, int offset) {
     int constantIndex = chunk->code[offset + 1];
     Value constant = chunk->constants.values[constantIndex];
     
     printf("%p %-28s ", chunk->code + offset, name);
-    printValue(constant);
+    value_print(constant);
     printf("\n");
     
     return offset + 2;
 }
 
-static int constantAndVariableLengthConstantsInstruction(const char* name, Bytecode* chunk, int offset) {
+static int constant_and_variable_length_constants_instruction(const char* name, Bytecode* chunk, int offset) {
     int constantIndex = chunk->code[offset + 1];
     Value constant = chunk->constants.values[constantIndex];
 
     printf("%p %-28s ", chunk->code + offset, name);
-    printValue(constant);
+    value_print(constant);
 
     uint16_t additional_operands_count = two_bytes_to_short(chunk->code[offset + 2], chunk->code[offset + 3]);
     for (int i = 0; i < additional_operands_count; i++) {
@@ -43,7 +45,7 @@ static int constantAndVariableLengthConstantsInstruction(const char* name, Bytec
 		uint8_t additional_operand_index = chunk->code[additional_operand_offset];
 		Value operand = chunk->constants.values[additional_operand_index];
 		printf(", ");
-		printValue(operand);
+		value_print(operand);
 	}
 
     printf("\n");
@@ -51,7 +53,7 @@ static int constantAndVariableLengthConstantsInstruction(const char* name, Bytec
     return offset + 4 + additional_operands_count;
 }
 
-static int simpleInstruction(const char* name, Bytecode* chunk, int offset) {
+static int simple_instruction(const char* name, Bytecode* chunk, int offset) {
     printf("%p %s\n", chunk->code + offset, name);
     return offset + 1;
 }
@@ -61,126 +63,96 @@ int disassembler_do_single_instruction(OP_CODE opcode, Bytecode* chunk, int offs
 
 	switch (opcode) {
 		case OP_CONSTANT: {
-			return constantInstruction("OP_CONSTANT", chunk, offset);
-			break;
+			return constant_instruction("OP_CONSTANT", chunk, offset);
 		}
 		case OP_ADD: {
-			return simpleInstruction("OP_ADD", chunk, offset);
-			break;
+			return simple_instruction("OP_ADD", chunk, offset);
 		}
 		case OP_SUBTRACT: {
-			return simpleInstruction("OP_SUBTRACT", chunk, offset);
-			break;
+			return simple_instruction("OP_SUBTRACT", chunk, offset);
 		}
 		case OP_DIVIDE: {
-			return simpleInstruction("OP_DIVIDE", chunk, offset);
-			break;
+			return simple_instruction("OP_DIVIDE", chunk, offset);
 		}
 		case OP_MULTIPLY: {
-			return simpleInstruction("OP_MULTIPLY", chunk, offset);
-			break;
+			return simple_instruction("OP_MULTIPLY", chunk, offset);
 		}
 		case OP_LESS_THAN: {
-			return simpleInstruction("OP_LESS_THAN", chunk, offset);
-			break;
+			return simple_instruction("OP_LESS_THAN", chunk, offset);
 		}
 		case OP_GREATER_THAN: {
-			return simpleInstruction("OP_GREATER_THAN", chunk, offset);
-			break;
+			return simple_instruction("OP_GREATER_THAN", chunk, offset);
 		}
 		case OP_LESS_EQUAL: {
-			return simpleInstruction("OP_LESS_EQUAL", chunk, offset);
-			break;
+			return simple_instruction("OP_LESS_EQUAL", chunk, offset);
 		}
 		case OP_GREATER_EQUAL: {
-			return simpleInstruction("OP_GREATER_EQUAL", chunk, offset);
-			break;
+			return simple_instruction("OP_GREATER_EQUAL", chunk, offset);
 		}
 		case OP_EQUAL: {
-			return simpleInstruction("OP_EQUAL", chunk, offset);
-			break;
+			return simple_instruction("OP_EQUAL", chunk, offset);
 		}
 		case OP_AND: {
-			return simpleInstruction("OP_AND", chunk, offset);
-			break;
+			return simple_instruction("OP_AND", chunk, offset);
 		}
 		case OP_OR: {
-			return simpleInstruction("OP_OR", chunk, offset);
-			break;
+			return simple_instruction("OP_OR", chunk, offset);
 		}
 		case OP_NEGATE: {
-			return simpleInstruction("OP_NEGATE", chunk, offset);
-			break;
+			return simple_instruction("OP_NEGATE", chunk, offset);
 		}
 		case OP_LOAD_VARIABLE: {
-			return constantInstruction("OP_LOAD_VARIABLE", chunk, offset);
-			break;
+			return constant_instruction("OP_LOAD_VARIABLE", chunk, offset);
 		}
 		case OP_SET_VARIABLE: {
-			return constantInstruction("OP_SET_VARIABLE", chunk, offset);
-			break;
+			return constant_instruction("OP_SET_VARIABLE", chunk, offset);
 		}
 		case OP_CALL: {
-			return singleOperandInstruction("OP_CALL", chunk, offset);
-			break;
+			return single_operand_instruction("OP_CALL", chunk, offset);
 		}
 		case OP_ACCESS_KEY: {
-			return simpleInstruction("OP_ACCESS_KEY", chunk, offset);
-			break;
+			return simple_instruction("OP_ACCESS_KEY", chunk, offset);
 		}
 		case OP_SET_KEY: {
-			return simpleInstruction("OP_SET_KEY", chunk, offset);
-			break;
+			return simple_instruction("OP_SET_KEY", chunk, offset);
 		}
 		case OP_IMPORT: {
-			return constantInstruction("OP_IMPORT", chunk, offset);
-			break;
+			return constant_instruction("OP_IMPORT", chunk, offset);
 		}
 		case OP_GET_ATTRIBUTE: {
-			return constantInstruction("OP_GET_ATTRIBUTE", chunk, offset);
-			break;
+			return constant_instruction("OP_GET_ATTRIBUTE", chunk, offset);
 		}
 		case OP_SET_ATTRIBUTE: {
-			return constantInstruction("OP_SET_ATTRIBUTE", chunk, offset);
-			break;
+			return constant_instruction("OP_SET_ATTRIBUTE", chunk, offset);
 		}
 		case OP_POP: {
-			return simpleInstruction("OP_POP", chunk, offset);
-			break;
+			return simple_instruction("OP_POP", chunk, offset);
 		}
 		case OP_JUMP_IF_FALSE: {
-			return shortOperandInstruction("OP_JUMP_IF_FALSE", chunk, offset);
-			break;
+			return short_operand_instruction("OP_JUMP_IF_FALSE", chunk, offset);
 		}
 		case OP_JUMP: {
-			return shortOperandInstruction("OP_JUMP", chunk, offset);
-			break;
+			return short_operand_instruction("OP_JUMP", chunk, offset);
 		}
 		case OP_MAKE_STRING: {
-			return constantInstruction("OP_MAKE_STRING", chunk, offset);
-			break;
+			return constant_instruction("OP_MAKE_STRING", chunk, offset);
 		}
 		case OP_MAKE_TABLE: {
-			return singleOperandInstruction("OP_MAKE_TABLE", chunk, offset);
-			break;
+			return single_operand_instruction("OP_MAKE_TABLE", chunk, offset);
 		}
 		case OP_MAKE_FUNCTION: {
-			return constantAndVariableLengthConstantsInstruction("OP_MAKE_FUNCTION", chunk, offset);
-			break;
+			return constant_and_variable_length_constants_instruction("OP_MAKE_FUNCTION", chunk, offset);
 		}
 		case OP_NIL: {
-			return simpleInstruction("OP_NIL", chunk, offset);
-			break;
+			return simple_instruction("OP_NIL", chunk, offset);
 		}
 		case OP_RETURN: {
-			return simpleInstruction("OP_RETURN", chunk, offset);
-			break;
-		}
-		default: {
-			FAIL("Unknown opcode when disassembling: %d", opcode);
-			return -1;
+			return simple_instruction("OP_RETURN", chunk, offset);
 		}
 	}
+
+	FAIL("Unknown opcode when disassembling: %d", opcode);
+	return -1;
 }
 
 void disassembler_do_bytecode(Bytecode* chunk) {

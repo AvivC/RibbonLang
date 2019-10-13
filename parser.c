@@ -219,18 +219,18 @@ static AstNode* function(int expression_level) {
     AstNodeStatements* statementsNode = (AstNodeStatements*) statements();
     consume(TOKEN_RIGHT_BRACE, "Expected '}' at end of function.");
 
-    AstNodeFunction* node = newAstNodeFunction(statementsNode, parameters);
+    AstNodeFunction* node = ast_new_node_function(statementsNode, parameters);
     return (AstNode*) node;
 }
 
 static AstNode* call(AstNode* left_node, int expression_level) {
 	PointerArray arguments;
-	init_pointer_array(&arguments);
+	pointer_array_init(&arguments);
 
 	while (!match(TOKEN_RIGHT_PAREN)) {
 		do {
 			AstNode* argument = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
-			write_pointer_array(&arguments, argument);
+			pointer_array_write(&arguments, argument);
 		} while (match(TOKEN_COMMA));
 	}
 
@@ -273,14 +273,14 @@ static AstNode* if_statement(void) {
 	conditioned_clause(&body, &condition, 0);
 
 	PointerArray elsif_clauses;
-	init_pointer_array(&elsif_clauses);
+	pointer_array_init(&elsif_clauses);
 
 	while (match(TOKEN_ELSIF)) {
 		AstNodeStatements* body;
 		AstNode* condition;
 		conditioned_clause(&body, &condition, 0);
-		write_pointer_array(&elsif_clauses, condition);
-		write_pointer_array(&elsif_clauses, body);
+		pointer_array_write(&elsif_clauses, condition);
+		pointer_array_write(&elsif_clauses, body);
 	}
 
 	AstNode* else_body = NULL;
@@ -423,7 +423,7 @@ static AstNode* statements(void) {
     		}
         }
 
-        write_pointer_array(&statements_node->statements, child_node);
+        pointer_array_write(&statements_node->statements, child_node);
 
 		bool endOfBlock = check(TOKEN_EOF) || check(TOKEN_RIGHT_BRACE);
 		if (!endOfBlock) {

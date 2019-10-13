@@ -17,8 +17,8 @@ typedef enum {
 
 typedef struct {
 	uint8_t* returnAddress;
-	ObjectFunction* objFunc;
-	Table localVariables;
+	ObjectFunction* function;
+	Table local_variables;
 } StackFrame;
 
 typedef struct {
@@ -27,22 +27,22 @@ typedef struct {
     Value* stackTop;
     Value evalStack[STACK_MAX];
 
-    StackFrame* callStackTop;
+    StackFrame* call_stack_top;
     StackFrame callStack[CALL_STACK_MAX];
 
     Table globals;
 
     Object* objects;
-    int numObjects;
-    int maxObjects;
-    bool allowGC;
+    int num_objects;
+    int max_objects;
+    bool allow_gc;
 } VM;
 
 extern VM vm;
 
-void initVM(void);
-void freeVM(void);
-InterpretResult interpret(Bytecode* chunk);
+void vm_init(void);
+void vm_free(void);
+InterpretResult vm_interpret(Bytecode* chunk);
 
 void gc(void);
 

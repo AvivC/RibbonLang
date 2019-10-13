@@ -46,7 +46,7 @@ void bytecode_print_constant_table(Bytecode* chunk) { // For debugging
 	for (int i = 0; i < chunk->constants.count; i++) {
 		Value constant = chunk->constants.values[i];
 		printf("%d: ", i);
-		printValue(constant);
+		value_print(constant);
 		printf(" [ type %d ]", constant.type);
 		printf("\n");
 	}

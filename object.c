@@ -18,8 +18,8 @@ static Object* allocate_object(size_t size, const char* what, ObjectType type) {
     vm.objects = object;
     table_init(&object->attributes);
     
-    vm.numObjects++;
-    DEBUG_OBJECTS_PRINT("Incremented numObjects to %d", vm.numObjects);
+    vm.num_objects++;
+    DEBUG_OBJECTS_PRINT("Incremented num_objects to %d", vm.numObjects);
 
     return object;
 }
@@ -56,11 +56,11 @@ static bool object_string_add(ValueArray args, Value* result) {
     char* buffer = allocate(self_string->length + other_string->length + 1, "Object string buffer");
     memcpy(buffer, self_string->chars, self_string->length);
     memcpy(buffer + self_string->length, other_string->chars, other_string->length);
-    int stringLength = self_string->length + other_string->length;
-    buffer[stringLength] = '\0';
-    ObjectString* objString = object_string_take(buffer, stringLength);
+    int string_length = self_string->length + other_string->length;
+    buffer[string_length] = '\0';
+    ObjectString* object_string = object_string_take(buffer, string_length);
 
-    *result = MAKE_VALUE_OBJECT(objString);
+    *result = MAKE_VALUE_OBJECT(object_string);
     return true;
 }
 
@@ -331,7 +331,7 @@ void object_free(Object* o) {
         }
     }
     
-    vm.numObjects--;
+    vm.num_objects--;
     DEBUG_OBJECTS_PRINT("Decremented numObjects to %d", vm.numObjects);
 }
 

@@ -136,14 +136,14 @@ bool table_get(Table* table, struct ObjectString* key, Value* out) {
 /* Get a PointerArray of Value* of all set entries in the table. */
 PointerArray table_iterate(Table* table) {
 	PointerArray array;
-	init_pointer_array(&array);
+	pointer_array_init(&array);
 
 	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
 	// many entries are likely to be empty
 	for (int i = 0; i < table->capacity; i++) {
 		Entry* entry = &table->entries[i];
 		if (entry->key != NULL) {
-			write_pointer_array(&array, entry);
+			pointer_array_write(&array, entry);
 		}
 	}
 
@@ -159,7 +159,7 @@ void table_print(Table* table) {
 		const char* key = entry->key; // TODO: Not only strings as keys
 		Value value = entry->value;
 		printf("\"%s\": ", key);
-		printValue(value);
+		value_print(value);
 
 		if (i < entries.count - 1) {
 			printf(", ");
@@ -167,7 +167,7 @@ void table_print(Table* table) {
 	}
 	printf("]");
 
-	freePointerArray(&entries);
+	pointer_array_free(&entries);
 }
 
 void table_print_debug(Table* table) {
@@ -179,7 +179,7 @@ void table_print_debug(Table* table) {
 			Entry* entry = &table->entries[i];
 			const char* key = entry->key == NULL ? "null" : entry->key;
 			printf("%d = [Key: %s, Value: ", i, key);
-			printValue(entry->value);
+			value_print(entry->value);
 			printf("]\n");
 		}
     } else {
@@ -193,7 +193,7 @@ void table_free(Table* table) {
 		Entry* entry = entries.values[i];
 		deallocate(entry->key, strlen(entry->key) + 1, "Table cstring key");
 	}
-	freePointerArray(&entries);
+	pointer_array_free(&entries);
 
     deallocate(table->entries, sizeof(Entry) * table->capacity, "Hash table array");
     table_init(table);

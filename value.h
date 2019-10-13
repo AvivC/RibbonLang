@@ -45,7 +45,7 @@ typedef struct Value {
 		} \
 	} while (false)
 
-void printValue(Value value);
+void value_print(Value value);
 bool compareValues(Value a, Value b, int* output);
 
 #endif

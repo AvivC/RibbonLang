@@ -5,8 +5,8 @@
 
 #define GROW_CAPACITY(capacity) (capacity) < 8 ? 8 : (capacity) * 2
 
-size_t getAllocatedMemory();
-size_t getAllocationsCount();
+size_t get_allocated_memory();
+size_t get_allocations_count();
 
 void* allocate(size_t size, const char* what);
 void deallocate(void* pointer, size_t oldSize, const char* what);

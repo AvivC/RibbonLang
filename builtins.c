@@ -6,7 +6,7 @@
 #include "object.h"
 
 bool builtin_print(ValueArray args, Value* out) {
-	printValue(args.values[0]);
+	value_print(args.values[0]);
 	printf("\n");
 	fflush(stdout);
 
@@ -26,7 +26,6 @@ bool builtin_input(ValueArray args, Value* out) {
 	char* user_input = allocate(sizeof(char) * capacity, alloc_string);
 
 	if (user_input == NULL) {
-//		FAIL("")
 		return false;
 	}
 

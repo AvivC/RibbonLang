@@ -4,7 +4,7 @@
 #include "common.h"
 #include "memory.h"
 
-#define DEFINE_DYNAMIC_ARRAY(TYPE, ARRAY_NAME, FUNCTIONS_PERFIX) \
+#define DECLARE_DYNAMIC_ARRAY(TYPE, ARRAY_NAME, FUNCTIONS_PERFIX) \
 	typedef struct { \
     	int count; \
     	int capacity; \

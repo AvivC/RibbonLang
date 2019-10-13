@@ -13,18 +13,18 @@ typedef struct {
     bool allocated;
 } Allocation;
 
-static size_t allocatedMemory = 0;
+static size_t allocated_memory = 0;
 static Allocation* allocations = NULL;
 static size_t allocsBufferCapacity = 0;
-static size_t allocsBufferCount = 0;
+static size_t allocs_buffer_count = 0;
 
-size_t getAllocatedMemory() {
-    return allocatedMemory;
+size_t get_allocated_memory() {
+    return allocated_memory;
 }
 
-size_t getAllocationsCount() {
+size_t get_allocations_count() {
     size_t count = 0;
-    for (int i = 0; i < allocsBufferCount; i++) {
+    for (int i = 0; i < allocs_buffer_count; i++) {
         if (allocations[i].allocated) {
             count++;
         }
@@ -41,44 +41,44 @@ void deallocate(void* pointer, size_t oldSize, const char* what) {
     reallocate(pointer, oldSize, 0, what);
 }
 
-bool sameAllocation(void* pointer, const char* what, Allocation allocation) {
+bool is_same_allocation(void* pointer, const char* what, Allocation allocation) {
     return allocation.ptr == pointer && (strcmp(allocation.name, what) == 0);
 }
 
-bool samePointerDifferentName(void* pointer, const char* what, Allocation allocation) {
+bool is_same_pointer_different_name(void* pointer, const char* what, Allocation allocation) {
     return allocation.ptr == pointer && (strcmp(allocation.name, what) != 0);
 }
 
 static void manage_allocations_buffer_size(void) {
-	if (allocsBufferCount % 5000 == 0) {
+	if (allocs_buffer_count % 5000 == 0) {
 		int num_allocated = 0;
-		Allocation* new_allocations = malloc(sizeof(Allocation) * allocsBufferCount);
-		for (int i = 0; i < allocsBufferCount; i++) {
+		Allocation* new_allocations = malloc(sizeof(Allocation) * allocs_buffer_count);
+		for (int i = 0; i < allocs_buffer_count; i++) {
 			if (allocations[i].allocated) {
 				new_allocations[num_allocated++] = allocations[i];
 			}
 		}
 
-		allocsBufferCount = num_allocated;
-		allocsBufferCapacity = allocsBufferCount;
+		allocs_buffer_count = num_allocated;
+		allocsBufferCapacity = allocs_buffer_count;
 		new_allocations = realloc(new_allocations, sizeof(Allocation) * allocsBufferCapacity);
 		free(allocations);
 		allocations = new_allocations;
 	}
 }
 
-void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what) {
+void* reallocate(void* pointer, size_t old_size, size_t new_size, const char* what) {
     manage_allocations_buffer_size();
 
-    if (newSize == 0) {
+    if (new_size == 0) {
         // Deallocation
         
-        DEBUG_MEMORY("Attempting to deallocate %d bytes, for '%s' at '%p'.", oldSize, what, pointer);
+        DEBUG_MEMORY("Attempting to deallocate %d bytes, for '%s' at '%p'.", old_size, what, pointer);
         
         if (pointer != NULL) {
             bool found = false;
-            for (int i = 0; i < allocsBufferCount; i++) {
-                if (sameAllocation(pointer, what, allocations[i])) {
+            for (int i = 0; i < allocs_buffer_count; i++) {
+                if (is_same_allocation(pointer, what, allocations[i])) {
                     if (allocations[i].allocated) {
                         DEBUG_MEMORY("Marked '%s' as deallocated.", allocations[i].name);
                         allocations[i].allocated = false;
@@ -88,7 +88,7 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
                     } else {
                         FAIL("Found matching allocation, but it's already freed.");
                     }
-                } else if (samePointerDifferentName(pointer, what, allocations[i])) {
+                } else if (is_same_pointer_different_name(pointer, what, allocations[i])) {
                     FAIL("An existing allocation has a pointer matching the searched one, but different name ('%s' != '%s')"
                     		, what, allocations[i].name);
                 }
@@ -102,43 +102,43 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
             DEBUG_MEMORY("Freeing NULL pointer. Should be okay.");
         }
         
-        DEBUG_MEMORY("Freeing '%s' ('%p') and %d bytes.", what, pointer, oldSize);
+        DEBUG_MEMORY("Freeing '%s' ('%p') and %d bytes.", what, pointer, old_size);
         free(pointer); // realloc() shouldn't be called with 0 size
-        allocatedMemory -= oldSize;
+        allocated_memory -= old_size;
         return NULL;
     }
     
-    if (oldSize == 0) {
+    if (old_size == 0) {
         // New allocation
         
-        DEBUG_MEMORY("Attempting to allocate %d bytes for '%s'.", newSize, what);
+        DEBUG_MEMORY("Attempting to allocate %d bytes for '%s'.", new_size, what);
         
-        if (allocsBufferCount + 1 > allocsBufferCapacity) {
+        if (allocs_buffer_count + 1 > allocsBufferCapacity) {
             allocsBufferCapacity = GROW_CAPACITY(allocsBufferCapacity);
             allocations = realloc(allocations, sizeof(Allocation) * allocsBufferCapacity);
-            for (int i = allocsBufferCount; i < allocsBufferCapacity; i++) {
+            for (int i = allocs_buffer_count; i < allocsBufferCapacity; i++) {
                 allocations[i] = (Allocation) {.name = "", .size = 0, .ptr = NULL, .allocated = false};
             }
         }
         
-        DEBUG_MEMORY("Allocating for '%s' %d bytes.", what, newSize);
-        pointer = realloc(pointer, newSize); // realloc() with NULL is equal to malloc()
-        allocations[allocsBufferCount++] = (Allocation) {.name = what, .size = newSize, .ptr = pointer, .allocated = true};
-        allocatedMemory += newSize;
+        DEBUG_MEMORY("Allocating for '%s' %d bytes.", what, new_size);
+        pointer = realloc(pointer, new_size); // realloc() with NULL is equal to malloc()
+        allocations[allocs_buffer_count++] = (Allocation) {.name = what, .size = new_size, .ptr = pointer, .allocated = true};
+        allocated_memory += new_size;
         return pointer;
     }
     
     // Reallocation
     
-    DEBUG_MEMORY("Attempting to reallocate for '%s' %d bytes instead of %d bytes.", what, newSize, oldSize);
-    void* newpointer = realloc(pointer, newSize);
+    DEBUG_MEMORY("Attempting to reallocate for '%s' %d bytes instead of %d bytes.", what, new_size, old_size);
+    void* newpointer = realloc(pointer, new_size);
     
     if (newpointer == NULL) {
         FAIL("Reallocation of '%s' failed!", what);
         return NULL;
     }
     
-    for (int i = 0; i < allocsBufferCount; i++) {
+    for (int i = 0; i < allocs_buffer_count; i++) {
         if (allocations[i].ptr == pointer) {
             if (strcmp(allocations[i].name, what) != 0) {
                 FAIL("In leak-detector - two allocations with the same pointer but different names.");
@@ -149,13 +149,13 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
             }
             
             allocations[i].ptr = newpointer;
-            allocations[i].size = newSize;
+            allocations[i].size = new_size;
             break;
         }
     }
     
-    allocatedMemory -= oldSize;
-    allocatedMemory += newSize;
+    allocated_memory -= old_size;
+    allocated_memory += new_size;
     
     return newpointer;
 }
@@ -163,7 +163,7 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize, const char* what
 void print_allocated_memory_entries() {  // for debugging
     DEBUG_IMPORTANT_PRINT("\nAllocated memory entries:\n");
 
-    for (int i = 0; i < allocsBufferCount; i++) {
+    for (int i = 0; i < allocs_buffer_count; i++) {
         Allocation allocation = allocations[i];
         if (allocation.allocated) {
 			DEBUG_IMPORTANT_PRINT("[ %-3d: ", i);

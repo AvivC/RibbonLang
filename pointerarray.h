@@ -7,9 +7,9 @@ typedef struct {
     void** values;
 } PointerArray;
 
-void init_pointer_array(PointerArray* array);
-void write_pointer_array(PointerArray* array, void* value);
-void freePointerArray(PointerArray* array);
-void** pointerArrayToPlainArray(PointerArray* array, const char* what);
+void pointer_array_init(PointerArray* array);
+void pointer_array_write(PointerArray* array, void* value);
+void pointer_array_free(PointerArray* array);
+void** pointer_array_to_plain_array(PointerArray* array, const char* what);
 
 #endif

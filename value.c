@@ -3,7 +3,7 @@
 #include "object.h"
 #include "memory.h"
 
-void printValue(Value value) {
+void value_print(Value value) {
     switch (value.type) {
         case VALUE_NUMBER: {
             printf("%g", value.as.number);

@@ -89,7 +89,7 @@ static void printMemoryDiagnostic() {
     
     bool problem = false;
     
-    size_t allocatedMemory = getAllocatedMemory();
+    size_t allocatedMemory = get_allocated_memory();
     if (allocatedMemory == 0) {
         DEBUG_IMPORTANT_PRINT("\n*******\nAll memory freed.\n*******");
     } else {
@@ -97,7 +97,7 @@ static void printMemoryDiagnostic() {
         problem = true;
     }
     
-    size_t numAllocations = getAllocationsCount();
+    size_t numAllocations = get_allocations_count();
     if (numAllocations == 0) {
         DEBUG_IMPORTANT_PRINT("\n*******\nAll allocations freed.\n*******");
     } else {
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
     DEBUG_PRINT("Starting CPlane!\n\n");
 
     // Must first init the VM, because some parts of the compiler depend on it
-    initVM();
+    vm_init();
 
     Bytecode chunk;
     bytecode_init(&chunk);
@@ -147,11 +147,11 @@ int main(int argc, char* argv[]) {
     
     bool dryRun = checkCmdArg(argv, argc, 2, "-dry") || checkCmdArg(argv, argc, 3, "-dry") || checkCmdArg(argv, argc, 4, "-dry");
     if (!dryRun) {
-    	InterpretResult result = interpret(&chunk);
+    	InterpretResult result = vm_interpret(&chunk);
     }
     
     ast_free_tree(ast);
-    freeVM();
+    vm_free();
     free(source);
     
     #if DEBUG_IMPORTANT
