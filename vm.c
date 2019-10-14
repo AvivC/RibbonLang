@@ -840,7 +840,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
                 																		// Or maybe a function should have a list of names?
                 }
 
-                cell_table_set_value(&current_frame()->local_variables, name, value);
+                cell_table_set_value_cstring_key(&current_frame()->local_variables, name->chars, value);
                 break;
             }
             
