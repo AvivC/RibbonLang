@@ -1051,8 +1051,6 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				size_t source_buffer_size = -1;
 				int file_read_success = read_file(file_name_buffer, &source, &source_buffer_size); // TODO: Figure out how to manage this memory
 
-				// TODO: This is the basis for the module system. Come back to this after we have closures.
-
 //				if (file_read_success == IO_SUCCESS) {
 ////            	    initVM();
 //					Chunk module_chunk;
