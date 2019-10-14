@@ -737,13 +737,14 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 					ObjectString* name_string = (ObjectString*) name_value.as.object;
 
-					Value value;
-					if (cell_table_get_value_cstring_key(&current_frame()->local_variables, name_string->chars, &value)) {
-						cell_table_set_value_cstring_key(&free_vars, name_string->chars, value);
+//					Value value;
+					ObjectCell* cell = NULL;
+					if (cell_table_get_cell_cstring_key(&current_frame()->local_variables, name_string->chars, &cell)) {
+						cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
 					} else {
 						CellTable* current_func_free_vars = &current_frame()->function->free_vars;
-						if (cell_table_get_value_cstring_key(current_func_free_vars, name_string->chars, &value)) {
-							cell_table_set_value_cstring_key(&free_vars, name_string->chars, value);
+						if (cell_table_get_cell_cstring_key(current_func_free_vars, name_string->chars, &cell)) {
+							cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
 						}
 						// If not found, the referenced variable is probably a local, or a runtime error later.
 					}
