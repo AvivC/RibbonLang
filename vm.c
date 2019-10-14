@@ -1074,7 +1074,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 					ObjectCode* code_object = object_code_new(module_bytecode);
 					ObjectFunction* module_base_function = object_user_function_new(code_object, NULL, 0, NULL, cell_table_new_empty());
 
-//					ObjectModule* module = object_module_new(module_name, module_base_function, object_string_take())
+					ObjectModule* module = object_module_new(module_name, module_base_function);
 
 					call_user_function(module_base_function);
 

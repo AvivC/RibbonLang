@@ -70,7 +70,7 @@ typedef struct ObjectModule {
 	Object base;
 	ObjectString* name;
 	ObjectFunction* function;
-	ObjectString* source_code; // Currently, execution seems to depend on the source code being around... Fix it sometime.
+//	ObjectString* source_code; // Currently, execution seems to depend on the source code being around... Fix it sometime.
 } ObjectModule;
 
 ObjectString* object_string_copy(const char* string, int length);
@@ -90,7 +90,7 @@ ObjectTable* object_table_new_empty(void);
 
 ObjectCell* object_cell_new(Value value);
 
-ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function, ObjectString* source_code);
+ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function);
 
 bool object_compare(Object* a, Object* b);
 

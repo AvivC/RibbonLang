@@ -293,11 +293,11 @@ ObjectCell* object_cell_new(Value value) {
 	return cell;
 }
 
-ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function, ObjectString* source_code) {
+ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function) {
 	ObjectModule* module = (ObjectModule*) allocate_object(sizeof(ObjectModule), "ObjectModule", OBJECT_MODULE);
 	module->name = name;
 	module->function = function;
-	module->source_code = source_code;
+//	module->source_code = source_code;
 	return module;
 }
 
