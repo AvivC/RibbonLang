@@ -5,6 +5,7 @@
 #include "common.h"
 #include "table.h"
 #include "value.h"
+#include "cell_table.h"
 
 typedef enum {
     OBJECT_STRING,
@@ -45,7 +46,7 @@ typedef struct ObjectCode {
 
 typedef bool (*NativeFunction)(ValueArray, Value*);
 
-typedef struct {
+typedef struct ObjectCell {
 	Object base;
 	Value value;
 } ObjectCell;
@@ -58,7 +59,8 @@ typedef struct ObjectFunction {
     bool is_native;
     Object* self;
 //    ValueArray upvalues;
-    Table free_vars;
+//    Table free_vars;
+    CellTable free_vars;
     union {
     	NativeFunction native_function;
     	ObjectCode* code;

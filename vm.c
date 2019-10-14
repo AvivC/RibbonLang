@@ -95,7 +95,7 @@ static Value load_variable(ObjectString* name) {
 	Table* free_vars = &current_frame()->function->free_vars;
 	Table* globals = &vm.globals;
 
-	bool variable_found = cell_table_get_value(locals, name, &value) || table_get(free_vars, name, &value) || table_get(globals, name, &value);
+	bool variable_found = cell_table_get_value_cstring_key(locals, name->chars, &value) || table_get(free_vars, name, &value) || table_get(globals, name, &value);
 
 	if (variable_found) {
 		return value;
@@ -735,7 +735,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 					ObjectString* name_string = (ObjectString*) name_value.as.object;
 
 					Value value;
-					if (cell_table_get_value(&current_frame()->local_variables, name_string, &value)) {
+					if (cell_table_get_value_cstring_key(&current_frame()->local_variables, name_string->chars, &value)) {
 						// Referenced name found in local variables of the enclosing function
 						table_set(&free_vars, name_string, value);
 					} else {

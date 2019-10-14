@@ -27,19 +27,19 @@ void cell_table_set_value_cstring_key(CellTable* table, const char* key, Value v
 	}
 }
 
-void cell_table_set_cell(CellTable* table, ObjectString* key, ObjectCell* cell) {
+void cell_table_set_cell(CellTable* table, ObjectString* key, struct ObjectCell* cell) {
 	cell_table_set_cell_cstring_key(table, key->chars, cell);
 }
 
-void cell_table_set_cell_cstring_key(CellTable* table, const char* key, ObjectCell* cell) {
+void cell_table_set_cell_cstring_key(CellTable* table, const char* key, struct ObjectCell* cell) {
 	Table* inner_table = &table->table;
 	table_set_cstring_key(inner_table, key, MAKE_VALUE_OBJECT(cell));
 }
 
-bool cell_table_get_value(CellTable* table, ObjectString* key, Value* out) {
+bool cell_table_get_value_cstring_key(CellTable* table, const char* key, Value* out) {
 	Table* inner_table = &table->table;
 	Value current;
-	if (table_get(inner_table, key, &current)) {
+	if (table_get_cstring_key(inner_table, key, &current)) {
 		ObjectCell* cell = NULL;
 		if ((cell = VALUE_AS_OBJECT(current, OBJECT_CELL, ObjectCell)) == NULL) {
 			FAIL("Found non ObjectCell* as a value in CellTable when getting value.");
@@ -51,11 +51,11 @@ bool cell_table_get_value(CellTable* table, ObjectString* key, Value* out) {
 	}
 }
 
-bool cell_table_get_cell(CellTable* table, ObjectString* key, ObjectCell** out) {
+bool cell_table_get_cell_cstring_key(CellTable* table, const char* key, struct ObjectCell** out) {
 	Table* inner_table = &table->table;
 	Value current;
-	if (table_get(inner_table, key, &current)) {
-		ObjectCell* cell = NULL;
+	if (table_get_cstring_key(inner_table, key, &current)) {
+		struct ObjectCell* cell = NULL;
 		if ((cell = VALUE_AS_OBJECT(current, OBJECT_CELL, ObjectCell)) == NULL) {
 			FAIL("Found non ObjectCell* as a value in CellTable when getting value.");
 		}
