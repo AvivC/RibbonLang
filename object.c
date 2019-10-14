@@ -283,6 +283,12 @@ ObjectTable* object_table_new_empty(void) {
 	return object_table_new(table_new_empty());
 }
 
+ObjectCell* object_cell_new(Value value) {
+	ObjectCell* cell = (ObjectCell*) allocate_object(sizeof(ObjectCell), "ObjectCell", OBJECT_CELL);
+	cell->value = value;
+	return cell;
+}
+
 void object_free(Object* o) {
 	table_free(&o->attributes);
 
@@ -329,6 +335,12 @@ void object_free(Object* o) {
         	deallocate(table, sizeof(ObjectTable), "ObjectTable");
         	break;
         }
+        case OBJECT_CELL: {
+        	ObjectCell* cell = (ObjectCell*) o;
+        	DEBUG_OBJECTS_PRINT("Freeing ObjectCell at '%p'", cell);
+        	deallocate(cell, sizeof(ObjectCell), "ObjectCell");
+        	break;
+        }
     }
     
     vm.num_objects--;
@@ -358,6 +370,13 @@ void object_print(Object* o) {
         	ObjectTable* table = (ObjectTable*) o;
         	table_print(&table->table);
             return;
+        }
+        case OBJECT_CELL: {
+        	ObjectCell* cell = (ObjectCell*) o;
+        	printf("<Cell object at %p wrapping ", cell);
+        	value_print(cell->value);
+        	printf(">");
+        	return;
         }
     }
     

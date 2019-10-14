@@ -3,6 +3,7 @@
 
 #include "bytecode.h"
 #include "table.h"
+#include "cell_table.h"
 #include "object.h"
 #include "value.h"
 
@@ -18,7 +19,8 @@ typedef enum {
 typedef struct {
 	uint8_t* returnAddress;
 	ObjectFunction* function;
-	Table local_variables;
+//	Table local_variables;
+	CellTable local_variables;
 } StackFrame;
 
 typedef struct {

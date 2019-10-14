@@ -10,7 +10,8 @@ typedef enum {
     OBJECT_STRING,
     OBJECT_FUNCTION,
 	OBJECT_CODE,
-	OBJECT_TABLE
+	OBJECT_TABLE,
+	OBJECT_CELL
 } ObjectType;
 
 typedef enum {
@@ -44,10 +45,10 @@ typedef struct ObjectCode {
 
 typedef bool (*NativeFunction)(ValueArray, Value*);
 
-//typedef struct {
-//	const char* name;
-//	int name_length;
-//} Upvalue;
+typedef struct {
+	Object base;
+	Value value;
+} ObjectCell;
 
 typedef struct ObjectFunction {
     Object base;
@@ -74,8 +75,11 @@ ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char**
 void object_function_set_name(ObjectFunction* function, char* name);
 
 ObjectCode* object_code_new(Bytecode chunk);
+
 ObjectTable* object_table_new(Table table);
 ObjectTable* object_table_new_empty(void);
+
+ObjectCell* object_cell_new(Value value);
 
 bool object_compare(Object* a, Object* b);
 
@@ -95,5 +99,7 @@ ObjectString* object_as_string(Object* o);
 ObjectFunction* object_as_function(Object* o);
 
 bool object_is_value_object_of_type(Value value, ObjectType type);
+
+#define VALUE_AS_OBJECT(value, object_type, cast) object_is_value_object_of_type(value, object_type) ? (cast*) value.as.object : NULL
 
 #endif

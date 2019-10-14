@@ -56,7 +56,7 @@ static Value peek(void) {
 static void init_stack_frame(StackFrame* frame) {
 	frame->returnAddress = NULL;
 	frame->function = NULL;
-	table_init(&frame->local_variables);
+	cell_table_init(&frame->local_variables);
 }
 
 static StackFrame new_stack_frame(uint8_t* returnAddress, ObjectFunction* objFunc) {
@@ -79,7 +79,7 @@ static void push_frame(StackFrame frame) {
 }
 
 static void freeStackFrame(StackFrame* frame) {
-	table_free(&frame->local_variables);
+	cell_table_free(&frame->local_variables);
 	init_stack_frame(frame);
 }
 
@@ -91,11 +91,11 @@ static StackFrame popFrame(void) {
 static Value load_variable(ObjectString* name) {
 	Value value;
 
-	Table* locals = &current_frame()->local_variables;
+	CellTable* locals = &current_frame()->local_variables;
 	Table* free_vars = &current_frame()->function->free_vars;
 	Table* globals = &vm.globals;
 
-	bool variable_found = table_get(locals, name, &value) || table_get(free_vars, name, &value) || table_get(globals, name, &value);
+	bool variable_found = cell_table_get_value(locals, name, &value) || table_get(free_vars, name, &value) || table_get(globals, name, &value);
 
 	if (variable_found) {
 		return value;
@@ -183,6 +183,13 @@ static void gc_mark_object_table(Object* object) {
 	pointer_array_free(&entries);
 }
 
+static void gc_mark_object_cell(Object* object) {
+	ObjectCell* cell = (ObjectCell*) object;
+	if (cell->value.type == VALUE_OBJECT) {
+		gc_mark_object(cell->value.as.object);
+	}
+}
+
 static void gc_mark_object(Object* object) {
 	assert_is_probably_valid_object(object);
 
@@ -199,6 +206,8 @@ static void gc_mark_object(Object* object) {
 		gc_mark_code_constants((ObjectCode*) object);
 	} else if (object->type == OBJECT_TABLE) {
 		gc_mark_object_table(object);
+	} else if (object->type == OBJECT_CELL) {
+		gc_mark_object_cell(object);
 	}
 }
 
@@ -214,8 +223,15 @@ static void gc_mark(void) {
 
 		// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
 		// many entries are likely to be empty
-		for (int i = 0; i < frame->local_variables.capacity; i++) {
-			Entry* entry = &frame->local_variables.entries[i];
+		for (int i = 0; i < frame->local_variables.table.capacity; i++) {
+			Entry* entry = &frame->local_variables.table.entries[i];
+			if (entry->key != NULL) {
+				ObjectCell* cell = NULL;
+				if ((cell = VALUE_AS_OBJECT(entry->value, OBJECT_CELL, ObjectCell)) == NULL) {
+					FAIL("Found non ObjectCell when scanning CellTable for gc_mark.");
+				}
+				gc_mark_object((Object*) cell);
+			}
 			if (entry->value.type == VALUE_OBJECT) {
 				gc_mark_object(entry->value.as.object);
 			}
@@ -306,7 +322,7 @@ static void call_user_function(ObjectFunction* function) {
 	for (int i = 0; i < function->num_params; i++) {
 		const char* paramName = function->parameters[i];
 		Value argument = pop();
-		table_set_cstring_key(&frame.local_variables, paramName, argument);
+		cell_table_set_value_cstring_key(&frame.local_variables, paramName, argument);
 	}
 	push_frame(frame);
 	vm.ip = function->code->bytecode.code;
@@ -719,7 +735,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 					ObjectString* name_string = (ObjectString*) name_value.as.object;
 
 					Value value;
-					if (table_get(&current_frame()->local_variables, name_string, &value)) {
+					if (cell_table_get_value(&current_frame()->local_variables, name_string, &value)) {
 						// Referenced name found in local variables of the enclosing function
 						table_set(&free_vars, name_string, value);
 					} else {
@@ -824,7 +840,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
                 																		// Or maybe a function should have a list of names?
                 }
 
-                table_set(&current_frame()->local_variables, name, value);
+                cell_table_set_value(&current_frame()->local_variables, name, value);
                 break;
             }
             
