@@ -1,0 +1,4 @@
+Middle of implementing module system.
+Compiling and running.
+Need to figure out how to extract the variables from the module
+into the module object.
