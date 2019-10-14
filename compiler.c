@@ -164,8 +164,16 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
             emit_short_as_two_bytes(bytecode, num_params);
 
-			for (int i = 0; i < num_params; i++) {
-				emit_constant(bytecode, node_function->parameters.values[i]);
+//			for (int i = 0; i < num_params; i++) {
+//				emit_constant(bytecode, node_function->parameters.values[i]);
+//			}
+
+            for (int i = 0; i < num_params; i++) {
+            	Value param_value = node_function->parameters.values[i];
+            	ASSERT_VALUE_TYPE(param_value, VALUE_RAW_STRING);
+            	RawString param_raw_string = param_value.as.raw_string;
+				ObjectString* param_as_object_string = object_string_copy(param_raw_string.data, param_raw_string.length);
+				emit_constant(bytecode, MAKE_VALUE_OBJECT(param_as_object_string));
 			}
 
             break;
@@ -370,11 +378,8 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
         case AST_NODE_STRING: {
         	AstNodeString* node_string = (AstNodeString*) node;
-
-//        	Value constant = MAKE_VALUE_RAW_STRING(node_string->string, node_string->length);
         	Value constant = MAKE_VALUE_OBJECT(object_string_copy(node_string->string, node_string->length));
         	emit_opcode_with_constant_operand(bytecode, OP_MAKE_STRING, constant);
-//        	printf("\n%.*s\n", ((ObjectString*) constant.as.object)->length, ((ObjectString*) constant.as.object)->chars);
 
         	break;
         }

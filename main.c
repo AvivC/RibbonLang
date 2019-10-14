@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
     
 	printStructures(argc, argv, &chunk, ast);
     ast_free_tree(ast);
-//    free(source);
+    free(source);
     
     bool dryRun = checkCmdArg(argv, argc, 2, "-dry") || checkCmdArg(argv, argc, 3, "-dry") || checkCmdArg(argv, argc, 4, "-dry");
     if (!dryRun) {
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
     }
     
     vm_free();
-    free(source);
+//    free(source);
     
     #if DEBUG_IMPORTANT
     if (!dryRun) {

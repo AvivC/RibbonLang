@@ -726,11 +726,12 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				char** params_buffer = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 				for (int i = 0; i < num_params; i++) {
 					Value param_value = READ_CONSTANT();
-					if (param_value.type != VALUE_RAW_STRING) {
-						FAIL("Param constant expected to be VALUE_RAW_STRING, actual type: '%d'", param_value.type);
+					ObjectString* param_object_string = NULL;
+					if ((param_object_string = VALUE_AS_OBJECT(param_value, OBJECT_STRING, ObjectString)) == NULL) {
+						FAIL("Param constant expected to be ObjectString*, actual value type: '%d'", param_value.type);
 					}
-					RawString param_raw_string = param_value.as.raw_string;
-					params_buffer[i] = copy_cstring(param_raw_string.data, param_raw_string.length, "ObjectFunction param cstring");
+
+					params_buffer[i] = copy_cstring(param_object_string->chars, param_object_string->length, "ObjectFunction param cstring");
 				}
 
 				IntegerArray referenced_names_indices = object_code->bytecode.referenced_names_indices;
