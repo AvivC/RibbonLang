@@ -739,7 +739,6 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 					Value value;
 					if (cell_table_get_value_cstring_key(&current_frame()->local_variables, name_string->chars, &value)) {
-						// Referenced name found in local variables of the enclosing function
 						cell_table_set_value_cstring_key(&free_vars, name_string->chars, value);
 					} else {
 						CellTable* current_func_free_vars = &current_frame()->function->free_vars;
