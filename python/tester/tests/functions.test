@@ -183,3 +183,54 @@ expect
     hello Aviv
     hi Aviv
 end
+
+test closure semantics
+    outer = {
+        x = "original"
+        middle = {
+            inner = {
+                print(x)
+            }
+            x = "something else"
+            return inner
+        }
+        x = "updated"
+        return middle
+    }
+
+    m = outer()
+    i = m()
+    i()
+expect
+    updated
+end
+
+test closure with arguments
+    outer = {takes x to
+        middle = {
+            inner = {
+                return x
+            }
+            x = "something else"
+            return inner
+        }
+        x = "updated"
+        return middle
+    }
+
+    m = outer("original")
+    i = m()
+    print(i())
+expect
+    updated
+end
+
+test function reaches to base function
+    x = 200
+    f = { takes n to
+        return x * n
+    }
+    print(f(10))
+expect
+    2000
+end
