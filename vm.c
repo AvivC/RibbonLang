@@ -579,7 +579,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
         		Value a = pop();
 
         		int compare = 0;
-        		if (!compareValues(a, b, &compare)) {
+        		if (!value_compare(a, b, &compare)) {
         			RUNTIME_ERROR("Unable to compare two values <.");
         			break;
         		}
@@ -597,7 +597,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
         		Value a = pop();
 
         		int compare = 0;
-        		if (!compareValues(a, b, &compare)) {
+        		if (!value_compare(a, b, &compare)) {
         			RUNTIME_ERROR("Unable to compare two values >.");
         			break;
         		}
@@ -615,7 +615,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
         		Value a = pop();
 
         		int compare = 0;
-        		if (!compareValues(a, b, &compare)) {
+        		if (!value_compare(a, b, &compare)) {
         			RUNTIME_ERROR("Unable to compare two values <=.");
         			break;
         		}
@@ -633,7 +633,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
         		Value a = pop();
 
         		int compare = 0;
-        		if (!compareValues(a, b, &compare)) {
+        		if (!value_compare(a, b, &compare)) {
         			RUNTIME_ERROR("Unable to compare two values >=.");
         			break;
         		}
@@ -651,7 +651,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
         		Value a = pop();
 
         		int compare = 0;
-        		if (!compareValues(a, b, &compare)) {
+        		if (!value_compare(a, b, &compare)) {
         			RUNTIME_ERROR("Unable to compare two values ==.");
         			break;
         		}
