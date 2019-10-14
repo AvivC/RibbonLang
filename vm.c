@@ -69,8 +69,8 @@ static StackFrame new_stack_frame(uint8_t* returnAddress, ObjectFunction* objFun
 
 static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	ObjectCode* code = object_code_new(*base_chunk);
-	ObjectFunction* baseObjFunc = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
-	return new_stack_frame(NULL, baseObjFunc);
+	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
+	return new_stack_frame(NULL, base_function);
 }
 
 static void push_frame(StackFrame frame) {
@@ -93,12 +93,12 @@ static Value load_variable(ObjectString* name) {
 
 	CellTable* locals = &current_frame()->local_variables;
 	CellTable* free_vars = &current_frame()->function->free_vars;
-	Table* globals = &vm.globals;
+	CellTable* globals = &vm.globals;
 
 	bool variable_found =
 			cell_table_get_value_cstring_key(locals, name->chars, &value)
 			|| cell_table_get_value_cstring_key(free_vars, name->chars, &value)
-			|| table_get(globals, name, &value);
+			|| cell_table_get_value_cstring_key(globals, name->chars, &value);
 
 	if (variable_found) {
 		return value;
@@ -243,8 +243,8 @@ static void gc_mark(void) {
 
 	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
 	// many entries are likely to be empty
-	for (int i = 0; i < vm.globals.capacity; i++) {
-		Entry* entry = &vm.globals.entries[i];
+	for (int i = 0; i < vm.globals.table.capacity; i++) {
+		Entry* entry = &vm.globals.table.entries[i];
 		if (entry->value.type == VALUE_OBJECT) {
 			gc_mark_object(entry->value.as.object);
 		}
@@ -307,7 +307,7 @@ static void register_builtin_function(const char* name, int num_params, char** p
 		params_buffer[i] = copy_cstring(params[i], strlen(params[i]), "ObjectFunction param cstring");
 	}
 	ObjectFunction* obj_function = object_native_function_new(function, params_buffer, num_params, NULL);
-	table_set_cstring_key(&vm.globals, name, MAKE_VALUE_OBJECT(obj_function));
+	cell_table_set_value_cstring_key(&vm.globals, name, MAKE_VALUE_OBJECT(obj_function));
 }
 
 static void set_builtin_globals(void) {
@@ -363,7 +363,7 @@ void vm_init(void) {
     vm.max_objects = INITIAL_GC_THRESHOLD;
     vm.allow_gc = false;
 
-    table_init(&vm.globals);
+    cell_table_init(&vm.globals);
     set_builtin_globals();
 }
 
@@ -372,7 +372,7 @@ void vm_free(void) {
 		freeStackFrame(frame);
 	}
 	reset_stacks();
-	table_free(&vm.globals);
+	cell_table_free(&vm.globals);
 
 	gc(); // TODO: probably move upper
 

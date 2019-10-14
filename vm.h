@@ -32,7 +32,7 @@ typedef struct {
     StackFrame* call_stack_top;
     StackFrame callStack[CALL_STACK_MAX];
 
-    Table globals;
+    CellTable globals;
 
     Object* objects;
     int num_objects;
