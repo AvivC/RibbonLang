@@ -153,7 +153,6 @@ int main(int argc, char* argv[]) {
     }
     
     vm_free();
-//    free(source);
     
     #if DEBUG_IMPORTANT
     if (!dryRun) {
