@@ -17,7 +17,7 @@ typedef enum {
 #define CALL_STACK_MAX 256  // TODO: review this. maybe grow dynamically?
 
 typedef struct {
-	uint8_t* returnAddress;
+	uint8_t* return_address;
 	ObjectFunction* function;
 //	Table local_variables;
 	CellTable local_variables;

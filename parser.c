@@ -442,7 +442,7 @@ static AstNode* statements(void) {
     return (AstNode*) statements_node;
 }
 
-AstNode* parse(const char* source) {
+AstNode* parser_parse(const char* source) {
     scanner_init(source);
     
     advance();

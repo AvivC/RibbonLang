@@ -12,6 +12,9 @@
 #include "utils.h"
 #include "pointerarray.h"
 #include "io.h"
+#include "ast.h"
+#include "parser.h"
+#include "compiler.h"
 
 #define INITIAL_GC_THRESHOLD 1024 * 1024
 
@@ -54,16 +57,16 @@ static Value peek(void) {
 }
 
 static void init_stack_frame(StackFrame* frame) {
-	frame->returnAddress = NULL;
+	frame->return_address = NULL;
 	frame->function = NULL;
 	cell_table_init(&frame->local_variables);
 }
 
-static StackFrame new_stack_frame(uint8_t* returnAddress, ObjectFunction* objFunc) {
+static StackFrame new_stack_frame(uint8_t* return_address, ObjectFunction* function) {
 	StackFrame frame;
 	init_stack_frame(&frame);
-	frame.returnAddress = returnAddress;
-	frame.function = objFunc;
+	frame.return_address = return_address;
+	frame.function = function;
 	return frame;
 }
 
@@ -78,12 +81,12 @@ static void push_frame(StackFrame frame) {
 	vm.call_stack_top++;
 }
 
-static void freeStackFrame(StackFrame* frame) {
+static void stack_frame_free(StackFrame* frame) {
 	cell_table_free(&frame->local_variables);
 	init_stack_frame(frame);
 }
 
-static StackFrame popFrame(void) {
+static StackFrame pop_frame(void) {
 	vm.call_stack_top--;
 	return *vm.call_stack_top;
 }
@@ -323,10 +326,11 @@ static void call_user_function(ObjectFunction* function) {
 
 	StackFrame frame = new_stack_frame(vm.ip, function);
 	for (int i = 0; i < function->num_params; i++) {
-		const char* paramName = function->parameters[i];
+		const char* param_name = function->parameters[i];
 		Value argument = pop();
-		cell_table_set_value_cstring_key(&frame.local_variables, paramName, argument);
+		cell_table_set_value_cstring_key(&frame.local_variables, param_name, argument);
 	}
+
 	push_frame(frame);
 	vm.ip = function->code->bytecode.code;
 }
@@ -369,7 +373,7 @@ void vm_init(void) {
 
 void vm_free(void) {
 	for (StackFrame* frame = vm.callStack; frame != vm.call_stack_top; frame++) {
-		freeStackFrame(frame);
+		stack_frame_free(frame);
 	}
 	reset_stacks();
 	cell_table_free(&vm.globals);
@@ -737,7 +741,6 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 					ObjectString* name_string = (ObjectString*) name_value.as.object;
 
-//					Value value;
 					ObjectCell* cell = NULL;
 					if (cell_table_get_cell_cstring_key(&current_frame()->local_variables, name_string->chars, &cell)) {
 						cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
@@ -787,15 +790,15 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
             case OP_RETURN: {
 
-                StackFrame frame = popFrame();
-                bool atBaseFrame = frame.returnAddress == NULL;
-                if (atBaseFrame) {
+                StackFrame frame = pop_frame();
+                bool is_base_frame = frame.return_address == NULL;
+                if (is_base_frame) {
                 	is_executing = false;
                 } else {
-                	vm.ip = frame.returnAddress;
+                	vm.ip = frame.return_address;
                 }
 
-                freeStackFrame(&frame);
+                stack_frame_free(&frame);
 
                 break;
             }
@@ -1051,28 +1054,36 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				size_t source_buffer_size = -1;
 				int file_read_success = read_file(file_name_buffer, &source, &source_buffer_size); // TODO: Figure out how to manage this memory
 
-//				if (file_read_success == IO_SUCCESS) {
-////            	    initVM();
-//					Chunk module_chunk;
-//					initChunk(&module_chunk);
-//					AstNode* module_ast = parse(source);
-//					compile(module_ast, &module_chunk);
-//
+				if (file_read_success == IO_SUCCESS) {
+//            	    vm_init();
+
+					AstNode* module_ast = parser_parse(source);
+					Bytecode module_bytecode;
+					bytecode_init(&module_bytecode);
+					compiler_compile(module_ast, &module_bytecode);
+
+					ObjectCode* code_object = object_code_new(module_bytecode);
+					ObjectFunction* module_base_function = object_user_function_new(code_object, NULL, 0, NULL, cell_table_new_empty());
+					call_user_function(module_base_function);
+
 //					ImportFrame = new_import_frame(vm.ip, )
 //					uint8_t* return_ip = vm.ip;
-//					InterpretResult result = interpret(&module_chunk);
+//					InterpretResult result = vm_interpret(&module_bytecode);
 //					vm.ip = return_ip;
-//
-//
-////					if (result == INTERPRET_SUCCESS) {
-//
-////					} else {
-//
-////					}
-//
-//					freeTree(module_ast);
-////            	    freeVM();
-////            	    free(source);
+
+
+//					if (result == INTERPRET_SUCCESS) {
+
+//					} else {
+
+//					}
+
+					ast_free_tree(module_ast);
+//            	    freeVM();
+//            	    free(source);
+				} else {
+					// ?
+				}
 
 				deallocate(file_name_buffer, file_name_buffer_size, "File name buffer");
 				deallocate(source, source_buffer_size, "File content buffer");

@@ -4,6 +4,6 @@
 #include "ast.h"
 #include "bytecode.h"
 
-void compile(AstNode* node, Bytecode* chunk);
+void compiler_compile(AstNode* node, Bytecode* chunk);
 
 #endif

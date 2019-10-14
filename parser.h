@@ -4,6 +4,6 @@
 #include "ast.h"
 #include "bytecode.h"
 
-AstNode* parse(const char* source);
+AstNode* parser_parse(const char* source);
 
 #endif

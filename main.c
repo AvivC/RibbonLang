@@ -140,17 +140,17 @@ int main(int argc, char* argv[]) {
 
     Bytecode chunk;
     bytecode_init(&chunk);
-    AstNode* ast = parse(source);
-    compile(ast, &chunk);
+    AstNode* ast = parser_parse(source);
+    compiler_compile(ast, &chunk);
     
 	printStructures(argc, argv, &chunk, ast);
+    ast_free_tree(ast);
     
     bool dryRun = checkCmdArg(argv, argc, 2, "-dry") || checkCmdArg(argv, argc, 3, "-dry") || checkCmdArg(argv, argc, 4, "-dry");
     if (!dryRun) {
     	InterpretResult result = vm_interpret(&chunk);
     }
     
-    ast_free_tree(ast);
     vm_free();
     free(source);
     
