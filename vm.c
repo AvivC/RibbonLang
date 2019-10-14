@@ -477,7 +477,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
     	OP_CODE opcode = READ_BYTE();
         
 		#if DEBUG_TRACE_EXECUTION
-			disassembleInstruction(opcode, currentChunk(), vm.ip - 1 - currentChunk()->code);
+			disassembler_do_single_instruction(opcode, currentChunk(), vm.ip - 1 - currentChunk()->code);
 
 			printf("\n");
 			bool stackEmpty = vm.evalStack == vm.stackTop;
@@ -486,18 +486,19 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 			} else {
 				for (Value* value = vm.evalStack; value < vm.stackTop; value++) {
 					printf("[ ");
-					printValue(*value);
+					value_print(*value);
 					printf(" ]");
 				}
 			}
 			printf("\n\nLocal variables:\n");
-			if (isInFrame()) {
-				printTable(&current_frame()->local_variables);
-			} else {
-				printf("No stack frames.");
-			}
+//			if (isInFrame()) {
+//				printTable(&current_frame()->local_variables);
+//			} else {
+//				printf("No stack frames.");
+//			}
+			table_print(&current_frame()->local_variables.table);
 
-			chunk_print_constant_table(currentChunk());
+			bytecode_print_constant_table(currentChunk());
 
 			printf("\n\n");
 
@@ -703,9 +704,15 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             }
 
             case OP_MAKE_STRING: {
-            	RawString string = READ_CONSTANT().as.raw_string;
-            	ObjectString* obj_string = object_string_copy(string.data, string.length);
-            	push(MAKE_VALUE_OBJECT(obj_string));
+//            	RawString string = READ_CONSTANT().as.raw_string;
+            	ObjectString* prototype = NULL;
+            	Value constant = READ_CONSTANT();
+            	if ((prototype = VALUE_AS_OBJECT(constant, OBJECT_STRING, ObjectString)) == NULL) {
+            		FAIL("Expected operand for OP_MAKE_STRING to be an ObjectString* for cloning.");
+            	}
+            	ObjectString* new_string = object_string_clone(prototype);
+//            	ObjectString* obj_string = object_string_copy(protoype.data, string.length);
+            	push(MAKE_VALUE_OBJECT(new_string));
             	break;
             }
 
@@ -1061,9 +1068,13 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 					Bytecode module_bytecode;
 					bytecode_init(&module_bytecode);
 					compiler_compile(module_ast, &module_bytecode);
+					ast_free_tree(module_ast);
 
 					ObjectCode* code_object = object_code_new(module_bytecode);
 					ObjectFunction* module_base_function = object_user_function_new(code_object, NULL, 0, NULL, cell_table_new_empty());
+
+//					ObjectModule* module = object_module_new(module_name, module_base_function, object_string_take())
+
 					call_user_function(module_base_function);
 
 //					ImportFrame = new_import_frame(vm.ip, )
@@ -1078,7 +1089,6 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 //					}
 
-					ast_free_tree(module_ast);
 //            	    freeVM();
 //            	    free(source);
 				} else {
@@ -1086,7 +1096,9 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				}
 
 				deallocate(file_name_buffer, file_name_buffer_size, "File name buffer");
-				deallocate(source, source_buffer_size, "File content buffer");
+				// Turns out - execution depends on the source being alive, even though parsing and compilation don't seem to
+				//deallocate(source, source_buffer_size, "File content buffer");
+
             	break;
             }
 

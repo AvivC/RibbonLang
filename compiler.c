@@ -232,6 +232,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         	// TODO: Not sure when the constant should be an ObjectString and when simply a RawString. Currently improvising.
         	Value module_name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_import->name, node_import->name_length));
         	emit_opcode_with_constant_operand(bytecode, OP_IMPORT, module_name_constant);
+        	emit_byte(bytecode, OP_POP); // Compiler always puts a OP_NIL OP_RETURN at the end, but that's irrelevant for modules.. change this patch later.
 
         	break;
         }
@@ -370,8 +371,10 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         case AST_NODE_STRING: {
         	AstNodeString* node_string = (AstNodeString*) node;
 
-        	Value constant = MAKE_VALUE_RAW_STRING(node_string->string, node_string->length);
+//        	Value constant = MAKE_VALUE_RAW_STRING(node_string->string, node_string->length);
+        	Value constant = MAKE_VALUE_OBJECT(object_string_copy(node_string->string, node_string->length));
         	emit_opcode_with_constant_operand(bytecode, OP_MAKE_STRING, constant);
+//        	printf("\n%.*s\n", ((ObjectString*) constant.as.object)->length, ((ObjectString*) constant.as.object)->chars);
 
         	break;
         }

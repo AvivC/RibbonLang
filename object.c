@@ -216,6 +216,10 @@ ObjectString* object_string_take(char* chars, int length) {
     return object_string_new(chars, length);
 }
 
+ObjectString* object_string_clone(ObjectString* original) {
+	return object_string_copy(original->chars, original->length);
+}
+
 ObjectString** object_create_copied_strings_array(const char** strings, int num, const char* allocDescription) {
 	ObjectString** array = allocate(sizeof(ObjectString*) * num, allocDescription);
 	for (int i = 0; i < num; i++) {
@@ -289,6 +293,14 @@ ObjectCell* object_cell_new(Value value) {
 	return cell;
 }
 
+ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function, ObjectString* source_code) {
+	ObjectModule* module = (ObjectModule*) allocate_object(sizeof(ObjectModule), "ObjectModule", OBJECT_MODULE);
+	module->name = name;
+	module->function = function;
+	module->source_code = source_code;
+	return module;
+}
+
 void object_free(Object* o) {
 	table_free(&o->attributes);
 
@@ -341,6 +353,12 @@ void object_free(Object* o) {
         	deallocate(cell, sizeof(ObjectCell), "ObjectCell");
         	break;
         }
+        case OBJECT_MODULE: {
+        	ObjectModule* module = (ObjectModule*) o;
+			DEBUG_OBJECTS_PRINT("Freeing ObjectModule at '%p'", cell);
+			deallocate(module, sizeof(ObjectModule), "ObjectModule");
+        	break;
+        }
     }
     
     vm.num_objects--;
@@ -377,6 +395,11 @@ void object_print(Object* o) {
         	value_print(cell->value);
         	printf(">");
         	return;
+        }
+        case OBJECT_MODULE: {
+        	ObjectModule* module = (ObjectModule*) o;
+			printf("<Module %s>", module->name->chars);
+			return;
         }
     }
     

@@ -12,7 +12,8 @@ typedef enum {
     OBJECT_FUNCTION,
 	OBJECT_CODE,
 	OBJECT_TABLE,
-	OBJECT_CELL
+	OBJECT_CELL,
+	OBJECT_MODULE
 } ObjectType;
 
 typedef enum {
@@ -58,8 +59,6 @@ typedef struct ObjectFunction {
     int num_params;
     bool is_native;
     Object* self;
-//    ValueArray upvalues;
-//    Table free_vars;
     CellTable free_vars;
     union {
     	NativeFunction native_function;
@@ -67,8 +66,16 @@ typedef struct ObjectFunction {
     };
 } ObjectFunction;
 
+typedef struct ObjectModule {
+	Object base;
+	ObjectString* name;
+	ObjectFunction* function;
+	ObjectString* source_code; // Currently, execution seems to depend on the source code being around... Fix it sometime.
+} ObjectModule;
+
 ObjectString* object_string_copy(const char* string, int length);
 ObjectString* object_string_take(char* chars, int length);
+ObjectString* object_string_clone(ObjectString* original);
 ObjectString** object_create_copied_strings_array(const char** strings, int num, const char* allocDescription);
 ObjectString* object_string_copy_from_null_terminated(const char* string);
 
@@ -82,6 +89,8 @@ ObjectTable* object_table_new(Table table);
 ObjectTable* object_table_new_empty(void);
 
 ObjectCell* object_cell_new(Value value);
+
+ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function, ObjectString* source_code);
 
 bool object_compare(Object* a, Object* b);
 
