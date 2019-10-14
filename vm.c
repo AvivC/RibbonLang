@@ -69,7 +69,7 @@ static StackFrame new_stack_frame(uint8_t* returnAddress, ObjectFunction* objFun
 
 static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	ObjectCode* code = object_code_new(*base_chunk);
-	ObjectFunction* baseObjFunc = object_user_function_new(code, NULL, 0, NULL, table_new_empty());
+	ObjectFunction* baseObjFunc = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
 	return new_stack_frame(NULL, baseObjFunc);
 }
 
@@ -92,10 +92,13 @@ static Value load_variable(ObjectString* name) {
 	Value value;
 
 	CellTable* locals = &current_frame()->local_variables;
-	Table* free_vars = &current_frame()->function->free_vars;
+	CellTable* free_vars = &current_frame()->function->free_vars;
 	Table* globals = &vm.globals;
 
-	bool variable_found = cell_table_get_value_cstring_key(locals, name->chars, &value) || table_get(free_vars, name, &value) || table_get(globals, name, &value);
+	bool variable_found =
+			cell_table_get_value_cstring_key(locals, name->chars, &value)
+			|| cell_table_get_value_cstring_key(free_vars, name->chars, &value)
+			|| table_get(globals, name, &value);
 
 	if (variable_found) {
 		return value;
@@ -140,8 +143,8 @@ static void assert_is_probably_valid_object(Object* object) {
 }
 
 static void gc_mark_function_free_vars(ObjectFunction* function) {
-	Table* free_vars = &function->free_vars; // Using a pointer locally for efficiency.. Is this common practice? Read on this.
-	PointerArray free_vars_entries = table_iterate(free_vars);
+	CellTable* free_vars = &function->free_vars;
+	PointerArray free_vars_entries = table_iterate(&free_vars->table);
 	for (int i = 0; i < free_vars_entries.count; i++) {
 		Entry* entry = free_vars_entries.values[i];
 		if (entry->value.type == VALUE_OBJECT) {
@@ -721,8 +724,8 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 				IntegerArray referenced_names_indices = object_code->bytecode.referenced_names_indices;
 				int free_vars_count = referenced_names_indices.count; // referenced_names_indices is the indices in the code's constant table
-				Table free_vars;
-				table_init(&free_vars);
+				CellTable free_vars;
+				cell_table_init(&free_vars);
 
 				for (int i = 0; i < free_vars_count; i++) {
 					size_t name_index = referenced_names_indices.values[i];
@@ -737,11 +740,11 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 					Value value;
 					if (cell_table_get_value_cstring_key(&current_frame()->local_variables, name_string->chars, &value)) {
 						// Referenced name found in local variables of the enclosing function
-						table_set(&free_vars, name_string, value);
+						cell_table_set_value_cstring_key(&free_vars, name_string->chars, value);
 					} else {
-						Table* current_func_free_vars = &current_frame()->function->free_vars;
-						if (table_get(current_func_free_vars, name_string, &value)) {
-							table_set(&free_vars, name_string, value);
+						CellTable* current_func_free_vars = &current_frame()->function->free_vars;
+						if (cell_table_get_value_cstring_key(current_func_free_vars, name_string->chars, &value)) {
+							cell_table_set_value_cstring_key(&free_vars, name_string->chars, value);
 						}
 						// If not found, the referenced variable is probably a local, or a runtime error later.
 					}

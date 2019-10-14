@@ -69,3 +69,9 @@ bool cell_table_get_cell_cstring_key(CellTable* table, const char* key, struct O
 void cell_table_free(CellTable* table) {
 	table_free(&table->table);
 }
+
+CellTable cell_table_new_empty(void) {
+	CellTable table;
+	cell_table_init(&table);
+	return table;
+}

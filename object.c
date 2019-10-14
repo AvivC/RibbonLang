@@ -233,7 +233,7 @@ bool object_strings_equal(ObjectString* a, ObjectString* b) {
     return (a->length == b->length) && (object_cstrings_equal(a->chars, b->chars));
 }
 
-static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, Object* self, Table free_vars) {
+static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, Object* self, CellTable free_vars) {
     ObjectFunction* objFunc = (ObjectFunction*) allocate_object(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
     objFunc->name = copy_null_terminated_cstring("<Anonymous function>", "Function name");
     objFunc->is_native = isNative;
@@ -244,7 +244,7 @@ static ObjectFunction* object_function_base_new(bool isNative, char** parameters
     return objFunc;
 }
 
-ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self, Table free_vars) {
+ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self, CellTable free_vars) {
     DEBUG_OBJECTS_PRINT("Creating user function object.");
     ObjectFunction* objFunc = object_function_base_new(false, parameters, numParams, self, free_vars);
     objFunc->code = code;
@@ -253,7 +253,7 @@ ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, in
 
 ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams, Object* self) {
     DEBUG_OBJECTS_PRINT("Creating native function object.");
-    ObjectFunction* objFunc = object_function_base_new(true, parameters, numParams, self, table_new_empty());
+    ObjectFunction* objFunc = object_function_base_new(true, parameters, numParams, self, cell_table_new_empty());
     objFunc->native_function = nativeFunction;
     return objFunc;
 }
@@ -316,7 +316,7 @@ void object_free(Object* o) {
             if (func->num_params > 0) {
             	deallocate(func->parameters, sizeof(char*) * func->num_params, "Parameters list cstrings");
             }
-            table_free(&func->free_vars);
+            cell_table_free(&func->free_vars);
             deallocate(func->name, strlen(func->name) + 1, "Function name");
             deallocate(func, sizeof(ObjectFunction), "ObjectFunction");
             break;

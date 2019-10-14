@@ -16,5 +16,6 @@ void cell_table_set_cell_cstring_key(CellTable* table, const char* key, struct O
 bool cell_table_get_value_cstring_key(CellTable* table, const char* key, Value* out);
 bool cell_table_get_cell_cstring_key(CellTable* table, const char* key, struct ObjectCell** out);
 void cell_table_free(CellTable* table);
+CellTable cell_table_new_empty(void);
 
 #endif
