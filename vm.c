@@ -1063,8 +1063,6 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				int file_read_success = read_file(file_name_buffer, &source, &source_buffer_size); // TODO: Figure out how to manage this memory
 
 				if (file_read_success == IO_SUCCESS) {
-//            	    vm_init();
-
 					AstNode* module_ast = parser_parse(source);
 					Bytecode module_bytecode;
 					bytecode_init(&module_bytecode);
@@ -1078,19 +1076,6 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 					call_user_function(module_base_function);
 
-//					ImportFrame = new_import_frame(vm.ip, )
-//					uint8_t* return_ip = vm.ip;
-//					InterpretResult result = vm_interpret(&module_bytecode);
-//					vm.ip = return_ip;
-
-
-//					if (result == INTERPRET_SUCCESS) {
-
-//					} else {
-
-//					}
-
-//            	    freeVM();
 //            	    free(source);
 				} else {
 					// ?
