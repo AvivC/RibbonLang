@@ -17,14 +17,14 @@ IOResult read_file(const char* file_name, char** text_out, size_t* text_length_o
     }
 
     fseek(file, 0, SEEK_END);
-    size_t fileSize = ftell(file);
+    size_t file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    size_t buffer_size = sizeof(char) * fileSize + 1;
+    size_t buffer_size = sizeof(char) * file_size + 1;
     char* buffer = allocate(buffer_size, "File content buffer");
-    size_t bytesRead = fread(buffer, 1, fileSize, file);
+    size_t bytes_read = fread(buffer, 1, file_size, file);
 
-    if (bytesRead != fileSize) {
+    if (bytes_read != file_size) {
         return read_file_cleanup_and_fail(buffer, buffer_size, IO_READ_FILE_FAILURE);
     }
 
@@ -32,7 +32,7 @@ IOResult read_file(const char* file_name, char** text_out, size_t* text_length_o
         return read_file_cleanup_and_fail(buffer, buffer_size, IO_CLOSE_FILE_FAILURE);
     }
 
-    buffer[fileSize] = '\0';
+    buffer[file_size] = '\0';
 
     *text_out = buffer;
     *text_length_out = buffer_size;
