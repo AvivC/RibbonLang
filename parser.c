@@ -238,15 +238,15 @@ static AstNode* unary(int expression_level) {
 }
 
 static AstNode* boolean(int expression_level) {
-	bool booleanValue;
+	bool boolean_value;
 	if (parser.previous.type == TOKEN_TRUE) {
-		booleanValue = true;
+		boolean_value = true;
 	} else if (parser.previous.type == TOKEN_FALSE) {
-		booleanValue = false;
+		boolean_value = false;
 	} else {
 		FAIL("Illegal literal identified as boolean.");
 	}
-	return (AstNode*) ast_new_node_constant(MAKE_VALUE_BOOLEAN(booleanValue));
+	return (AstNode*) ast_new_node_constant(MAKE_VALUE_BOOLEAN(boolean_value));
 }
 
 static void conditioned_clause(AstNodeStatements** body_out, AstNode** condition_out, int expression_level) {
