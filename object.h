@@ -25,7 +25,7 @@ typedef enum {
 typedef struct Object {
     ObjectType type;
     struct Object* next;
-    Table attributes;
+    CellTable attributes;
     bool is_reachable;
 } Object;
 
@@ -70,7 +70,6 @@ typedef struct ObjectModule {
 	Object base;
 	ObjectString* name;
 	ObjectFunction* function;
-//	ObjectString* source_code; // Currently, execution seems to depend on the source code being around... Fix it sometime.
 } ObjectModule;
 
 ObjectString* object_string_copy(const char* string, int length);

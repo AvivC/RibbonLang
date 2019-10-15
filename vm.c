@@ -129,8 +129,8 @@ static void gc_mark_code_constants(ObjectCode* code) {
 static void gc_mark_object_attributes(Object* object) {
 	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
 	// many entries are likely to be empty
-	for (int i = 0; i < object->attributes.capacity; i++) {
-		Entry* entry = &object->attributes.entries[i];
+	for (int i = 0; i < object->attributes.table.capacity; i++) {
+		Entry* entry = &object->attributes.table.entries[i];
 		if (entry->value.type == VALUE_OBJECT) {
 			gc_mark_object(entry->value.as.object);
 		}
@@ -527,7 +527,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
             		Object* self = self_val.as.object;
             		Value add_method;
-            		if (!table_get_cstring_key(&self->attributes, "@add", &add_method)) {
+            		if (!cell_table_get_value_cstring_key(&self->attributes, "@add", &add_method)) {
             			RUNTIME_ERROR("Object doesn't support @add method.");
             			break;
             		}
@@ -902,7 +902,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
                 Object* object = obj_val.as.object;
                 Value attr_value;
-                if (table_get(&object->attributes, name, &attr_value)) {
+                if (cell_table_get_value_cstring_key(&object->attributes, name->chars, &attr_value)) {
                 	push(attr_value);
                 } else {
                 	push(MAKE_VALUE_NIL());
@@ -924,7 +924,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
                 Object* object = obj_value.as.object;
                 Value attribute_value = pop();
-                table_set(&object->attributes, name, attribute_value);
+                cell_table_set_value_cstring_key(&object->attributes, name->chars, attribute_value);
 
                 break;
             }
@@ -941,7 +941,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             	Value key = pop();
 
 				Value key_access_method_value;
-				if (!table_get_cstring_key(&subject->attributes, "@get_key", &key_access_method_value)) {
+				if (!cell_table_get_value_cstring_key(&subject->attributes, "@get_key", &key_access_method_value)) {
 					RUNTIME_ERROR("Object doesn't support @get_key method.");
 					break;
 				}

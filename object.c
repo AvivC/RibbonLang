@@ -16,7 +16,7 @@ static Object* allocate_object(size_t size, const char* what, ObjectType type) {
     object->is_reachable = false;
     object->next = vm.objects;
     vm.objects = object;
-    table_init(&object->attributes);
+    cell_table_init(&object->attributes);
     
     vm.num_objects++;
     DEBUG_OBJECTS_PRINT("Incremented num_objects to %d", vm.numObjects);
@@ -38,7 +38,7 @@ static void set_object_native_method(Object* object, const char* method_name, ch
 	}
 
 	ObjectFunction* method = object_native_function_new(function, copied_params, num_params_including_self, object);
-	table_set_cstring_key(&object->attributes, method_name, MAKE_VALUE_OBJECT(method));
+	cell_table_set_value_cstring_key(&object->attributes, method_name, MAKE_VALUE_OBJECT(method));
 }
 
 static bool object_string_add(ValueArray args, Value* result) {
@@ -302,7 +302,7 @@ ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function) {
 }
 
 void object_free(Object* o) {
-	table_free(&o->attributes);
+	cell_table_free(&o->attributes);
 
 	ObjectType type = o->type;
 
@@ -434,7 +434,7 @@ ObjectString* object_as_string(Object* o) {
 
 MethodAccessResult object_get_method(Object* object, const char* method_name, ObjectFunction** out) {
 	Value method_value;
-	if (!table_get_cstring_key(&object->attributes, method_name, &method_value)) {
+	if (!cell_table_get_value_cstring_key(&object->attributes, method_name, &method_value)) {
 		return METHOD_ACCESS_NO_SUCH_ATTR;
 	}
 
