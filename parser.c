@@ -29,7 +29,7 @@ typedef enum {
 
 
 typedef AstNode* (*PrefixFunction)(int expression_level);
-typedef AstNode* (*InfixFunction)(AstNode* leftNode, int expression_level);
+typedef AstNode* (*InfixFunction)(AstNode* left_node, int expression_level);
 
 typedef struct {
     PrefixFunction prefix;
@@ -144,7 +144,7 @@ static AstNode* key_access(AstNode* left_node, int expression_level) {
 	}
 }
 
-static AstNode* dot(AstNode* leftNode, int expression_level) {
+static AstNode* dot(AstNode* left_node, int expression_level) {
 	// TODO: Very possibly not the best solution for attribute setting. Maybe refactor later.
 
 	consume(TOKEN_IDENTIFIER, "Expected attribute name after '.'");
@@ -158,10 +158,10 @@ static AstNode* dot(AstNode* leftNode, int expression_level) {
 		}
 		// Set attribute
 		AstNode* value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
-		return (AstNode*) ast_new_node_attribute_assignment(leftNode, attr_name, name_length, value);
+		return (AstNode*) ast_new_node_attribute_assignment(left_node, attr_name, name_length, value);
 	} else {
 		// Get attribute
-		return (AstNode*) ast_new_node_attribute(leftNode, attr_name, name_length);
+		return (AstNode*) ast_new_node_attribute(left_node, attr_name, name_length);
 	}
 }
 
@@ -182,12 +182,12 @@ static AstNode* string(int expression_level) {
     return (AstNode*) ast_new_node_string(parser.previous.start + 1, parser.previous.length - 2);
 }
 
-static AstNode* and(AstNode* leftNode, int expression_level) {
-	return (AstNode*) ast_new_node_and(leftNode, parse_expression(PREC_AND + 1, expression_level + 1));
+static AstNode* and(AstNode* left_node, int expression_level) {
+	return (AstNode*) ast_new_node_and(left_node, parse_expression(PREC_AND + 1, expression_level + 1));
 }
 
-static AstNode* or(AstNode* leftNode, int expression_level) {
-	return (AstNode*) ast_new_node_or(leftNode, parse_expression(PREC_OR + 1, expression_level + 1));
+static AstNode* or(AstNode* left_node, int expression_level) {
+	return (AstNode*) ast_new_node_or(left_node, parse_expression(PREC_OR + 1, expression_level + 1));
 }
 
 static AstNode* function(int expression_level) {
