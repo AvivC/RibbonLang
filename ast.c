@@ -541,6 +541,27 @@ AstNodeExprStatement* ast_new_node_expr_statement(AstNode* expression) {
 	return node;
 }
 
+AstNodeVariable* ast_new_node_variable(const char* name, int length) {
+	AstNodeVariable* node = ALLOCATE_AST_NODE(AstNodeVariable, AST_NODE_VARIABLE);
+	node->name = name;
+	node->length = length;
+	return node;
+}
+
+AstNodeConstant* ast_new_node_number(double number) {
+	AstNodeConstant* node = ALLOCATE_AST_NODE(AstNodeConstant, AST_NODE_CONSTANT);
+	node->value = MAKE_VALUE_NUMBER(number);
+	return node;
+}
+
+AstNodeBinary* ast_new_node_binary(ScannerTokenType operator, AstNode* left_operand, AstNode* right_operand) {
+	AstNodeBinary* node = ALLOCATE_AST_NODE(AstNodeBinary, AST_NODE_BINARY);
+	node->operator = operator;
+	node->left_operand = left_operand;
+	node->right_operand = right_operand;
+	return node;
+}
+
 AstNodeCall* ast_new_node_call(AstNode* callTarget, PointerArray arguments) {
 	AstNodeCall* node = ALLOCATE_AST_NODE(AstNodeCall, AST_NODE_CALL);
 	node->target = callTarget;
@@ -587,6 +608,14 @@ AstNodeAnd* ast_new_node_and(AstNode* left, AstNode* right) {
 	AstNodeAnd* node = ALLOCATE_AST_NODE(AstNodeAnd, AST_NODE_AND);
 	node->left = left;
 	node->right = right;
+	return node;
+}
+
+AstNodeAssignment* ast_new_node_assignment(const char* name, int name_length, AstNode* value) {
+	AstNodeAssignment* node = ALLOCATE_AST_NODE(AstNodeAssignment, AST_NODE_ASSIGNMENT);
+	node->name = name;
+	node->length = name_length;
+	node->value = value;
 	return node;
 }
 

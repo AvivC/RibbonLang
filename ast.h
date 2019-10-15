@@ -174,7 +174,11 @@ void ast_print_tree(AstNode* tree);
 void ast_free_tree(AstNode* node);
 
 AstNodeConstant* ast_new_node_constant(Value value);
+AstNodeBinary* ast_new_node_binary(ScannerTokenType operator, AstNode* left_operand, AstNode* right_operand);
 AstNodeStatements* ast_new_node_statements(void);
+AstNodeVariable* ast_new_node_variable(const char* name, int length);
+AstNodeAssignment* ast_new_node_assignment(const char* name, int name_length, AstNode* value);
+AstNodeConstant* ast_new_node_number(double number);
 AstNodeExprStatement* ast_new_node_expr_statement(AstNode* expression);
 AstNodeReturn* ast_new_node_return(AstNode* expression);
 AstNodeCall* ast_new_node_call(AstNode* expression, PointerArray arguments);

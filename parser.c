@@ -98,18 +98,13 @@ static AstNode* parse_expression(Precedence precedence, int expression_level);
 static ParseRule get_rule(ScannerTokenType type);
 static AstNode* statements();
 
-static AstNode* binary(AstNode* leftNode, int expression_level) {
+static AstNode* binary(AstNode* left_node, int expression_level) {
     ScannerTokenType operator = parser.previous.type;
     Precedence precedence = get_rule(operator).precedence;
     
-    AstNode* rightNode = parse_expression(precedence + 1, expression_level + 1);
+    AstNode* right_node = parse_expression(precedence + 1, expression_level + 1);
     
-    AstNodeBinary* node = ALLOCATE_AST_NODE(AstNodeBinary, AST_NODE_BINARY);
-    node->operator = operator;
-    node->left_operand = leftNode;
-    node->right_operand = rightNode;
-    
-    return (AstNode*) node;
+    return (AstNode*) ast_new_node_binary(operator, left_node, right_node);
 }
 
 static AstNode* table(int expression_level) {
@@ -175,17 +170,12 @@ static AstNode* return_statement(void) { // TODO: Add expression_level here?
 }
 
 static AstNode* identifier(int expression_level) {
-    AstNodeVariable* node = ALLOCATE_AST_NODE(AstNodeVariable, AST_NODE_VARIABLE);
-    node->name = parser.previous.start;
-    node->length = parser.previous.length;
-    return (AstNode*) node;
+	return (AstNode*) ast_new_node_variable(parser.previous.start, parser.previous.length);
 }
 
 static AstNode* number(int expression_level) {
     double number = strtod(parser.previous.start, NULL);
-    AstNodeConstant* node = ALLOCATE_AST_NODE(AstNodeConstant, AST_NODE_CONSTANT);
-    node->value = MAKE_VALUE_NUMBER(number);
-    return (AstNode*) node;
+    return (AstNode*) ast_new_node_number(number);
 }
 
 static AstNode* string(int expression_level) {
@@ -376,17 +366,11 @@ static AstNode* parse_expression(Precedence precedence, int expression_level) {
 static AstNodeAssignment* assignment_statement(void) {
     const char* variable_name = parser.previous.start;
     int variable_length = parser.previous.length;
-    
+
     consume(TOKEN_EQUAL, "Expected '=' after variable name in assignment.");
-    
     AstNode* value = parse_expression(PREC_ASSIGNMENT, 0);
-    
-    AstNodeAssignment* node = ALLOCATE_AST_NODE(AstNodeAssignment, AST_NODE_ASSIGNMENT);
-    node->name = variable_name;
-    node->length = variable_length;
-    node->value = value;
-    
-    return node;
+
+    return ast_new_node_assignment(variable_name, variable_length, value);
 }
 
 static ParseRule get_rule(ScannerTokenType type) {
