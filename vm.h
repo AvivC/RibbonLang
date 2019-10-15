@@ -21,6 +21,7 @@ typedef struct {
 	ObjectFunction* function;
 	ObjectModule* module;
 	CellTable local_variables;
+	bool is_module_base;
 } StackFrame;
 
 typedef struct {

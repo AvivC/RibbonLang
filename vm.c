@@ -59,21 +59,28 @@ static Value peek(void) {
 static void init_stack_frame(StackFrame* frame) {
 	frame->return_address = NULL;
 	frame->function = NULL;
+	frame->module = NULL;
+	frame->is_module_base = false;
 	cell_table_init(&frame->local_variables);
 }
 
-static StackFrame new_stack_frame(uint8_t* return_address, ObjectFunction* function) {
+// module only required if is_module_base == true
+static StackFrame new_stack_frame(uint8_t* return_address, ObjectFunction* function, ObjectModule* module, bool is_module_base) {
 	StackFrame frame;
 	init_stack_frame(&frame);
 	frame.return_address = return_address;
 	frame.function = function;
+	frame.module = module;
+	frame.is_module_base = is_module_base;
 	return frame;
 }
 
 static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	ObjectCode* code = object_code_new(*base_chunk);
 	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
-	return new_stack_frame(NULL, base_function);
+	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
+	ObjectModule* module = object_module_new(base_module_name, base_function);
+	return new_stack_frame(NULL, base_function, module, true);
 }
 
 static void push_frame(StackFrame frame) {
@@ -101,6 +108,7 @@ static Value load_variable(ObjectString* name) {
 	bool variable_found =
 			cell_table_get_value_cstring_key(locals, name->chars, &value)
 			|| cell_table_get_value_cstring_key(free_vars, name->chars, &value)
+			|| (current_frame()->is_module_base && cell_table_get_value_cstring_key(&current_frame()->module->base.attributes, name->chars, &value))
 			|| cell_table_get_value_cstring_key(globals, name->chars, &value);
 
 	if (variable_found) {
@@ -196,6 +204,12 @@ static void gc_mark_object_cell(Object* object) {
 	}
 }
 
+static void gc_mark_object_module(Object* object) {
+	ObjectModule* module = (ObjectModule*) object;
+	gc_mark_object((Object*) module->name);
+	gc_mark_object((Object*) module->function);
+}
+
 static void gc_mark_object(Object* object) {
 	assert_is_probably_valid_object(object);
 
@@ -214,6 +228,8 @@ static void gc_mark_object(Object* object) {
 		gc_mark_object_table(object);
 	} else if (object->type == OBJECT_CELL) {
 		gc_mark_object_cell(object);
+	} else if (object->type == OBJECT_MODULE) {
+		gc_mark_object_module(object);
 	}
 }
 
@@ -226,6 +242,9 @@ static void gc_mark(void) {
 
 	for (StackFrame* frame = vm.callStack; frame != vm.call_stack_top; frame++) {
 		gc_mark_object((Object*) frame->function);
+		if (frame->module != NULL) {
+			gc_mark_object((Object*) frame->module);
+		}
 
 		// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
 		// many entries are likely to be empty
@@ -324,7 +343,7 @@ static void call_user_function(ObjectFunction* function) {
 		push(MAKE_VALUE_OBJECT(function->self));
 	}
 
-	StackFrame frame = new_stack_frame(vm.ip, function);
+	StackFrame frame = new_stack_frame(vm.ip, function, NULL, false);
 	for (int i = 0; i < function->num_params; i++) {
 		const char* param_name = function->parameters[i];
 		Value argument = pop();
@@ -854,7 +873,14 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
                 																		// Or maybe a function should have a list of names?
                 }
 
-                cell_table_set_value_cstring_key(&current_frame()->local_variables, name->chars, value);
+                CellTable* variables_table = NULL;
+                if (&current_frame()->is_module_base) {
+                	variables_table = &current_frame()->module->base.attributes;
+                } else {
+                	variables_table = &current_frame()->local_variables;
+                }
+
+                cell_table_set_value_cstring_key(variables_table, name->chars, value);
                 break;
             }
             
@@ -1074,7 +1100,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 					ObjectModule* module = object_module_new(module_name, module_base_function);
 
-					call_user_function(module_base_function);
+					call_user_function(module_base_function); // TODO: Set this to base module and stuuf, currently wrong
 
 //            	    free(source);
 				} else {
