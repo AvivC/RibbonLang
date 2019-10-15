@@ -271,6 +271,18 @@ static void gc_mark(void) {
 			gc_mark_object(entry->value.as.object);
 		}
 	}
+
+	PointerArray imported_modules = table_iterate(&vm.imported_modules.table);
+	for (int i = 0; i < imported_modules.count; i++) {
+		Entry* entry = imported_modules.values[i];
+		ObjectCell* cell = NULL;
+		ASSERT_VALUE_AS_OBJECT(cell, entry->value, OBJECT_CELL, ObjectCell, "Non ObjectCell* in CellTable.")
+
+		ObjectModule* module = NULL;
+		ASSERT_VALUE_AS_OBJECT(module, cell->value, OBJECT_MODULE, ObjectModule, "Non ObjectModule* in ObjectCell.")
+
+		gc_mark_object(entry->value.as.object);
+	}
 }
 
 static void gc_sweep(void) {
@@ -385,6 +397,7 @@ void vm_init(void) {
     vm.num_objects = 0;
     vm.max_objects = INITIAL_GC_THRESHOLD;
     vm.allow_gc = false;
+    vm.imported_modules = cell_table_new_empty();
 
     cell_table_init(&vm.globals);
     set_builtin_globals();
@@ -1077,6 +1090,13 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             case OP_IMPORT: {
             	ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
 
+            	Value module_value;
+            	bool module_already_imported = cell_table_get_value_cstring_key(&vm.imported_modules, module_name->chars, &module_value);
+            	if (module_already_imported) {
+            		push(module_value);
+            		break;
+            	}
+
             	const char* file_name_suffix = ".pln";
 				const char* file_name_alloc_string = "File name buffer";
 				size_t file_name_buffer_size = module_name->length + strlen(file_name_suffix) + 1;
@@ -1088,7 +1108,6 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				char* source = NULL;
 				size_t source_buffer_size = -1;
 				IOResult file_read_result = read_file(file_name_buffer, &source, &source_buffer_size); // TODO: Figure out how to manage this memory
-				deallocate(file_name_buffer, file_name_buffer_size, "File name buffer");
 
 				switch (file_read_result) {
 					case IO_SUCCESS: {
@@ -1109,21 +1128,26 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 						push_frame(frame);
 						vm.ip = module_base_function->code->bytecode.code;
 
+						cell_table_set_value_cstring_key(&vm.imported_modules, file_name_buffer, MAKE_VALUE_OBJECT(module));
+
 						break;
 					}
 					case IO_CLOSE_FILE_FAILURE: {
 						RUNTIME_ERROR("Failed to close file while loading module.");
-						break;
+						goto op_import_cleanup;
 					}
 					case IO_READ_FILE_FAILURE: {
 						RUNTIME_ERROR("Failed to read file while loading module.");
-						break;
+						goto op_import_cleanup;
 					}
 					case IO_OPEN_FILE_FAILURE: {
 						RUNTIME_ERROR("Failed to open file while loading module.");
-						break;
+						goto op_import_cleanup;
 					}
 				}
+
+				op_import_cleanup:
+				deallocate(file_name_buffer, file_name_buffer_size, "File name buffer");
 
             	break;
             }

@@ -34,6 +34,7 @@ typedef struct {
     StackFrame callStack[CALL_STACK_MAX];
 
     CellTable globals;
+    CellTable imported_modules;
 
     Object* objects;
     int num_objects;
