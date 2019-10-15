@@ -875,6 +875,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
                 CellTable* variables_table = NULL;
                 if (&current_frame()->is_module_base) {
+//                	variables_table = &current_frame()->local_variables;
                 	variables_table = &current_frame()->module->base.attributes;
                 } else {
                 	variables_table = &current_frame()->local_variables;
