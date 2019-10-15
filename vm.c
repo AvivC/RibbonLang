@@ -427,6 +427,13 @@ static Object* read_constant_as_object(ObjectType type) {
 
 #define READ_CONSTANT_AS_OBJECT(type, cast) (cast*) read_constant_as_object(type)
 
+static void set_function_name(const Value* function_value, ObjectString* name) {
+	ObjectFunction* function = (ObjectFunction*) function_value->as.object;
+	deallocate(function->name, strlen(function->name) + 1, "Function name");
+	char* new_cstring_name = copy_null_terminated_cstring(name->chars, "Function name");
+	object_function_set_name(function, new_cstring_name);
+}
+
 InterpretResult vm_interpret(Bytecode* base_bytecode) {
     #define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
@@ -769,14 +776,12 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 					ObjectString* name_string = (ObjectString*) name_value.as.object;
 
 					ObjectCell* cell = NULL;
-					if (cell_table_get_cell_cstring_key(&current_frame()->local_variables, name_string->chars, &cell)) {
+					CellTable* current_func_free_vars = &current_frame()->function->free_vars;
+					if (cell_table_get_cell_cstring_key(&current_frame()->local_variables, name_string->chars, &cell)
+							|| (current_frame()->is_module_base
+									&& cell_table_get_cell_cstring_key(&current_frame()->module->base.attributes, name_string->chars, &cell))
+							|| cell_table_get_cell_cstring_key(current_func_free_vars, name_string->chars, &cell)) {
 						cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
-					} else {
-						CellTable* current_func_free_vars = &current_frame()->function->free_vars;
-						if (cell_table_get_cell_cstring_key(current_func_free_vars, name_string->chars, &cell)) {
-							cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
-						}
-						// If not found, the referenced variable is probably a local, or a runtime error later.
 					}
 				}
 
@@ -857,24 +862,19 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             }
             
             case OP_SET_VARIABLE: {
-                int constantIndex = READ_BYTE();
-                Value name_val = currentChunk()->constants.values[constantIndex];
+                int constant_index = READ_BYTE();
+                Value name_val = currentChunk()->constants.values[constant_index];
                 ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
                 ObjectString* name = OBJECT_AS_STRING(name_val.as.object);
 
                 Value value = pop();
 
                 if (object_is_value_object_of_type(value, OBJECT_FUNCTION)) {
-                	ObjectFunction* function = (ObjectFunction*) value.as.object;
-                	deallocate(function->name, strlen(function->name) + 1, "Function name");
-                	char* new_cstring_name = copy_null_terminated_cstring(name->chars, "Function name");
-                	object_function_set_name(function, new_cstring_name); // TODO: Consider concatenating assigned names, or something.
-                																		// In case a function has more than one name.
-                																		// Or maybe a function should have a list of names?
+                	set_function_name(&value, name);
                 }
 
                 CellTable* variables_table = NULL;
-                if (&current_frame()->is_module_base) {
+                if (current_frame()->is_module_base) {
 //                	variables_table = &current_frame()->local_variables;
                 	variables_table = &current_frame()->module->base.attributes;
                 } else {
@@ -1087,30 +1087,43 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 				char* source = NULL;
 				size_t source_buffer_size = -1;
-				int file_read_success = read_file(file_name_buffer, &source, &source_buffer_size); // TODO: Figure out how to manage this memory
-
-				if (file_read_success == IO_SUCCESS) {
-					AstNode* module_ast = parser_parse(source);
-					Bytecode module_bytecode;
-					bytecode_init(&module_bytecode);
-					compiler_compile(module_ast, &module_bytecode);
-					ast_free_tree(module_ast);
-
-					ObjectCode* code_object = object_code_new(module_bytecode);
-					ObjectFunction* module_base_function = object_user_function_new(code_object, NULL, 0, NULL, cell_table_new_empty());
-
-					ObjectModule* module = object_module_new(module_name, module_base_function);
-
-					call_user_function(module_base_function); // TODO: Set this to base module and stuuf, currently wrong
-
-//            	    free(source);
-				} else {
-					// ?
-				}
-
+				IOResult file_read_result = read_file(file_name_buffer, &source, &source_buffer_size); // TODO: Figure out how to manage this memory
 				deallocate(file_name_buffer, file_name_buffer_size, "File name buffer");
-				// Turns out - execution depends on the source being alive, even though parsing and compilation don't seem to
-				//deallocate(source, source_buffer_size, "File content buffer");
+
+				switch (file_read_result) {
+					case IO_SUCCESS: {
+						AstNode* module_ast = parser_parse(source);
+						Bytecode module_bytecode;
+						bytecode_init(&module_bytecode);
+						compiler_compile(module_ast, &module_bytecode);
+						ast_free_tree(module_ast);
+						deallocate(source, source_buffer_size, "File content buffer");
+
+						ObjectCode* code_object = object_code_new(module_bytecode);
+						ObjectFunction* module_base_function = object_user_function_new(code_object, NULL, 0, NULL, cell_table_new_empty());
+
+						ObjectModule* module = object_module_new(module_name, module_base_function);
+						push(MAKE_VALUE_OBJECT(module));
+
+						StackFrame frame = new_stack_frame(vm.ip, module_base_function, module, true);
+						push_frame(frame);
+						vm.ip = module_base_function->code->bytecode.code;
+
+						break;
+					}
+					case IO_CLOSE_FILE_FAILURE: {
+						RUNTIME_ERROR("Failed to close file while loading module.");
+						break;
+					}
+					case IO_READ_FILE_FAILURE: {
+						RUNTIME_ERROR("Failed to read file while loading module.");
+						break;
+					}
+					case IO_OPEN_FILE_FAILURE: {
+						RUNTIME_ERROR("Failed to open file while loading module.");
+						break;
+					}
+				}
 
             	break;
             }

@@ -47,9 +47,6 @@ bool builtin_input(ValueArray args, Value* out) {
 }
 
 bool builtin_read_file(ValueArray args, Value* out) {
-	// TODO: Proper systematic error handling, instead of ad-hoc printing
-	// TODO: Dedicated tests
-
 	if (!object_is_value_object_of_type(args.values[0], OBJECT_STRING)) {
 		return false;
 	}
@@ -59,9 +56,6 @@ bool builtin_read_file(ValueArray args, Value* out) {
     FILE* file = fopen(path->chars, "rb");
 
     if (file == NULL) {
-        fprintf(stderr, "Couldn't open file '%s'. Error:\n'", path->chars);
-        perror("fopen");
-        fprintf(stderr, "'\n");
         return false;
     }
 
@@ -73,12 +67,10 @@ bool builtin_read_file(ValueArray args, Value* out) {
     size_t bytesRead = fread(buffer, 1, fileSize, file);
 
     if (bytesRead != fileSize) {
-        fprintf(stderr, "Couldn't read entire file. File size: %d. Bytes read: %d.\n", fileSize, bytesRead);
         return false;
     }
 
     if (fclose(file) != 0) {
-        fprintf(stderr, "Couldn't close file.\n");
         return false;
     }
 
