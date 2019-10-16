@@ -1,0 +1,67 @@
+test basic import
+    import testmodule
+file testmodule
+    print("Importing testmodule")
+expect
+    Importing testmodule
+end
+
+test nested imports
+    import testmodule1
+    print("main")
+file testmodule1
+    import testmodule2
+    print("1")
+file testmodule2
+    print("2")
+expect
+    2
+    1
+    main
+end
+
+test module caching
+    import testmodule1
+    import testmodule1
+    import testmodule2
+    import testmodule1
+    import testmodule2
+file testmodule1
+    print("I'm testmodule1")
+file testmodule2
+    print("I'm testmodule2")
+expect
+    I'm testmodule1
+    I'm testmodule2
+end
+
+test module attributes
+    import testmodule1
+
+    print(testmodule1.attr1)
+    print(testmodule1.func1(2))
+    print(testmodule1.nonexistent)
+    print(testmodule1.func2(2))
+
+    testmodule1.func1 = { takes x to
+        return x * 10
+    }
+
+    print(testmodule1.func1(2))
+    print(testmodule1.func2(2))
+file testmodule1
+    attr1 = "I'm an attribute"
+    func1 = { takes x to
+        return x * 2
+    }
+    func2 = { takes n to
+        return func1(n * 2)
+    }
+expect
+    I'm an attribute
+    4
+    nil
+    8
+    20
+    40
+end
