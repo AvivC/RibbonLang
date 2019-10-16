@@ -1,4 +1,5 @@
 #include <string.h>
+#include <windows.h>
 
 #include "vm.h"
 #include "common.h"
@@ -17,6 +18,8 @@
 #include "compiler.h"
 
 #define INITIAL_GC_THRESHOLD 1024 * 1024
+
+#define VM_STDLIB_RELATIVE_PATH "/plane_stdlib"
 
 VM vm;
 
@@ -1112,6 +1115,10 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				memcpy(file_name_buffer, module_name->chars, module_name->length);
 				memcpy(file_name_buffer + module_name->length, file_name_suffix, strlen(file_name_suffix));
 				file_name_buffer[module_name->length + strlen(file_name_suffix)] = '\0';
+
+				if (!io_file_exists(file_name_buffer)) {
+					// TODO: Implement standard library search and load
+				}
 
 				char* source = NULL;
 				size_t source_buffer_size = -1;

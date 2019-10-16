@@ -11,5 +11,6 @@ typedef enum {
 } IOResult;
 
 IOResult read_file(const char* file_name, char** text_out, size_t* text_length_out);
+BOOL io_file_exists(LPCTSTR path);
 
 #endif

@@ -1,3 +1,5 @@
+#include <windows.h>
+
 #include "io.h"
 #include "memory.h"
 
@@ -38,3 +40,9 @@ IOResult read_file(const char* file_name, char** text_out, size_t* text_length_o
     *text_length_out = buffer_size;
     return IO_SUCCESS;
 }
+
+BOOL io_file_exists(LPCTSTR path) {
+	DWORD file_attributes = GetFileAttributes(path);
+	return (file_attributes != INVALID_FILE_ATTRIBUTES && !(file_attributes & FILE_ATTRIBUTE_DIRECTORY));
+}
+
