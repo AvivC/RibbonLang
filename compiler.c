@@ -140,7 +140,10 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             
             Bytecode func_bytecode;
             bytecode_init(&func_bytecode);
+
             compiler_compile((AstNode*) node_function->statements, &func_bytecode);
+//			bytecode_write(&func_bytecode, OP_NIL);
+//			bytecode_write(&func_bytecode, OP_RETURN);
 
             IntegerArray func_referenced_names_indices = func_bytecode.referenced_names_indices;
             for (int i = 0; i < func_referenced_names_indices.count; i++) {
@@ -163,10 +166,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             }
 
             emit_short_as_two_bytes(bytecode, num_params);
-
-//			for (int i = 0; i < num_params; i++) {
-//				emit_constant(bytecode, node_function->parameters.values[i]);
-//			}
 
             for (int i = 0; i < num_params; i++) {
             	Value param_value = node_function->parameters.values[i];
@@ -390,8 +389,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 /* Compile a program or a function */
 void compiler_compile(AstNode* node, Bytecode* chunk) {
     compile_tree(node, chunk);
-
-    // TODO: Ugly patch, and also sometimes unnecessary. Solve this in a different way.
-    bytecode_write(chunk, OP_NIL);
-    bytecode_write(chunk, OP_RETURN);
+	bytecode_write(chunk, OP_NIL);
+	bytecode_write(chunk, OP_RETURN);
 }

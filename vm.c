@@ -1097,6 +1097,11 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             	bool module_already_imported = cell_table_get_value_cstring_key(&vm.imported_modules, module_name->chars, &module_value);
             	if (module_already_imported) {
             		push(module_value);
+            		push(MAKE_VALUE_NIL()); // This is a patch because currently the compiler puts a OP_NIL OP_RETURN
+            								// at the end of the module, just the same as with functions.
+            								// And so after we import something, the bytecode does OP_POP to get rid of the NIL.
+            								// So if we don't import the module because it's already cached, we should push the NIL ourselves.
+            								// Remove this ugly patch after we fixed the compiler regarding this stuff.
             		break;
             	}
 
@@ -1110,7 +1115,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 				char* source = NULL;
 				size_t source_buffer_size = -1;
-				IOResult file_read_result = read_file(file_name_buffer, &source, &source_buffer_size); // TODO: Figure out how to manage this memory
+				IOResult file_read_result = read_file(file_name_buffer, &source, &source_buffer_size);
 
 				switch (file_read_result) {
 					case IO_SUCCESS: {
@@ -1131,7 +1136,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 						push_frame(frame);
 						vm.ip = module_base_function->code->bytecode.code;
 
-						cell_table_set_value_cstring_key(&vm.imported_modules, file_name_buffer, MAKE_VALUE_OBJECT(module));
+						cell_table_set_value_cstring_key(&vm.imported_modules, module_name->chars, MAKE_VALUE_OBJECT(module));
 
 						goto op_import_cleanup;
 					}

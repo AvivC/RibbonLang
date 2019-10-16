@@ -26,7 +26,8 @@ const char* AST_NODE_TYPE_NAMES[] = {
 	"AST_NODE_KEY_ACCESS",
 	"AST_NODE_KEY_ASSIGNMENT",
 	"AST_NODE_TABLE",
-	"AST_NODE_IMPORT"
+	"AST_NODE_IMPORT",
+	"AST_NODE_MODULE"
 };
 
 static void print_nesting_string(int nesting) {
