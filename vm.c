@@ -281,8 +281,10 @@ static void gc_mark(void) {
 		ObjectModule* module = NULL;
 		ASSERT_VALUE_AS_OBJECT(module, cell->value, OBJECT_MODULE, ObjectModule, "Non ObjectModule* in ObjectCell.")
 
-		gc_mark_object(entry->value.as.object);
+		gc_mark_object((Object*) cell);
+		gc_mark_object((Object*) module);
 	}
+	pointer_array_free(&imported_modules);
 }
 
 static void gc_sweep(void) {
@@ -409,6 +411,7 @@ void vm_free(void) {
 	}
 	reset_stacks();
 	cell_table_free(&vm.globals);
+	cell_table_free(&vm.imported_modules);
 
 	gc(); // TODO: probably move upper
 
@@ -1130,7 +1133,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 						cell_table_set_value_cstring_key(&vm.imported_modules, file_name_buffer, MAKE_VALUE_OBJECT(module));
 
-						break;
+						goto op_import_cleanup;
 					}
 					case IO_CLOSE_FILE_FAILURE: {
 						RUNTIME_ERROR("Failed to close file while loading module.");
