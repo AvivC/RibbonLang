@@ -134,7 +134,7 @@ void* reallocate(void* pointer, size_t old_size, size_t new_size, const char* wh
     void* newpointer = realloc(pointer, new_size);
     
     if (newpointer == NULL) {
-        FAIL("Reallocation of '%s' failed!", what);
+        FAIL("Reallocation of '%s' failed!", what); // TODO: Should be a runtime error, not a FAIL?
         return NULL;
     }
     

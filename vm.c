@@ -19,7 +19,7 @@
 
 #define INITIAL_GC_THRESHOLD 1024 * 1024
 
-#define VM_STDLIB_RELATIVE_PATH "/plane_stdlib"
+#define VM_STDLIB_RELATIVE_PATH "plane_stdlib/"
 
 VM vm;
 
@@ -1117,7 +1117,21 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				file_name_buffer[module_name->length + strlen(file_name_suffix)] = '\0';
 
 				if (!io_file_exists(file_name_buffer)) {
-					// TODO: Implement standard library search and load
+					size_t stdlib_module_path_size = strlen(VM_STDLIB_RELATIVE_PATH) + file_name_buffer_size;
+					char* stdlib_file_name_buffer = allocate(stdlib_module_path_size, file_name_alloc_string);
+					memcpy(stdlib_file_name_buffer, VM_STDLIB_RELATIVE_PATH, strlen(VM_STDLIB_RELATIVE_PATH));
+					memcpy(stdlib_file_name_buffer + strlen(VM_STDLIB_RELATIVE_PATH), file_name_buffer, strlen(file_name_buffer));
+					stdlib_file_name_buffer[strlen(VM_STDLIB_RELATIVE_PATH) + strlen(file_name_buffer)] = '\0';
+
+					if (io_file_exists(stdlib_file_name_buffer)) {
+						deallocate(file_name_buffer, file_name_buffer_size, file_name_alloc_string);
+						file_name_buffer = stdlib_file_name_buffer;
+						file_name_buffer_size = stdlib_module_path_size;
+					} else {
+						deallocate(stdlib_file_name_buffer, stdlib_module_path_size, file_name_alloc_string);
+						RUNTIME_ERROR("Module %s not found.", module_name->chars);
+						goto op_import_cleanup;
+					}
 				}
 
 				char* source = NULL;
@@ -1162,7 +1176,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				}
 
 				op_import_cleanup:
-				deallocate(file_name_buffer, file_name_buffer_size, "File name buffer");
+				deallocate(file_name_buffer, file_name_buffer_size, file_name_alloc_string);
 
             	break;
             }
