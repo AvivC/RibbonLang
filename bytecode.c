@@ -9,6 +9,7 @@ void bytecode_init(Bytecode* chunk) {
     chunk->code = NULL;
     value_array_init(&chunk->constants);
     integer_array_init(&chunk->referenced_names_indices);
+    integer_array_init(&chunk->assigned_names_indices);
 }
 
 void bytecode_write(Bytecode* chunk, uint8_t byte) {
@@ -33,6 +34,7 @@ void bytecode_free(Bytecode* chunk) {
     deallocate(chunk->code, chunk->capacity * sizeof(uint8_t), "Chunk code buffer"); // the sizeof is probably stupid
     value_array_free(&chunk->constants);
     integer_array_free(&chunk->referenced_names_indices);
+    integer_array_free(&chunk->assigned_names_indices);
     bytecode_init(chunk);
 }
 

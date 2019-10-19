@@ -749,14 +749,12 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             }
 
             case OP_MAKE_STRING: {
-//            	RawString string = READ_CONSTANT().as.raw_string;
             	ObjectString* prototype = NULL;
             	Value constant = READ_CONSTANT();
             	if ((prototype = VALUE_AS_OBJECT(constant, OBJECT_STRING, ObjectString)) == NULL) {
             		FAIL("Expected operand for OP_MAKE_STRING to be an ObjectString* for cloning.");
             	}
             	ObjectString* new_string = object_string_clone(prototype);
-//            	ObjectString* obj_string = object_string_copy(protoype.data, string.length);
             	push(MAKE_VALUE_OBJECT(new_string));
             	break;
             }
@@ -780,7 +778,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				}
 
 				IntegerArray referenced_names_indices = object_code->bytecode.referenced_names_indices;
-				int free_vars_count = referenced_names_indices.count; // referenced_names_indices is the indices in the code's constant table
+				int free_vars_count = referenced_names_indices.count;
 				CellTable free_vars;
 				cell_table_init(&free_vars);
 
@@ -796,16 +794,47 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 					ObjectCell* cell = NULL;
 					CellTable* current_func_free_vars = &current_frame()->function->free_vars;
-					if (cell_table_get_cell_cstring_key(&current_frame()->local_variables, name_string->chars, &cell)
+
+					bool cell_already_exists =
+							cell_table_get_cell_cstring_key(&current_frame()->local_variables, name_string->chars, &cell)
 							|| (current_frame()->is_module_base
 									&& cell_table_get_cell_cstring_key(&current_frame()->module->base.attributes, name_string->chars, &cell))
-							|| cell_table_get_cell_cstring_key(current_func_free_vars, name_string->chars, &cell)) {
+							|| cell_table_get_cell_cstring_key(current_func_free_vars, name_string->chars, &cell);
+
+					if (cell_already_exists) {
 						cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
+					} else {
+						Bytecode* current_bytecode = &current_frame()->function->code->bytecode;
+						IntegerArray* assigned_names_indices = &current_bytecode->assigned_names_indices;
+						for (int i = 0; i < assigned_names_indices->count; i++) {
+							size_t assigned_name_index = assigned_names_indices->values[i];
+							Value assigned_name_constant = current_bytecode->constants.values[assigned_name_index];
+							ObjectString* assigned_name = NULL;
+							ASSERT_VALUE_AS_OBJECT(assigned_name, assigned_name_constant, OBJECT_STRING, ObjectString, "Expected ObjectString* as assigned name.")
+
+//							printf("\n Current func: %s, assigned name: %s\n", current_frame()->function->name, assigned_name->chars);
+
+//							if (object_strings_equal(name_string, assigned_name)) {
+//								printf("\n Current func: %s, have variable %s\n", current_frame()->function->name, name_string->chars);
+//								cell = object_cell_new_empty();
+//								cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
+//								break;
+//							}
+						}
 					}
+
+//					ObjectCell* cell = NULL;
+//					CellTable* current_func_free_vars = &current_frame()->function->free_vars;
+//					if (cell_table_get_cell_cstring_key(&current_frame()->local_variables, name_string->chars, &cell)
+//							|| (current_frame()->is_module_base
+//									&& cell_table_get_cell_cstring_key(&current_frame()->module->base.attributes, name_string->chars, &cell))
+//							|| cell_table_get_cell_cstring_key(current_func_free_vars, name_string->chars, &cell)) {
+//						cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
+//					}
 				}
 
-				ObjectFunction* obj_function = object_user_function_new(object_code, params_buffer, num_params, NULL, free_vars);
-				push(MAKE_VALUE_OBJECT(obj_function));
+				ObjectFunction* function = object_user_function_new(object_code, params_buffer, num_params, NULL, free_vars);
+				push(MAKE_VALUE_OBJECT(function));
 				break;
 			}
 

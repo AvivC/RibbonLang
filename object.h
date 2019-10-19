@@ -50,6 +50,7 @@ typedef bool (*NativeFunction)(ValueArray, Value*);
 typedef struct ObjectCell {
 	Object base;
 	Value value;
+	bool is_filled;
 } ObjectCell;
 
 typedef struct ObjectFunction {
@@ -88,6 +89,7 @@ ObjectTable* object_table_new(Table table);
 ObjectTable* object_table_new_empty(void);
 
 ObjectCell* object_cell_new(Value value);
+ObjectCell* object_cell_new_empty(void);
 
 ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function);
 
@@ -114,7 +116,7 @@ bool object_value_is(Value value, ObjectType type);
 
 #define ASSERT_VALUE_AS_OBJECT(variable, value, object_type, cast, error) \
 	do { \
-		variable = VALUE_AS_OBJECT(value, object_type, cast); \
+		variable = VALUE_AS_OBJECT((value), object_type, cast); \
 		if (variable == NULL) { \
 			FAIL(error); \
 		} \

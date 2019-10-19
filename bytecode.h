@@ -43,6 +43,7 @@ typedef struct {
     int capacity;
     int count;
     IntegerArray referenced_names_indices;
+    IntegerArray assigned_names_indices;
 } Bytecode;
 
 void bytecode_init(Bytecode* chunk);

@@ -21,8 +21,10 @@ static void emit_opcode_with_constant_operand(Bytecode* chunk, OP_CODE instructi
 	emit_two_bytes(chunk, instruction, bytecode_add_constant(chunk, &constant));
 }
 
-static void emit_constant(Bytecode* chunk, Value constant) {
-	emit_byte(chunk, bytecode_add_constant(chunk, &constant));
+static int emit_constant_operand(Bytecode* chunk, Value constant) {
+	int constant_index = bytecode_add_constant(chunk, &constant);
+	emit_byte(chunk, constant_index);
+	return constant_index;
 }
 
 static void emit_short_as_two_bytes(Bytecode* chunk, uint16_t number) {
@@ -100,6 +102,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             integer_array_write(&bytecode->referenced_names_indices, (size_t*) &constant_index);
             
             emit_two_bytes(bytecode, OP_LOAD_VARIABLE, constant_index);
+
             break;
         }
         
@@ -107,12 +110,13 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             AstNodeAssignment* node_assignment = (AstNodeAssignment*) node;
             
             compile_tree(node_assignment->value, bytecode);
-            
+
 			Value name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_assignment->name, node_assignment->length));
 			int constant_index = bytecode_add_constant(bytecode, &name_constant);
 
-            bytecode_write(bytecode, OP_SET_VARIABLE);
-            bytecode_write(bytecode, constant_index);
+			integer_array_write(&bytecode->assigned_names_indices, (size_t*) &constant_index);
+			emit_two_bytes(bytecode, OP_SET_VARIABLE, constant_index);
+
             break;
         }
         
@@ -161,7 +165,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             	ASSERT_VALUE_TYPE(param_value, VALUE_RAW_STRING);
             	RawString param_raw_string = param_value.as.raw_string;
 				ObjectString* param_as_object_string = object_string_copy(param_raw_string.data, param_raw_string.length);
-				emit_constant(bytecode, MAKE_VALUE_OBJECT(param_as_object_string));
+				emit_constant_operand(bytecode, MAKE_VALUE_OBJECT(param_as_object_string));
 			}
 
             break;
@@ -186,7 +190,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
 			compile_tree(node_key_access->key, bytecode);
             compile_tree(node_key_access->subject, bytecode);
-            bytecode_write(bytecode, OP_ACCESS_KEY);
+            emit_byte(bytecode, OP_ACCESS_KEY);
 
             break;
         }
@@ -264,14 +268,14 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         case AST_NODE_EXPR_STATEMENT: {
         	AstNodeExprStatement* nodeExprStatement = (AstNodeExprStatement*) node;
         	compile_tree(nodeExprStatement->expression, bytecode);
-        	bytecode_write(bytecode, OP_POP);
+        	emit_byte(bytecode, OP_POP);
         	break;
         }
 
         case AST_NODE_RETURN: {
         	AstNodeReturn* nodeReturn = (AstNodeReturn*) node;
         	compile_tree(nodeReturn->expression, bytecode);
-        	bytecode_write(bytecode, OP_RETURN);
+        	emit_byte(bytecode, OP_RETURN);
         	break;
         }
 
@@ -326,13 +330,13 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 			int before_condition = bytecode->count;
 			compile_tree(node_while->condition, bytecode);
 
-			bytecode_write(bytecode, OP_JUMP_IF_FALSE);
+			emit_byte(bytecode, OP_JUMP_IF_FALSE);
 			size_t placeholderOffset = bytecode->count;
 			emit_two_bytes(bytecode, 0, 0);
 
 			compile_tree((AstNode*) node_while->body, bytecode);
 
-			bytecode_write(bytecode, OP_JUMP);
+			emit_byte(bytecode, OP_JUMP);
 			uint8_t before_condition_addr_bytes[2];
 			short_to_two_bytes(before_condition, before_condition_addr_bytes);
 			emit_two_bytes(bytecode, before_condition_addr_bytes[0], before_condition_addr_bytes[1]);
@@ -347,7 +351,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         	AstNodeAnd* node_and = (AstNodeAnd*) node;
         	compile_tree((AstNode*) node_and->left, bytecode);
         	compile_tree((AstNode*) node_and->right, bytecode);
-        	bytecode_write(bytecode, OP_AND);
+        	emit_byte(bytecode, OP_AND);
 
         	break;
         }
@@ -356,7 +360,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         	AstNodeOr* node_or = (AstNodeOr*) node;
         	compile_tree((AstNode*) node_or->left, bytecode);
         	compile_tree((AstNode*) node_or->right, bytecode);
-        	bytecode_write(bytecode, OP_OR);
+        	emit_byte(bytecode, OP_OR);
 
         	break;
         }

@@ -290,6 +290,14 @@ ObjectTable* object_table_new_empty(void) {
 ObjectCell* object_cell_new(Value value) {
 	ObjectCell* cell = (ObjectCell*) allocate_object(sizeof(ObjectCell), "ObjectCell", OBJECT_CELL);
 	cell->value = value;
+	cell->is_filled = true;
+	return cell;
+}
+
+ObjectCell* object_cell_new_empty(void) {
+	ObjectCell* cell = (ObjectCell*) allocate_object(sizeof(ObjectCell), "ObjectCell", OBJECT_CELL);
+	cell->value = MAKE_VALUE_NIL(); // Just for kicks
+	cell->is_filled = false;
 	return cell;
 }
 
