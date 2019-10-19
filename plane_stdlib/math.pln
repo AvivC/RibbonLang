@@ -16,6 +16,7 @@ min = { takes x, y to
 	}
 }
 
+# TODO: Support fractions
 power = { takes n, exp to
 	if exp < 0 {
 		return 1 / power(n, -1 * exp)
@@ -31,3 +32,5 @@ power = { takes n, exp to
 	}
 	return result
 }
+
+# TODO: Add more functions
