@@ -108,9 +108,9 @@ MethodAccessResult object_get_method(Object* object, const char* method_name, Ob
 ObjectString* object_as_string(Object* o);
 ObjectFunction* object_as_function(Object* o);
 
-bool object_is_value_object_of_type(Value value, ObjectType type);
+bool object_value_is(Value value, ObjectType type);
 
-#define VALUE_AS_OBJECT(value, object_type, cast) object_is_value_object_of_type(value, object_type) ? (cast*) value.as.object : NULL
+#define VALUE_AS_OBJECT(value, object_type, cast) object_value_is(value, object_type) ? (cast*) value.as.object : NULL
 
 #define ASSERT_VALUE_AS_OBJECT(variable, value, object_type, cast, error) \
 	do { \

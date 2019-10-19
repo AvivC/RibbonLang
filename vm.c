@@ -577,7 +577,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             			break;
             		}
 
-					if (!object_is_value_object_of_type(add_method, OBJECT_FUNCTION)) {
+					if (!object_value_is(add_method, OBJECT_FUNCTION)) {
 						RUNTIME_ERROR("Objects @add isn't a function.");
 						break;
 					}
@@ -788,8 +788,8 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 					size_t name_index = referenced_names_indices.values[i];
 					Value name_value = object_code->bytecode.constants.values[name_index];
 
-					if (!object_is_value_object_of_type(name_value, OBJECT_STRING)) {
-						FAIL("Upvalue name must be an ObjectString*");
+					if (!object_value_is(name_value, OBJECT_STRING)) {
+						FAIL("Referenced name constant must be an ObjectString*");
 					}
 
 					ObjectString* name_string = (ObjectString*) name_value.as.object;
@@ -817,7 +817,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
             	for (int i = 0; i < num_entries; i++) {
 					Value key = pop();
-					if (!object_is_value_object_of_type(key, OBJECT_STRING)) {
+					if (!object_value_is(key, OBJECT_STRING)) {
 						RUNTIME_ERROR("Currently only strings supported as table keys.");
 						break;
 					}
@@ -888,7 +888,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
                 Value value = pop();
 
-                if (object_is_value_object_of_type(value, OBJECT_FUNCTION)) {
+                if (object_value_is(value, OBJECT_FUNCTION)) {
                 	set_function_name(&value, name);
                 }
 
@@ -992,7 +992,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 					break;
 				}
 
-				if (!object_is_value_object_of_type(key_access_method_value, OBJECT_FUNCTION)) {
+				if (!object_value_is(key_access_method_value, OBJECT_FUNCTION)) {
 					RUNTIME_ERROR("Object's @get_key isn't a function.");
 					break;
 				}

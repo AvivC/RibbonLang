@@ -81,20 +81,15 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         }
         
         case AST_NODE_CONSTANT: {
-            AstNodeConstant* nodeConstant = (AstNodeConstant*) node;
-            
-            int constantIndex = bytecode_add_constant(bytecode, &nodeConstant->value);
-            
-            bytecode_write(bytecode, OP_CONSTANT);
-            bytecode_write(bytecode, (uint8_t) constantIndex);
-            
+            AstNodeConstant* node_constant = (AstNodeConstant*) node;
+            emit_opcode_with_constant_operand(bytecode, OP_CONSTANT, node_constant->value);
             break;
         }
         
         case AST_NODE_UNARY: {
             AstNodeUnary* node_unary = (AstNodeUnary*) node;
             compile_tree(node_unary->operand, bytecode);
-            bytecode_write(bytecode, OP_NEGATE);
+            emit_byte(bytecode, OP_NEGATE);
             break;
         }
         
@@ -107,8 +102,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
             integer_array_write(&bytecode->referenced_names_indices, (size_t*) &constant_index);
             
-            bytecode_write(bytecode, OP_LOAD_VARIABLE);
-            bytecode_write(bytecode, constant_index);
+            emit_two_bytes(bytecode, OP_LOAD_VARIABLE, constant_index);
             break;
         }
         
@@ -118,18 +112,18 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             compile_tree(node_assignment->value, bytecode);
             
 			Value name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_assignment->name, node_assignment->length));
-			int constantIndex = bytecode_add_constant(bytecode, &name_constant);
+			int constant_index = bytecode_add_constant(bytecode, &name_constant);
 
             bytecode_write(bytecode, OP_SET_VARIABLE);
-            bytecode_write(bytecode, constantIndex);
+            bytecode_write(bytecode, constant_index);
             break;
         }
         
         case AST_NODE_STATEMENTS: {
-            AstNodeStatements* nodeStatements = (AstNodeStatements*) node;
-            for (int i = 0; i < nodeStatements->statements.count; i++) {
-                DEBUG_PRINT("Compiling statement: index %d out of %d\n", i, nodeStatements->statements.count);
-                compile_tree((AstNode*) nodeStatements->statements.values[i], bytecode);
+            AstNodeStatements* node_statements = (AstNodeStatements*) node;
+            for (int i = 0; i < node_statements->statements.count; i++) {
+                DEBUG_PRINT("Compiling statement: index %d out of %d\n", i, node_statements->statements.count);
+                compile_tree((AstNode*) node_statements->statements.values[i], bytecode);
             }
             
             break;
@@ -142,8 +136,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             bytecode_init(&func_bytecode);
 
             compiler_compile((AstNode*) node_function->statements, &func_bytecode);
-//			bytecode_write(&func_bytecode, OP_NIL);
-//			bytecode_write(&func_bytecode, OP_RETURN);
 
             IntegerArray func_referenced_names_indices = func_bytecode.referenced_names_indices;
             for (int i = 0; i < func_referenced_names_indices.count; i++) {
@@ -179,16 +171,15 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         }
         
         case AST_NODE_CALL: {
-            AstNodeCall* nodeCall = (AstNodeCall*) node;
+            AstNodeCall* node_call = (AstNodeCall*) node;
 
-            for (int i = nodeCall->arguments.count - 1; i >= 0; i--) {
-            	AstNode* argument = nodeCall->arguments.values[i];
+            for (int i = node_call->arguments.count - 1; i >= 0; i--) {
+            	AstNode* argument = node_call->arguments.values[i];
 				compile_tree(argument, bytecode);
 			}
 
-            compile_tree(nodeCall->target, bytecode);
-            bytecode_write(bytecode, OP_CALL);
-			bytecode_write(bytecode, nodeCall->arguments.count);
+            compile_tree(node_call->target, bytecode);
+            emit_two_bytes(bytecode, OP_CALL, node_call->arguments.count);
 
             break;
         }
@@ -227,8 +218,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 				compile_tree(pair.key, bytecode);
 			}
 
-            bytecode_write(bytecode, OP_MAKE_TABLE);
-			bytecode_write(bytecode, node_table->pairs.count);
+			emit_two_bytes(bytecode, OP_MAKE_TABLE, node_table->pairs.count);
 
         	break;
         }
@@ -236,10 +226,16 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         case AST_NODE_IMPORT: {
         	AstNodeImport* node_import = (AstNodeImport*) node;
 
-        	// TODO: Not sure when the constant should be an ObjectString and when simply a RawString. Currently improvising.
         	Value module_name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_import->name, node_import->name_length));
         	emit_opcode_with_constant_operand(bytecode, OP_IMPORT, module_name_constant);
-        	emit_byte(bytecode, OP_POP); // Compiler always puts a OP_NIL OP_RETURN at the end, but that's irrelevant for modules.. change this patch later.
+
+        	/* Ugly hack ahead:
+        	 * Currently, the compiler always puts a OP_NIL OP_RETURN at the end of the code object.
+        	 * So after a code object returns we always have something left on the stack (possibly a nil).
+        	 * This kind of makes sense for functions, but not for modules...
+        	 * Since this is currently the case, we always need to OP_POP after 'calling' a module, until we change how the compiler works. */
+        	emit_byte(bytecode, OP_POP);
+
         	emit_opcode_with_constant_operand(bytecode, OP_SET_VARIABLE, module_name_constant);
 
         	break;
@@ -250,26 +246,20 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
             compile_tree(node_attr->object, bytecode);
 
-            Value constant = MAKE_VALUE_OBJECT(object_string_copy(node_attr->name, node_attr->length));
-            int constant_index = bytecode_add_constant(bytecode, &constant);
-
-            bytecode_write(bytecode, OP_GET_ATTRIBUTE);
-            bytecode_write(bytecode, constant_index);
+            Value attr_name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_attr->name, node_attr->length));
+            emit_opcode_with_constant_operand(bytecode, OP_GET_ATTRIBUTE, attr_name_constant);
 
             break;
         }
 
         case AST_NODE_ATTRIBUTE_ASSIGNMENT: {
-            AstNodeAttributeAssignment* node_attr = (AstNodeAttributeAssignment*) node;
+            AstNodeAttributeAssignment* node_attr_assignment = (AstNodeAttributeAssignment*) node;
 
-            compile_tree(node_attr->value, bytecode);
-            compile_tree(node_attr->object, bytecode);
+            compile_tree(node_attr_assignment->value, bytecode);
+            compile_tree(node_attr_assignment->object, bytecode);
 
-            Value constant = MAKE_VALUE_OBJECT(object_string_copy(node_attr->name, node_attr->length));
-            int constant_index = bytecode_add_constant(bytecode, &constant);
-
-            bytecode_write(bytecode, OP_SET_ATTRIBUTE);
-            bytecode_write(bytecode, constant_index);
+            Value attr_name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_attr_assignment->name, node_attr_assignment->length));
+            emit_opcode_with_constant_operand(bytecode, OP_SET_ATTRIBUTE, attr_name_constant);
 
             break;
         }
@@ -334,23 +324,21 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         }
 
         case AST_NODE_WHILE: {
-			AstNodeWhile* nodeWhile = (AstNodeWhile*) node;
+			AstNodeWhile* node_while = (AstNodeWhile*) node;
 
 			int before_condition = bytecode->count;
-			compile_tree(nodeWhile->condition, bytecode);
+			compile_tree(node_while->condition, bytecode);
 
 			bytecode_write(bytecode, OP_JUMP_IF_FALSE);
 			size_t placeholderOffset = bytecode->count;
-			bytecode_write(bytecode, 0);
-			bytecode_write(bytecode, 0);
+			emit_two_bytes(bytecode, 0, 0);
 
-			compile_tree((AstNode*) nodeWhile->body, bytecode);
+			compile_tree((AstNode*) node_while->body, bytecode);
 
 			bytecode_write(bytecode, OP_JUMP);
 			uint8_t before_condition_addr_bytes[2];
 			short_to_two_bytes(before_condition, before_condition_addr_bytes);
-			bytecode_write(bytecode, before_condition_addr_bytes[0]);
-			bytecode_write(bytecode, before_condition_addr_bytes[1]);
+			emit_two_bytes(bytecode, before_condition_addr_bytes[0], before_condition_addr_bytes[1]);
 
 			bytecode_set(bytecode, placeholderOffset, (bytecode->count >> 8) & 0xFF);
 			bytecode_set(bytecode, placeholderOffset + 1, (bytecode->count) & 0xFF);
@@ -378,8 +366,8 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
         case AST_NODE_STRING: {
         	AstNodeString* node_string = (AstNodeString*) node;
-        	Value constant = MAKE_VALUE_OBJECT(object_string_copy(node_string->string, node_string->length));
-        	emit_opcode_with_constant_operand(bytecode, OP_MAKE_STRING, constant);
+        	Value string_constant = MAKE_VALUE_OBJECT(object_string_copy(node_string->string, node_string->length));
+        	emit_opcode_with_constant_operand(bytecode, OP_MAKE_STRING, string_constant);
 
         	break;
         }
@@ -387,8 +375,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 }
 
 /* Compile a program or a function */
-void compiler_compile(AstNode* node, Bytecode* chunk) {
-    compile_tree(node, chunk);
-	bytecode_write(chunk, OP_NIL);
-	bytecode_write(chunk, OP_RETURN);
+void compiler_compile(AstNode* node, Bytecode* bytecode) {
+    compile_tree(node, bytecode);
+    emit_two_bytes(bytecode, OP_NIL, OP_RETURN);
 }

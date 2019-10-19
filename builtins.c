@@ -47,7 +47,7 @@ bool builtin_input(ValueArray args, Value* out) {
 }
 
 bool builtin_read_file(ValueArray args, Value* out) {
-	if (!object_is_value_object_of_type(args.values[0], OBJECT_STRING)) {
+	if (!object_value_is(args.values[0], OBJECT_STRING)) {
 		return false;
 	}
 

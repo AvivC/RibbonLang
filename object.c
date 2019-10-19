@@ -24,7 +24,7 @@ static Object* allocate_object(size_t size, const char* what, ObjectType type) {
     return object;
 }
 
-bool object_is_value_object_of_type(Value value, ObjectType type) {
+bool object_value_is(Value value, ObjectType type) {
 	return value.type == VALUE_OBJECT && value.as.object->type == type;
 }
 
@@ -45,7 +45,7 @@ static bool object_string_add(ValueArray args, Value* result) {
 	Value self_value = args.values[0];
 	Value other_value = args.values[1];
 
-    if (!object_is_value_object_of_type(self_value, OBJECT_STRING) || !object_is_value_object_of_type(other_value, OBJECT_STRING)) {
+    if (!object_value_is(self_value, OBJECT_STRING) || !object_value_is(other_value, OBJECT_STRING)) {
     	*result = MAKE_VALUE_NIL();
     	return false;
     }
@@ -67,7 +67,7 @@ static bool object_string_add(ValueArray args, Value* result) {
 static bool object_string_length(ValueArray args, Value* result) {
 	Value self_value = args.values[0];
 
-    if (!object_is_value_object_of_type(self_value, OBJECT_STRING)) {
+    if (!object_value_is(self_value, OBJECT_STRING)) {
     	FAIL("String length method called on none ObjectString.");
     }
 
@@ -80,7 +80,7 @@ static bool object_string_length(ValueArray args, Value* result) {
 static bool object_table_length(ValueArray args, Value* result) {
 	Value self_value = args.values[0];
 
-    if (!object_is_value_object_of_type(self_value, OBJECT_TABLE)) {
+    if (!object_value_is(self_value, OBJECT_TABLE)) {
     	FAIL("Table length method called on none ObjectTable.");
     }
 
@@ -106,7 +106,7 @@ static bool object_string_get_key(ValueArray args, Value* result) {
 	Value self_value = args.values[0];
 	Value other_value = args.values[1];
 
-    if (!object_is_value_object_of_type(self_value, OBJECT_STRING)) {
+    if (!object_value_is(self_value, OBJECT_STRING)) {
     	FAIL("String @get_key called on none ObjectString.");
     }
 
@@ -140,11 +140,11 @@ static bool table_get_key_function(ValueArray args, Value* result) {
 	Value self_value = args.values[0];
 	Value other_value = args.values[1];
 
-    if (!object_is_value_object_of_type(self_value, OBJECT_TABLE)) {
+    if (!object_value_is(self_value, OBJECT_TABLE)) {
     	FAIL("Table @get_key called on none ObjectTable.");
     }
 
-    if (!object_is_value_object_of_type(other_value, OBJECT_STRING))  {
+    if (!object_value_is(other_value, OBJECT_STRING))  {
     	*result = MAKE_VALUE_NIL();
     	return false;
     }
@@ -171,11 +171,11 @@ static bool table_set_key_function(ValueArray args, Value* result) {
 	Value key_value = args.values[1];
 	Value value_to_set = args.values[2];
 
-    if (!object_is_value_object_of_type(self_value, OBJECT_TABLE)) {
+    if (!object_value_is(self_value, OBJECT_TABLE)) {
     	FAIL("Table @set_key called on none ObjectTable.");
     }
 
-    if (!object_is_value_object_of_type(key_value, OBJECT_STRING)) {
+    if (!object_value_is(key_value, OBJECT_STRING)) {
     	return false;
     }
 
@@ -437,7 +437,7 @@ MethodAccessResult object_get_method(Object* object, const char* method_name, Ob
 		return METHOD_ACCESS_NO_SUCH_ATTR;
 	}
 
-	if (!object_is_value_object_of_type(method_value, OBJECT_FUNCTION)) {
+	if (!object_value_is(method_value, OBJECT_FUNCTION)) {
 		return METHOD_ACCESS_ATTR_NOT_FUNCTION;
 	}
 
