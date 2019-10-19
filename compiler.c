@@ -13,8 +13,8 @@ static void emit_byte(Bytecode* chunk, uint8_t byte) {
 }
 
 static void emit_two_bytes(Bytecode* chunk, uint8_t byte1, uint8_t byte2) {
-	bytecode_write(chunk, byte1);
-	bytecode_write(chunk, byte2);
+	emit_byte(chunk, byte1);
+	emit_byte(chunk, byte2);
 }
 
 static void emit_opcode_with_constant_operand(Bytecode* chunk, OP_CODE instruction, Value constant) {
@@ -33,10 +33,9 @@ static void emit_short_as_two_bytes(Bytecode* chunk, uint16_t number) {
 }
 
 static size_t emit_opcode_with_short_placeholder(Bytecode* chunk, OP_CODE opcode) {
-	bytecode_write(chunk, opcode);
+	emit_byte(chunk, opcode);
 	size_t placeholder_offset = chunk->count;
-	bytecode_write(chunk, 0);
-	bytecode_write(chunk, 0);
+	emit_two_bytes(chunk, 0, 0);
 	return placeholder_offset;
 }
 
@@ -50,31 +49,30 @@ static void backpatch_placeholder_with_current_address(Bytecode* chunk, size_t p
 }
 
 static void compile_tree(AstNode* node, Bytecode* bytecode) {
-    AstNodeType nodeType = node->type;
+    AstNodeType node_type = node->type;
     
-    switch (nodeType) {
+    switch (node_type) {
         case AST_NODE_BINARY: {
-            AstNodeBinary* nodeBinary = (AstNodeBinary*) node;
+            AstNodeBinary* node_binary = (AstNodeBinary*) node;
             
-            ScannerTokenType operator = nodeBinary->operator;
-            AstNode* leftOperand = nodeBinary->left_operand;
-            AstNode* rightOperand = nodeBinary->right_operand;
+            compile_tree(node_binary->left_operand, bytecode);
+            compile_tree(node_binary->right_operand, bytecode);
             
-            compile_tree(leftOperand, bytecode);
-            compile_tree(rightOperand, bytecode);
-            
+            ScannerTokenType operator = node_binary->operator;
+
+            // TODO: Make sure we have tests for each binary operation
             switch (operator) {
-                case TOKEN_PLUS: bytecode_write(bytecode, OP_ADD); break;
-                case TOKEN_MINUS: bytecode_write(bytecode, OP_SUBTRACT); break;
-                case TOKEN_STAR: bytecode_write(bytecode, OP_MULTIPLY); break;
-                case TOKEN_SLASH: bytecode_write(bytecode, OP_DIVIDE); break;
-                case TOKEN_GREATER_THAN: bytecode_write(bytecode, OP_GREATER_THAN); break;
-                case TOKEN_LESS_THAN: bytecode_write(bytecode, OP_LESS_THAN); break;
-                case TOKEN_GREATER_EQUAL: bytecode_write(bytecode, OP_GREATER_EQUAL); break;
-                case TOKEN_LESS_EQUAL: bytecode_write(bytecode, OP_LESS_EQUAL); break;
-                case TOKEN_EQUAL_EQUAL: bytecode_write(bytecode, OP_EQUAL); break;
-                case TOKEN_BANG_EQUAL: bytecode_write(bytecode, OP_EQUAL); bytecode_write(bytecode, OP_NEGATE); break;
-                default: FAIL("Weird operator type"); break;
+                case TOKEN_PLUS: emit_byte(bytecode, OP_ADD); break;
+                case TOKEN_MINUS: emit_byte(bytecode, OP_SUBTRACT); break;
+                case TOKEN_STAR: emit_byte(bytecode, OP_MULTIPLY); break;
+                case TOKEN_SLASH: emit_byte(bytecode, OP_DIVIDE); break;
+                case TOKEN_GREATER_THAN: emit_byte(bytecode, OP_GREATER_THAN); break;
+                case TOKEN_LESS_THAN: emit_byte(bytecode, OP_LESS_THAN); break;
+                case TOKEN_GREATER_EQUAL: emit_byte(bytecode, OP_GREATER_EQUAL); break;
+                case TOKEN_LESS_EQUAL: emit_byte(bytecode, OP_LESS_EQUAL); break;
+                case TOKEN_EQUAL_EQUAL: emit_byte(bytecode, OP_EQUAL); break;
+                case TOKEN_BANG_EQUAL: emit_two_bytes(bytecode, OP_EQUAL, OP_NEGATE); break;
+                default: FAIL("Unrecognized operator type: %d", operator); break;
             }
             
             break;
@@ -96,7 +94,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         case AST_NODE_VARIABLE: {
             AstNodeVariable* node_variable = (AstNodeVariable*) node;
             
-            // TODO: Why do we sometimes use ObjectString* constants and sometimes RawString constants?
             Value name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_variable->name, node_variable->length));
             int constant_index = bytecode_add_constant(bytecode, &name_constant);
 
@@ -200,7 +197,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 			compile_tree(node_key_assignment->value, bytecode);
 			compile_tree(node_key_assignment->key, bytecode);
             compile_tree(node_key_assignment->subject, bytecode);
-            bytecode_write(bytecode, OP_SET_KEY);
+            emit_byte(bytecode, OP_SET_KEY);
 
         	break;
         }
