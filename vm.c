@@ -792,6 +792,8 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 					ObjectString* name_string = (ObjectString*) name_value.as.object;
 
+//					printf("\n Current func: %s, referenced name in created func: %s\n", current_frame()->function->name, name_string->chars);
+
 					ObjectCell* cell = NULL;
 					CellTable* current_func_free_vars = &current_frame()->function->free_vars;
 
@@ -802,8 +804,11 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 							|| cell_table_get_cell_cstring_key(current_func_free_vars, name_string->chars, &cell);
 
 					if (cell_already_exists) {
+//						printf("\n Cell already exists. Setting it in the child's free_vars. \n");
 						cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
 					} else {
+//						printf("\n Cell doesn't already exist \n");
+
 						Bytecode* current_bytecode = &current_frame()->function->code->bytecode;
 						IntegerArray* assigned_names_indices = &current_bytecode->assigned_names_indices;
 						for (int i = 0; i < assigned_names_indices->count; i++) {
@@ -814,12 +819,18 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 //							printf("\n Current func: %s, assigned name: %s\n", current_frame()->function->name, assigned_name->chars);
 
-//							if (object_strings_equal(name_string, assigned_name)) {
-//								printf("\n Current func: %s, have variable %s\n", current_frame()->function->name, name_string->chars);
-//								cell = object_cell_new_empty();
-//								cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
-//								break;
-//							}
+//							printf("Assigned name in current func: %s\n", assigned_name->chars);
+							if (object_strings_equal(name_string, assigned_name)) {
+//								printf("\n Found \n");
+								cell = object_cell_new_empty();
+								cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
+								if (current_frame()->is_module_base) {
+									cell_table_set_cell_cstring_key(&current_frame()->module->base.attributes, name_string->chars, cell);
+								} else {
+									cell_table_set_cell_cstring_key(&current_frame()->local_variables, name_string->chars, cell);
+								}
+								break;
+							}
 						}
 					}
 
@@ -923,7 +934,6 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
                 CellTable* variables_table = NULL;
                 if (current_frame()->is_module_base) {
-//                	variables_table = &current_frame()->local_variables;
                 	variables_table = &current_frame()->module->base.attributes;
                 } else {
                 	variables_table = &current_frame()->local_variables;

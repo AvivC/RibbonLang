@@ -234,3 +234,21 @@ test function reaches to base function
 expect
     2000
 end
+
+test weird closure behavior
+    outer = {
+        middle = {
+            inner = {
+                return x * 10
+            }
+            x = 10
+            return inner
+        }
+        return middle
+    }
+    middle = outer()
+    inner = middle()
+    print(inner())
+expect
+    100
+end
