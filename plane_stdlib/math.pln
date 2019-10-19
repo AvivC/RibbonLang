@@ -17,9 +17,9 @@ min = { takes x, y to
 }
 
 power = { takes n, exp to
-	#if exp < 0 {
-	#	return 1 / power(n, -1 * exp)
-	#}
+	if exp < 0 {
+		return 1 / power(n, -1 * exp)
+	}
 	if exp == 0 {
 		return 1
 	}

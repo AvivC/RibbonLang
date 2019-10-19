@@ -27,7 +27,7 @@ static StackFrame* current_frame(void) {
 	return vm.call_stack_top - 1;
 }
 
-static Bytecode* currentChunk(void) {
+static Bytecode* current_bytecode(void) {
 	return &current_frame()->function->code->bytecode;
 }
 
@@ -432,7 +432,7 @@ static void print_stack_trace(void) {
 }
 
 #define READ_BYTE() (*vm.ip++)
-#define READ_CONSTANT() (currentChunk()->constants.values[READ_BYTE()])
+#define READ_CONSTANT() (current_bytecode()->constants.values[READ_BYTE()])
 
 static Object* read_constant_as_object(ObjectType type) {
 	Value constant = READ_CONSTANT();
@@ -522,7 +522,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
     	OP_CODE opcode = READ_BYTE();
         
 		#if DEBUG_TRACE_EXECUTION
-			disassembler_do_single_instruction(opcode, currentChunk(), vm.ip - 1 - currentChunk()->code);
+			disassembler_do_single_instruction(opcode, current_bytecode(), vm.ip - 1 - current_bytecode()->code);
 
 			printf("\n");
 			bool stackEmpty = vm.evalStack == vm.stackTop;
@@ -543,7 +543,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 //			}
 			table_print(&current_frame()->local_variables.table);
 
-			bytecode_print_constant_table(currentChunk());
+			bytecode_print_constant_table(current_bytecode());
 
 			printf("\n\n");
 
@@ -560,7 +560,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
         switch (opcode) {
             case OP_CONSTANT: {
                 int constantIndex = READ_BYTE();
-                Value constant = currentChunk()->constants.values[constantIndex];
+                Value constant = current_bytecode()->constants.values[constantIndex];
                 push(constant);
                 break;
             }
@@ -872,7 +872,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             }
             
             case OP_LOAD_VARIABLE: {
-                Value name_value = currentChunk()->constants.values[READ_BYTE()];
+                Value name_value = current_bytecode()->constants.values[READ_BYTE()];
                 ASSERT_VALUE_TYPE(name_value, VALUE_OBJECT);
                 ObjectString* name_string = object_as_string(name_value.as.object);
                 push(load_variable(name_string));
@@ -882,7 +882,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             
             case OP_SET_VARIABLE: {
                 int constant_index = READ_BYTE();
-                Value name_val = currentChunk()->constants.values[constant_index];
+                Value name_val = current_bytecode()->constants.values[constant_index];
                 ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
                 ObjectString* name = OBJECT_AS_STRING(name_val.as.object);
 
@@ -936,7 +936,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
             case OP_GET_ATTRIBUTE: {
                 int constant_index = READ_BYTE();
-                Value name_val = currentChunk()->constants.values[constant_index];
+                Value name_val = current_bytecode()->constants.values[constant_index];
                 ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
                 ObjectString* name = OBJECT_AS_STRING(name_val.as.object);
 
@@ -958,7 +958,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             }
 
             case OP_SET_ATTRIBUTE: {
-                Value name_val = currentChunk()->constants.values[READ_BYTE()];
+                Value name_val = current_bytecode()->constants.values[READ_BYTE()];
                 ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
                 ObjectString* name = OBJECT_AS_STRING(name_val.as.object);
 
@@ -1077,7 +1077,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				ERROR_IF_NON_BOOLEAN(condition, "Expected boolean as condition");
 
 				if (!condition.as.boolean) {
-					vm.ip = currentChunk()->code + address;
+					vm.ip = current_bytecode()->code + address;
 				}
 
 				break;
@@ -1088,7 +1088,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             	uint8_t addr_byte2 = READ_BYTE();
             	uint16_t address = two_bytes_to_short(addr_byte1, addr_byte2);
 
-            	vm.ip = currentChunk()->code + address;
+            	vm.ip = current_bytecode()->code + address;
 
             	break;
             }
