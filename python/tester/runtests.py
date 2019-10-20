@@ -91,13 +91,13 @@ def _run_test_file(absolute_path):
             except StopIteration:
                 # This was the last test
                 pass
-            print('Test %-48s [SKIPPED]' % test_name)
+            print('Test %-60s [SKIPPED]' % test_name)
             continue
 
         if not line.startswith('test '):
             raise RuntimeError('Text outside test bounds')
 
-        print('Test %-50s' % test_name, end='')
+        print('Test %-62s' % test_name, end='')
 
         num_tests += 1
 

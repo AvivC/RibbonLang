@@ -327,3 +327,19 @@ expect
     b
     A
 end
+
+test free variable referenced before assignment returns nil
+    outer = {
+        inner = {
+            print(x)
+        }
+        if false {
+            x = 10
+        }
+        return inner
+    }
+    inner = outer()
+    inner()
+expect
+    nil
+end
