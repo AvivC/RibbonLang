@@ -792,7 +792,6 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 					ObjectString* name_string = (ObjectString*) name_value.as.object;
 
-//					printf("\n Current func: %s, referenced name in created func: %s\n", current_frame()->function->name, name_string->chars);
 
 					ObjectCell* cell = NULL;
 					CellTable* current_func_free_vars = &current_frame()->function->free_vars;
@@ -804,10 +803,8 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 							|| cell_table_get_cell_cstring_key(current_func_free_vars, name_string->chars, &cell);
 
 					if (cell_already_exists) {
-//						printf("\n Cell already exists. Setting it in the child's free_vars. \n");
 						cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
 					} else {
-//						printf("\n Cell doesn't already exist \n");
 
 						Bytecode* current_bytecode = &current_frame()->function->code->bytecode;
 						IntegerArray* assigned_names_indices = &current_bytecode->assigned_names_indices;
@@ -817,11 +814,8 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 							ObjectString* assigned_name = NULL;
 							ASSERT_VALUE_AS_OBJECT(assigned_name, assigned_name_constant, OBJECT_STRING, ObjectString, "Expected ObjectString* as assigned name.")
 
-//							printf("\n Current func: %s, assigned name: %s\n", current_frame()->function->name, assigned_name->chars);
 
-//							printf("Assigned name in current func: %s\n", assigned_name->chars);
 							if (object_strings_equal(name_string, assigned_name)) {
-//								printf("\n Found \n");
 								cell = object_cell_new_empty();
 								cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
 								if (current_frame()->is_module_base) {
@@ -833,15 +827,6 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 							}
 						}
 					}
-
-//					ObjectCell* cell = NULL;
-//					CellTable* current_func_free_vars = &current_frame()->function->free_vars;
-//					if (cell_table_get_cell_cstring_key(&current_frame()->local_variables, name_string->chars, &cell)
-//							|| (current_frame()->is_module_base
-//									&& cell_table_get_cell_cstring_key(&current_frame()->module->base.attributes, name_string->chars, &cell))
-//							|| cell_table_get_cell_cstring_key(current_func_free_vars, name_string->chars, &cell)) {
-//						cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
-//					}
 				}
 
 				ObjectFunction* function = object_user_function_new(object_code, params_buffer, num_params, NULL, free_vars);
