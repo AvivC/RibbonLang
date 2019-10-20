@@ -33,4 +33,47 @@ power = { takes n, exp to
 	return result
 }
 
-# TODO: Add more functions
+sqr = { takes n to
+    return power(n, 2)
+}
+
+abs = { takes x to
+    if x >= 0 {
+        return x
+    }
+    return x * -1
+}
+
+_SQRT_RECURSION_LIMIT = 58
+
+_sqrt_estimate = { takes x, low_bound, high_bound, counter to
+    counter = counter + 1
+    middle = (low_bound + high_bound) / 2
+
+    if counter >= _SQRT_RECURSION_LIMIT {
+        return middle
+    }
+    
+    if sqr(middle) > x {
+        return _sqrt_estimate(x, low_bound, middle, counter)
+    }
+    
+    return _sqrt_estimate(x, middle, high_bound, counter)
+    
+    # guess_sqr = power(guess, 2)
+    # estimation = guess_sqr / n
+    # desired_accuracy = 0.0005
+    # miss = 1 - estimation
+    # if abs(miss) <= desired_accuracy {
+        # return estimation
+    # }
+    
+    # if miss > 0 {
+        # return _sqrt_estimate(n, guess / 2)
+    # }
+    # return _sqrt_estimate(n, guess * 1.5)
+}
+
+sqrt = { takes x to
+    return _sqrt_estimate(x, 1, x, 0)
+}

@@ -136,7 +136,7 @@ bool table_get(Table* table, struct ObjectString* key, Value* out) {
 /* Get a PointerArray of Value* of all set entries in the table. */
 PointerArray table_iterate(Table* table) {
 	PointerArray array;
-	pointer_array_init(&array);
+	pointer_array_init(&array, "table_iterate pointer array buffer");
 
 	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
 	// many entries are likely to be empty

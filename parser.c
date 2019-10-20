@@ -215,7 +215,7 @@ static AstNode* function(int expression_level) {
 
 static AstNode* call(AstNode* left_node, int expression_level) {
 	PointerArray arguments;
-	pointer_array_init(&arguments);
+	pointer_array_init(&arguments, "AstNodeCall arguments pointer array buffer");
 
 	while (!match(TOKEN_RIGHT_PAREN)) {
 		do {
@@ -263,7 +263,7 @@ static AstNode* if_statement(void) {
 	conditioned_clause(&body, &condition, 0);
 
 	PointerArray elsif_clauses;
-	pointer_array_init(&elsif_clauses);
+	pointer_array_init(&elsif_clauses, "Elsif clauses pointer array");
 
 	while (match(TOKEN_ELSIF)) {
 		AstNodeStatements* body;

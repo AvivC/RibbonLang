@@ -27,6 +27,8 @@ typedef struct {
 typedef struct {
     uint8_t* ip;
 
+	Object* objects;
+
     Value* stackTop;
     Value evalStack[STACK_MAX];
 
@@ -36,7 +38,6 @@ typedef struct {
     CellTable globals;
     CellTable imported_modules;
 
-    Object* objects;
     int num_objects;
     int max_objects;
     bool allow_gc;

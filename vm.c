@@ -17,7 +17,7 @@
 #include "parser.h"
 #include "compiler.h"
 
-#define INITIAL_GC_THRESHOLD 1024 * 1024
+#define INITIAL_GC_THRESHOLD 10
 
 #define VM_STDLIB_RELATIVE_PATH "plane_stdlib/"
 
@@ -34,7 +34,7 @@ static Bytecode* current_bytecode(void) {
 static void push(Value value) {
     #if DEBUG_IMPORTANT
         if (vm.stackTop - vm.evalStack >= STACK_MAX) {
-            FAIL("STACK OVERFLOW!");
+            FAIL("Evaluation stack overflow");
         }
     #endif
     *vm.stackTop = value;
@@ -44,7 +44,7 @@ static void push(Value value) {
 static Value pop(void) {
     #if DEBUG_IMPORTANT
         if (vm.stackTop <= vm.evalStack) {
-            FAIL("STACK UNDERFLOW!");
+            FAIL("Evaluation stack underflow");
         }
     #endif
     vm.stackTop--;
@@ -87,6 +87,11 @@ static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 }
 
 static void push_frame(StackFrame frame) {
+	// TODO: This should be a runtime error, not an assertion.
+	if (vm.call_stack_top - vm.callStack == CALL_STACK_MAX) {
+		FAIL("Stack overflow.");
+	}
+
 	*vm.call_stack_top = frame;
 	vm.call_stack_top++;
 }

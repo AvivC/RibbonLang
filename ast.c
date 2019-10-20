@@ -532,7 +532,7 @@ void ast_free_tree(AstNode* node) {
 
 AstNodeStatements* ast_new_node_statements(void) {
     AstNodeStatements* node = ALLOCATE_AST_NODE(AstNodeStatements, AST_NODE_STATEMENTS);
-    pointer_array_init(&node->statements);
+    pointer_array_init(&node->statements, "AstNodeStatements pointer array buffer");
     return node;
 }
 
