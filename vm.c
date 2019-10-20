@@ -101,6 +101,12 @@ static StackFrame pop_frame(void) {
 	return *vm.call_stack_top;
 }
 
+/* The "correct" locals table depends on whether we are the base function of a module or not...
+ * This design isn't great, should change it later. */
+static CellTable* locals_or_module_table(void) {
+	return current_frame()->is_module_base ? &current_frame()->module->base.attributes : &current_frame()->local_variables;
+}
+
 static Value load_variable(ObjectString* name) {
 	Value value;
 
@@ -766,70 +772,84 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				uint8_t num_params_byte2 = READ_BYTE();
 				uint16_t num_params = two_bytes_to_short(num_params_byte1, num_params_byte2);
 
-				char** params_buffer = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+				/* Build the params array for the created function */
+				char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 				for (int i = 0; i < num_params; i++) {
 					Value param_value = READ_CONSTANT();
 					ObjectString* param_object_string = NULL;
 					if ((param_object_string = VALUE_AS_OBJECT(param_value, OBJECT_STRING, ObjectString)) == NULL) {
 						FAIL("Param constant expected to be ObjectString*, actual value type: '%d'", param_value.type);
 					}
-
-					params_buffer[i] = copy_cstring(param_object_string->chars, param_object_string->length, "ObjectFunction param cstring");
+					params[i] = copy_cstring(param_object_string->chars, param_object_string->length, "ObjectFunction param cstring");
 				}
 
-				IntegerArray referenced_names_indices = object_code->bytecode.referenced_names_indices;
-				int free_vars_count = referenced_names_indices.count;
-				CellTable free_vars;
-				cell_table_init(&free_vars);
+				/* Loop through the names mentioned in the created function.
+				 * We want to figure out what to put in the created function's free variables table. */
+				IntegerArray names_refd_in_created_func = object_code->bytecode.referenced_names_indices;
+				int names_refd_count = names_refd_in_created_func.count;
+				CellTable new_function_free_vars;
+				cell_table_init(&new_function_free_vars);
 
-				for (int i = 0; i < free_vars_count; i++) {
-					size_t name_index = referenced_names_indices.values[i];
-					Value name_value = object_code->bytecode.constants.values[name_index];
-
-					if (!object_value_is(name_value, OBJECT_STRING)) {
+				for (int i = 0; i < names_refd_count; i++) {
+					/* Get the name of the variable referenced inside the created function */
+					size_t refd_name_index = names_refd_in_created_func.values[i];
+					Value refd_name_value = object_code->bytecode.constants.values[refd_name_index];
+					if (!object_value_is(refd_name_value, OBJECT_STRING)) {
 						FAIL("Referenced name constant must be an ObjectString*");
 					}
+					ObjectString* refd_name = (ObjectString*) refd_name_value.as.object;
 
-					ObjectString* name_string = (ObjectString*) name_value.as.object;
-
+					/* If the cell for the refd_name exists in our current local scope, we take that cell
+					 * and put it in the free_vars of the created function.
+					 * If it doesn't, we check to see if this name is assigned anywhere in the current running function,
+					 * even though it hasn't been assigned yet, because if we later assign it in this current function, we would like
+					 * the created closure to be able to see the new value.
+					 * If it is assigned anywhere in the current function, we create a new empty cell, and we put it in both our
+					 * own local scope and the free_vars of the newly created function.
+					 * If it isn't assigned in our currently running function, the last resort is to look it up in our own free_vars.
+					 * This should create the chain of nested closures.
+					 * We look in our free_vars as the "last resort", because we want more inner references to shadow more outer references
+					 * for the created closure.
+					 * If the cell does exist in the free_vars, we put it in the new free_vars.
+					 * If it doesn't, than the name mentioned in the closure is either a reference to a global or an error. We'll find out
+					 * when the closure runs. */
 
 					ObjectCell* cell = NULL;
-					CellTable* current_func_free_vars = &current_frame()->function->free_vars;
 
-					bool cell_already_exists =
-							cell_table_get_cell_cstring_key(&current_frame()->local_variables, name_string->chars, &cell)
-							|| (current_frame()->is_module_base
-									&& cell_table_get_cell_cstring_key(&current_frame()->module->base.attributes, name_string->chars, &cell))
-							|| cell_table_get_cell_cstring_key(current_func_free_vars, name_string->chars, &cell);
-
-					if (cell_already_exists) {
-						cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
+					if (cell_table_get_cell_cstring_key(locals_or_module_table(), refd_name->chars, &cell)) {
+						cell_table_set_cell_cstring_key(&new_function_free_vars, refd_name->chars, cell);
 					} else {
-
 						Bytecode* current_bytecode = &current_frame()->function->code->bytecode;
 						IntegerArray* assigned_names_indices = &current_bytecode->assigned_names_indices;
+
+						/* Loop through all of the names assigned in the currently running function */
 						for (int i = 0; i < assigned_names_indices->count; i++) {
+							/* Get the name of the assigned variable */
 							size_t assigned_name_index = assigned_names_indices->values[i];
 							Value assigned_name_constant = current_bytecode->constants.values[assigned_name_index];
 							ObjectString* assigned_name = NULL;
 							ASSERT_VALUE_AS_OBJECT(assigned_name, assigned_name_constant, OBJECT_STRING, ObjectString, "Expected ObjectString* as assigned name.")
 
-
-							if (object_strings_equal(name_string, assigned_name)) {
+							/* If the name referenced in the created function matches the name assigned in the current function... */
+							if (object_strings_equal(refd_name, assigned_name)) {
+								/* Create a new empty cell, and put it both in the current locals table and in
+								 * the created functions free variables. This creates the link between the two. */
 								cell = object_cell_new_empty();
-								cell_table_set_cell_cstring_key(&free_vars, name_string->chars, cell);
-								if (current_frame()->is_module_base) {
-									cell_table_set_cell_cstring_key(&current_frame()->module->base.attributes, name_string->chars, cell);
-								} else {
-									cell_table_set_cell_cstring_key(&current_frame()->local_variables, name_string->chars, cell);
-								}
+								cell_table_set_cell_cstring_key(&new_function_free_vars, refd_name->chars, cell);
+								cell_table_set_cell_cstring_key(locals_or_module_table(), refd_name->chars, cell);
 								break;
 							}
+						}
+
+						/* If we still hadn't found a matching cell, we look in our free_vars */
+						CellTable* current_func_free_vars = &current_frame()->function->free_vars;
+						if (cell == NULL && cell_table_get_cell_cstring_key(current_func_free_vars, refd_name->chars, &cell)) {
+							cell_table_set_cell_cstring_key(&new_function_free_vars, refd_name->chars, cell);
 						}
 					}
 				}
 
-				ObjectFunction* function = object_user_function_new(object_code, params_buffer, num_params, NULL, free_vars);
+				ObjectFunction* function = object_user_function_new(object_code, params, num_params, NULL, new_function_free_vars);
 				push(MAKE_VALUE_OBJECT(function));
 				break;
 			}
@@ -917,14 +937,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
                 	set_function_name(&value, name);
                 }
 
-                CellTable* variables_table = NULL;
-                if (current_frame()->is_module_base) {
-                	variables_table = &current_frame()->module->base.attributes;
-                } else {
-                	variables_table = &current_frame()->local_variables;
-                }
-
-                cell_table_set_value_cstring_key(variables_table, name->chars, value);
+                cell_table_set_value_cstring_key(locals_or_module_table(), name->chars, value);
                 break;
             }
             

@@ -202,7 +202,7 @@ test closure semantics
     i = m()
     i()
 expect
-    updated
+    something else
 end
 
 test closure with arguments
@@ -222,7 +222,7 @@ test closure with arguments
     i = m()
     print(i())
 expect
-    updated
+    something else
 end
 
 test function reaches to base function
@@ -251,4 +251,66 @@ test weird closure behavior
     print(inner())
 expect
     100
+end
+
+test closure cannot alter enclosed variable
+    outer = {
+        x = "a"
+        inner1 = {
+            print(x)
+            x = "b"
+            print(x)
+        }
+        x = "A"
+        inner2 = {
+            print(x)
+        }
+        return ["inner1": inner1, "inner2": inner2]
+    }
+
+    closures = outer()
+    inner1 = closures["inner1"]
+    inner2 = closures["inner2"]
+
+    inner2()
+    inner1()
+    inner2()
+expect
+    A
+    A
+    b
+    A
+end
+
+test nested closure cannot alter enclosed variable
+    outer = {
+        x = "a"
+        middle = {
+            inner1 = {
+                print(x)
+                x = "b"
+                print(x)
+            }
+            inner2 = {
+                print(x)
+            }
+            return ["inner1": inner1, "inner2": inner2]
+        }
+        x = "A"
+        return middle
+    }
+
+    middle = outer()
+    closures = middle()
+    inner1 = closures["inner1"]
+    inner2 = closures["inner2"]
+
+    inner2()
+    inner1()
+    inner2()
+expect
+    A
+    A
+    b
+    A
 end
