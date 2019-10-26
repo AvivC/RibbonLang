@@ -19,7 +19,7 @@
 
 #define INITIAL_GC_THRESHOLD 10
 
-#define VM_STDLIB_RELATIVE_PATH "plane_stdlib/"
+#define VM_STDLIB_RELATIVE_PATH "stdlib/"
 
 VM vm;
 
@@ -33,26 +33,26 @@ static Bytecode* current_bytecode(void) {
 
 static void push(Value value) {
     #if DEBUG_IMPORTANT
-        if (vm.stackTop - vm.evalStack >= STACK_MAX) {
+        if (vm.eval_stack_top - vm.eval_stack >= STACK_MAX) {
             FAIL("Evaluation stack overflow");
         }
     #endif
-    *vm.stackTop = value;
-    vm.stackTop++;
+    *vm.eval_stack_top = value;
+    vm.eval_stack_top++;
 }
 
 static Value pop(void) {
     #if DEBUG_IMPORTANT
-        if (vm.stackTop <= vm.evalStack) {
+        if (vm.eval_stack_top <= vm.eval_stack) {
             FAIL("Evaluation stack underflow");
         }
     #endif
-    vm.stackTop--;
-    return *vm.stackTop;
+    vm.eval_stack_top--;
+    return *vm.eval_stack_top;
 }
 
 static Value peek_at(int offset) {
-	return *(vm.stackTop - offset);
+	return *(vm.eval_stack_top - offset);
 }
 
 static Value peek(void) {
@@ -88,7 +88,7 @@ static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 
 static void push_frame(StackFrame frame) {
 	// TODO: This should be a runtime error, not an assertion.
-	if (vm.call_stack_top - vm.callStack == CALL_STACK_MAX) {
+	if (vm.call_stack_top - vm.call_stack == CALL_STACK_MAX) {
 		FAIL("Stack overflow.");
 	}
 
@@ -248,20 +248,22 @@ static void gc_mark_object(Object* object) {
 }
 
 static void gc_mark(void) {
-	for (Value* value = vm.evalStack; value != vm.stackTop; value++) {
+	/* Mark everything on the evaluation stack */
+	for (Value* value = vm.eval_stack; value != vm.eval_stack_top; value++) {
 		if (value->type == VALUE_OBJECT) {
 			gc_mark_object(value->as.object);
 		}
 	}
 
-	for (StackFrame* frame = vm.callStack; frame != vm.call_stack_top; frame++) {
+	/* Mark everything on the call stack */
+	for (StackFrame* frame = vm.call_stack; frame != vm.call_stack_top; frame++) {
 		gc_mark_object((Object*) frame->function);
 		if (frame->module != NULL) {
 			gc_mark_object((Object*) frame->module);
 		}
 
-		// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
-		// many entries are likely to be empty
+		/* TODO: Pretty naive and inefficient - we scan the whole table in memory even though
+		 * many entries are likely to be empty */
 		for (int i = 0; i < frame->local_variables.table.capacity; i++) {
 			Entry* entry = &frame->local_variables.table.entries[i];
 			if (entry->key != NULL) {
@@ -271,14 +273,13 @@ static void gc_mark(void) {
 				}
 				gc_mark_object((Object*) cell);
 			}
-			if (entry->value.type == VALUE_OBJECT) {
+			/*if (entry->value.type == VALUE_OBJECT) {
 				gc_mark_object(entry->value.as.object);
-			}
+			}*/
 		}
 	}
 
-	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
-	// many entries are likely to be empty
+	/* Mark all objects in the globals table */
 	for (int i = 0; i < vm.globals.table.capacity; i++) {
 		Entry* entry = &vm.globals.table.entries[i];
 		if (entry->value.type == VALUE_OBJECT) {
@@ -286,6 +287,14 @@ static void gc_mark(void) {
 		}
 	}
 
+/*	PointerArray globals = table_iterate(&vm.globals.table);
+	for (int i = 0; i < globals.count; i++) {
+		Entry* entry = globals.values[i];
+
+	}*/
+
+
+	/* Mark all imported modules */
 	PointerArray imported_modules = table_iterate(&vm.imported_modules.table);
 	for (int i = 0; i < imported_modules.count; i++) {
 		Entry* entry = imported_modules.values[i];
@@ -298,6 +307,7 @@ static void gc_mark(void) {
 		gc_mark_object((Object*) cell);
 		gc_mark_object((Object*) module);
 	}
+
 	pointer_array_free(&imported_modules);
 }
 
@@ -347,8 +357,8 @@ void gc(void) {
 }
 
 static void reset_stacks(void) {
-	vm.stackTop = vm.evalStack;
-	vm.call_stack_top = vm.callStack;
+	vm.eval_stack_top = vm.eval_stack;
+	vm.call_stack_top = vm.call_stack;
 }
 
 static void register_builtin_function(const char* name, int num_params, char** params, NativeFunction function) {
@@ -420,7 +430,7 @@ void vm_init(void) {
 }
 
 void vm_free(void) {
-	for (StackFrame* frame = vm.callStack; frame != vm.call_stack_top; frame++) {
+	for (StackFrame* frame = vm.call_stack; frame != vm.call_stack_top; frame++) {
 		stack_frame_free(frame);
 	}
 	reset_stacks();
@@ -437,7 +447,7 @@ void vm_free(void) {
 
 static void print_stack_trace(void) {
 	printf("Stack trace:\n");
-	for (StackFrame* frame = vm.callStack; frame < vm.call_stack_top; frame++) {
+	for (StackFrame* frame = vm.call_stack; frame < vm.call_stack_top; frame++) {
 		printf("    - %s\n", frame->function->name);
 	}
 }
@@ -536,11 +546,11 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 			disassembler_do_single_instruction(opcode, current_bytecode(), vm.ip - 1 - current_bytecode()->code);
 
 			printf("\n");
-			bool stackEmpty = vm.evalStack == vm.stackTop;
+			bool stackEmpty = vm.eval_stack == vm.eval_stack_top;
 			if (stackEmpty) {
 				printf("[ -- Empty Stack -- ]");
 			} else {
-				for (Value* value = vm.evalStack; value < vm.stackTop; value++) {
+				for (Value* value = vm.eval_stack; value < vm.eval_stack_top; value++) {
 					printf("[ ");
 					value_print(*value);
 					printf(" ]");

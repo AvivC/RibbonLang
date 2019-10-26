@@ -59,7 +59,7 @@ static void growTable(Table* table) {
     DEBUG_MEMORY("Old capacity: %d. New capacity: %d", oldCapacity, table->capacity);
     
     for (int i = 0; i < table->capacity; i++) {
-        table->entries[i] = (Entry) {.key = NULL, .value = MAKE_VALUE_NUMBER(0)}; // TODO: add proper Nil values
+        table->entries[i] = (Entry) {.key = NULL, .value = MAKE_VALUE_NIL()};
     }
     
     for (int i = 0; i < oldCapacity; i++) {
@@ -138,13 +138,16 @@ PointerArray table_iterate(Table* table) {
 	PointerArray array;
 	pointer_array_init(&array, "table_iterate pointer array buffer");
 
-	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
-	// many entries are likely to be empty
+	/* TODO: Pretty naive and inefficient - we scan the whole table in memory even though
+	 * many entries are likely to be empty */
 	for (int i = 0; i < table->capacity; i++) {
 		Entry* entry = &table->entries[i];
+
 		if (entry->key != NULL) {
 			pointer_array_write(&array, entry);
-		}
+		} /*else {
+			if (entry->value.type != VALUE_NIL)
+		}*/
 	}
 
 	return array;

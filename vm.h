@@ -29,11 +29,11 @@ typedef struct {
 
 	Object* objects;
 
-    Value* stackTop;
-    Value evalStack[STACK_MAX];
+    Value* eval_stack_top;
+    Value eval_stack[STACK_MAX];
 
     StackFrame* call_stack_top;
-    StackFrame callStack[CALL_STACK_MAX];
+    StackFrame call_stack[CALL_STACK_MAX];
 
     CellTable globals;
     CellTable imported_modules;
