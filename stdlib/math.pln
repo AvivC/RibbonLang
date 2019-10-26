@@ -44,7 +44,7 @@ abs = { takes x to
     return x * -1
 }
 
-_SQRT_RECURSION_LIMIT = 58
+_SQRT_RECURSION_LIMIT = 57
 
 _sqrt_estimate = { takes x, low_bound, high_bound, counter to
     counter = counter + 1

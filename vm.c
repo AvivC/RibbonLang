@@ -135,35 +135,31 @@ static Value load_variable(ObjectString* name) {
 
 static void gc_mark_object(Object* object);
 
-static void gc_mark_code_constants(ObjectCode* code) {
+static void gc_mark_object_code(Object* object) {
+	ObjectCode* code = (ObjectCode*) object;
 	Bytecode* chunk = &code->bytecode;
 	for (int i = 0; i < chunk->constants.count; i++) {
 		Value* constant = &chunk->constants.values[i];
 		if (constant->type == VALUE_OBJECT) {
-			gc_mark_object(chunk->constants.values[i].as.object);
+			gc_mark_object(constant->as.object);
 		}
 	}
-
-	// Note: not looking for bare VALUE_CHUNK here, because logically it should never happen.
-	// Chunks should always be wrapped in ObjectCode in order to be managed "automatically" by the GC system.
 }
 
 static void gc_mark_object_attributes(Object* object) {
-	// TODO: Pretty naive and inefficient - we scan the whole table in memory even though
-	// many entries are likely to be empty
-	for (int i = 0; i < object->attributes.table.capacity; i++) {
-		Entry* entry = &object->attributes.table.entries[i];
-		if (entry->value.type == VALUE_OBJECT) {
-			gc_mark_object(entry->value.as.object);
-		}
+	PointerArray attributes = table_iterate(&object->attributes.table);
+	for (int i = 0; i < attributes.count; i++) {
+		Entry* entry = attributes.values[i];
+		ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in object attributes.");
+		gc_mark_object(entry->value.as.object);
 	}
+	pointer_array_free(&attributes);
 }
 
 static void assert_is_probably_valid_object(Object* object) {
-	bool is_probably_valid_object = (object->is_reachable == true)
-			|| (object->is_reachable == false);
+	bool is_probably_valid_object = (object->is_reachable == true) || (object->is_reachable == false);
 	if (!is_probably_valid_object) {
-		FAIL("Illegal object passed to gcMarkObject.");
+		FAIL("Illegal object passed to gc_mark_object.");
 	}
 }
 
@@ -172,10 +168,10 @@ static void gc_mark_function_free_vars(ObjectFunction* function) {
 	PointerArray free_vars_entries = table_iterate(&free_vars->table);
 	for (int i = 0; i < free_vars_entries.count; i++) {
 		Entry* entry = free_vars_entries.values[i];
-		if (entry->value.type == VALUE_OBJECT) {
-			gc_mark_object(entry->value.as.object);
-		}
+		ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in free_vars.");
+		gc_mark_object(entry->value.as.object);
 	}
+	/* TODO: Cleanup */
 }
 
 static void gc_mark_object_function(Object* object) {
@@ -186,7 +182,6 @@ static void gc_mark_object_function(Object* object) {
 	if (!function->is_native) {
 		ObjectCode* code_object = function->code;
 		gc_mark_object((Object*) code_object);
-		gc_mark_code_constants(code_object);
 		gc_mark_function_free_vars(function);
 	}
 }
@@ -213,7 +208,7 @@ static void gc_mark_object_table(Object* object) {
 
 static void gc_mark_object_cell(Object* object) {
 	ObjectCell* cell = (ObjectCell*) object;
-	if (cell->value.type == VALUE_OBJECT) {
+	if (cell->is_filled && cell->value.type == VALUE_OBJECT) {
 		gc_mark_object(cell->value.as.object);
 	}
 }
@@ -237,7 +232,7 @@ static void gc_mark_object(Object* object) {
 	if (object->type == OBJECT_FUNCTION) {
 		gc_mark_object_function(object);
 	} else if (object->type == OBJECT_CODE) {
-		gc_mark_code_constants((ObjectCode*) object);
+		gc_mark_object_code(object);
 	} else if (object->type == OBJECT_TABLE) {
 		gc_mark_object_table(object);
 	} else if (object->type == OBJECT_CELL) {
