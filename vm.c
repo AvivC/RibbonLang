@@ -166,12 +166,14 @@ static void assert_is_probably_valid_object(Object* object) {
 static void gc_mark_function_free_vars(ObjectFunction* function) {
 	CellTable* free_vars = &function->free_vars;
 	PointerArray free_vars_entries = table_iterate(&free_vars->table);
+
 	for (int i = 0; i < free_vars_entries.count; i++) {
 		Entry* entry = free_vars_entries.values[i];
 		ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in free_vars.");
 		gc_mark_object(entry->value.as.object);
 	}
-	/* TODO: Cleanup */
+
+	pointer_array_free(&free_vars_entries);
 }
 
 static void gc_mark_object_function(Object* object) {
@@ -215,6 +217,7 @@ static void gc_mark_object_cell(Object* object) {
 
 static void gc_mark_object_module(Object* object) {
 	ObjectModule* module = (ObjectModule*) object;
+
 	gc_mark_object((Object*) module->name);
 	gc_mark_object((Object*) module->function);
 }
@@ -229,17 +232,34 @@ static void gc_mark_object(Object* object) {
 
 	gc_mark_object_attributes(object);
 
-	if (object->type == OBJECT_FUNCTION) {
-		gc_mark_object_function(object);
-	} else if (object->type == OBJECT_CODE) {
-		gc_mark_object_code(object);
-	} else if (object->type == OBJECT_TABLE) {
-		gc_mark_object_table(object);
-	} else if (object->type == OBJECT_CELL) {
-		gc_mark_object_cell(object);
-	} else if (object->type == OBJECT_MODULE) {
-		gc_mark_object_module(object);
+	switch (object->type) {
+		case OBJECT_FUNCTION: {
+			gc_mark_object_function(object);
+			return;
+		}
+		case OBJECT_CODE: {
+			gc_mark_object_code(object);
+			return;
+		}
+		case OBJECT_TABLE: {
+			gc_mark_object_table(object);
+			return;
+		}
+		case OBJECT_CELL: {
+			gc_mark_object_cell(object);
+			return;
+		}
+		case OBJECT_MODULE: {
+			gc_mark_object_module(object);
+			return;
+		}
+		case OBJECT_STRING: {
+			/* Nothing. Currently strings don't link to any other object except for their attributes, which were already marked. */
+			return;
+		}
 	}
+
+	FAIL("GC couldn't mark object, unknown object type: %d", object->type);
 }
 
 static void gc_mark(void) {
@@ -515,10 +535,8 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 	DEBUG_TRACE("Starting interpreter loop.");
 
     while (is_executing) {
-		DEBUG_TRACE("\n--------------------------\n");
-    	DEBUG_TRACE("IP: %p", vm.ip);
-    	DEBUG_TRACE("numObjects: %d", vm.num_objects);
-    	DEBUG_TRACE("maxObjects: %d", vm.max_objects);
+		DEBUG_TRACE("--------------------------");
+    	DEBUG_TRACE("numObjects: %d, maxObjects: %d", vm.num_objects, vm.max_objects);
 
     	OP_CODE opcode = READ_BYTE();
         
@@ -537,11 +555,6 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				}
 			}
 			printf("\n\nLocal variables:\n");
-//			if (isInFrame()) {
-//				printTable(&current_frame()->local_variables);
-//			} else {
-//				printf("No stack frames.");
-//			}
 			table_print(&current_frame()->local_variables.table);
 
 			bytecode_print_constant_table(current_bytecode());
@@ -1181,6 +1194,8 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 						ObjectCode* code_object = object_code_new(module_bytecode);
 						ObjectFunction* module_base_function = object_user_function_new(code_object, NULL, 0, NULL, cell_table_new_empty());
+						 /* VERY ugly temporary hack ahead*/
+						set_function_name(&MAKE_VALUE_OBJECT(module_base_function), object_string_copy_from_null_terminated("<Module base function>"));
 
 						ObjectModule* module = object_module_new(module_name, module_base_function);
 						push(MAKE_VALUE_OBJECT(module));
