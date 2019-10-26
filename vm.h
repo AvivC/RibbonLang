@@ -13,8 +13,8 @@ typedef enum {
     INTERPRET_RUNTIME_ERROR
 } InterpretResult;
 
-#define STACK_MAX 256  // TODO: review this. maybe grow dynamically?
-#define CALL_STACK_MAX 256  // TODO: review this. maybe grow dynamically?
+#define STACK_MAX 256
+#define CALL_STACK_MAX 256
 
 typedef struct {
 	uint8_t* return_address;

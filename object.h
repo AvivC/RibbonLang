@@ -122,4 +122,11 @@ bool object_value_is(Value value, ObjectType type);
 		} \
 	} while (false);
 
+#define ASSERT_VALUE_IS_OBJECT(value, object_type, error_message) \
+		do { \
+			if (!object_value_is(value, object_type)) { \
+				FAIL(error_message); \
+			} \
+		} while (false); \
+
 #endif

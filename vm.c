@@ -262,36 +262,24 @@ static void gc_mark(void) {
 			gc_mark_object((Object*) frame->module);
 		}
 
-		/* TODO: Pretty naive and inefficient - we scan the whole table in memory even though
-		 * many entries are likely to be empty */
-		for (int i = 0; i < frame->local_variables.table.capacity; i++) {
-			Entry* entry = &frame->local_variables.table.entries[i];
-			if (entry->key != NULL) {
-				ObjectCell* cell = NULL;
-				if ((cell = VALUE_AS_OBJECT(entry->value, OBJECT_CELL, ObjectCell)) == NULL) {
-					FAIL("Found non ObjectCell when scanning CellTable for gc_mark.");
-				}
-				gc_mark_object((Object*) cell);
-			}
-			/*if (entry->value.type == VALUE_OBJECT) {
-				gc_mark_object(entry->value.as.object);
-			}*/
-		}
-	}
-
-	/* Mark all objects in the globals table */
-	for (int i = 0; i < vm.globals.table.capacity; i++) {
-		Entry* entry = &vm.globals.table.entries[i];
-		if (entry->value.type == VALUE_OBJECT) {
+		/* Mark the frame locals */
+		PointerArray locals = table_iterate(&frame->local_variables.table);
+		for (int i = 0; i < locals.count; i++) {
+			Entry* entry = locals.values[i];
+			ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in locals.");
 			gc_mark_object(entry->value.as.object);
 		}
+		pointer_array_free(&locals);
 	}
 
-/*	PointerArray globals = table_iterate(&vm.globals.table);
+	/* Mark the global objects */
+	PointerArray globals = table_iterate(&vm.globals.table);
 	for (int i = 0; i < globals.count; i++) {
 		Entry* entry = globals.values[i];
-
-	}*/
+		ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in globals.");
+		gc_mark_object(entry->value.as.object);
+	}
+	pointer_array_free(&globals);
 
 
 	/* Mark all imported modules */
@@ -301,13 +289,10 @@ static void gc_mark(void) {
 		ObjectCell* cell = NULL;
 		ASSERT_VALUE_AS_OBJECT(cell, entry->value, OBJECT_CELL, ObjectCell, "Non ObjectCell* in CellTable.")
 
-		ObjectModule* module = NULL;
-		ASSERT_VALUE_AS_OBJECT(module, cell->value, OBJECT_MODULE, ObjectModule, "Non ObjectModule* in ObjectCell.")
-
 		gc_mark_object((Object*) cell);
-		gc_mark_object((Object*) module);
-	}
 
+		ASSERT_VALUE_IS_OBJECT(cell->value, OBJECT_MODULE, "Found non ObjectCell* in globals.");
+	}
 	pointer_array_free(&imported_modules);
 }
 
