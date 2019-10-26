@@ -1181,7 +1181,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 				char* source = NULL;
 				size_t source_buffer_size = -1;
-				IOResult file_read_result = read_file(file_name_buffer, &source, &source_buffer_size);
+				IOResult file_read_result = io_read_file(file_name_buffer, &source, &source_buffer_size);
 
 				switch (file_read_result) {
 					case IO_SUCCESS: {

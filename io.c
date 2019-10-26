@@ -8,9 +8,9 @@ static IOResult read_file_cleanup_and_fail(char* data, size_t size, IOResult res
 	return result;
 }
 
-IOResult read_file(const char* file_name, char** text_out, size_t* text_length_out) {
-	// TODO: Proper systematic error handling, instead of ad-hoc printing
-	// TODO: Dedicated tests
+IOResult io_read_file(const char* file_name, char** text_out, size_t* text_length_out) {
+	/* TODO: Proper systematic error handling, instead of ad-hoc printing
+	 * TODO: Dedicated tests */
 
     FILE* file = fopen(file_name, "rb");
 
