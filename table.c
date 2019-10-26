@@ -145,9 +145,9 @@ PointerArray table_iterate(Table* table) {
 
 		if (entry->key != NULL) {
 			pointer_array_write(&array, entry);
-		} /*else {
-			if (entry->value.type != VALUE_NIL)
-		}*/
+		} else if (entry->value.type != VALUE_NIL) {
+			FAIL("Found entry in table where key is NULL but value is non-nil. Its type: %d", entry->value.type);
+		}
 	}
 
 	return array;
