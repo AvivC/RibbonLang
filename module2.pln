@@ -1,3 +1,0 @@
-print("Running module2")
-
-x = "i'm module 2"

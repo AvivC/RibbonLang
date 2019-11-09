@@ -1,6 +1,6 @@
 test basic import
     import testmodule
-file testmodule
+file testmodule.pln
     print("Importing testmodule")
 expect
     Importing testmodule
@@ -9,10 +9,10 @@ end
 test nested imports
     import testmodule1
     print("main")
-file testmodule1
+file testmodule1.pln
     import testmodule2
     print("1")
-file testmodule2
+file testmodule2.pln
     print("2")
 expect
     2
@@ -26,9 +26,9 @@ test module caching
     import testmodule2
     import testmodule1
     import testmodule2
-file testmodule1
+file testmodule1.pln
     print("I'm testmodule1")
-file testmodule2
+file testmodule2.pln
     print("I'm testmodule2")
 expect
     I'm testmodule1
@@ -49,7 +49,7 @@ test module attributes
 
     print(testmodule1.func1(2))
     print(testmodule1.func2(2))
-file testmodule1
+file testmodule1.pln
     attr1 = "I'm an attribute"
     func1 = { takes x to
         return x * 2

@@ -18,10 +18,10 @@ def _run_on_interpreter(interpreter_path, input_text, additional_files):
         f.write(input_text)
 
     try:
-        for file_name, file_code in additional_files.items():
+        for file_name, file_text in additional_files.items():
             file_path = _relative_path_to_abs(os.path.join('..', '..', file_name))
             with open(file_path, 'w') as f:
-                f.write(file_code)
+                f.write(file_text)
 
         interpreter_cmd = f'{interpreter_path} {input_file_name} {INTERPRETER_ARGS}'
         output = subprocess.run(interpreter_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -129,7 +129,7 @@ def _run_test_file(absolute_path):
 
         additional_files = {}
         while line.strip().startswith('file '):
-            file_name = line.split(' ')[1].strip() + '.pln'
+            file_name = line.split(' ')[1].strip()
 
             additional_file_lines = []
             line = next(lines)
@@ -143,7 +143,7 @@ def _run_test_file(absolute_path):
                 else:
                     print()
                     print('Parsing error: Indentation missing in test code or expected result.')
-                    additional_file_code = None
+                    additional_file_text = None
                     break
 
                 line = line[indent:]  # deindent
@@ -151,9 +151,15 @@ def _run_test_file(absolute_path):
                 line = next(lines)
 
             else:
-                additional_file_code = ''.join(additional_file_lines)
+                additional_file_text = ''.join(additional_file_lines)
 
-            additional_files[file_name] = additional_file_code
+                # The ending '\n' of the file text is not considered part of the file,
+                # but part of the test syntax itself, so we remove it
+                if additional_file_text[-1] != '\n':
+                    raise AssertionError("Additional file text should always end with a '\\n'")
+                additional_file_text = additional_file_text[:-1]
+
+            additional_files[file_name] = additional_file_text
 
         expect_output = _parse_test_lines(lines, ['end'])
         if expect_output is None:
@@ -168,6 +174,7 @@ def _run_test_file(absolute_path):
             all_success = False
             print(f'FAILURE')
             print()
+            # import pdb; pdb.set_trace()
             print('Ln. %-14s  | Actual' % 'Expected')
             print()
             for i, (expected_line, actual_line) in enumerate(itertools.zip_longest(expect_output.splitlines(), output.splitlines())):
@@ -176,7 +183,7 @@ def _run_test_file(absolute_path):
                 if actual_line is None:
                     actual_line = '<no more lines>'
                 print('%-3d %-15s | %-15s' % (i, expected_line, actual_line), end='')
-                if not expected_line == actual_line:
+                if expected_line != actual_line:
                     print('[DIFF]')
                 else:
                     print()

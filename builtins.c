@@ -4,6 +4,7 @@
 #include "value.h"
 #include "memory.h"
 #include "object.h"
+#include "io.h"
 
 bool builtin_print(ValueArray args, Value* out) {
 	value_print(args.values[0]);
@@ -53,6 +54,42 @@ bool builtin_read_file(ValueArray args, Value* out) {
 
 	ObjectString* path = OBJECT_AS_STRING(args.values[0].as.object);
 
+	char* file_data = NULL;
+	size_t file_size = -1;
+
+	IOResult result = io_read_file(path->chars, "Object string buffer", &file_data, &file_size);
+
+	switch (result) {
+		case IO_SUCCESS: {
+			*out = MAKE_VALUE_OBJECT(object_string_take(file_data, file_size - 1)); // file_size already includes the null byte, so we decrement it
+			return true;
+		}
+		case IO_OPEN_FILE_FAILURE: {
+			*out = MAKE_VALUE_NIL();
+			return false;
+		}
+		case IO_READ_FILE_FAILURE: {
+			*out = MAKE_VALUE_NIL();
+			return false;
+		}
+		case IO_CLOSE_FILE_FAILURE: {
+			*out = MAKE_VALUE_NIL();
+			return false;
+		}
+	}
+
+	FAIL("Should be unreachable.");
+	return false;
+}
+
+/*
+bool builtin_read_file(ValueArray args, Value* out) {
+	if (!object_value_is(args.values[0], OBJECT_STRING)) {
+		return false;
+	}
+
+	ObjectString* path = OBJECT_AS_STRING(args.values[0].as.object);
+
     FILE* file = fopen(path->chars, "rb");
 
     if (file == NULL) {
@@ -79,3 +116,4 @@ bool builtin_read_file(ValueArray args, Value* out) {
     *out = MAKE_VALUE_OBJECT(object_string_take(buffer, fileSize));
     return true;
 }
+*/

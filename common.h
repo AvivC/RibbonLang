@@ -99,3 +99,10 @@
 } while(false)
 
 #endif
+
+#define PRINTLN(str) do { \
+		printf("\n"); \
+		printf(str); \
+		printf("\n"); \
+} while (false)
+

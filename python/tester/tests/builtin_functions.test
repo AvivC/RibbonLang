@@ -17,3 +17,14 @@ expect
     Hello,
     world!
 end
+
+test read_file
+    print(read_file("some_file.txt"))
+    #print("more")
+file some_file.txt
+    this is
+    some file text
+expect
+    this is
+    some file text
+end
