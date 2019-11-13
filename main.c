@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "common.h"
+#include "io.h"
 #include "compiler.h"
 #include "parser.h"
 #include "ast.h"
@@ -15,39 +16,6 @@
 
 // Generally this will always be false. Only set to true when experimenting during development
 #define TRYING_THINGS false
-
-static char* readFile(const char* path) {
-    // TODO: read relative / absolute paths, etc. Currently only relative to the CWD (which changes in the test runner, etc.)
-    
-    FILE* file = fopen(path, "rb");
-    
-    if (file == NULL) {
-        fprintf(stderr, "Couldn't open file '%s'. Error:\n'", path);
-        perror("fopen");
-        fprintf(stderr, "'\n");
-        return NULL;
-    }
-    
-    fseek(file, 0, SEEK_END);
-    size_t fileSize = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    
-    char* buffer = malloc(sizeof(char) * fileSize + 1);
-    size_t bytesRead = fread(buffer, 1, fileSize, file);
-    
-    if (bytesRead != fileSize) {
-        fprintf(stderr, "Couldn't read entire file. File size: %d. Bytes read: %d.\n", fileSize, bytesRead);
-        return NULL;
-    }
-    
-    if (fclose(file) != 0) {
-        fprintf(stderr, "Couldn't close file.\n");
-        return NULL;
-    }
-    
-    buffer[fileSize] = '\0';
-    return buffer;
-}
 
 static bool checkCmdArg(char** argv, int argc, int index, const char* value) {
 	return argc >= index + 1 && strncmp(argv[index], value, strlen(value)) == 0;
@@ -128,10 +96,17 @@ int main(int argc, char* argv[]) {
         return -1;
     }
     
-    char* source = readFile(argv[1]);
-    if (source == NULL) {
-        return -1;
+//    char* source = readFile(argv[1]);
+    char* source = NULL;
+    size_t text_length = 0;
+
+    if (io_read_file(argv[1], "Source file content", &source, &text_length) != IO_SUCCESS) {
+    	return -1;
     }
+
+//    if (source == NULL) {
+//        return -1;
+//    }
     
     DEBUG_PRINT("Starting CPlane!\n\n");
 
@@ -145,7 +120,8 @@ int main(int argc, char* argv[]) {
     
 	printStructures(argc, argv, &chunk, ast);
     ast_free_tree(ast);
-    free(source);
+//    free(source);
+    deallocate(source, text_length, "Source file content");
     
     bool dryRun = checkCmdArg(argv, argc, 2, "-dry") || checkCmdArg(argv, argc, 3, "-dry") || checkCmdArg(argv, argc, 4, "-dry");
     if (!dryRun) {
