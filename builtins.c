@@ -55,7 +55,7 @@ bool builtin_read_file(ValueArray args, Value* out) {
 	ObjectString* path = OBJECT_AS_STRING(args.values[0].as.object);
 
 	char* file_data = NULL;
-	size_t file_size = -1;
+	size_t file_size = 0;
 
 	IOResult result = io_read_file(path->chars, "Object string buffer", &file_data, &file_size);
 
@@ -82,38 +82,3 @@ bool builtin_read_file(ValueArray args, Value* out) {
 	return false;
 }
 
-/*
-bool builtin_read_file(ValueArray args, Value* out) {
-	if (!object_value_is(args.values[0], OBJECT_STRING)) {
-		return false;
-	}
-
-	ObjectString* path = OBJECT_AS_STRING(args.values[0].as.object);
-
-    FILE* file = fopen(path->chars, "rb");
-
-    if (file == NULL) {
-        return false;
-    }
-
-    fseek(file, 0, SEEK_END);
-    size_t fileSize = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    char* buffer = allocate(sizeof(char) * fileSize + 1, "Object string buffer");
-    size_t bytesRead = fread(buffer, 1, fileSize, file);
-
-    if (bytesRead != fileSize) {
-        return false;
-    }
-
-    if (fclose(file) != 0) {
-        return false;
-    }
-
-    buffer[fileSize] = '\0';
-
-    *out = MAKE_VALUE_OBJECT(object_string_take(buffer, fileSize));
-    return true;
-}
-*/
