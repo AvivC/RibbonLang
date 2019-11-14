@@ -870,15 +870,15 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
             	for (int i = 0; i < num_entries; i++) {
 					Value key = pop();
-					if (!object_value_is(key, OBJECT_STRING)) {
-						RUNTIME_ERROR("Currently only strings supported as table keys.");
-						break;
-					}
-
-					ObjectString* string_key = (ObjectString*) key.as.object;
+//					if (!object_value_is(key, OBJECT_STRING)) {
+//						RUNTIME_ERROR("Currently only strings supported as table keys.");
+//						break;
+//					}
+//
+//					ObjectString* string_key = (ObjectString*) key.as.object;
 
 					Value value = pop();
-					table_set(&table, string_key, value);
+					table_set(&table, key, value);
 				}
 
             	ObjectTable* table_object = object_table_new(table);

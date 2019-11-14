@@ -112,8 +112,9 @@ void table_set_cstring_key(Table* table, const char* key, Value value) {
     entry->value = value;
 }
 
-void table_set(Table* table, struct ObjectString* key, Value value) {
-    table_set_cstring_key(table, key->chars, value);
+void table_set(Table* table, struct Value key, Value value) {
+	ObjectString* key_string = VALUE_AS_OBJECT(key, OBJECT_STRING, ObjectString);
+	table_set_cstring_key(table, key_string->chars, value);
 }
 
 bool table_get_cstring_key(Table* table, const char* key, Value* out) {
@@ -129,8 +130,9 @@ bool table_get_cstring_key(Table* table, const char* key, Value* out) {
     return true;
 }
 
-bool table_get(Table* table, struct ObjectString* key, Value* out) {
-    return table_get_cstring_key(table, key->chars, out);
+bool table_get(Table* table, struct Value key, Value* out) {
+	ObjectString* key_string = VALUE_AS_OBJECT(key, OBJECT_STRING, ObjectString);
+    return table_get_cstring_key(table, key_string->chars, out);
 }
 
 /* Get a PointerArray of Value* of all set entries in the table. */

@@ -138,22 +138,21 @@ static bool table_get_key_function(ValueArray args, Value* result) {
 	// TODO: Proper error reporting mechanisms! not just a boolean which tells the user nothing.
 
 	Value self_value = args.values[0];
-	Value other_value = args.values[1];
+	Value key = args.values[1];
 
     if (!object_value_is(self_value, OBJECT_TABLE)) {
     	FAIL("Table @get_key called on none ObjectTable.");
     }
 
-    if (!object_value_is(other_value, OBJECT_STRING))  {
-    	*result = MAKE_VALUE_NIL();
-    	return false;
-    }
+//    if (!object_value_is(other_value, OBJECT_STRING))  {
+//    	*result = MAKE_VALUE_NIL();
+//    	return false;
+//    }
 
     ObjectTable* self_table = (ObjectTable*) self_value.as.object;
-    ObjectString* key_string = (ObjectString*) other_value.as.object;
 
     Value value;
-    if (table_get(&self_table->table, key_string, &value)) {
+    if (table_get(&self_table->table, key, &value)) {
     	*result = value;
     } else {
     	*result = MAKE_VALUE_NIL();
@@ -180,9 +179,8 @@ static bool table_set_key_function(ValueArray args, Value* result) {
     }
 
     ObjectTable* self_table = (ObjectTable*) self_value.as.object;
-    ObjectString* key_string = (ObjectString*) key_value.as.object;
 
-    table_set(&self_table->table, key_string, value_to_set);
+    table_set(&self_table->table, key_value, value_to_set);
 
     return true;
 }
