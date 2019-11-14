@@ -29,6 +29,24 @@ char* copy_null_terminated_cstring(const char* string, const char* what) {
 	return copy_cstring(string, strlen(string), what);
 }
 
+unsigned long hash_string(const char* string) {
+	unsigned long hash = 5381;
+	int c;
+
+	while ((c = *string++)) {
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	}
+
+	return hash;
+}
+
+unsigned int hash_int(unsigned int x) {
+    x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = (x >> 16) ^ x;
+    return x;
+}
+
 IMPLEMENT_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)
 
 IMPLEMENT_DYNAMIC_ARRAY(char, CharacterArray, character_array)

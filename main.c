@@ -90,7 +90,6 @@ int main(int argc, char* argv[]) {
 		printf("--- Experimentation mode. ---\n");
 		return 0;
 	}
-
     if (argc < 2 || argc > 5) {
         fprintf(stderr, "Usage: plane <file> [[-asm] [-tree] [-dry]]");
         return -1;

@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <math.h>
+
 #include "value.h"
 #include "object.h"
 #include "memory.h"
@@ -75,5 +77,41 @@ bool value_compare(Value a, Value b, int* output) {
 	}
 
 	FAIL("Couldn't compare values.");
+	return false;
+}
+
+bool value_hash(Value* value, unsigned long* result) {
+	switch (value->type) {
+		case VALUE_OBJECT: {
+			unsigned long hash;
+			if (object_hash(value->as.object, &hash)) {
+				*result = hash;
+				return true;
+			}
+			return false;
+		}
+		case VALUE_CHUNK: {
+			FAIL("Since Bytecode values aren't supposed to be reachable directly from user code, this should never happen.");
+			return false;
+		}
+		case VALUE_BOOLEAN: {
+			*result = value->as.boolean ? 0 : 1;
+			return true;
+		}
+		case VALUE_NUMBER: {
+			*result = hash_int(floor(value->as.number));
+			return true;
+		}
+		case VALUE_NIL: {
+			*result = 0;
+			return true;
+		}
+		case VALUE_RAW_STRING: {
+			FAIL("Hashing a RAW_STRING shouldn't really happen ever.");
+			return false;
+		}
+	}
+
+	FAIL("value.c:hash_value - shouldn't get here.");
 	return false;
 }

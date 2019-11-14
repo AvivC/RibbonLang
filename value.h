@@ -48,4 +48,6 @@ typedef struct Value {
 void value_print(Value value);
 bool value_compare(Value a, Value b, int* output);
 
+bool value_hash(Value* value, unsigned long* result);
+
 #endif

@@ -6,10 +6,6 @@ void cell_table_init(CellTable* table) {
 	table_init(&table->table);
 }
 
-void cell_table_set_value(CellTable* table, ObjectString* key, Value value) {
-	cell_table_set_value_cstring_key(table, key->chars, value);
-}
-
 void cell_table_set_value_cstring_key(CellTable* table, const char* key, Value value) {
 	Table* inner_table = &table->table;
 	Value current;
@@ -61,6 +57,30 @@ bool cell_table_get_cell_cstring_key(CellTable* table, const char* key, struct O
 	}
 
 	return false;
+}
+
+void cell_table_set_value(CellTable* table, struct ObjectString* key, Value value) {
+	Table* inner_table = &table->table;
+	Value current;
+	if (table_get_cstring_key(inner_table, key->chars, &current)) {
+		ObjectCell* cell = NULL;
+		if ((cell = VALUE_AS_OBJECT(current, OBJECT_CELL, ObjectCell)) != NULL) {
+			cell->value = value;
+			if (!cell->is_filled) {
+				cell->is_filled = true;
+			}
+		} else {
+			FAIL("Found non ObjectCell* as a value in CellTable when setting value. Actual value type: %d.", value.type);
+			return;
+		}
+	} else {
+		Value cell_value = MAKE_VALUE_OBJECT(object_cell_new(value));
+		table_set_value_directly(inner_table, MAKE_VALUE_OBJECT(key), cell_value);
+	}
+}
+
+bool cell_table_get_value(CellTable* table, struct ObjectString* key, Value* out) {
+	return cell_table_get_value_cstring_key(table, key->chars, out);
 }
 
 void cell_table_free(CellTable* table) {

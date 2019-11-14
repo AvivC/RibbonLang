@@ -102,6 +102,8 @@ void object_free(Object* object);
 void object_print(Object* o);
 void object_print_all_objects(void);
 
+bool object_hash(Object* object, unsigned long* result);
+
 MethodAccessResult object_get_method(Object* object, const char* method_name, ObjectFunction** out);
 
 #define OBJECT_AS_STRING(o) (object_as_string(o))
@@ -111,6 +113,14 @@ ObjectString* object_as_string(Object* o);
 ObjectFunction* object_as_function(Object* o);
 
 bool object_value_is(Value value, ObjectType type);
+
+void object_set_atttribute_cstring_key(Object* object, const char* key, Value value);
+
+bool object_get_attribute_cstring_key(Object* object, const char* key, Value* out);
+
+void object_set_attribute(Object* object, ObjectString* key, Value value);
+
+bool object_get_attribute(Object* object, ObjectString* key, Value* out);
 
 #define VALUE_AS_OBJECT(value, object_type, cast) object_value_is(value, object_type) ? (cast*) value.as.object : NULL
 

@@ -195,8 +195,8 @@ static void gc_mark_object_table(Object* object) {
 	for (int i = 0; i < entries.count; i++) {
 		Entry* entry = entries.values[i];
 
-		if (entry->key == NULL) {
-			FAIL("Calling table_iterate returned an entry with a NULL key, shouldn't happen.");
+		if (entry->key.type == VALUE_NIL) {
+			FAIL("Calling table_iterate returned an entry with a nil key, shouldn't happen.");
 		}
 
 		Value* value = &entry->value;
@@ -424,7 +424,6 @@ void vm_init(void) {
     vm.max_objects = INITIAL_GC_THRESHOLD;
     vm.allow_gc = false;
     vm.imported_modules = cell_table_new_empty();
-
     cell_table_init(&vm.globals);
     set_builtin_globals();
 }
