@@ -174,7 +174,6 @@ def _run_test_file(absolute_path):
             all_success = False
             print(f'FAILURE')
             print()
-            # import pdb; pdb.set_trace()
             print('Ln. %-14s  | Actual' % 'Expected')
             print()
             for i, (expected_line, actual_line) in enumerate(itertools.zip_longest(expect_output.splitlines(), output.splitlines())):
