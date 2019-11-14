@@ -31,6 +31,8 @@ char* copy_null_terminated_cstring(const char* string, const char* what) {
 
 IMPLEMENT_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)
 
+IMPLEMENT_DYNAMIC_ARRAY(char, CharacterArray, character_array)
+
 // TODO: Make this work.
 
 //void printStack( void )
