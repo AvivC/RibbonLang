@@ -28,12 +28,13 @@ Table table_new_empty(void);
 
 void table_init(Table* table);
 
-//void table_set(Table* table, struct ObjectString* key, Value value); // TODO: report success or failure
+//void table_set(Table* table, struct ObjectString* key, Value value);
 void table_set(Table* table, struct Value key, Value value); // TODO: report success or failure
 //bool table_get(Table* table, struct ObjectString* key, Value* out);
 bool table_get(Table* table, struct Value key, Value* out);
 
 void table_set_value_directly(Table* table, struct Value key, Value value);
+bool table_get_value_directly(Table* table, Value key, Value* out);
 
 void table_set_cstring_key(Table* table, const char* key, Value value); // TODO: report success or failure
 bool table_get_cstring_key(Table* table, const char* key, Value* out);

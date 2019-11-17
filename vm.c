@@ -1022,7 +1022,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             case OP_ACCESS_KEY: {
             	Value subject_value = pop();
             	if (subject_value.type != VALUE_OBJECT) {
-					RUNTIME_ERROR("Accessing key on none object.");
+					RUNTIME_ERROR("Accessing key on none object. Actual value type: %d", subject_value.type);
 					break;
             	}
 

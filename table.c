@@ -14,7 +14,8 @@ bool object_strings_equal(ObjectString* a, ObjectString* b);
 //static Entry* findEntry(Table* table, const char* key, bool settingValue) {
 static Entry* findEntry(Table* table, Value* key, bool settingValue) {
     if (table->capacity == 0) {
-        FAIL("Illegal state: table capacity is 0.");
+    	// Outer functions should guard against that
+    	FAIL("Illegal state: table capacity is 0.");
     }
     
 //    unsigned long hash = hashString(key);
@@ -23,7 +24,6 @@ static Entry* findEntry(Table* table, Value* key, bool settingValue) {
     	return NULL; // Value is unhashable
     }
 
-    // if table->capacity == 0 we have Undefined Behavior. Outer functions should guard against that
     int slot = hash % table->capacity;
     
     int nils = 0;
@@ -155,6 +155,19 @@ bool table_get_cstring_key(Table* table, const char* key, Value* out) {
 bool table_get(Table* table, struct Value key, Value* out) {
 	ObjectString* key_string = VALUE_AS_OBJECT(key, OBJECT_STRING, ObjectString);
     return table_get_cstring_key(table, key_string->chars, out);
+}
+
+bool table_get_value_directly(Table* table, Value key, Value* out) {
+    if (table->entries == NULL) {
+        return false;
+    }
+
+    Entry* entry = findEntry(table, &key, false);
+    if (entry->key.type == VALUE_NIL) {
+        return false;
+    }
+    *out = entry->value;
+    return true;
 }
 
 /* Get a PointerArray of Value* of all set entries in the table. */

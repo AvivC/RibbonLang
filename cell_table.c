@@ -59,10 +59,11 @@ bool cell_table_get_cell_cstring_key(CellTable* table, const char* key, struct O
 	return false;
 }
 
-void cell_table_set_value(CellTable* table, struct ObjectString* key, Value value) {
+void cell_table_set_value_directly(CellTable* table, Value key, Value value) {
 	Table* inner_table = &table->table;
 	Value current;
-	if (table_get_cstring_key(inner_table, key->chars, &current)) {
+//	if (table_get_cstring_key(inner_table, key->chars, &current)) {
+	if (table_get_value_directly(inner_table, key, &current)) {
 		ObjectCell* cell = NULL;
 		if ((cell = VALUE_AS_OBJECT(current, OBJECT_CELL, ObjectCell)) != NULL) {
 			cell->value = value;
@@ -75,11 +76,31 @@ void cell_table_set_value(CellTable* table, struct ObjectString* key, Value valu
 		}
 	} else {
 		Value cell_value = MAKE_VALUE_OBJECT(object_cell_new(value));
-		table_set_value_directly(inner_table, MAKE_VALUE_OBJECT(key), cell_value);
+		table_set_value_directly(inner_table, key, cell_value);
 	}
 }
 
-bool cell_table_get_value(CellTable* table, struct ObjectString* key, Value* out) {
+//void cell_table_set_value(CellTable* table, struct ObjectString* key, Value value) {
+//	Table* inner_table = &table->table;
+//	Value current;
+//	if (table_get_cstring_key(inner_table, key->chars, &current)) {
+//		ObjectCell* cell = NULL;
+//		if ((cell = VALUE_AS_OBJECT(current, OBJECT_CELL, ObjectCell)) != NULL) {
+//			cell->value = value;
+//			if (!cell->is_filled) {
+//				cell->is_filled = true;
+//			}
+//		} else {
+//			FAIL("Found non ObjectCell* as a value in CellTable when setting value. Actual value type: %d.", value.type);
+//			return;
+//		}
+//	} else {
+//		Value cell_value = MAKE_VALUE_OBJECT(object_cell_new(value));
+//		table_set_value_directly(inner_table, MAKE_VALUE_OBJECT(key), cell_value);
+//	}
+//}
+
+bool cell_table_get_value_directly(CellTable* table, struct ObjectString* key, Value* out) {
 	return cell_table_get_value_cstring_key(table, key->chars, out);
 }
 

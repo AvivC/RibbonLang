@@ -185,128 +185,175 @@ static bool table_set_key_function(ValueArray args, Value* result) {
 
     return true;
 }
-
-static ObjectString* object_string_new(char* chars, int length) {
-    DEBUG_OBJECTS_PRINT("Allocating string object '%s' of length %d.", chars, length);
-    
-    ObjectString* string = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
-    
-    string->chars = chars;
-    string->length = length;
-
-    static ObjectFunction* string_add_method = NULL;
-    static ObjectFunction* string_get_key_method = NULL;
-    static ObjectFunction* string_length_method = NULL;
-
-    if (string_add_method == NULL) {
-    	char* params[] =  {"other"};
-    	int num_params = 1;
-    	int num_params_including_self = num_params + 1;
-    	char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
-
-    	copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
-    	for (int i = 0; i < num_params; i++) {
-    		copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
-    	}
-
-    	string_add_method = object_native_function_new(object_string_add, copied_params, num_params_including_self, (Object*) string);
-	}
-
-    if (string_get_key_method == NULL) {
-    	char* params[] =  {"other"};
-    	int num_params = 1;
-    	int num_params_including_self = num_params + 1;
-    	char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
-
-    	copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
-    	for (int i = 0; i < num_params; i++) {
-    		copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
-    	}
-
-    	string_get_key_method = object_native_function_new(object_string_get_key, copied_params, num_params_including_self, (Object*) string);
-	}
-
-    if (string_length_method == NULL) {
-    	char* params[] =  {};
-    	int num_params = 0;
-    	int num_params_including_self = num_params + 1;
-    	char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
-
-    	copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
-    	for (int i = 0; i < num_params; i++) {
-    		copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
-    	}
-
-    	string_length_method = object_native_function_new(object_string_length, copied_params, num_params_including_self, (Object*) string);
-	}
-
-    ObjectString* add_method_attr_key = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
-    add_method_attr_key->chars = copy_null_terminated_cstring("@add", "Object string buffer");
-    add_method_attr_key->length = strlen(add_method_attr_key->chars);
-//    object_set_attribute((Object*) add_method_attr_key, add_method_attr_key, MAKE_VALUE_OBJECT(string_add_method));
-
-    ObjectString* get_key_method_attr_key = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
-    get_key_method_attr_key->chars = copy_null_terminated_cstring("@get_key", "Object string buffer");
-    get_key_method_attr_key->length = strlen(get_key_method_attr_key->chars);
-//	object_set_attribute((Object*) get_key_method_attr_key, get_key_method_attr_key, MAKE_VALUE_OBJECT(string_add_method));
-
-    ObjectString* length_method_attr_key = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
-    length_method_attr_key->chars = copy_null_terminated_cstring("length", "Object string buffer");
-    length_method_attr_key->length = strlen(length_method_attr_key->chars);
-
-    object_set_attribute((Object*) string, get_key_method_attr_key, MAKE_VALUE_OBJECT(string_get_key_method));
-    printf("\nAAA\n");
-    object_set_attribute((Object*) string, add_method_attr_key, MAKE_VALUE_OBJECT(string_add_method));
-//    object_set_attribute((Object*) string, length_method_attr_key, MAKE_VALUE_OBJECT(string_length_method));
-
-
-//	set_object_native_method((Object*) string, "@get_key", (char*[]){"other"}, 1, object_string_get_key);
-//	set_object_native_method((Object*) string, "length", (char*[]){}, 0, object_string_length);
-
-    return string;
-}
-
+//
 //static ObjectString* object_string_new(char* chars, int length) {
 //    DEBUG_OBJECTS_PRINT("Allocating string object '%s' of length %d.", chars, length);
 //
 //    ObjectString* string = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
 //
-//	static ObjectFunction* string_add_method = NULL;
-//
-//	if (string_add_method == NULL) {
-//		printf("\nX\n");
-//	} else {
-//		printf("\nY\n");
-//	}
-//
-//	if (string_add_method == NULL) {
-//		char* params[] =  {"other"};
-//		int num_params = 1;
-//		int num_params_including_self = num_params + 1;
-//		char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
-//
-//		copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
-//		for (int i = 0; i < num_params; i++) {
-//			copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
-//		}
-//
-//		string_add_method = object_native_function_new(object_string_add, copied_params, num_params_including_self, (Object*) string);
-////		printf("\nB\n");
-//	}
-//
-////	printf("\nA\n");
-////	cell_table_set_value_cstring_key(&string->base.attributes, "@add", MAKE_VALUE_OBJECT(string_add_method));
-//
 //    string->chars = chars;
 //    string->length = length;
 //
+//    static ObjectFunction* string_add_method = NULL;
+//    static ObjectFunction* string_get_key_method = NULL;
+//    static ObjectFunction* string_length_method = NULL;
+//
+//    if (string_add_method == NULL) {
+//    	char* params[] =  {"other"};
+//    	int num_params = 1;
+//    	int num_params_including_self = num_params + 1;
+//    	char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
+//
+//    	copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+//    	for (int i = 0; i < num_params; i++) {
+//    		copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
+//    	}
+//
+//    	string_add_method = object_native_function_new(object_string_add, copied_params, num_params_including_self, (Object*) string);
+//	}
+//
+//    if (string_get_key_method == NULL) {
+//    	char* params[] =  {"other"};
+//    	int num_params = 1;
+//    	int num_params_including_self = num_params + 1;
+//    	char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
+//
+//    	copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+//    	for (int i = 0; i < num_params; i++) {
+//    		copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
+//    	}
+//
+//    	string_get_key_method = object_native_function_new(object_string_get_key, copied_params, num_params_including_self, (Object*) string);
+//	}
+//
+//    if (string_length_method == NULL) {
+//    	char* params[] =  {};
+//    	int num_params = 0;
+//    	int num_params_including_self = num_params + 1;
+//    	char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
+//
+//    	copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+//    	for (int i = 0; i < num_params; i++) {
+//    		copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
+//    	}
+//
+//    	string_length_method = object_native_function_new(object_string_length, copied_params, num_params_including_self, (Object*) string);
+//	}
+//
+//    ObjectString* add_method_attr_key = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
+//    add_method_attr_key->chars = copy_null_terminated_cstring("@add", "Object string buffer");
+//    add_method_attr_key->length = strlen(add_method_attr_key->chars);
+////    object_set_attribute((Object*) add_method_attr_key, add_method_attr_key, MAKE_VALUE_OBJECT(string_add_method));
+//
+//    ObjectString* get_key_method_attr_key = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
+//    get_key_method_attr_key->chars = copy_null_terminated_cstring("@get_key", "Object string buffer");
+//    get_key_method_attr_key->length = strlen(get_key_method_attr_key->chars);
+////	object_set_attribute((Object*) get_key_method_attr_key, get_key_method_attr_key, MAKE_VALUE_OBJECT(string_add_method));
+//
+//    ObjectString* length_method_attr_key = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
+//    length_method_attr_key->chars = copy_null_terminated_cstring("length", "Object string buffer");
+//    length_method_attr_key->length = strlen(length_method_attr_key->chars);
+//
+//    object_set_attribute((Object*) string, get_key_method_attr_key, MAKE_VALUE_OBJECT(string_get_key_method));
+//    printf("\nAAA\n");
+//    object_set_attribute((Object*) string, add_method_attr_key, MAKE_VALUE_OBJECT(string_add_method));
+////    object_set_attribute((Object*) string, length_method_attr_key, MAKE_VALUE_OBJECT(string_length_method));
 //
 //
-////	set_object_native_method((Object*) string, "@add", (char*[]){"other"}, 1, object_string_add);
 ////	set_object_native_method((Object*) string, "@get_key", (char*[]){"other"}, 1, object_string_get_key);
 ////	set_object_native_method((Object*) string, "length", (char*[]){}, 0, object_string_length);
+//
 //    return string;
 //}
+
+static ObjectString* object_string_new_partial(char* chars, int length) {
+	ObjectString* string = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
+	string->chars = copy_null_terminated_cstring(chars, "Object string buffer");
+	string->length = length;
+	return string;
+}
+
+static ObjectString* object_string_new(char* chars, int length) {
+    DEBUG_OBJECTS_PRINT("Allocating string object '%s' of length %d.", chars, length);
+
+    ObjectString* string = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
+
+    string->chars = chars;
+	string->length = length;
+
+	static ObjectFunction* string_add_method = NULL;
+
+	if (string_add_method == NULL) {
+		char* params[] =  {"other"};
+		int num_params = 1;
+		int num_params_including_self = num_params + 1;
+		char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
+
+		copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+		for (int i = 0; i < num_params; i++) {
+			copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
+		}
+
+		string_add_method = object_native_function_new(object_string_add, copied_params, num_params_including_self, (Object*) string);
+	}
+
+	static ObjectFunction* string_get_key_method = NULL;
+
+	if (string_get_key_method == NULL) {
+		char* params[] =  {"other"};
+		int num_params = 1;
+		int num_params_including_self = num_params + 1;
+		char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
+
+		copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+		for (int i = 0; i < num_params; i++) {
+			copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
+		}
+
+		string_get_key_method = object_native_function_new(object_string_get_key, copied_params, num_params_including_self, (Object*) string);
+	}
+
+	static ObjectFunction* string_length_method = NULL;
+
+	if (string_length_method == NULL) {
+		char* params[] =  {};
+		int num_params = 0;
+		int num_params_including_self = num_params + 1;
+		char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
+
+		copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+		for (int i = 0; i < num_params; i++) {
+			copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
+		}
+
+		string_length_method = object_native_function_new(object_string_length, copied_params, num_params_including_self, (Object*) string);
+	}
+
+//	char* params[] =  {"other"};
+//	int num_params = 1;
+//	int num_params_including_self = num_params + 1;
+//	char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
+//
+//	copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+//	for (int i = 0; i < num_params; i++) {
+//		copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
+//	}
+//	ObjectFunction* string_add_method = object_native_function_new(object_string_add, copied_params, num_params_including_self, (Object*) string);
+
+	ObjectString* add_attr_key = object_string_new_partial("@add", strlen("@add"));
+	cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(add_attr_key), MAKE_VALUE_OBJECT(string_add_method));
+
+	ObjectString* get_key_attr_key = object_string_new_partial("@get_key", strlen("@get_key"));
+	cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(get_key_attr_key), MAKE_VALUE_OBJECT(string_get_key_method));
+//
+	ObjectString* length_attr_key = object_string_new_partial("length", strlen("length"));
+	cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(length_attr_key), MAKE_VALUE_OBJECT(string_length_method));
+
+//	set_object_native_method((Object*) string, "@add", (char*[]){"other"}, 1, object_string_add);
+//	set_object_native_method((Object*) string, "@get_key", (char*[]){"other"}, 1, object_string_get_key);
+//	set_object_native_method((Object*) string, "length", (char*[]){}, 0, object_string_length);
+    return string;
+}
 
 ObjectString* object_string_copy(const char* string, int length) {
 	// argument length should not include the null-terminator
@@ -606,11 +653,11 @@ bool object_hash(Object* object, unsigned long* result) {
 }
 
 void object_set_attribute(Object* object, ObjectString* key, Value value) {
-	cell_table_set_value(&object->attributes, key, value);
+	cell_table_set_value_directly(&object->attributes, MAKE_VALUE_OBJECT(key), value);
 }
 
 bool object_get_attribute(Object* object, ObjectString* key, Value* out) {
-	return cell_table_get_value(&object->attributes, key, out);
+	return cell_table_get_value_directly(&object->attributes, key, out);
 }
 
 void object_set_atttribute_cstring_key(Object* object, const char* key, Value value) {
