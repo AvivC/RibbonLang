@@ -152,6 +152,10 @@ static void gc_mark_object_attributes(Object* object) {
 		Entry* entry = attributes.values[i];
 		ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in object attributes.");
 		gc_mark_object(entry->value.as.object);
+
+		if (entry->key.type == VALUE_OBJECT) {
+			gc_mark_object(entry->key.as.object);
+		}
 	}
 	pointer_array_free(&attributes);
 }
@@ -171,6 +175,9 @@ static void gc_mark_function_free_vars(ObjectFunction* function) {
 		Entry* entry = free_vars_entries.values[i];
 		ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in free_vars.");
 		gc_mark_object(entry->value.as.object);
+		if (entry->key.type == VALUE_OBJECT) {
+			gc_mark_object(entry->key.as.object);
+		}
 	}
 
 	pointer_array_free(&free_vars_entries);
@@ -283,6 +290,10 @@ static void gc_mark(void) {
 			Entry* entry = locals.values[i];
 			ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in locals.");
 			gc_mark_object(entry->value.as.object);
+
+			if (entry->key.type == VALUE_OBJECT) {
+				gc_mark_object(entry->key.as.object);
+			}
 		}
 		pointer_array_free(&locals);
 	}
@@ -293,6 +304,10 @@ static void gc_mark(void) {
 		Entry* entry = globals.values[i];
 		ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in globals.");
 		gc_mark_object(entry->value.as.object);
+
+		if (entry->key.type == VALUE_OBJECT) {
+			gc_mark_object(entry->key.as.object);
+		}
 	}
 	pointer_array_free(&globals);
 
@@ -301,10 +316,14 @@ static void gc_mark(void) {
 	PointerArray imported_modules = table_iterate(&vm.imported_modules.table);
 	for (int i = 0; i < imported_modules.count; i++) {
 		Entry* entry = imported_modules.values[i];
+
 		ObjectCell* cell = NULL;
 		ASSERT_VALUE_AS_OBJECT(cell, entry->value, OBJECT_CELL, ObjectCell, "Non ObjectCell* in CellTable.")
-
 		gc_mark_object((Object*) cell);
+
+		if (entry->key.type == VALUE_OBJECT) {
+			gc_mark_object(entry->key.as.object);
+		}
 
 		ASSERT_VALUE_IS_OBJECT(cell->value, OBJECT_MODULE, "Found non ObjectCell* in globals.");
 	}
@@ -554,7 +573,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				}
 			}
 			printf("\n\nLocal variables:\n");
-			table_print(&current_frame()->local_variables.table);
+			table_print(&locals_or_module_table()->table); // TODO: No encapsulation, fix this
 
 			bytecode_print_constant_table(current_bytecode());
 
@@ -697,7 +716,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
         		int compare = 0;
         		if (!value_compare(a, b, &compare)) {
-        			RUNTIME_ERROR("Unable to compare two values >=.");
+        			RUNTIME_ERROR("Unable to compare two values >=. Types: %d, %d", a.type, b.type);
         			break;
         		}
         		if (compare == 1 || compare == 0) {
