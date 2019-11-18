@@ -2,8 +2,8 @@
 
 #include "utils.h"
 #include "memory.h"
-//#include <windows.h>
-//#include <dbghelp.h>
+// #include <windows.h>
+// #include <dbghelp.h>
 
 uint16_t two_bytes_to_short(uint8_t a, uint8_t b) {
 	return (a << 8) + b;
@@ -53,29 +53,29 @@ IMPLEMENT_DYNAMIC_ARRAY(char, CharacterArray, character_array)
 
 // TODO: Make this work.
 
-//void printStack( void )
-//{
+// void printStack( void )
+// {
 //     unsigned int   i;
 //     void         * stack[ 100 ];
 //     unsigned short frames;
 //     SYMBOL_INFO  * symbol;
 //     HANDLE         process;
-//
+
 //     process = GetCurrentProcess();
-//
+
 //     SymInitialize( process, NULL, TRUE );
-//
+
 //     frames               = CaptureStackBackTrace( 0, 100, stack, NULL );
 //     symbol               = ( SYMBOL_INFO * )calloc( sizeof( SYMBOL_INFO ) + 256 * sizeof( char ), 1 );
 //     symbol->MaxNameLen   = 255;
 //     symbol->SizeOfStruct = sizeof( SYMBOL_INFO );
-//
+
 //     for( i = 0; i < frames; i++ )
 //     {
 //         SymFromAddr( process, ( DWORD64 )( stack[ i ] ), 0, symbol );
-//
+
 //         printf( "%i: %s - 0x%0X\n", frames - i - 1, symbol->Name, symbol->Address );
 //     }
-//
+
 //     free( symbol );
-//}
+// }

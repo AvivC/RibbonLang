@@ -76,7 +76,7 @@ bool value_compare(Value a, Value b, int* output) {
 		return true;
 	}
 
-	FAIL("Couldn't compare values.");
+	FAIL("Couldn't compare values. Type A: %d, type B: %d", a.type, b.type);
 	return false;
 }
 
