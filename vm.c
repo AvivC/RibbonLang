@@ -139,6 +139,23 @@ static Value load_variable(ObjectString* name) {
 
 static void gc_mark_object(Object* object);
 
+static void gc_mark_table(Table* table) {
+	PointerArray entries = table_iterate(table);
+
+	for (int i = 0; i < entries.count; i++) {
+		Entry* entry = entries.values[i];
+
+		if (entry->value.type == VALUE_OBJECT) {
+			gc_mark_object(entry->value.as.object);
+		}
+		if (entry->key.type == VALUE_OBJECT) {
+			gc_mark_object(entry->key.as.object);
+		}
+	}
+
+	pointer_array_free(&entries);
+}
+
 static void gc_mark_object_code(Object* object) {
 	ObjectCode* code = (ObjectCode*) object;
 	Bytecode* chunk = &code->bytecode;
@@ -151,17 +168,7 @@ static void gc_mark_object_code(Object* object) {
 }
 
 static void gc_mark_object_attributes(Object* object) {
-	PointerArray attributes = table_iterate(&object->attributes.table);
-	for (int i = 0; i < attributes.count; i++) {
-		Entry* entry = attributes.values[i];
-		ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in object attributes.");
-		gc_mark_object(entry->value.as.object);
-
-		if (entry->key.type == VALUE_OBJECT) {
-			gc_mark_object(entry->key.as.object);
-		}
-	}
-	pointer_array_free(&attributes);
+	gc_mark_table(&object->attributes.table);
 }
 
 static void assert_is_probably_valid_object(Object* object) {
@@ -172,19 +179,7 @@ static void assert_is_probably_valid_object(Object* object) {
 }
 
 static void gc_mark_function_free_vars(ObjectFunction* function) {
-	CellTable* free_vars = &function->free_vars;
-	PointerArray free_vars_entries = table_iterate(&free_vars->table);
-
-	for (int i = 0; i < free_vars_entries.count; i++) {
-		Entry* entry = free_vars_entries.values[i];
-		ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in free_vars.");
-		gc_mark_object(entry->value.as.object);
-		if (entry->key.type == VALUE_OBJECT) {
-			gc_mark_object(entry->key.as.object);
-		}
-	}
-
-	pointer_array_free(&free_vars_entries);
+	gc_mark_table(&function->free_vars.table);
 }
 
 static void gc_mark_object_function(Object* object) {
@@ -200,28 +195,7 @@ static void gc_mark_object_function(Object* object) {
 }
 
 static void gc_mark_object_table(Object* object) {
-	Table* table = &((ObjectTable*) object)->table;
-	PointerArray entries = table_iterate(table);
-
-	for (int i = 0; i < entries.count; i++) {
-		Entry* entry = entries.values[i];
-
-		if (entry->key.type == VALUE_NIL) {
-			FAIL("Calling table_iterate returned an entry with a nil key, shouldn't happen.");
-		}
-
-		Value* value = &entry->value;
-		if (value->type == VALUE_OBJECT) {
-			gc_mark_object(value->as.object);
-		}
-
-		Value* key = &entry->key;
-		if (key->type == VALUE_OBJECT) {
-			gc_mark_object(key->as.object);
-		}
-	}
-
-	pointer_array_free(&entries);
+	gc_mark_table(&((ObjectTable*) object)->table);
 }
 
 static void gc_mark_object_cell(Object* object) {
@@ -294,49 +268,14 @@ static void gc_mark(void) {
 		}
 
 		/* Mark the frame locals */
-		PointerArray locals = table_iterate(&frame_locals_or_module_table(frame)->table);
-		for (int i = 0; i < locals.count; i++) {
-			Entry* entry = locals.values[i];
-			ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in locals.");
-			gc_mark_object(entry->value.as.object);
-
-			if (entry->key.type == VALUE_OBJECT) {
-				gc_mark_object(entry->key.as.object);
-			}
-		}
-		pointer_array_free(&locals);
+		gc_mark_table(&frame_locals_or_module_table(frame)->table);
 	}
 
 	/* Mark the global objects */
-	PointerArray globals = table_iterate(&vm.globals.table);
-	for (int i = 0; i < globals.count; i++) {
-		Entry* entry = globals.values[i];
-		ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in globals.");
-		gc_mark_object(entry->value.as.object);
-
-		if (entry->key.type == VALUE_OBJECT) {
-			gc_mark_object(entry->key.as.object);
-		}
-	}
-	pointer_array_free(&globals);
-
+	gc_mark_table(&vm.globals.table);
 
 	/* Mark all imported modules */
-	PointerArray imported_modules = table_iterate(&vm.imported_modules.table);
-	for (int i = 0; i < imported_modules.count; i++) {
-		Entry* entry = imported_modules.values[i];
-
-		ObjectCell* cell = NULL;
-		ASSERT_VALUE_AS_OBJECT(cell, entry->value, OBJECT_CELL, ObjectCell, "Non ObjectCell* in CellTable.")
-		gc_mark_object((Object*) cell);
-
-		if (entry->key.type == VALUE_OBJECT) {
-			gc_mark_object(entry->key.as.object);
-		}
-
-		ASSERT_VALUE_IS_OBJECT(cell->value, OBJECT_MODULE, "Found non ObjectCell* in globals.");
-	}
-	pointer_array_free(&imported_modules);
+	gc_mark_table(&vm.imported_modules.table);
 }
 
 static void gc_sweep(void) {
