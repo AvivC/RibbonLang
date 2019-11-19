@@ -39,3 +39,35 @@ expect
     I'm a function
     inner value
 end
+
+test table as plain array
+    array = ["we", "are", "items", {print("And I'm a function!")}]
+    length = array.length()
+    i = 0
+    while i < length - 1 {  # Intentionally quiting before the last item
+        print(array[i])
+        i = i + 1
+    }
+    last_element = array[length - 1]
+    last_element()
+expect
+    we
+    are
+    items
+    And I'm a function!
+end
+
+test table as mixed array and dictionary
+    table = ["we", "are", "some key": "items", "in", 52: "table!"]
+    print(table[0])
+    print(table[1])
+    print(table[2])
+    print(table["some key"])
+    print(table[52])
+expect
+    we
+    are
+    in
+    items
+    table!
+end

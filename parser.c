@@ -107,15 +107,43 @@ static AstNode* binary(AstNode* left_node, int expression_level) {
     return (AstNode*) ast_new_node_binary(operator, left_node, right_node);
 }
 
+// static AstNode* table(int expression_level) {
+// 	AstKeyValuePairArray pairs;
+// 	ast_key_value_pair_array_init(&pairs);
+
+// 	while (!match(TOKEN_RIGHT_SQUARE_BRACE)) {
+// 		do {
+// 			AstNode* key = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+// 			consume(TOKEN_COLON, "Expected ':' after key in table literal.");
+// 			AstNode* value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+// 			AstNodesKeyValuePair key_value = ast_new_key_value_pair(key, value);
+// 			ast_key_value_pair_array_write(&pairs, &key_value);
+// 		} while (match(TOKEN_COMMA));
+// 	}
+
+// 	return (AstNode*) ast_new_node_table(pairs);
+// }
+
 static AstNode* table(int expression_level) {
 	AstKeyValuePairArray pairs;
 	ast_key_value_pair_array_init(&pairs);
 
+    int implicit_numeric_keys_count = 0;
 	while (!match(TOKEN_RIGHT_SQUARE_BRACE)) {
 		do {
-			AstNode* key = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
-			consume(TOKEN_COLON, "Expected ':' after key in table literal.");
-			AstNode* value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+            AstNode* key = NULL;
+            AstNode* value = NULL;
+
+            AstNode* expression = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+
+			if (match(TOKEN_COLON)) {
+                key = expression;
+                value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+            } else {
+                key = (AstNode*) ast_new_node_number(implicit_numeric_keys_count++);
+                value = expression;
+            }
+            
 			AstNodesKeyValuePair key_value = ast_new_key_value_pair(key, value);
 			ast_key_value_pair_array_write(&pairs, &key_value);
 		} while (match(TOKEN_COMMA));
@@ -123,6 +151,7 @@ static AstNode* table(int expression_level) {
 
 	return (AstNode*) ast_new_node_table(pairs);
 }
+
 
 static AstNode* key_access(AstNode* left_node, int expression_level) {
 	AstNode* key_node = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
