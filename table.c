@@ -11,6 +11,12 @@
 bool object_cstrings_equal(const char* a, const char* b);
 bool object_strings_equal(ObjectString* a, ObjectString* b);
 
+static bool keys_equal(Value v1, Value v2) {
+    int compare_result = -1;
+    bool compare_success = value_compare(v1, v2, &compare_result);
+    return compare_success && compare_result == 0;
+}
+
 //static Entry* findEntry(Table* table, const char* key, bool settingValue) {
 static Entry* findEntry(Table* table, Value* key, bool settingValue) {
     if (table->capacity == 0) {
@@ -34,9 +40,8 @@ static Entry* findEntry(Table* table, Value* key, bool settingValue) {
     Entry* entry = &table->entries[slot];
 //    while (entry->key.type != VALUE_NIL && !object_cstrings_equal(entry->key, key)) {
     int compare_result;
-    bool compare_success = value_compare(entry->key, *key, &compare_result);
-    bool keys_equal = compare_success && compare_result == 0;
-    while (entry->key.type != VALUE_NIL && !keys_equal) {
+    // while (entry->key.type != VALUE_NIL && !keys_equal) {
+    while (entry->key.type != VALUE_NIL && !keys_equal(entry->key, *key)) {
         if (settingValue) {
             table->collisionsCounter++;
         }

@@ -1009,15 +1009,11 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
                 	break;
                 }
 
-				printf("\nAccessing attribute: %s\n", name->chars);
-
                 Object* object = obj_val.as.object;
                 Value attr_value;
                 if (cell_table_get_value_cstring_key(&object->attributes, name->chars, &attr_value)) {
-					printf("\nSucceeded getting\n");
                 	push(attr_value);
                 } else {
-					printf("\nFailed getting\n");
                 	push(MAKE_VALUE_NIL());
                 }
 

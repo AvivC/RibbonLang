@@ -40,6 +40,15 @@ unsigned long hash_string(const char* string) {
 	return hash;
 }
 
+unsigned long hash_string_bounded(const char* string, int length) {
+	// Inefficient approach, but fine for now.
+	char* alloc_string = "Bounded string for hashing";
+	char* null_terminated = copy_cstring(string, length, alloc_string);
+	unsigned long hash = hash_string(null_terminated);
+	deallocate(null_terminated, sizeof(char) * strlen(null_terminated) + 1, alloc_string);
+	return hash;
+}
+
 unsigned int hash_int(unsigned int x) {
     x = ((x >> 16) ^ x) * 0x45d9f3b;
     x = ((x >> 16) ^ x) * 0x45d9f3b;

@@ -15,6 +15,7 @@ char* copy_null_terminated_cstring(const char* string, const char* what);
 // TODO: void printStack(void);
 
 unsigned long hash_string(const char* string);
+unsigned long hash_string_bounded(const char* string, int length);
 unsigned int hash_int(unsigned int x);
 
 DECLARE_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)

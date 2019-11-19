@@ -626,7 +626,9 @@ void object_print_all_objects(void) {
 bool object_hash(Object* object, unsigned long* result) {
 	switch (object->type) {
 		case OBJECT_STRING: {
-			*result = hash_string(((ObjectString*) object)->chars);
+			// *result = hash_string(((ObjectString*) object)->chars);
+			ObjectString* string = (ObjectString*) object;
+			*result = hash_string_bounded(string->chars, string->length);
 			return true;
 		}
 		case OBJECT_CELL: {
