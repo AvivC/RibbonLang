@@ -106,10 +106,14 @@ static StackFrame pop_frame(void) {
 	return *vm.call_stack_top;
 }
 
+static CellTable* frame_locals_or_module_table(StackFrame* frame) {
+	return frame->is_module_base ? &frame->module->base.attributes : &frame->local_variables;
+}
+
 /* The "correct" locals table depends on whether we are the base function of a module or not...
  * This design isn't great, should change it later. */
 static CellTable* locals_or_module_table(void) {
-	return current_frame()->is_module_base ? &current_frame()->module->base.attributes : &current_frame()->local_variables;
+	return frame_locals_or_module_table(current_frame());
 }
 
 static Value load_variable(ObjectString* name) {
@@ -210,6 +214,11 @@ static void gc_mark_object_table(Object* object) {
 		if (value->type == VALUE_OBJECT) {
 			gc_mark_object(value->as.object);
 		}
+
+		Value* key = &entry->key;
+		if (key->type == VALUE_OBJECT) {
+			gc_mark_object(key->as.object);
+		}
 	}
 
 	pointer_array_free(&entries);
@@ -285,7 +294,7 @@ static void gc_mark(void) {
 		}
 
 		/* Mark the frame locals */
-		PointerArray locals = table_iterate(&frame->local_variables.table);
+		PointerArray locals = table_iterate(&frame_locals_or_module_table(frame)->table);
 		for (int i = 0; i < locals.count; i++) {
 			Entry* entry = locals.values[i];
 			ASSERT_VALUE_IS_OBJECT(entry->value, OBJECT_CELL, "Found non ObjectCell* in locals.");

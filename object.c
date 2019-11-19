@@ -281,7 +281,8 @@ static ObjectString* object_string_new(char* chars, int length) {
     string->chars = chars;
 	string->length = length;
 
-	static ObjectFunction* string_add_method = NULL;
+	// static ObjectFunction* string_add_method = NULL;
+	ObjectFunction* string_add_method = NULL;
 
 	if (string_add_method == NULL) {
 		char* params[] =  {"other"};
@@ -297,7 +298,8 @@ static ObjectString* object_string_new(char* chars, int length) {
 		string_add_method = object_native_function_new(object_string_add, copied_params, num_params_including_self, (Object*) string);
 	}
 
-	static ObjectFunction* string_get_key_method = NULL;
+	// static ObjectFunction* string_get_key_method = NULL;
+	ObjectFunction* string_get_key_method = NULL;
 
 	if (string_get_key_method == NULL) {
 		char* params[] =  {"other"};
@@ -313,7 +315,8 @@ static ObjectString* object_string_new(char* chars, int length) {
 		string_get_key_method = object_native_function_new(object_string_get_key, copied_params, num_params_including_self, (Object*) string);
 	}
 
-	static ObjectFunction* string_length_method = NULL;
+	// static ObjectFunction* string_length_method = NULL;
+	ObjectFunction* string_length_method = NULL;
 
 	if (string_length_method == NULL) {
 		char* params[] =  {};
