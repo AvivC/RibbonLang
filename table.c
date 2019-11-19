@@ -8,23 +8,18 @@
 
 #define MAX_LOAD_FACTOR 0.75
 
-bool object_cstrings_equal(const char* a, const char* b);
-bool object_strings_equal(ObjectString* a, ObjectString* b);
-
 static bool keys_equal(Value v1, Value v2) {
     int compare_result = -1;
     bool compare_success = value_compare(v1, v2, &compare_result);
     return compare_success && compare_result == 0;
 }
 
-//static Entry* findEntry(Table* table, const char* key, bool settingValue) {
-static Entry* findEntry(Table* table, Value* key, bool settingValue) {
+static Entry* find_entry(Table* table, Value* key, bool settingValue) {
     if (table->capacity == 0) {
     	// Outer functions should guard against that
     	FAIL("Illegal state: table capacity is 0.");
     }
     
-//    unsigned long hash = hashString(key);
     unsigned long hash;
     if (!value_hash(key, &hash)) {
     	return NULL; // Value is unhashable
@@ -34,16 +29,15 @@ static Entry* findEntry(Table* table, Value* key, bool settingValue) {
     
     int nils = 0;
     for (int i = 0; i < table->capacity; i++) {
-        if (table->entries[i].key.type == VALUE_NIL) nils++;
+        if (table->entries[i].key.type == VALUE_NIL) {
+            nils++;
+        }
     }
     
     Entry* entry = &table->entries[slot];
-//    while (entry->key.type != VALUE_NIL && !object_cstrings_equal(entry->key, key)) {
-    int compare_result;
-    // while (entry->key.type != VALUE_NIL && !keys_equal) {
     while (entry->key.type != VALUE_NIL && !keys_equal(entry->key, *key)) {
         if (settingValue) {
-            table->collisionsCounter++;
+            table->collisions_counter++;
         }
         
         entry = &table->entries[++slot % table->capacity];
@@ -52,7 +46,7 @@ static Entry* findEntry(Table* table, Value* key, bool settingValue) {
     return entry;
 }
 
-static void growTable(Table* table) {
+static void grow_table(Table* table) {
     DEBUG_MEMORY("Growing table.");
     
     int oldCapacity = table->capacity;
@@ -64,7 +58,6 @@ static void growTable(Table* table) {
     DEBUG_MEMORY("Old capacity: %d. New capacity: %d", oldCapacity, table->capacity);
     
     for (int i = 0; i < table->capacity; i++) {
-//        table->entries[i] = (Entry) {.key = NULL, .value = MAKE_VALUE_NIL()};
         table->entries[i] = (Entry) {.key = MAKE_VALUE_NIL(), .value = MAKE_VALUE_NIL()};
     }
     
@@ -75,7 +68,7 @@ static void growTable(Table* table) {
             continue;
         }
         
-        Entry* newEntry = findEntry(table, &oldEntry->key, false); // TODO: Check for NULL result
+        Entry* newEntry = find_entry(table, &oldEntry->key, false); // TODO: Check for NULL result
         newEntry->key = oldEntry->key;
         newEntry->value = oldEntry->value;
     }
@@ -87,32 +80,22 @@ static void growTable(Table* table) {
 void table_init(Table* table) {
     table->count = 0;
     table->capacity = 0;
-    table->collisionsCounter = 0;
+    table->collisions_counter = 0;
     table->entries = NULL;
 }
 
 void table_set_cstring_key(Table* table, const char* key, Value value) {
-	/*
-	 * TODO: Currently we're doing defensive copying of the incoming key,
-	 * to prevent it from being collected along with an external ObjectString later on.
-	 * The correct thing to do is to work with ObjectString here, or just generally Values. That's a pretty big refactor, to be done later.
-	*/
-
-//	char* copied_key = allocate(strlen(key) + 1, "Table cstring key");
-//	strcpy(copied_key, key);
 	Value copied_key = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key)); // Yeah, not really efficient this stuff...
 
     if (table->count + 1 > table->capacity * MAX_LOAD_FACTOR) {
-        growTable(table);
+        grow_table(table);
     }
     
     DEBUG_MEMORY("Finding entry '%s' in hash table.", key);
-    Entry* entry = findEntry(table, &copied_key, true);
+    Entry* entry = find_entry(table, &copied_key, true);
 
     if (entry->key.type == VALUE_NIL) {
         table->count++;
-    } else {
-//		deallocate(entry->key, strlen(entry->key) + 1, "Table cstring key");
     }
 
     entry->key = copied_key; // If it's not NULL (nil?), we're needlessly overriding the same key
@@ -125,19 +108,15 @@ void table_set(Table* table, struct Value key, Value value) {
 }
 
 void table_set_value_directly(Table* table, struct Value key, Value value) {
-//	ObjectString* key_string = VALUE_AS_OBJECT(key, OBJECT_STRING, ObjectString);
-
     if (table->count + 1 > table->capacity * MAX_LOAD_FACTOR) {
-        growTable(table);
+        grow_table(table);
     }
 
     DEBUG_MEMORY("Finding entry '%s' in hash table.", key);
-    Entry* entry = findEntry(table, &key, true);
+    Entry* entry = find_entry(table, &key, true);
 
     if (entry->key.type == VALUE_NIL) {
         table->count++;
-    } else {
-//		deallocate(entry->key, strlen(entry->key) + 1, "Table cstring key");
     }
 
     entry->key = key; // If it's not NULL (nil?), we're needlessly overriding the same key
@@ -149,7 +128,7 @@ bool table_get_cstring_key(Table* table, const char* key, Value* out) {
         return false;
     }
     
-    Entry* entry = findEntry(table, &MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key)), false);
+    Entry* entry = find_entry(table, &MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key)), false);
     if (entry->key.type == VALUE_NIL) {
         return false;
     }
@@ -167,7 +146,7 @@ bool table_get_value_directly(Table* table, Value key, Value* out) {
         return false;
     }
 
-    Entry* entry = findEntry(table, &key, false);
+    Entry* entry = find_entry(table, &key, false);
     if (entry->key.type == VALUE_NIL) {
         return false;
     }
@@ -180,8 +159,6 @@ PointerArray table_iterate(Table* table) {
 	PointerArray array;
 	pointer_array_init(&array, "table_iterate pointer array buffer");
 
-	/* TODO: Pretty naive and inefficient - we scan the whole table in memory even though
-	 * many entries are likely to be empty */
 	for (int i = 0; i < table->capacity; i++) {
 		Entry* entry = &table->entries[i];
 
@@ -201,9 +178,7 @@ void table_print(Table* table) {
 	printf("[");
 	for (int i = 0; i < entries.count; i++) {
 		Entry* entry = entries.values[i];
-//		const char* key = entry->key; // TODO: Not only strings as keys
 		Value value = entry->value;
-//		printf("\"%s\": ", key);
 		value_print(entry->key);
 		printf(": ");
 		value_print(value);
@@ -218,13 +193,12 @@ void table_print(Table* table) {
 }
 
 void table_print_debug(Table* table) {
-    printf("Capacity: %d \nCount: %d \nCollisions: %d \n", table->capacity, table->count, table->collisionsCounter);
+    printf("Capacity: %d \nCount: %d \nCollisions: %d \n", table->capacity, table->count, table->collisions_counter);
     
     if (table->capacity > 0) {
     	printf("Data: \n");
 		for (int i = 0; i < table->capacity; i ++) {
 			Entry* entry = &table->entries[i];
-//			printf("%d = [Key: %s, Value: ", i, key);
 			printf("%d = [Key: ", i);
 			value_print(entry->key);
 			printf(", Value: ");
@@ -237,13 +211,6 @@ void table_print_debug(Table* table) {
 }
 
 void table_free(Table* table) {
-//	PointerArray entries = table_iterate(table);
-//	for (int i = 0; i < entries.count; i++) {
-//		Entry* entry = entries.values[i];
-//		deallocate(entry->key, strlen(entry->key) + 1, "Table cstring key");
-//	}
-//	pointer_array_free(&entries);
-
     deallocate(table->entries, sizeof(Entry) * table->capacity, "Hash table array");
     table_init(table);
 }

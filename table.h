@@ -19,7 +19,7 @@ typedef struct {
     int capacity;
     int count;
     Entry* entries;
-    int collisionsCounter; // for debugging
+    int collisions_counter; // for debugging
 } Table;
 
 struct ObjectString;
