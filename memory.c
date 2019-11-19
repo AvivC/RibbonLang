@@ -15,7 +15,7 @@ typedef struct {
 
 static size_t allocated_memory = 0;
 static Allocation* allocations = NULL;
-static size_t allocsBufferCapacity = 0;
+static size_t allocs_buffer_capacity = 0;
 static size_t allocs_buffer_count = 0;
 
 size_t get_allocated_memory() {
@@ -60,8 +60,8 @@ static void manage_allocations_buffer_size(void) {
 		}
 
 		allocs_buffer_count = num_allocated;
-		allocsBufferCapacity = allocs_buffer_count;
-		new_allocations = realloc(new_allocations, sizeof(Allocation) * allocsBufferCapacity);
+		allocs_buffer_capacity = allocs_buffer_count;
+		new_allocations = realloc(new_allocations, sizeof(Allocation) * allocs_buffer_capacity);
 		free(allocations);
 		allocations = new_allocations;
 	}
@@ -113,10 +113,10 @@ void* reallocate(void* pointer, size_t old_size, size_t new_size, const char* wh
         
         DEBUG_MEMORY("Attempting to allocate %d bytes for '%s'.", new_size, what);
         
-        if (allocs_buffer_count + 1 > allocsBufferCapacity) {
-            allocsBufferCapacity = GROW_CAPACITY(allocsBufferCapacity);
-            allocations = realloc(allocations, sizeof(Allocation) * allocsBufferCapacity);
-            for (int i = allocs_buffer_count; i < allocsBufferCapacity; i++) {
+        if (allocs_buffer_count + 1 > allocs_buffer_capacity) {
+            allocs_buffer_capacity = GROW_CAPACITY(allocs_buffer_capacity);
+            allocations = realloc(allocations, sizeof(Allocation) * allocs_buffer_capacity);
+            for (int i = allocs_buffer_count; i < allocs_buffer_capacity; i++) {
                 allocations[i] = (Allocation) {.name = "", .size = 0, .ptr = NULL, .allocated = false};
             }
         }

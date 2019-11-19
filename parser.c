@@ -74,7 +74,7 @@ static bool match(ScannerTokenType type) {
     return false;
 }
 
-static bool matchNext(ScannerTokenType type) {
+static bool match_next(ScannerTokenType type) {
     if (scanner_peek_next_token().type == type) {
         advance();
         return true;
@@ -387,7 +387,7 @@ static AstNode* statements(void) {
         
         AstNode* child_node = NULL;
 
-        if (check(TOKEN_IDENTIFIER) && matchNext(TOKEN_EQUAL)) {
+        if (check(TOKEN_IDENTIFIER) && match_next(TOKEN_EQUAL)) {
             child_node = (AstNode*) assignment_statement();
         } else if (match(TOKEN_RETURN)) {
         	child_node = (AstNode*) return_statement();

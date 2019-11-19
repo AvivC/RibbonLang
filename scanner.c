@@ -21,12 +21,12 @@ static char peek() {
 }
 
 static char advance() {
-    char currentChar = current();
+    char current_char = current();
     scanner.current++;
-    if (currentChar == '\n') {
+    if (current_char == '\n') {
         scanner.line++;
     }
-    return currentChar;
+    return current_char;
 }
 
 static bool match(char c) {
@@ -74,8 +74,8 @@ static Token error_token(const char* message) {
 }
 
 static bool check_token(const char* text) {
-    int tokenLength = scanner.current - scanner.start;
-    return (strlen(text) == tokenLength) && (strncmp(scanner.start, text, tokenLength) == 0);
+    int token_length = scanner.current - scanner.start;
+    return (strlen(text) == token_length) && (strncmp(scanner.start, text, token_length) == 0);
 }
 
 static Token parse_identifier() {
@@ -169,18 +169,18 @@ Token scanner_peek_token_at_offset(int offset) {
 		FAIL("peek_token_at_offset called with offset < 1.");
 	}
 
-    // TODO: This approach is pretty awkward and can cause bugs later. Needs refactoring.
+    // TODO: This approach is pretty awkward and can cause bugs later. Needs changing.
 
-    const char* oldStart = scanner.start;
-    const char* oldCurrent = scanner.current;
+    const char* old_start = scanner.start;
+    const char* old_current = scanner.current;
 
     Token token;
     for (int i = 0; i < offset; i++) {
     	token = scanner_next_token();
 	}
 
-    scanner.start = oldStart;
-    scanner.current = oldCurrent;
+    scanner.start = old_start;
+    scanner.current = old_current;
     return token;
 }
 
