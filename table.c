@@ -6,6 +6,10 @@
 #include "common.h"
 #include "value.h"
 
+// TODO: External functions should return a boolean for success or failure, because e.g. not everything can be used
+// as a key because not everything is hashable.
+// Currently these edge cases may result in a segmentation fault (because find_entry will return NULL which will later be dereferenced).
+
 #define MAX_LOAD_FACTOR 0.75
 
 static bool keys_equal(Value v1, Value v2) {
@@ -102,9 +106,13 @@ void table_set_cstring_key(Table* table, const char* key, Value value) {
     entry->value = value;
 }
 
+// void table_set(Table* table, struct Value key, Value value) {
+// 	ObjectString* key_string = VALUE_AS_OBJECT(key, OBJECT_STRING, ObjectString);
+// 	table_set_cstring_key(table, key_string->chars, value);
+// }
+
 void table_set(Table* table, struct Value key, Value value) {
-	ObjectString* key_string = VALUE_AS_OBJECT(key, OBJECT_STRING, ObjectString);
-	table_set_cstring_key(table, key_string->chars, value);
+    table_set_value_directly(table, key, value);
 }
 
 void table_set_value_directly(Table* table, struct Value key, Value value) {
@@ -136,9 +144,13 @@ bool table_get_cstring_key(Table* table, const char* key, Value* out) {
     return true;
 }
 
+// bool table_get(Table* table, struct Value key, Value* out) {
+// 	ObjectString* key_string = VALUE_AS_OBJECT(key, OBJECT_STRING, ObjectString);
+//     return table_get_cstring_key(table, key_string->chars, out);
+// }
+
 bool table_get(Table* table, struct Value key, Value* out) {
-	ObjectString* key_string = VALUE_AS_OBJECT(key, OBJECT_STRING, ObjectString);
-    return table_get_cstring_key(table, key_string->chars, out);
+	return table_get_value_directly(table, key, out);
 }
 
 bool table_get_value_directly(Table* table, Value key, Value* out) {

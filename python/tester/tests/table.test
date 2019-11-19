@@ -28,3 +28,14 @@ expect
     1000
     1010
 end
+
+test keys of different types
+    table = [5: "hello", "string key": {print("I'm a function")}, 10 * 3: ["inner string": "inner value"]]
+    print(table[5])
+    table["string key"]()
+    print(table[3 * 10]["inner string"])
+expect
+    hello
+    I'm a function
+    inner value
+end
