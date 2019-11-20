@@ -57,6 +57,7 @@ bool builtin_read_file(ValueArray args, Value* out) {
 	char* file_data = NULL;
 	size_t file_size = 0;
 
+	// TODO: Is path->chars in this case guaranteed to be null terminated...?
 	IOResult result = io_read_file(path->chars, "Object string buffer", &file_data, &file_size);
 
 	switch (result) {

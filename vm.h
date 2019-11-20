@@ -30,8 +30,9 @@ typedef struct {
 	Object* objects;
 
     // ThreadArray threads;
-    ObjectThread* threads;
-    ObjectThread* current_thread;
+
+    ObjectThread* threads;  /* Doubly linked list of threads generally running in the system */
+    ObjectThread* current_thread; /* Current executing thread */
 
     CellTable globals;
     CellTable imported_modules;

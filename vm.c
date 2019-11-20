@@ -29,6 +29,10 @@ static ObjectThread* current_thread(void) {
 	return vm.current_thread;
 }
 
+static void set_current_thread(ObjectThread* thread) {
+	vm.current_thread = thread;
+}
+
 static StackFrame* current_frame(void) {
 	return current_thread()->call_stack_top - 1;
 }
@@ -78,9 +82,12 @@ static void init_stack_frame(StackFrame* frame) {
 static void switch_to_new_thread(ObjectThread* thread) {
 	// thread_array_write(&vm.threads, &thread);
 	// vm.current_thread_index = vm.threads.count - 1;
+	
+	// Maybe not the best scheduler-wise?
 	thread->previous_thread = NULL;
 	thread->next_thread = vm.threads;
 	vm.threads = thread;
+	set_current_thread(thread);
 }
 
 // module only required if is_module_base == true
@@ -970,50 +977,89 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             	break;
             }
 
-            case OP_RETURN: {
+			case OP_RETURN: {
 
                 StackFrame frame = pop_frame();
                 bool is_base_frame = frame.return_address == NULL;
                 if (is_base_frame) {
-                	// is_executing = false;
 
-					ObjectThread* thread = current_thread();
+					ObjectThread* running_thread = current_thread();
+					ObjectThread* previous_thread = running_thread->previous_thread;
+					ObjectThread* next_thread = running_thread->next_thread;
 
-					bool all_threads_finished = thread->previous_thread == NULL && thread->next_thread == NULL;
+					bool all_threads_finished = previous_thread == NULL && next_thread == NULL;
 					if (all_threads_finished) {
-						vm.current_thread = NULL;
-						vm.threads = NULL;
 						is_executing = false;
-						goto op_return_finish;
+						vm.threads = NULL;
+						vm.current_thread = NULL;
+						goto op_return_cleanup;
 					}
 
-					if (thread->previous_thread == NULL) {
-						if (vm.threads != thread) {
-							FAIL("thread->previous_thread == NULL, but vm.thread != thread.");
-						}
-
-						vm.current_thread = thread->next_thread; // next_thread shouldn't logically be null here
-						vm.current_thread->previous_thread = NULL;
-						vm.threads = vm.current_thread;
-						goto op_return_finish;
-					}
-
-					thread->previous_thread->next_thread = thread->next_thread;
-
-					if (thread->next_thread == NULL) {
-						vm.current_thread = vm.threads; // Back to the beginning
+					if (previous_thread != NULL) {
+						previous_thread->next_thread = next_thread;
 					} else {
-						vm.current_thread = thread->next_thread;
+						vm.threads = next_thread;
 					}
+
+					if (next_thread != NULL) {
+						next_thread->previous_thread = previous_thread;
+					}
+
+					set_current_thread(next_thread);
+
                 } else {
                 	current_thread()->ip = frame.return_address;
                 }
 
-				op_return_finish:
+				op_return_cleanup:
                 stack_frame_free(&frame);
-
                 break;
             }
+
+            // case OP_RETURN: {
+
+            //     StackFrame frame = pop_frame();
+            //     bool is_base_frame = frame.return_address == NULL;
+            //     if (is_base_frame) {
+            //     	// is_executing = false;
+
+			// 		ObjectThread* thread = current_thread();
+
+			// 		bool all_threads_finished = thread->previous_thread == NULL && thread->next_thread == NULL;
+			// 		if (all_threads_finished) {
+			// 			vm.current_thread = NULL;
+			// 			vm.threads = NULL;
+			// 			is_executing = false;
+			// 			goto op_return_finish;
+			// 		}
+
+			// 		if (thread->previous_thread == NULL) {
+			// 			if (vm.threads != thread) {
+			// 				FAIL("thread->previous_thread == NULL, but vm.thread != thread.");
+			// 			}
+
+			// 			vm.current_thread = thread->next_thread; // next_thread shouldn't logically be null here
+			// 			vm.current_thread->previous_thread = NULL;
+			// 			vm.threads = vm.current_thread;
+			// 			goto op_return_finish;
+			// 		}
+
+			// 		thread->previous_thread->next_thread = thread->next_thread;
+
+			// 		if (thread->next_thread == NULL) {
+			// 			vm.current_thread = vm.threads; // Back to the beginning
+			// 		} else {
+			// 			vm.current_thread = thread->next_thread;
+			// 		}
+            //     } else {
+            //     	current_thread()->ip = frame.return_address;
+            //     }
+
+			// 	op_return_finish:
+            //     stack_frame_free(&frame);
+
+            //     break;
+            // }
             
             case OP_POP: {
             	pop();
@@ -1341,8 +1387,8 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             }
         }
 
-		thread_counter++;
-		if ((thread_counter = thread_counter % THREAD_SWITCH_OPCODE_INTERVAL) == 0) { 
+		thread_counter = (thread_counter + 1) % THREAD_SWITCH_OPCODE_INTERVAL;
+		if (is_executing && thread_counter == 0) { 
 			DEBUG_TRACE("Switching threads.");
 			vm.current_thread = vm.current_thread->next_thread != NULL ? vm.current_thread->next_thread : vm.threads;
 		}
