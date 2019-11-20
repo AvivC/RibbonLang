@@ -358,7 +358,6 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_ELSE
     {NULL, NULL, PREC_NONE},     // TOKEN_ELSIF
     {NULL, NULL, PREC_NONE},     // TOKEN_WHILE
-    {NULL, NULL, PREC_NONE},     // TOKEN_FUNC
     {NULL, NULL, PREC_NONE},     // TOKEN_TAKES
     {NULL, NULL, PREC_NONE},     // TOKEN_TO
     {NULL, and, PREC_AND},     // TOKEN_AND

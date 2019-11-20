@@ -93,9 +93,7 @@ static Token parse_identifier() {
         return make_token(TOKEN_ELSIF);
     } else if (check_token("while")) {
     	return make_token(TOKEN_WHILE);
-	} else if (check_token("func")) {
-        return make_token(TOKEN_FUNC);
-    } else if (check_token("and")) {
+	} else if (check_token("and")) {
         return make_token(TOKEN_AND);
     } else if (check_token("or")) {
         return make_token(TOKEN_OR);
