@@ -465,6 +465,15 @@ ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function) {
 	return module;
 }
 
+ObjectThread* object_thread_new(ObjectFunction* function) {
+	ObjectThread* thread = (ObjectThread*) allocate_object(sizeof(ObjectThread), "ObjectThread", OBJECT_THREAD);
+	thread->base_function = function;
+	thread->ip = function->code->bytecode.code;
+	thread->eval_stack_top = thread->eval_stack;
+	thread->call_stack_top = thread->call_stack;
+	return thread;
+}
+
 void object_free(Object* o) {
 	cell_table_free(&o->attributes);
 
@@ -502,6 +511,12 @@ void object_free(Object* o) {
         	DEBUG_OBJECTS_PRINT("Freeing ObjectCode at '%p'", code);
         	bytecode_free(&code->bytecode);
         	deallocate(code, sizeof(ObjectCode), "ObjectCode");
+        	break;
+        }
+		case OBJECT_THREAD: {
+        	ObjectThread* thread = (ObjectThread*) o;
+        	DEBUG_OBJECTS_PRINT("Freeing ObjectThread at '%p'", thread);
+        	deallocate(thread, sizeof(ObjectThread), "ObjectThread");
         	break;
         }
         case OBJECT_TABLE: {
@@ -546,6 +561,13 @@ void object_print(Object* o) {
         }
         case OBJECT_CODE: {
         	printf("<Code object at %p>", o);
+            return;
+        }
+		case OBJECT_THREAD: {
+        	printf("<Thread object at %p wrapping function ", o);
+			ObjectThread* thread = ((ObjectThread*) o);
+			object_print((Object*) thread->base_function);
+			printf(">");
             return;
         }
         case OBJECT_TABLE: {
@@ -629,7 +651,6 @@ void object_print_all_objects(void) {
 bool object_hash(Object* object, unsigned long* result) {
 	switch (object->type) {
 		case OBJECT_STRING: {
-			// *result = hash_string(((ObjectString*) object)->chars);
 			ObjectString* string = (ObjectString*) object;
 			*result = hash_string_bounded(string->chars, string->length);
 			return true;
@@ -647,6 +668,9 @@ bool object_hash(Object* object, unsigned long* result) {
 			return false;
 		}
 		case OBJECT_TABLE: {
+			return false;
+		}
+		case OBJECT_THREAD: {
 			return false;
 		}
 	}
@@ -672,3 +696,5 @@ void object_set_atttribute_cstring_key(Object* object, const char* key, Value va
 bool object_get_attribute_cstring_key(Object* object, const char* key, Value* out) {
 	return cell_table_get_value_cstring_key(&object->attributes, key, out);
 }
+
+IMPLEMENT_DYNAMIC_ARRAY(ObjectThread*, ThreadArray, thread_array)

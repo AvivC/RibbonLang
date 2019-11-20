@@ -16,24 +16,21 @@ typedef enum {
 #define STACK_MAX 256
 #define CALL_STACK_MAX 256
 
-typedef struct {
-	uint8_t* return_address;
-	ObjectFunction* function;
-	ObjectModule* module;
-	CellTable local_variables;
-	bool is_module_base;
-} StackFrame;
+// typedef struct {
+// 	uint8_t* return_address;
+// 	ObjectFunction* function;
+// 	ObjectModule* module;
+// 	CellTable local_variables;
+// 	bool is_module_base;
+// } StackFrame;
 
 typedef struct {
-    uint8_t* ip;
+    // uint8_t* ip;
 
 	Object* objects;
 
-    Value* eval_stack_top;
-    Value eval_stack[STACK_MAX];
-
-    StackFrame* call_stack_top;
-    StackFrame call_stack[CALL_STACK_MAX];
+    ThreadArray threads;
+    size_t current_thread_index;
 
     CellTable globals;
     CellTable imported_modules;

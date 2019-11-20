@@ -13,7 +13,8 @@ typedef enum {
 	OBJECT_CODE,
 	OBJECT_TABLE,
 	OBJECT_CELL,
-	OBJECT_MODULE
+	OBJECT_MODULE,
+	OBJECT_THREAD
 } ObjectType;
 
 typedef enum {
@@ -73,6 +74,31 @@ typedef struct ObjectModule {
 	ObjectFunction* function;
 } ObjectModule;
 
+#define THREAD_EVAL_STACK_MAX 255
+#define THREAD_CALL_STACK_MAX 255
+
+typedef struct {
+	uint8_t* return_address;
+	ObjectFunction* function;
+	ObjectModule* module;
+	CellTable local_variables;
+	bool is_module_base;
+} StackFrame;
+
+typedef struct ObjectThread {
+	Object base;
+	uint8_t* ip;
+	ObjectFunction* base_function;
+
+    Value* eval_stack_top;
+    Value eval_stack[THREAD_CALL_STACK_MAX];
+
+    StackFrame* call_stack_top;
+    StackFrame call_stack[THREAD_EVAL_STACK_MAX];
+} ObjectThread;
+
+DECLARE_DYNAMIC_ARRAY(ObjectThread*, ThreadArray, thread_array)
+
 ObjectString* object_string_copy(const char* string, int length);
 ObjectString* object_string_take(char* chars, int length);
 ObjectString* object_string_clone(ObjectString* original);
@@ -92,6 +118,8 @@ ObjectCell* object_cell_new(Value value);
 ObjectCell* object_cell_new_empty(void);
 
 ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function);
+
+ObjectThread* object_thread_new(ObjectFunction* function);
 
 bool object_compare(Object* a, Object* b);
 
