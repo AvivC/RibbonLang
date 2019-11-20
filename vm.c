@@ -24,7 +24,9 @@
 VM vm;
 
 static ObjectThread* current_thread(void) {
-	return vm.threads.values[vm.current_thread_index];
+	// return vm.threads.values[vm.current_thread_index];
+	// return vm.threads;
+	return vm.current_thread;
 }
 
 static StackFrame* current_frame(void) {
@@ -74,8 +76,11 @@ static void init_stack_frame(StackFrame* frame) {
 }
 
 static void switch_to_new_thread(ObjectThread* thread) {
-	thread_array_write(&vm.threads, &thread);
-	vm.current_thread_index = vm.threads.count - 1;
+	// thread_array_write(&vm.threads, &thread);
+	// vm.current_thread_index = vm.threads.count - 1;
+	thread->previous_thread = NULL;
+	thread->next_thread = vm.threads;
+	vm.threads = thread;
 }
 
 // module only required if is_module_base == true
@@ -337,9 +342,15 @@ static void gc_mark_object(Object* object) {
 // }
 
 static void gc_mark(void) {
-	for (int i = 0; i < vm.threads.count; i++) {
-		ObjectThread* thread = vm.threads.values[i];
+	// for (int i = 0; i < vm.threads.count; i++) {
+	// 	ObjectThread* thread = vm.threads.values[i];
+	// 	gc_mark_object((Object*) thread);
+	// }
+
+	ObjectThread* thread = vm.threads;
+	while (thread != NULL) {
 		gc_mark_object((Object*) thread);
+		thread = thread->next_thread;
 	}
 
 	gc_mark_table(&vm.globals.table);
@@ -429,7 +440,7 @@ static void call_user_function(ObjectFunction* function) {
 	thread->ip = function->code->bytecode.code;
 }
 
-static bool callNativeFunction(ObjectFunction* function) {
+static bool call_native_function(ObjectFunction* function) {
 	if (function->self != NULL) {
 		push(MAKE_VALUE_OBJECT(function->self));
 	}
@@ -454,8 +465,10 @@ static bool callNativeFunction(ObjectFunction* function) {
 }
 
 void vm_init(void) {
-	thread_array_init(&vm.threads);
-	vm.current_thread_index = 0;
+	// thread_array_init(&vm.threads);
+	// vm.current_thread_index = 0;
+	vm.threads = NULL;
+	vm.current_thread = NULL;
 
 	// reset_stacks();
     vm.num_objects = 0;
@@ -473,8 +486,10 @@ void vm_free(void) {
 	// reset_stacks();
 	cell_table_free(&vm.globals);
 	cell_table_free(&vm.imported_modules);
-	thread_array_free(&vm.threads);
-	vm.current_thread_index = 0;
+	// thread_array_free(&vm.threads);
+	// vm.current_thread_index = 0;
+	vm.threads = NULL;
+	vm.current_thread = NULL;
 
 	gc(); // TODO: probably move upper
 
@@ -569,6 +584,8 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 		ERROR_IF_WRONG_TYPE(value, VALUE_NIL, message); \
 	} while (false)
 
+	#define THREAD_SWITCH_OPCODE_INTERVAL 4
+
 	// push_frame(make_base_stack_frame(base_bytecode));
 	
 
@@ -593,9 +610,11 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 	DEBUG_TRACE("Starting interpreter loop.");
 
+	size_t thread_counter = 0;
+
     while (is_executing) {
 		DEBUG_TRACE("--------------------------");
-    	DEBUG_TRACE("numObjects: %d, maxObjects: %d", vm.num_objects, vm.max_objects);
+    	DEBUG_TRACE("num_objects: %d, max_objects: %d", vm.num_objects, vm.max_objects);
 
     	OP_CODE opcode = READ_BYTE();
         
@@ -956,11 +975,41 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
                 StackFrame frame = pop_frame();
                 bool is_base_frame = frame.return_address == NULL;
                 if (is_base_frame) {
-                	is_executing = false;
+                	// is_executing = false;
+
+					ObjectThread* thread = current_thread();
+
+					bool all_threads_finished = thread->previous_thread == NULL && thread->next_thread == NULL;
+					if (all_threads_finished) {
+						vm.current_thread = NULL;
+						vm.threads = NULL;
+						is_executing = false;
+						goto op_return_finish;
+					}
+
+					if (thread->previous_thread == NULL) {
+						if (vm.threads != thread) {
+							FAIL("thread->previous_thread == NULL, but vm.thread != thread.");
+						}
+
+						vm.current_thread = thread->next_thread; // next_thread shouldn't logically be null here
+						vm.current_thread->previous_thread = NULL;
+						vm.threads = vm.current_thread;
+						goto op_return_finish;
+					}
+
+					thread->previous_thread->next_thread = thread->next_thread;
+
+					if (thread->next_thread == NULL) {
+						vm.current_thread = vm.threads; // Back to the beginning
+					} else {
+						vm.current_thread = thread->next_thread;
+					}
                 } else {
                 	current_thread()->ip = frame.return_address;
                 }
 
+				op_return_finish:
                 stack_frame_free(&frame);
 
                 break;
@@ -1026,7 +1075,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
                 }
 
                 if (function->is_native) {
-                	if (!callNativeFunction(function)) {
+                	if (!call_native_function(function)) {
                 		RUNTIME_ERROR("Native function failed.");
                 		break;
                 	}
@@ -1291,6 +1340,12 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             	FAIL("Unknown opcode: %d. At ip: %p", opcode, current_thread()->ip - 1);
             }
         }
+
+		thread_counter++;
+		if ((thread_counter = thread_counter % THREAD_SWITCH_OPCODE_INTERVAL) == 0) { 
+			DEBUG_TRACE("Switching threads.");
+			vm.current_thread = vm.current_thread->next_thread != NULL ? vm.current_thread->next_thread : vm.threads;
+		}
     }
 
     DEBUG_TRACE("\n--------------------------\n");

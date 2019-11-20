@@ -467,6 +467,8 @@ ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function) {
 
 ObjectThread* object_thread_new(ObjectFunction* function) {
 	ObjectThread* thread = (ObjectThread*) allocate_object(sizeof(ObjectThread), "ObjectThread", OBJECT_THREAD);
+	thread->previous_thread = NULL;
+	thread->next_thread = NULL;
 	thread->base_function = function;
 	thread->ip = function->code->bytecode.code;
 	thread->eval_stack_top = thread->eval_stack;

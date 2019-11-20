@@ -87,6 +87,11 @@ typedef struct {
 
 typedef struct ObjectThread {
 	Object base;
+
+ 	// Possibly not the most elegant solution for thread iteration.
+	struct ObjectThread* previous_thread;
+	struct ObjectThread* next_thread;
+
 	uint8_t* ip;
 	ObjectFunction* base_function;
 

@@ -29,8 +29,9 @@ typedef struct {
 
 	Object* objects;
 
-    ThreadArray threads;
-    size_t current_thread_index;
+    // ThreadArray threads;
+    ObjectThread* threads;
+    ObjectThread* current_thread;
 
     CellTable globals;
     CellTable imported_modules;
