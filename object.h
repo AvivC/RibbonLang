@@ -135,6 +135,8 @@ void object_free(Object* object);
 void object_print(Object* o);
 void object_print_all_objects(void);
 
+void object_thread_print_diagnostic(ObjectThread* thread);
+
 bool object_hash(Object* object, unsigned long* result);
 
 MethodAccessResult object_get_method(Object* object, const char* method_name, ObjectFunction** out);

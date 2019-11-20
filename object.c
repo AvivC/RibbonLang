@@ -546,6 +546,14 @@ void object_free(Object* o) {
     DEBUG_OBJECTS_PRINT("Decremented numObjects to %d", vm.numObjects);
 }
 
+static void print_function(ObjectFunction* function) {
+	if (function->is_native) {
+		printf("<Native function %s at %p>", function->name, function);
+	} else {
+		printf("<Function %s at %p>", function->name, function);
+	}
+}
+
 void object_print(Object* o) {
     switch (o->type) {
         case OBJECT_STRING: {
@@ -554,11 +562,8 @@ void object_print(Object* o) {
             return;
         }
         case OBJECT_FUNCTION: {
-        	if (OBJECT_AS_FUNCTION(o)->is_native) {
-        		printf("<Native function at %p>", o);
-        	} else {
-        		printf("<Function at %p>", o);
-        	}
+			ObjectFunction* function = (ObjectFunction*) o;
+        	print_function(function);
             return;
         }
         case OBJECT_CODE: {
@@ -592,6 +597,13 @@ void object_print(Object* o) {
     }
     
     FAIL("Unrecognized object type: %d", o->type);
+}
+
+/* For debugging */
+void object_thread_print_diagnostic(ObjectThread* thread) {
+	object_print((Object*) thread);
+	printf("\n        - Current ip: %p\n        - Current function: ", thread->ip);
+	print_function(thread->base_function);
 }
 
 bool object_compare(Object* a, Object* b) {

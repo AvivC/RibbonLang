@@ -544,6 +544,16 @@ static void set_function_name(const Value* function_value, ObjectString* name) {
 	object_function_set_name(function, new_cstring_name);
 }
 
+static void print_all_threads(void) {
+	ObjectThread* thread = vm.threads;
+	while (thread != NULL) {
+		object_thread_print_diagnostic(thread);		
+		printf("\n");
+
+		thread = thread->next_thread;
+	}
+}
+
 InterpretResult vm_interpret(Bytecode* base_bytecode) {
     #define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
@@ -641,8 +651,13 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 			}
 			printf("\n\nLocal variables:\n");
 			table_print(&locals_or_module_table()->table); // TODO: No encapsulation, fix this
+			printf("\n");
 
 			bytecode_print_constant_table(current_bytecode());
+			printf("\n");
+
+			printf("Running threads:\n");
+			print_all_threads();
 
 			printf("\n\n");
 
@@ -955,13 +970,6 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
             	for (int i = 0; i < num_entries; i++) {
 					Value key = pop();
-//					if (!object_value_is(key, OBJECT_STRING)) {
-//						RUNTIME_ERROR("Currently only strings supported as table keys.");
-//						break;
-//					}
-//
-//					ObjectString* string_key = (ObjectString*) key.as.object;
-
 					Value value = pop();
 					table_set(&table, key, value);
 				}
@@ -1015,51 +1023,6 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
                 stack_frame_free(&frame);
                 break;
             }
-
-            // case OP_RETURN: {
-
-            //     StackFrame frame = pop_frame();
-            //     bool is_base_frame = frame.return_address == NULL;
-            //     if (is_base_frame) {
-            //     	// is_executing = false;
-
-			// 		ObjectThread* thread = current_thread();
-
-			// 		bool all_threads_finished = thread->previous_thread == NULL && thread->next_thread == NULL;
-			// 		if (all_threads_finished) {
-			// 			vm.current_thread = NULL;
-			// 			vm.threads = NULL;
-			// 			is_executing = false;
-			// 			goto op_return_finish;
-			// 		}
-
-			// 		if (thread->previous_thread == NULL) {
-			// 			if (vm.threads != thread) {
-			// 				FAIL("thread->previous_thread == NULL, but vm.thread != thread.");
-			// 			}
-
-			// 			vm.current_thread = thread->next_thread; // next_thread shouldn't logically be null here
-			// 			vm.current_thread->previous_thread = NULL;
-			// 			vm.threads = vm.current_thread;
-			// 			goto op_return_finish;
-			// 		}
-
-			// 		thread->previous_thread->next_thread = thread->next_thread;
-
-			// 		if (thread->next_thread == NULL) {
-			// 			vm.current_thread = vm.threads; // Back to the beginning
-			// 		} else {
-			// 			vm.current_thread = thread->next_thread;
-			// 		}
-            //     } else {
-            //     	current_thread()->ip = frame.return_address;
-            //     }
-
-			// 	op_return_finish:
-            //     stack_frame_free(&frame);
-
-            //     break;
-            // }
             
             case OP_POP: {
             	pop();
