@@ -140,7 +140,7 @@ expect
     Done t1
 end
 
-test threads oprate on shared data
+test threads operate on shared data
     flags = ["t1": false, "t2": false]
 
     q = { takes y, name to
