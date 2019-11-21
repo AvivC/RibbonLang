@@ -20,7 +20,8 @@ typedef struct {
 	Object* objects;
 
     ObjectThread* threads;  /* Doubly linked list of threads generally running in the system */
-    ObjectThread* current_thread; /* Current executing thread */
+    ObjectThread* current_thread; /* Currently executing thread */
+    size_t thread_creation_counter; /* For running-number thread names, used for debugging */
 
     CellTable globals;
     CellTable imported_modules;

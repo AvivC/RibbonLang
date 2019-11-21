@@ -465,8 +465,9 @@ ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function) {
 	return module;
 }
 
-ObjectThread* object_thread_new(ObjectFunction* function) {
+ObjectThread* object_thread_new(ObjectFunction* function, char* name) {
 	ObjectThread* thread = (ObjectThread*) allocate_object(sizeof(ObjectThread), "ObjectThread", OBJECT_THREAD);
+	thread->name = copy_null_terminated_cstring(name, "Thread name");
 	thread->previous_thread = NULL;
 	thread->next_thread = NULL;
 	thread->base_function = function;
@@ -518,6 +519,7 @@ void object_free(Object* o) {
 		case OBJECT_THREAD: {
         	ObjectThread* thread = (ObjectThread*) o;
         	DEBUG_OBJECTS_PRINT("Freeing ObjectThread at '%p'", thread);
+			deallocate(thread->name, strlen(thread->name) + 1, "Thread name");
         	deallocate(thread, sizeof(ObjectThread), "ObjectThread");
         	break;
         }
@@ -554,6 +556,12 @@ static void print_function(ObjectFunction* function) {
 	}
 }
 
+void object_thread_print(ObjectThread* thread) {
+	printf("<Thread %s at %p wrapping ", thread->name, thread);
+	object_print((Object*) thread->base_function);
+	printf(">");
+}
+
 void object_print(Object* o) {
     switch (o->type) {
         case OBJECT_STRING: {
@@ -571,10 +579,8 @@ void object_print(Object* o) {
             return;
         }
 		case OBJECT_THREAD: {
-        	printf("<Thread object at %p wrapping function ", o);
 			ObjectThread* thread = ((ObjectThread*) o);
-			object_print((Object*) thread->base_function);
-			printf(">");
+			object_thread_print(thread);
             return;
         }
         case OBJECT_TABLE: {

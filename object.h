@@ -88,7 +88,8 @@ typedef struct {
 typedef struct ObjectThread {
 	Object base;
 
- 	// Possibly not the most elegant solution for thread iteration.
+	char* name;
+
 	struct ObjectThread* previous_thread;
 	struct ObjectThread* next_thread;
 
@@ -124,7 +125,7 @@ ObjectCell* object_cell_new_empty(void);
 
 ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function);
 
-ObjectThread* object_thread_new(ObjectFunction* function);
+ObjectThread* object_thread_new(ObjectFunction* function, char* name);
 
 bool object_compare(Object* a, Object* b);
 
@@ -135,6 +136,7 @@ void object_free(Object* object);
 void object_print(Object* o);
 void object_print_all_objects(void);
 
+void object_thread_print(ObjectThread* thread);
 void object_thread_print_diagnostic(ObjectThread* thread);
 
 bool object_hash(Object* object, unsigned long* result);

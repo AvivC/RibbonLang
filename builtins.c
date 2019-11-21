@@ -92,6 +92,7 @@ bool builtin_spawn(ValueArray args, Value* out) {
 	}
 
 	vm_spawn_thread(function);
+	*out = MAKE_VALUE_NIL();
 	return true;
 }
 

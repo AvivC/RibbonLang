@@ -24,8 +24,6 @@
 VM vm;
 
 static ObjectThread* current_thread(void) {
-	// return vm.threads.values[vm.current_thread_index];
-	// return vm.threads;
 	return vm.current_thread;
 }
 
@@ -98,6 +96,7 @@ static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	return new_stack_frame(NULL, base_function, module, true);
 }
 
+/* Add a thread to the vm list of threads */
 static void add_thread(ObjectThread* thread) {
 	thread->previous_thread = NULL;
 	thread->next_thread = vm.threads;
@@ -114,23 +113,18 @@ static void switch_to_new_thread(ObjectThread* thread) {
 }
 
 void vm_spawn_thread(ObjectFunction* function) {
-	ObjectThread* thread = object_thread_new(function);
+	int name_length = snprintf(NULL, 0, "%" PRI_SIZET, vm.thread_creation_counter);
+	char* temp_name_buffer = allocate(name_length + 1, "Temp thread name buffer");
+	snprintf(temp_name_buffer, name_length + 1, "%" PRI_SIZET, vm.thread_creation_counter++);
+
+	ObjectThread* thread = object_thread_new(function, temp_name_buffer);
+	deallocate(temp_name_buffer, name_length + 1, "Temp thread name buffer");
 
 	*thread->call_stack_top = new_stack_frame(NULL, function, NULL, false);
 	thread->call_stack_top++;
 
 	add_thread(thread);
 }
-
-// static void push_frame(StackFrame frame) {
-// 	// TODO: This should be a runtime error, not an assertion.
-// 	if (vm.call_stack_top - vm.call_stack == CALL_STACK_MAX) {
-// 		FAIL("Stack overflow.");
-// 	}
-
-// 	*vm.call_stack_top = frame;
-// 	vm.call_stack_top++;
-// }
 
 static void push_frame(StackFrame frame) {
 	// TODO: This should be a runtime error, not an assertion.
@@ -147,11 +141,6 @@ static void stack_frame_free(StackFrame* frame) {
 	cell_table_free(&frame->local_variables);
 	init_stack_frame(frame);
 }
-
-// static StackFrame pop_frame(void) {
-// 	vm.call_stack_top--;
-// 	return *vm.call_stack_top;
-// }
 
 static StackFrame pop_frame(void) {
 	ObjectThread* thread = current_thread();
@@ -490,6 +479,7 @@ void vm_init(void) {
 	// vm.current_thread_index = 0;
 	vm.threads = NULL;
 	vm.current_thread = NULL;
+	vm.thread_creation_counter = 0;
 
 	// reset_stacks();
     vm.num_objects = 0;
@@ -535,7 +525,6 @@ static void print_stack_trace(void) {
 	}
 }
 
-// #define READ_BYTE() (*vm.ip++)
 #define READ_BYTE() (*current_thread()->ip++)
 #define READ_CONSTANT() (current_bytecode()->constants.values[READ_BYTE()])
 
@@ -615,11 +604,11 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 		ERROR_IF_WRONG_TYPE(value, VALUE_NIL, message); \
 	} while (false)
 
-	#define THREAD_SWITCH_INTERVAL 10
+	#define THREAD_SWITCH_INTERVAL 4
 
 	ObjectCode* code = object_code_new(*base_bytecode);
 	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
-	ObjectThread* main_thread = object_thread_new(base_function);
+	ObjectThread* main_thread = object_thread_new(base_function, "<main thread>");
 	switch_to_new_thread(main_thread);
 
 	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
@@ -667,14 +656,25 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 			bytecode_print_constant_table(current_bytecode());
 			printf("\n");
 
-			printf("Running threads:\n");
-			print_all_threads();
-
-			printf("\n\n");
-
 			#if DEBUG_MEMORY_EXECUTION
 				printAllObjects();
 			#endif
+		#endif
+
+		#if DEBUG_THREADING
+			#if !DEBUG_TRACE_EXECUTION
+				printf("--------------------------\n");	
+				disassembler_do_single_instruction(opcode, current_bytecode(), current_thread()->ip - 1 - current_bytecode()->code);
+			#endif
+
+			DEBUG_THREADING_PRINT("Current thread:\n        ");
+			object_thread_print(current_thread());
+			printf("\n");
+
+			printf("\n");
+			printf("All running threads:\n");
+			print_all_threads();
+			printf("\n");
 		#endif
 
 		// Possible that vm.num_objects > vm.max_objects if many objects were created during the compiling stage, where GC is disallowed
@@ -1363,10 +1363,26 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
         }
 
 		thread_opcode_counter = (thread_opcode_counter + 1) % THREAD_SWITCH_INTERVAL;
-		DEBUG_THREADING_PRINT("thread_opcode_counter: %d", thread_opcode_counter);
-		if (is_executing && thread_opcode_counter == 0) { 
-			DEBUG_THREADING_PRINT("Switching threads.");
-			vm.current_thread = vm.current_thread->next_thread != NULL ? vm.current_thread->next_thread : vm.threads;
+		DEBUG_THREADING_PRINT("thread_opcode_counter: %d\n", thread_opcode_counter);
+		if (is_executing && thread_opcode_counter == 0) {
+			ObjectThread* old_thread = vm.current_thread;
+			ObjectThread* new_thread = vm.current_thread->next_thread != NULL ? vm.current_thread->next_thread : vm.threads;
+			
+			vm.current_thread = new_thread;
+
+			DEBUG_THREADING_PRINT("Switching threads: \n");
+			if (DEBUG_THREADING) {
+				printf("From: ");
+				object_thread_print(old_thread);
+				printf("\nTo: ");
+				object_thread_print(new_thread);
+				printf("\n");
+			}
+		}
+
+		if (DEBUG_PAUSE_AFTER_OPCODES) {
+			printf("\nPress ENTER to continue.\n");
+			getchar();
 		}
     }
 

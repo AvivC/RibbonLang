@@ -6,12 +6,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #define DISABLE_GC 0  // Only set to 1 for debugging purposes when you need the GC to not run
 
 #define DEBUG 0 // General debug printing
-#define DEBUG_TRACE_EXECUTION 1 // Show stack operations
-#define DEBUG_THREADING 1
+#define DEBUG_TRACE_EXECUTION 0 // Show stack operations
+#define DEBUG_PAUSE_AFTER_OPCODES 0 // Wait for user input after each opcode
+#define DEBUG_THREADING 0
 #define DEBUG_GC 0 // Show GC operations
 #define DEBUG_OBJECTS 0 // Show object operations
 #define DEBUG_MEMORY_EXECUTION 0 // Show low-level memory operations
@@ -43,9 +45,7 @@
 
 #if DEBUG_THREADING
     #define DEBUG_THREADING_PRINT(...) do { \
-            fprintf(stdout, "Threading: "); \
             fprintf (stdout, __VA_ARGS__); \
-            fprintf(stdout, "\n"); \
         } while (false)
 
 #else
@@ -118,3 +118,12 @@
 		printf("\n"); \
 } while (false)
 
+#ifdef _WIN32
+#  ifdef _WIN64
+#    define PRI_SIZET PRIu64
+#  else
+#    define PRI_SIZET PRIu32
+#  endif
+#else
+#  define PRI_SIZET "zu"
+#endif
