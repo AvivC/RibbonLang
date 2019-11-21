@@ -40,25 +40,11 @@ static Bytecode* current_bytecode(void) {
 }
 
 static void push(Value value) {
-	ObjectThread* thread = current_thread();
-    #if DEBUG_IMPORTANT
-        if (thread->eval_stack_top - thread->eval_stack >= STACK_MAX) {
-            FAIL("Evaluation stack overflow");
-        }
-    #endif
-    *thread->eval_stack_top = value;
-    thread->eval_stack_top++;
+	object_thread_push_eval_stack(current_thread(), value);
 }
 
 static Value pop(void) {
-	ObjectThread* thread = current_thread();
-    #if DEBUG_IMPORTANT
-        if (thread->eval_stack_top <= thread->eval_stack) {
-            FAIL("Evaluation stack underflow");
-        }
-    #endif
-    thread->eval_stack_top--;
-    return *thread->eval_stack_top;
+	return object_thread_pop_eval_stack(current_thread());
 }
 
 static Value peek_at(int offset) {
@@ -128,13 +114,7 @@ void vm_spawn_thread(ObjectFunction* function) {
 
 static void push_frame(StackFrame frame) {
 	// TODO: This should be a runtime error, not an assertion.
-	ObjectThread* thread = current_thread();
-	if (thread->call_stack_top - thread->call_stack == CALL_STACK_MAX) {
-		FAIL("Stack overflow.");
-	}
-
-	*thread->call_stack_top = frame;
-	thread->call_stack_top++;
+	object_thread_push_frame(current_thread(), frame);
 }
 
 static void stack_frame_free(StackFrame* frame) {
@@ -143,9 +123,7 @@ static void stack_frame_free(StackFrame* frame) {
 }
 
 static StackFrame pop_frame(void) {
-	ObjectThread* thread = current_thread();
-	thread->call_stack_top--;
-	return *thread->call_stack_top;
+	return object_thread_pop_frame(current_thread());
 }
 
 static CellTable* frame_locals_or_module_table(StackFrame* frame) {

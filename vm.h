@@ -13,9 +13,6 @@ typedef enum {
     INTERPRET_RUNTIME_ERROR
 } InterpretResult;
 
-#define STACK_MAX 256
-#define CALL_STACK_MAX 256
-
 typedef struct {
 	Object* objects;
 

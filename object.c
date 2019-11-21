@@ -556,6 +556,36 @@ static void print_function(ObjectFunction* function) {
 	}
 }
 
+void object_thread_push_eval_stack(ObjectThread* thread, Value value) {
+	if (thread->eval_stack_top - thread->eval_stack >= THREAD_EVAL_STACK_MAX) {
+		FAIL("Evaluation stack overflow");
+	}
+    *thread->eval_stack_top = value;
+    thread->eval_stack_top++;
+}
+
+void object_thread_push_frame(ObjectThread* thread, StackFrame frame) {
+	if (thread->call_stack_top - thread->call_stack == THREAD_CALL_STACK_MAX) {
+		FAIL("Stack overflow.");
+	}
+
+	*thread->call_stack_top = frame;
+	thread->call_stack_top++;
+}
+
+StackFrame object_thread_pop_frame(ObjectThread* thread) {
+	thread->call_stack_top--;
+	return *thread->call_stack_top;
+}
+
+Value object_thread_pop_eval_stack(ObjectThread* thread) {
+	if (thread->eval_stack_top <= thread->eval_stack) {
+		FAIL("Evaluation stack underflow");
+	}
+    thread->eval_stack_top--;
+    return *thread->eval_stack_top;
+}
+
 void object_thread_print(ObjectThread* thread) {
 	printf("<Thread %s at %p wrapping ", thread->name, thread);
 	object_print((Object*) thread->base_function);

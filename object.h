@@ -126,6 +126,10 @@ ObjectCell* object_cell_new_empty(void);
 ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function);
 
 ObjectThread* object_thread_new(ObjectFunction* function, char* name);
+void object_thread_push_eval_stack(ObjectThread* thread, Value value);
+Value object_thread_pop_eval_stack(ObjectThread* thread);
+void object_thread_push_frame(ObjectThread* thread, StackFrame frame);
+StackFrame object_thread_pop_frame(ObjectThread* thread);
 
 bool object_compare(Object* a, Object* b);
 
