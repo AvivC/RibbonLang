@@ -604,7 +604,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 		ERROR_IF_WRONG_TYPE(value, VALUE_NIL, message); \
 	} while (false)
 
-	#define THREAD_SWITCH_INTERVAL 4
+	#define THREAD_SWITCH_INTERVAL 16
 
 	ObjectCode* code = object_code_new(*base_bytecode);
 	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());

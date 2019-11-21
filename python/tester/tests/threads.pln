@@ -1,0 +1,278 @@
+test two flat threads
+    spawn({
+        i = 0
+        while i <= 20 {
+            print(i)
+            i = i + 1
+        }
+    })
+
+    spawn({
+        i = 0
+        while i >= -20 {
+            print(i)
+            i = i - 1
+        }
+    })
+expect
+    0
+    0
+    1
+    -1
+    -2
+    2
+    3
+    -3
+    4
+    -4
+    5
+    -5
+    6
+    -6
+    7
+    -7
+    8
+    9
+    -8
+    10
+    -9
+    -10
+    11
+    -11
+    12
+    -12
+    13
+    14
+    -13
+    15
+    -14
+    16
+    -15
+    17
+    -16
+    18
+    19
+    -17
+    -18
+    20
+    -19
+    -20
+end
+
+test threads calling shared functions
+    q = { takes y, name to
+        print("In y")
+        print(name)
+        if y == 0 {
+            return y * y
+        }
+        return y * q(y - 1, name)
+    }
+
+    f = { takes x, name to 
+        print("In f")
+        return x * q(x, name)
+    }
+
+    t1 = {
+        print("Running t1")
+        f(5, "t1")
+        print("Done t1")
+    }
+
+    t2 = {
+        print("Running t2")
+        f(8, "t2")
+        print("Done t2")
+    }
+
+    spawn(t2)
+    f(3, "main")
+    spawn(t1)
+
+    print("Done main thread")
+expect
+    Running t2
+    In f
+    In f
+    In y
+    main
+    In y
+    t2
+    In y
+    In y
+    t2
+    main
+    In y
+    t2
+    In y
+    main
+    In y
+    In y
+    main
+    t2
+    In y
+    Running t1
+    In f
+    t2
+    Done main thread
+    In y
+    t1
+    In y
+    t2
+    In y
+    t1
+    In y
+    t2
+    In y
+    In y
+    t2
+    t1
+    In y
+    t2
+    In y
+    t1
+    In y
+    t1
+    Done t2
+    In y
+    t1
+    Done t1
+end
+
+test threads oprate on shared data
+    flags = ["t1": false, "t2": false]
+
+    q = { takes y, name to
+        print("In y")
+        print(name)
+        if y == 0 {
+            return y * y
+        }
+        return y * q(y - 1, name)
+    }
+
+    f = { takes x, name to 
+        print("In f")
+        return x * q(x, name)
+    }
+
+    t1 = {
+        print("Running t1")
+        f(5, "t1")
+        print("Done t1")
+        flags["t1"] = true
+    }
+
+    t2 = {
+        print("Running t2")
+        f(8, "t2")
+        print("Done t2")
+        flags["t2"] = true
+    }
+
+    spawn(t2)
+    f(3, "main")
+    spawn(t1)
+
+    while not (flags["t1"] and flags["t2"]) {
+        # Wait!
+    }
+
+    print("All threads finished")
+expect
+    In f
+    Running t2
+    In f
+    In y
+    main
+    In y
+    t2
+    In y
+    main
+    In y
+    t2
+    In y
+    main
+    In y
+    t2
+    In y
+    main
+    In y
+    t2
+    In y
+    Running t1
+    In f
+    t2
+    In y
+    t1
+    In y
+    t2
+    In y
+    t1
+    In y
+    t2
+    In y
+    t1
+    In y
+    t2
+    In y
+    In y
+    t2
+    t1
+    In y
+    t1
+    Done t2
+    In y
+    t1
+    Done t1
+    All threads finished
+end
+
+test single thread keeps the program alive
+    spawn({
+        print("I'm just a thread")
+        print("ya'll")
+        print("Here")
+        print("are")
+        print("some more")
+        print("instructions")
+        print("so this test")
+        print("will be")
+        print("rather")
+        print("good")
+        print("!")
+        print("!")
+        print("!")
+        print("!")
+        print("!")
+        print("!")
+        print("!")
+        print("!")
+        print("!")
+        print("!")
+        print("!")
+    })
+expect
+    I'm just a thread
+    ya'll
+    Here
+    are
+    some more
+    instructions
+    so this test
+    will be
+    rather
+    good
+    !
+    !
+    !
+    !
+    !
+    !
+    !
+    !
+    !
+    !
+    !
+end
