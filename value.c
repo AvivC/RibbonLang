@@ -35,7 +35,7 @@ void value_print(Value value) {
         }
     }
 
-    FAIL("Unrecognized VALUE_TYPE.");
+    FAIL("Unrecognized VALUE_TYPE: %d", value.type);
 }
 
 bool value_compare(Value a, Value b, int* output) {

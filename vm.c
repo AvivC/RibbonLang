@@ -79,17 +79,6 @@ static void init_stack_frame(StackFrame* frame) {
 	cell_table_init(&frame->local_variables);
 }
 
-static void switch_to_new_thread(ObjectThread* thread) {
-	// thread_array_write(&vm.threads, &thread);
-	// vm.current_thread_index = vm.threads.count - 1;
-	
-	// Maybe not the best scheduler-wise?
-	thread->previous_thread = NULL;
-	thread->next_thread = vm.threads;
-	vm.threads = thread;
-	set_current_thread(thread);
-}
-
 // module only required if is_module_base == true
 static StackFrame new_stack_frame(uint8_t* return_address, ObjectFunction* function, ObjectModule* module, bool is_module_base) {
 	StackFrame frame;
@@ -107,6 +96,30 @@ static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
 	ObjectModule* module = object_module_new(base_module_name, base_function);
 	return new_stack_frame(NULL, base_function, module, true);
+}
+
+static void add_thread(ObjectThread* thread) {
+	thread->previous_thread = NULL;
+	thread->next_thread = vm.threads;
+	if (vm.threads != NULL) {
+		vm.threads->previous_thread = thread;
+	}
+	vm.threads = thread;
+}
+
+static void switch_to_new_thread(ObjectThread* thread) {
+	// Maybe not the best scheduler-wise?
+	add_thread(thread);
+	set_current_thread(thread);
+}
+
+void vm_spawn_thread(ObjectFunction* function) {
+	ObjectThread* thread = object_thread_new(function);
+
+	*thread->call_stack_top = new_stack_frame(NULL, function, NULL, false);
+	thread->call_stack_top++;
+
+	add_thread(thread);
 }
 
 // static void push_frame(StackFrame frame) {
@@ -427,6 +440,7 @@ static void set_builtin_globals(void) {
 	register_builtin_function("print", 1, (char*[]) {"text"}, builtin_print);
 	register_builtin_function("input", 0, NULL, builtin_input);
 	register_builtin_function("read_file", 1, (char*[]) {"path"}, builtin_read_file);
+	register_builtin_function("spawn", 1, (char*[]) {"function"}, builtin_spawn);
 }
 
 static void call_user_function(ObjectFunction* function) {
@@ -601,10 +615,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 		ERROR_IF_WRONG_TYPE(value, VALUE_NIL, message); \
 	} while (false)
 
-	#define THREAD_SWITCH_OPCODE_INTERVAL 4
-
-	// push_frame(make_base_stack_frame(base_bytecode));
-	
+	#define THREAD_SWITCH_INTERVAL 10
 
 	ObjectCode* code = object_code_new(*base_bytecode);
 	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
@@ -627,7 +638,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 	DEBUG_TRACE("Starting interpreter loop.");
 
-	size_t thread_counter = 0;
+	size_t thread_opcode_counter = 0;
 
     while (is_executing) {
 		DEBUG_TRACE("--------------------------");
@@ -1011,9 +1022,10 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 					if (next_thread != NULL) {
 						next_thread->previous_thread = previous_thread;
+						set_current_thread(next_thread);
+					} else {
+						set_current_thread(vm.threads);
 					}
-
-					set_current_thread(next_thread);
 
                 } else {
                 	current_thread()->ip = frame.return_address;
@@ -1350,9 +1362,10 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             }
         }
 
-		thread_counter = (thread_counter + 1) % THREAD_SWITCH_OPCODE_INTERVAL;
-		if (is_executing && thread_counter == 0) { 
-			DEBUG_TRACE("Switching threads.");
+		thread_opcode_counter = (thread_opcode_counter + 1) % THREAD_SWITCH_INTERVAL;
+		DEBUG_THREADING_PRINT("thread_opcode_counter: %d", thread_opcode_counter);
+		if (is_executing && thread_opcode_counter == 0) { 
+			DEBUG_THREADING_PRINT("Switching threads.");
 			vm.current_thread = vm.current_thread->next_thread != NULL ? vm.current_thread->next_thread : vm.threads;
 		}
     }

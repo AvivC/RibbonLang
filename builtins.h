@@ -6,5 +6,6 @@
 bool builtin_print(ValueArray args, Value* out);
 bool builtin_input(ValueArray args, Value* out);
 bool builtin_read_file(ValueArray args, Value* out);
+bool builtin_spawn(ValueArray args, Value* out);
 
 #endif

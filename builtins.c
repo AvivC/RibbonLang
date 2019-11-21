@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "vm.h"
 #include "builtins.h"
 #include "value.h"
 #include "memory.h"
@@ -81,5 +82,16 @@ bool builtin_read_file(ValueArray args, Value* out) {
 
 	FAIL("Should be unreachable.");
 	return false;
+}
+
+bool builtin_spawn(ValueArray args, Value* out) {
+	ObjectFunction* function = VALUE_AS_OBJECT(args.values[0], OBJECT_FUNCTION, ObjectFunction);
+	if (function == NULL) {
+		*out = MAKE_VALUE_NIL();
+		return false;
+	}
+
+	vm_spawn_thread(function);
+	return true;
 }
 

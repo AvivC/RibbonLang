@@ -16,20 +16,8 @@ typedef enum {
 #define STACK_MAX 256
 #define CALL_STACK_MAX 256
 
-// typedef struct {
-// 	uint8_t* return_address;
-// 	ObjectFunction* function;
-// 	ObjectModule* module;
-// 	CellTable local_variables;
-// 	bool is_module_base;
-// } StackFrame;
-
 typedef struct {
-    // uint8_t* ip;
-
 	Object* objects;
-
-    // ThreadArray threads;
 
     ObjectThread* threads;  /* Doubly linked list of threads generally running in the system */
     ObjectThread* current_thread; /* Current executing thread */
@@ -47,6 +35,8 @@ extern VM vm;
 void vm_init(void);
 void vm_free(void);
 InterpretResult vm_interpret(Bytecode* chunk);
+
+void vm_spawn_thread(ObjectFunction* function);
 
 void gc(void);
 
