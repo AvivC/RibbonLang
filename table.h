@@ -13,13 +13,19 @@
 typedef struct {
     Value key;
     Value value;
-} Entry;
+} EntryNew;
+
+typedef struct Node {
+    struct Node* next;
+    Value key;
+    Value value;
+} Node;
 
 typedef struct {
     int capacity;
-    int count;
-    Entry* entries;
-    int collisions_counter; // for debugging
+    int bucket_count;
+    Node** entries;
+    // int collisions_counter; // for debugging
 } Table;
 
 struct ObjectString;

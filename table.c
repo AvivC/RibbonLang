@@ -6,10 +6,6 @@
 #include "common.h"
 #include "value.h"
 
-// TODO: External functions should return a boolean for success or failure, because e.g. not everything can be used
-// as a key because not everything is hashable.
-// Currently these edge cases may result in a segmentation fault (because find_entry will return NULL which will later be dereferenced).
-
 #define MAX_LOAD_FACTOR 0.75
 
 static bool keys_equal(Value v1, Value v2) {
@@ -18,152 +14,144 @@ static bool keys_equal(Value v1, Value v2) {
     return compare_success && compare_result == 0;
 }
 
-static Entry* find_entry(Table* table, Value* key, bool settingValue) {
-    if (table->capacity == 0) {
-    	// Outer functions should guard against that
-    	FAIL("Illegal state: table capacity is 0.");
-    }
-    
-    unsigned long hash;
-    if (!value_hash(key, &hash)) {
-    	return NULL; // Value is unhashable
-    }
-
-    int slot = hash % table->capacity;
-    
-    int nils = 0;
-    for (int i = 0; i < table->capacity; i++) {
-        if (table->entries[i].key.type == VALUE_NIL) {
-            nils++;
-        }
-    }
-    
-    Entry* entry = &table->entries[slot];
-    while (entry->key.type != VALUE_NIL && !keys_equal(entry->key, *key)) {
-        if (settingValue) {
-            table->collisions_counter++;
-        }
-        
-        entry = &table->entries[++slot % table->capacity];
-    }
-    
-    return entry;
-}
-
 static void grow_table(Table* table) {
     DEBUG_MEMORY("Growing table.");
     
-    int oldCapacity = table->capacity;
-    Entry* oldEntries = table->entries;
+    int old_capacity = table->capacity;
+    Node** old_entries = table->entries;
     
     table->capacity = GROW_CAPACITY(table->capacity);
-    table->entries = allocate(sizeof(Entry) * table->capacity, "Hash table array");
-    
-    DEBUG_MEMORY("Old capacity: %d. New capacity: %d", oldCapacity, table->capacity);
+    table->entries = allocate(sizeof(Node*) * table->capacity, "Hash table array");
+    table->bucket_count = 0;
     
     for (int i = 0; i < table->capacity; i++) {
-        table->entries[i] = (Entry) {.key = MAKE_VALUE_NIL(), .value = MAKE_VALUE_NIL()};
+        table->entries[i] = NULL;
     }
+
+    DEBUG_MEMORY("Old capacity: %d. New capacity: %d", old_capacity, table->capacity);
     
-    for (int i = 0; i < oldCapacity; i++) {
-        Entry* oldEntry = &oldEntries[i];
+    for (int i = 0; i < old_capacity; i++) {
+        Node* old_entry = old_entries[i];
         
-        if (oldEntry->key.type == VALUE_NIL) {
+        if (old_entry == NULL) {
             continue;
         }
         
-        Entry* newEntry = find_entry(table, &oldEntry->key, false); // TODO: Check for NULL result
-        newEntry->key = oldEntry->key;
-        newEntry->value = oldEntry->value;
+        table_set_value_directly(table, old_entry->key, old_entry->value);
     }
     
     DEBUG_MEMORY("Deallocating old table array.");
-    deallocate(oldEntries, sizeof(Entry) * oldCapacity, "Hash table array");
+    deallocate(old_entries, sizeof(Node*) * old_capacity, "Hash table array");
 }
 
 void table_init(Table* table) {
-    table->count = 0;
+    table->bucket_count = 0;
     table->capacity = 0;
-    table->collisions_counter = 0;
+    // table->collisions_counter = 0;
     table->entries = NULL;
 }
 
 void table_set_cstring_key(Table* table, const char* key, Value value) {
-	Value copied_key = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key)); // Yeah, not really efficient this stuff...
+	// Value copied_key = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key)); // Yeah, not really efficient this stuff...
 
-    if (table->count + 1 > table->capacity * MAX_LOAD_FACTOR) {
-        grow_table(table);
-    }
+    // if (table->bucket_count + 1 > table->capacity * MAX_LOAD_FACTOR) {
+    //     grow_table(table);
+    // }
     
-    DEBUG_MEMORY("Finding entry '%s' in hash table.", key);
-    Entry* entry = find_entry(table, &copied_key, true);
+    // DEBUG_MEMORY("Finding entry '%s' in hash table.", key);
+    // Entry* entry = find_entry(table, &copied_key, true);
 
-    if (entry->key.type == VALUE_NIL) {
-        table->count++;
-    }
+    // if (entry->key.type == VALUE_NIL) {
+    //     table->bucket_count++;
+    // }
 
-    entry->key = copied_key; // If it's not NULL (nil?), we're needlessly overriding the same key
-    entry->value = value;
+    // entry->key = copied_key; // If it's not NULL (nil?), we're needlessly overriding the same key
+    // entry->value = value;
+
+    Value copied_key = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key)); // Yeah, not really efficient this stuff...
+    table_set_value_directly(table, copied_key, value);
 }
-
-// void table_set(Table* table, struct Value key, Value value) {
-// 	ObjectString* key_string = VALUE_AS_OBJECT(key, OBJECT_STRING, ObjectString);
-// 	table_set_cstring_key(table, key_string->chars, value);
-// }
 
 void table_set(Table* table, struct Value key, Value value) {
     table_set_value_directly(table, key, value);
 }
 
 void table_set_value_directly(Table* table, struct Value key, Value value) {
-    if (table->count + 1 > table->capacity * MAX_LOAD_FACTOR) {
+    if (table->bucket_count + 1 > table->capacity * MAX_LOAD_FACTOR) {
         grow_table(table);
     }
 
-    DEBUG_MEMORY("Finding entry '%s' in hash table.", key);
-    Entry* entry = find_entry(table, &key, true);
-
-    if (entry->key.type == VALUE_NIL) {
-        table->count++;
+    unsigned long hash;
+    if (!value_hash(&key, &hash)) {
+    	// TODO: Report error
     }
 
-    entry->key = key; // If it's not NULL (nil?), we're needlessly overriding the same key
-    entry->value = value;
+    int slot = hash % table->capacity;
+    Node* root_node = table->entries[slot];
+    Node* node = root_node;
+
+    if (root_node == NULL) {
+        table->bucket_count++;
+    }
+
+    while (node != NULL) {
+        if (keys_equal(node->key, key)) {
+            node->value = value;
+            break;
+        }
+
+        node = node->next;
+    }
+
+    if (node == NULL) {
+        Node* new_node = allocate(sizeof(Node), "Table linked list node");
+        new_node->key = key;
+        new_node->value = value;
+
+        new_node->next = root_node;
+        table->entries[slot] = new_node;
+    }
 }
 
 bool table_get_cstring_key(Table* table, const char* key, Value* out) {
-    if (table->entries == NULL) {
-        return false;
-    }
+    // if (table->entries == NULL) {
+    //     return false;
+    // }
     
-    Entry* entry = find_entry(table, &MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key)), false);
-    if (entry->key.type == VALUE_NIL) {
-        return false;
-    }
-    *out = entry->value;
-    return true;
+    // Entry* entry = find_entry(table, &MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key)), false);
+    // if (entry->key.type == VALUE_NIL) {
+    //     return false;
+    // }
+    // *out = entry->value;
+    
+    Value value_key = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key));
+    return table_get_value_directly(table, value_key, out);
 }
-
-// bool table_get(Table* table, struct Value key, Value* out) {
-// 	ObjectString* key_string = VALUE_AS_OBJECT(key, OBJECT_STRING, ObjectString);
-//     return table_get_cstring_key(table, key_string->chars, out);
-// }
 
 bool table_get(Table* table, struct Value key, Value* out) {
 	return table_get_value_directly(table, key, out);
 }
 
 bool table_get_value_directly(Table* table, Value key, Value* out) {
-    if (table->entries == NULL) {
-        return false;
+    unsigned long hash;
+    if (!value_hash(&key, &hash)) {
+    	// TODO: Report error
     }
 
-    Entry* entry = find_entry(table, &key, false);
-    if (entry->key.type == VALUE_NIL) {
-        return false;
+    int slot = hash % table->capacity;
+    Node* root_node = table->entries[slot];
+    Node* node = root_node;
+
+    while (node != NULL) {
+        if (keys_equal(node->key, key)) {
+            *out = node->value;
+            return true;
+        }
+
+        node = node->next;
     }
-    *out = entry->value;
-    return true;
+
+    return false;
 }
 
 /* Get a PointerArray of Value* of all set entries in the table. */
@@ -171,15 +159,22 @@ PointerArray table_iterate(Table* table) {
 	PointerArray array;
 	pointer_array_init(&array, "table_iterate pointer array buffer");
 
-	for (int i = 0; i < table->capacity; i++) {
-		Entry* entry = &table->entries[i];
+	// for (int i = 0; i < table->capacity; i++) {
+	// 	Entry* entry = &table->entries[i];
 
-		if (entry->key.type != VALUE_NIL) {
-			pointer_array_write(&array, entry);
-		} else if (entry->value.type != VALUE_NIL) {
-			FAIL("Found entry in table where key is nil but value is non-nil. Its type: %d", entry->value.type);
-		}
-	}
+	// 	if (entry->key.type != VALUE_NIL) {
+	// 		pointer_array_write(&array, entry);
+	// 	} else if (entry->value.type != VALUE_NIL) {
+	// 		FAIL("Found entry in table where key is nil but value is non-nil. Its type: %d", entry->value.type);
+	// 	}
+	// }
+
+    for (int i = 0; i < table->capacity; i++) {
+        Node* node = table->entries[i];
+        while (node != NULL) {
+            pointer_array_write(&array, node);
+        }
+    }
 
 	return array;
 }
@@ -189,7 +184,7 @@ void table_print(Table* table) {
 
 	printf("[");
 	for (int i = 0; i < entries.count; i++) {
-		Entry* entry = entries.values[i];
+		Node* entry = entries.values[i];
 		Value value = entry->value;
 		value_print(entry->key);
 		printf(": ");
@@ -205,12 +200,14 @@ void table_print(Table* table) {
 }
 
 void table_print_debug(Table* table) {
-    printf("Capacity: %d \nCount: %d \nCollisions: %d \n", table->capacity, table->count, table->collisions_counter);
+    // printf("Capacity: %d \nCount: %d \nCollisions: %d \n", table->capacity, table->count, table->collisions_counter);
+    printf("Bucket capacity: %d \nBucket count: %d \n", table->capacity, table->bucket_count);
     
+    PointerArray entries = table_iterate(table);
     if (table->capacity > 0) {
     	printf("Data: \n");
-		for (int i = 0; i < table->capacity; i ++) {
-			Entry* entry = &table->entries[i];
+		for (int i = 0; i < entries.count; i ++) {
+			Node* entry = entries.values[i];
 			printf("%d = [Key: ", i);
 			value_print(entry->key);
 			printf(", Value: ");
@@ -223,7 +220,7 @@ void table_print_debug(Table* table) {
 }
 
 void table_free(Table* table) {
-    deallocate(table->entries, sizeof(Entry) * table->capacity, "Hash table array");
+    deallocate(table->entries, sizeof(Node*) * table->capacity, "Hash table array");
     table_init(table);
 }
 

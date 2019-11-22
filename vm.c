@@ -163,7 +163,7 @@ static void gc_mark_table(Table* table) {
 	PointerArray entries = table_iterate(table);
 
 	for (int i = 0; i < entries.count; i++) {
-		Entry* entry = entries.values[i];
+		Node* entry = entries.values[i];
 
 		if (entry->value.type == VALUE_OBJECT) {
 			gc_mark_object(entry->value.as.object);

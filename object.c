@@ -89,15 +89,17 @@ static bool object_table_length(ValueArray args, Value* result) {
 
     // TODO: Maybe much better way to do this?
 
-    int length = 0;
-	for (int i = 0; i < self_table->table.capacity; i++) {
-		Entry* entry = &self_table->table.entries[i];
-		if (entry->key.type != VALUE_NIL) {
-			length++;
-		}
-	}
+	// for (int i = 0; i < self_table->table.capacity; i++) {
+	// 	Entry* entry = &self_table->table.entries[i];
+	// 	if (entry->key.type != VALUE_NIL) {
+	// 		length++;
+	// 	}
+	// }
 
-    *result = MAKE_VALUE_NUMBER(length);
+	PointerArray entries = table_iterate(&self_table->table);
+    *result = MAKE_VALUE_NUMBER(entries.count);
+	pointer_array_free(&entries);
+
     return true;
 }
 
