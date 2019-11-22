@@ -133,6 +133,10 @@ bool table_get(Table* table, struct Value key, Value* out) {
 }
 
 bool table_get_value_directly(Table* table, Value key, Value* out) {
+    if (table->capacity == 0) {
+        return false;
+    }
+
     unsigned long hash;
     if (!value_hash(&key, &hash)) {
     	// TODO: Report error
