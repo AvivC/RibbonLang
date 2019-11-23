@@ -1194,13 +1194,12 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
     				value_array_write(&arguments, &key);
     				value_array_write(&arguments, &value);
 
-    				Value result;
+    				Value throwaway_result;
     				if (set_method->is_native) {
-    					if (!set_method->native_function(arguments, &result)) {
+    					if (!set_method->native_function(arguments, &throwaway_result)) {
     						RUNTIME_ERROR("@set_key function failed.");
     						goto op_set_key_cleanup;
     					}
-    					push(result);
     				} else {
     					// TODO: user function
     				}

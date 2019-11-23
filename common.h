@@ -12,7 +12,6 @@
 
 #define DEBUG 0 // General debug printing
 #define DEBUG_TRACE_EXECUTION 0 // Show stack operations
-#define DEBUG_PAUSE_AFTER_OPCODES 0 // Wait for user input after each opcode
 #define DEBUG_THREADING 0
 #define DEBUG_GC 0 // Show GC operations
 #define DEBUG_OBJECTS 0 // Show object operations
@@ -20,6 +19,8 @@
 #define DEBUG_SCANNER 0 // Show low level lexing output and such
 
 #define DEBUG_IMPORTANT 1 // Pretty much always leave this on, at least in dev - printing critical diagnosis and such
+
+#define DEBUG_PAUSE_AFTER_OPCODES 0 // Wait for user input after each opcode
 
 #if DEBUG
     #define DEBUG_PRINT(...) do { \

@@ -181,6 +181,7 @@ static bool table_set_key_function(ValueArray args, Value* result) {
 
     table_set(&self_table->table, key_value, value_to_set);
 
+	*result = MAKE_VALUE_NIL();
     return true;
 }
 //
