@@ -23,7 +23,6 @@ static void grow_table(Table* table) {
     table->capacity = GROW_CAPACITY(table->capacity);
     table->entries = allocate(sizeof(Node*) * table->capacity, "Hash table array");
     table->bucket_count = 0;
-    
     for (int i = 0; i < table->capacity; i++) {
         table->entries[i] = NULL;
     }
@@ -33,11 +32,12 @@ static void grow_table(Table* table) {
     for (int i = 0; i < old_capacity; i++) {
         Node* old_entry = old_entries[i];
         
-        if (old_entry == NULL) {
-            continue;
+        while (old_entry != NULL) {
+            table_set_value_directly(table, old_entry->key, old_entry->value);
+            Node* current = old_entry;
+            old_entry = old_entry->next;
+            deallocate(current, sizeof(Node), "Table linked list node");
         }
-        
-        table_set_value_directly(table, old_entry->key, old_entry->value);
     }
     
     DEBUG_MEMORY("Deallocating old table array.");
@@ -177,6 +177,7 @@ PointerArray table_iterate(Table* table) {
         Node* node = table->entries[i];
         while (node != NULL) {
             pointer_array_write(&array, node);
+            node = node->next;
         }
     }
 
@@ -224,6 +225,16 @@ void table_print_debug(Table* table) {
 }
 
 void table_free(Table* table) {
+    // TODO: Differentiate between inner iteration utility which exposes Node*s,
+    // and the API function which should expose Entry objects or something (without the next member)
+
+    PointerArray entries = table_iterate(table);
+    for (size_t i = 0; i < entries.count; i++) {
+        Node* node = entries.values[i];
+        deallocate(node, sizeof(Node), "Table linked list node");        
+    }
+    pointer_array_free(&entries);
+
     deallocate(table->entries, sizeof(Node*) * table->capacity, "Hash table array");
     table_init(table);
 }

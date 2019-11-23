@@ -110,7 +110,7 @@ void* reallocate(void* pointer, size_t old_size, size_t new_size, const char* wh
     
     if (old_size == 0) {
         // New allocation
-        
+
         DEBUG_MEMORY("Attempting to allocate %d bytes for '%s'.", new_size, what);
         
         if (allocs_buffer_count + 1 > allocs_buffer_capacity) {

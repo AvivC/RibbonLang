@@ -177,10 +177,6 @@ static bool table_set_key_function(ValueArray args, Value* result) {
     	FAIL("Table @set_key called on none ObjectTable.");
     }
 
-    if (!object_value_is(key_value, OBJECT_STRING)) {
-    	return false;
-    }
-
     ObjectTable* self_table = (ObjectTable*) self_value.as.object;
 
     table_set(&self_table->table, key_value, value_to_set);

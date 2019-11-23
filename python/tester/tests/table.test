@@ -29,7 +29,7 @@ expect
     1010
 end
 
-test keys of different types
+test initializing with keys of different types
     table = [5: "hello", "string key": {print("I'm a function")}, 10 * 3: ["inner string": "inner value"]]
     print(table[5])
     table["string key"]()
@@ -38,6 +38,27 @@ expect
     hello
     I'm a function
     inner value
+end
+
+test setting keys of different types
+    k1 = 25
+    k2 = "abc"
+    k3 = 1000
+
+    table = []
+    table[k1] = "XXX"
+    table[k2] = "YYY"
+    table[k3] = [k2: k1]
+    
+    print(table[k1])
+    print(table[k2])
+    print(table[25])
+    print(table[k3][k2])
+expect
+    XXX
+    YYY
+    XXX
+    25
 end
 
 test table as plain array
