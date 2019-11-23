@@ -52,22 +52,6 @@ void table_init(Table* table) {
 }
 
 void table_set_cstring_key(Table* table, const char* key, Value value) {
-	// Value copied_key = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key)); // Yeah, not really efficient this stuff...
-
-    // if (table->bucket_count + 1 > table->capacity * MAX_LOAD_FACTOR) {
-    //     grow_table(table);
-    // }
-    
-    // DEBUG_MEMORY("Finding entry '%s' in hash table.", key);
-    // Entry* entry = find_entry(table, &copied_key, true);
-
-    // if (entry->key.type == VALUE_NIL) {
-    //     table->bucket_count++;
-    // }
-
-    // entry->key = copied_key; // If it's not NULL (nil?), we're needlessly overriding the same key
-    // entry->value = value;
-
     Value copied_key = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key)); // Yeah, not really efficient this stuff...
     table_set_value_directly(table, copied_key, value);
 }
@@ -114,16 +98,6 @@ void table_set_value_directly(Table* table, struct Value key, Value value) {
 }
 
 bool table_get_cstring_key(Table* table, const char* key, Value* out) {
-    // if (table->entries == NULL) {
-    //     return false;
-    // }
-    
-    // Entry* entry = find_entry(table, &MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key)), false);
-    // if (entry->key.type == VALUE_NIL) {
-    //     return false;
-    // }
-    // *out = entry->value;
-    
     Value value_key = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key));
     return table_get_value_directly(table, value_key, out);
 }
@@ -158,21 +132,39 @@ bool table_get_value_directly(Table* table, Value key, Value* out) {
     return false;
 }
 
+bool table_delete(Table* table, Value key) {
+    if (table->capacity == 0) {
+        return false;
+    }
+
+    unsigned long hash;
+    if (!value_hash(&key, &hash)) {
+    	return false;
+    }
+
+    int slot = hash % table->capacity;
+    Node* root_node = table->entries[slot];
+    Node* node = root_node;
+    Node* previous = root_node;
+
+    while (node != NULL) {
+        if (keys_equal(node->key, key)) {
+            previous->next = node->next;
+            deallocate(node, sizeof(Node), "Table linked list node");
+            node = previous->next;
+        } else {
+            previous = node;
+            node = node->next;
+        }
+    }
+
+    return false;
+}
+
 /* Get a PointerArray of Value* of all set entries in the table. */
 PointerArray table_iterate(Table* table) {
 	PointerArray array;
 	pointer_array_init(&array, "table_iterate pointer array buffer");
-
-	// for (int i = 0; i < table->capacity; i++) {
-	// 	Entry* entry = &table->entries[i];
-
-	// 	if (entry->key.type != VALUE_NIL) {
-	// 		pointer_array_write(&array, entry);
-	// 	} else if (entry->value.type != VALUE_NIL) {
-	// 		FAIL("Found entry in table where key is nil but value is non-nil. Its type: %d", entry->value.type);
-	// 	}
-	// }
-
     for (int i = 0; i < table->capacity; i++) {
         Node* node = table->entries[i];
         while (node != NULL) {
