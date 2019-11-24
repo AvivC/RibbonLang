@@ -495,12 +495,16 @@ void vm_free(void) {
 // 	}
 // }
 
-static void print_stack_trace(void) {
-	printf("Stack trace:\n");
+static void print_call_stack(void) {
 	ObjectThread* thread = current_thread();
-	for (StackFrame* frame = thread->call_stack; frame < thread->call_stack_top; frame++) {
-		printf("    - %s\n", frame->function->name);
+	for (StackFrame* frame = thread->call_stack_top - 1; frame >= thread->call_stack; frame--) {
+		printf("    -> %s\n", frame->function->name);
 	}
+}
+
+static void print_stack_trace(void) {
+	printf("An error has occured. Stack trace (most recent call on top):\n");
+	print_call_stack();
 }
 
 #define READ_BYTE() (*current_thread()->ip++)
@@ -632,6 +636,10 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 			printf("\n");
 
 			bytecode_print_constant_table(current_bytecode());
+			printf("\n");
+
+			printf("Call stack:\n");
+			print_call_stack();
 			printf("\n");
 
 			#if DEBUG_MEMORY_EXECUTION
