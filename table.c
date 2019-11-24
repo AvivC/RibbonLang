@@ -8,6 +8,20 @@
 
 #define MAX_LOAD_FACTOR 0.75
 
+static void* allocate_suitably(Table* table, size_t size, const char* what) {
+    if (!table->is_memory_infrastructure) {
+        return allocate(size, what);
+    }
+    return allocate_no_tracking(size);
+}
+
+static void deallocate_suitably(Table* table, void* pointer, size_t size, const char* what) {
+    if (!table->is_memory_infrastructure) {
+        deallocate(pointer, size, what);
+    }
+    deallocate_no_tracking(pointer);
+}
+
 static bool keys_equal(Value v1, Value v2) {
     int compare_result = -1;
     bool compare_success = value_compare(v1, v2, &compare_result);
@@ -21,8 +35,10 @@ static void grow_table(Table* table) {
     Node** old_entries = table->entries;
     
     table->capacity = GROW_CAPACITY(table->capacity);
-    table->entries = allocate(sizeof(Node*) * table->capacity, "Hash table array");
     table->bucket_count = 0;
+
+    table->entries = allocate_suitably(table, sizeof(Node*) * table->capacity, "Hash table array");
+
     for (int i = 0; i < table->capacity; i++) {
         table->entries[i] = NULL;
     }
@@ -36,19 +52,27 @@ static void grow_table(Table* table) {
             table_set_value_directly(table, old_entry->key, old_entry->value);
             Node* current = old_entry;
             old_entry = old_entry->next;
-            deallocate(current, sizeof(Node), "Table linked list node");
+            // deallocate(current, sizeof(Node), "Table linked list node");
+            deallocate_suitably(table, current, sizeof(Node), "Table linked list node");
         }
     }
     
     DEBUG_MEMORY("Deallocating old table array.");
-    deallocate(old_entries, sizeof(Node*) * old_capacity, "Hash table array");
+    // deallocate(old_entries, sizeof(Node*) * old_capacity, "Hash table array");
+    deallocate_suitably(table, old_entries, sizeof(Node*) * old_capacity, "Hash table array");
 }
 
 void table_init(Table* table) {
     table->bucket_count = 0;
     table->capacity = 0;
+    table->is_memory_infrastructure = false;
     // table->collisions_counter = 0;
     table->entries = NULL;
+}
+
+void table_init_memory_infrastructure(Table* table) {
+    table_init(table);
+    table->is_memory_infrastructure = true;
 }
 
 void table_set_cstring_key(Table* table, const char* key, Value value) {
@@ -88,7 +112,7 @@ void table_set_value_directly(Table* table, struct Value key, Value value) {
     }
 
     if (node == NULL) {
-        Node* new_node = allocate(sizeof(Node), "Table linked list node");
+        Node* new_node = allocate_suitably(table, sizeof(Node), "Table linked list node");
         new_node->key = key;
         new_node->value = value;
 
@@ -145,13 +169,20 @@ bool table_delete(Table* table, Value key) {
     int slot = hash % table->capacity;
     Node* root_node = table->entries[slot];
     Node* node = root_node;
-    Node* previous = root_node;
+    Node* previous = NULL;
 
     while (node != NULL) {
         if (keys_equal(node->key, key)) {
-            previous->next = node->next;
-            deallocate(node, sizeof(Node), "Table linked list node");
-            node = previous->next;
+            if (previous != NULL) { 
+                previous->next = node->next;
+                // deallocate(node, sizeof(Node), "Table linked list node");
+                deallocate_suitably(table, node, sizeof(Node), "Table linked list node");
+            } else {
+                table->entries[slot] = node->next;
+                // deallocate(node, sizeof(Node), "Table linked list node");
+                deallocate_suitably(table, node, sizeof(Node), "Table linked list node");
+            }
+            return true;
         } else {
             previous = node;
             node = node->next;
@@ -161,7 +192,6 @@ bool table_delete(Table* table, Value key) {
     return false;
 }
 
-/* Get a PointerArray of Value* of all set entries in the table. */
 PointerArray table_iterate(Table* table) {
 	PointerArray array;
 	pointer_array_init(&array, "table_iterate pointer array buffer");
@@ -223,11 +253,13 @@ void table_free(Table* table) {
     PointerArray entries = table_iterate(table);
     for (size_t i = 0; i < entries.count; i++) {
         Node* node = entries.values[i];
-        deallocate(node, sizeof(Node), "Table linked list node");        
+        // deallocate(node, sizeof(Node), "Table linked list node");        
+        deallocate_suitably(table, node, sizeof(Node), "Table linked list node");        
     }
     pointer_array_free(&entries);
 
-    deallocate(table->entries, sizeof(Node*) * table->capacity, "Hash table array");
+    // deallocate(table->entries, sizeof(Node*) * table->capacity, "Hash table array");
+    deallocate_suitably(table, table->entries, sizeof(Node*) * table->capacity, "Hash table array");
     table_init(table);
 }
 

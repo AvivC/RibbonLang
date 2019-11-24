@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 
 #include "value.h"
@@ -33,6 +34,15 @@ void value_print(Value value) {
             printf("nil");
             return;
         }
+		case VALUE_ADDRESS: {
+			printf("%" PRIxPTR , value.as.address);
+			return; 
+		}
+		case VALUE_ALLOCATION: {
+			Allocation allocation = value.as.allocation;
+			printf("<Internal: allocation marker of '\%s' size %" PRI_SIZET ">", allocation.name, allocation.size);
+			return;
+		}
     }
 
     FAIL("Unrecognized VALUE_TYPE: %d", value.type);
@@ -43,37 +53,65 @@ bool value_compare(Value a, Value b, int* output) {
 		return false;
 	}
 
-	if (a.type == VALUE_NUMBER) {
-		double n1 = a.as.number;
-		double n2 = b.as.number;
+	switch (a.type) {
+		case VALUE_NUMBER: {
+			double n1 = a.as.number;
+			double n2 = b.as.number;
 
-		if (n1 == n2) {
-			*output = 0;
-		} else if (n1 > n2) {
-			*output = 1;
-		} else {
-			*output = -1;
+			if (n1 == n2) {
+				*output = 0;
+			} else if (n1 > n2) {
+				*output = 1;
+			} else {
+				*output = -1;
+			}
+			return true;
 		}
-		return true;
 
-	} else if (a.type == VALUE_BOOLEAN) {
-		bool b1 = a.as.boolean;
-		bool b2 = b.as.boolean;
-		if (b1 == b2) {
-			*output = 0;
-		} else {
-			*output = -1;
+		case VALUE_BOOLEAN: {
+			bool b1 = a.as.boolean;
+			bool b2 = b.as.boolean;
+			if (b1 == b2) {
+				*output = 0;
+			} else {
+				*output = -1;
+			}
+			return true;
 		}
-		return true;
 
-	} else if (a.type == VALUE_OBJECT) {
-		bool objectsEqual = object_compare(a.as.object, b.as.object);
-		if (objectsEqual) {
-			*output = 0;
-		} else {
-			*output = -1;
+		case VALUE_OBJECT: {
+			bool objectsEqual = object_compare(a.as.object, b.as.object);
+			if (objectsEqual) {
+				*output = 0;
+			} else {
+				*output = -1;
+			}
+			return true;
 		}
-		return true;
+
+		case VALUE_NIL: {
+			*output = 0;
+			return true;
+		}
+
+		case VALUE_ADDRESS: {
+			*output = 0;
+			return a.as.address == b.as.address;
+		}
+
+		case VALUE_ALLOCATION: {
+			Allocation alloc1 = a.as.allocation;
+			Allocation alloc2 = b.as.allocation;
+
+			*output = (alloc1.size == alloc2.size) && (strcmp(alloc1.name, alloc2.name) == 0);
+			return true;
+		}
+
+		case VALUE_CHUNK:
+		case VALUE_RAW_STRING: {
+			FAIL("Attempting to compare chunks or raw_strings, shouldn't happen.");
+			return false;
+		}
 	}
 
 	FAIL("Couldn't compare values. Type A: %d, type B: %d", a.type, b.type);
@@ -99,7 +137,7 @@ bool value_hash(Value* value, unsigned long* result) {
 			return true;
 		}
 		case VALUE_NUMBER: {
-			*result = hash_int(floor(value->as.number));
+			*result = hash_int(floor(value->as.number)); // TODO: Not good at all, redo this
 			return true;
 		}
 		case VALUE_NIL: {
@@ -108,6 +146,13 @@ bool value_hash(Value* value, unsigned long* result) {
 		}
 		case VALUE_RAW_STRING: {
 			FAIL("Hashing a RAW_STRING shouldn't really happen ever.");
+			return false;
+		}
+		case VALUE_ADDRESS: {
+			*result = hash_int(value->as.address); // Not good at all, but should logically work
+			return true;
+		}
+		case VALUE_ALLOCATION: {
 			return false;
 		}
 	}

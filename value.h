@@ -11,7 +11,9 @@ typedef enum {
     VALUE_NIL,
 	VALUE_RAW_STRING,
 	VALUE_CHUNK,
-    VALUE_OBJECT
+    VALUE_OBJECT,
+    VALUE_ALLOCATION, // Internal
+    VALUE_ADDRESS // Internal
 } ValueType;
 
 typedef struct {
@@ -27,6 +29,8 @@ typedef struct Value {
         RawString raw_string;
         Bytecode chunk;
         struct Object* object;
+        Allocation allocation;
+        uintptr_t address;
     } as;
 } Value;
 
@@ -37,6 +41,9 @@ typedef struct Value {
 														.as.raw_string = (RawString) {.data = (cstring), .length = (the_length)}}
 #define MAKE_VALUE_OBJECT(o) (Value){.type = VALUE_OBJECT, .as.object = (struct Object*)(o)}
 #define MAKE_VALUE_CHUNK(the_chunk) (Value){.type = VALUE_CHUNK, .as.chunk = (the_chunk)}
+#define MAKE_VALUE_ALLOCATION(the_name, the_size) (Value) {.type = VALUE_ALLOCATION, \
+                                                            .as.allocation = (Allocation) {.name = the_name, .size = the_size}}
+#define MAKE_VALUE_ADDRESS(the_address) (Value) {.type = VALUE_ADDRESS, .as.address = (uintptr_t) the_address }
 
 #define ASSERT_VALUE_TYPE(value, expected_type) \
 	do { \

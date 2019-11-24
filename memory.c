@@ -5,6 +5,147 @@
 
 #include "memory.h"
 #include "common.h"
+#include "table.h"
+
+static Table allocations;
+static size_t allocated_memory = 0;
+
+void memory_init(void) {
+    table_init_memory_infrastructure(&allocations);
+    allocated_memory = 0; // For consistency
+}
+
+size_t get_allocated_memory() {
+    return allocated_memory;
+}
+
+size_t get_allocations_count() {
+    PointerArray entries = table_iterate(&allocations);
+    size_t count = entries.count;
+    pointer_array_free(&entries);
+    return count;
+}
+
+static bool is_same_allocation(size_t size, const char* what, Allocation allocation) {
+    return (allocation.size == size) && (strcmp(allocation.name, what) == 0);
+}
+
+void* allocate(size_t size, const char* what) {
+    return reallocate(NULL, 0, size, what);
+}
+
+void deallocate(void* pointer, size_t oldSize, const char* what) {
+    reallocate(pointer, oldSize, 0, what);
+}
+
+void* reallocate(void* pointer, size_t old_size, size_t new_size, const char* what) {
+    Value pointer_key = MAKE_VALUE_ADDRESS(pointer);
+
+    if (new_size == 0) {
+        // Deallocation
+        
+        DEBUG_MEMORY("Attempting to deallocate %d bytes, for '%s' at '%p'.", old_size, what, pointer);
+        
+        if (pointer != NULL) {
+            DEBUG_MEMORY("Marked '%s' as deallocated.", allocations[i].name);
+
+            if (!table_delete(&allocations, pointer_key)) {
+                FAIL("Couldn't remove existing key in the table: %p, '%s'", pointer, what);
+            }
+        }
+        
+        DEBUG_MEMORY("Freeing '%s' ('%p') and %d bytes.", what, pointer, old_size);
+        free(pointer); // realloc() shouldn't be called with 0 size
+        allocated_memory -= old_size;
+
+        return NULL;
+    }
+    
+    if (old_size == 0) {
+        // New allocation
+
+        DEBUG_MEMORY("Allocating for '%s' %d bytes.", what, new_size);
+
+        pointer = realloc(pointer, new_size); // realloc() with NULL is equal to malloc()
+        table_set(&allocations, MAKE_VALUE_ADDRESS(pointer), MAKE_VALUE_ALLOCATION(what, new_size));
+        allocated_memory += new_size;
+        return pointer;
+    }
+    
+    // Reallocation
+    
+    DEBUG_MEMORY("Attempting to reallocate for '%s' %d bytes instead of %d bytes.", what, new_size, old_size);
+    void* newpointer = realloc(pointer, new_size);
+    
+    if (newpointer == NULL) {
+         // TODO: Should be a severe runtime error, not a FAIL?
+        FAIL("Reallocation of '%s' failed! "
+                "Pointer: %p, new_size: %" PRI_SIZET " . Total allocated memory: %" PRI_SIZET, what, pointer, new_size, get_allocated_memory());
+        return NULL;
+    }
+
+    Value allocation_out;
+    if (table_get(&allocations, pointer_key, &allocation_out)) {
+        Allocation existing = allocation_out.as.allocation;
+        if (!is_same_allocation(old_size, what, existing)) {
+            FAIL("When attempting relocation, table returned wrong allocation marker.");
+        }
+
+        if (table_delete(&allocations, pointer_key)) {
+            Value new_allocation_key = MAKE_VALUE_ADDRESS(newpointer);
+            Value new_allocation = MAKE_VALUE_ALLOCATION(what, new_size);
+            table_set(&allocations, new_allocation_key, new_allocation);
+        } else {
+            FAIL("In reallocation, couldn't remove entry which was found in the table.");
+        }
+    }
+    
+    allocated_memory -= old_size;
+    allocated_memory += new_size;
+    
+    return newpointer;
+}
+
+void* allocate_no_tracking(size_t size) {
+    return malloc(size);
+}
+
+void deallocate_no_tracking(void* pointer) {
+    free(pointer);
+}
+
+void* reallocate_no_tracking(void* pointer, size_t new_size) {
+    return realloc(pointer, new_size);
+}
+
+void print_allocated_memory_entries() {  // for debugging
+    DEBUG_IMPORTANT_PRINT("\nAllocated memory entries:\n");
+
+    PointerArray entries = table_iterate(&allocations);
+
+    for (int i = 0; i < entries.count; i++) {
+        Node* entry = entries.values[i];
+        ASSERT_VALUE_TYPE(entry->key, VALUE_ADDRESS);
+        ASSERT_VALUE_TYPE(entry->value, VALUE_ALLOCATION);
+
+        uintptr_t address = entry->key.as.address;
+        Allocation allocation = entry->value.as.allocation;
+
+        DEBUG_IMPORTANT_PRINT("[ %-3d: ", i);
+        DEBUG_IMPORTANT_PRINT("%" PRIxPTR " ", address);
+        DEBUG_IMPORTANT_PRINT(" | ");
+        DEBUG_IMPORTANT_PRINT("%-33s", allocation.name);
+        DEBUG_IMPORTANT_PRINT(" | ");
+        DEBUG_IMPORTANT_PRINT("Last allocated size: %-4" PRIuPTR, allocation.size);
+        DEBUG_IMPORTANT_PRINT("]\n");
+    }
+
+    pointer_array_free(&entries);
+}
+
+
+
+/* This is the old working code
 
 typedef struct {
     const char* name;
@@ -179,7 +320,7 @@ void print_allocated_memory_entries() {  // for debugging
     }
 }
 
-
+// */
 
 /* Remove the surrounding block comment (and comment the rest) for non-book keeping version of this module
 

@@ -56,7 +56,7 @@ static void printMemoryDiagnostic() {
     printf("======== Memory diagnostics ========");
     
     bool problem = false;
-    
+
     size_t allocatedMemory = get_allocated_memory();
     if (allocatedMemory == 0) {
         DEBUG_IMPORTANT_PRINT("\n*******\nAll memory freed.\n*******");
@@ -94,6 +94,8 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "Usage: plane <file> [[-asm] [-tree] [-dry]]");
         return -1;
     }
+
+    memory_init();
     
 //    char* source = readFile(argv[1]);
     char* source = NULL;

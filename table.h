@@ -26,6 +26,7 @@ typedef struct {
     int bucket_count;
     Node** entries;
     // int collisions_counter; // for debugging
+    bool is_memory_infrastructure;
 } Table;
 
 struct ObjectString;
@@ -33,6 +34,7 @@ struct ObjectString;
 Table table_new_empty(void);
 
 void table_init(Table* table);
+void table_init_memory_infrastructure(Table* table);
 
 //void table_set(Table* table, struct ObjectString* key, Value value);
 void table_set(Table* table, struct Value key, Value value); // TODO: report success or failure
@@ -44,6 +46,8 @@ bool table_get_value_directly(Table* table, Value key, Value* out);
 
 void table_set_cstring_key(Table* table, const char* key, Value value); // TODO: report success or failure
 bool table_get_cstring_key(Table* table, const char* key, Value* out);
+
+bool table_delete(Table* table, Value key);
 
 void table_free(Table* table);
 
