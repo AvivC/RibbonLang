@@ -18,6 +18,7 @@ static void* allocate_suitably(Table* table, size_t size, const char* what) {
 static void deallocate_suitably(Table* table, void* pointer, size_t size, const char* what) {
     if (!table->is_memory_infrastructure) {
         deallocate(pointer, size, what);
+        return;
     }
     deallocate_no_tracking(pointer);
 }
