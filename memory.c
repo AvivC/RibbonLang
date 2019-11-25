@@ -38,42 +38,23 @@ void deallocate(void* pointer, size_t oldSize, const char* what) {
     reallocate(pointer, oldSize, 0, what);
 }
 
-void* reallocate(void* pointer, size_t old_size, size_t new_size, const char* what) {
-    Value pointer_key = MAKE_VALUE_ADDRESS(pointer);
+static void* do_deallocation(void* pointer, size_t old_size, const char* what) {
+    // We allow the pointer to be NULL, and if it is we do nothing
 
-    if (new_size == 0) {
-        // Deallocation
-        
-        DEBUG_MEMORY("Attempting to deallocate %d bytes, for '%s' at '%p'.", old_size, what, pointer);
-        
-        if (pointer != NULL) {
-            DEBUG_MEMORY("Marked '%s' as deallocated.", allocations[i].name);
-
-            if (!table_delete(&allocations, pointer_key)) {
-                FAIL("Couldn't remove existing key in the table: %p, '%s'", pointer, what);
-            }
+    if (pointer != NULL) {
+        if (!table_delete(&allocations, MAKE_VALUE_ADDRESS(pointer))) {
+            FAIL("Couldn't remove existing key in allocations table: %p. Allocation tag: '%s'", pointer, what);
         }
-        
-        DEBUG_MEMORY("Freeing '%s' ('%p') and %d bytes.", what, pointer, old_size);
-        free(pointer); // realloc() shouldn't be called with 0 size
-        allocated_memory -= old_size;
-
-        return NULL;
     }
     
-    if (old_size == 0) {
-        // New allocation
+    DEBUG_MEMORY("Freeing '%s' ('%p') and %d bytes.", what, pointer, old_size);
+    free(pointer);
+    allocated_memory -= old_size;
 
-        DEBUG_MEMORY("Allocating for '%s' %d bytes.", what, new_size);
+    return NULL;
+}
 
-        pointer = realloc(pointer, new_size); // realloc() with NULL is equal to malloc()
-        table_set(&allocations, MAKE_VALUE_ADDRESS(pointer), MAKE_VALUE_ALLOCATION(what, new_size));
-        allocated_memory += new_size;
-        return pointer;
-    }
-    
-    // Reallocation
-    
+static void* do_reallocation(void* pointer, size_t old_size, size_t new_size, const char* what) {
     DEBUG_MEMORY("Attempting to reallocate for '%s' %d bytes instead of %d bytes.", what, new_size, old_size);
     void* newpointer = realloc(pointer, new_size);
     
@@ -85,13 +66,13 @@ void* reallocate(void* pointer, size_t old_size, size_t new_size, const char* wh
     }
 
     Value allocation_out;
-    if (table_get(&allocations, pointer_key, &allocation_out)) {
+    if (table_get(&allocations, MAKE_VALUE_ADDRESS(pointer), &allocation_out)) {
         Allocation existing = allocation_out.as.allocation;
         if (!is_same_allocation(old_size, what, existing)) {
             FAIL("When attempting relocation, table returned wrong allocation marker.");
         }
 
-        if (table_delete(&allocations, pointer_key)) {
+        if (table_delete(&allocations, MAKE_VALUE_ADDRESS(pointer))) {
             Value new_allocation_key = MAKE_VALUE_ADDRESS(newpointer);
             Value new_allocation = MAKE_VALUE_ALLOCATION(what, new_size);
             table_set(&allocations, new_allocation_key, new_allocation);
@@ -106,6 +87,27 @@ void* reallocate(void* pointer, size_t old_size, size_t new_size, const char* wh
     return newpointer;
 }
 
+static void* do_allocation(void* pointer, size_t new_size, const char* what) {
+    DEBUG_MEMORY("Allocating for '%s' %d bytes.", what, new_size);
+
+    pointer = realloc(pointer, new_size); // realloc() with NULL is equal to malloc()
+    table_set(&allocations, MAKE_VALUE_ADDRESS(pointer), MAKE_VALUE_ALLOCATION(what, new_size));
+    allocated_memory += new_size;
+    return pointer;
+}
+
+void* reallocate(void* pointer, size_t old_size, size_t new_size, const char* what) {
+    if (new_size == 0) {
+        return do_deallocation(pointer, old_size, what);
+    }
+    
+    if (old_size == 0) {
+        return do_allocation(pointer, new_size, what);
+    }
+    
+    return do_reallocation(pointer, old_size, new_size, what);
+}
+
 void* allocate_no_tracking(size_t size) {
     return malloc(size);
 }
@@ -118,8 +120,8 @@ void* reallocate_no_tracking(void* pointer, size_t new_size) {
     return realloc(pointer, new_size);
 }
 
-void print_allocated_memory_entries() {  // for debugging
-    DEBUG_IMPORTANT_PRINT("\nAllocated memory entries:\n");
+void memory_print_allocated_entries() {  // for debugging
+    DEBUG_IMPORTANT_PRINT("Allocated memory entries:\n");
 
     PointerArray entries = table_iterate(&allocations);
 
@@ -134,7 +136,7 @@ void print_allocated_memory_entries() {  // for debugging
         DEBUG_IMPORTANT_PRINT("[ %-3d: ", i);
         DEBUG_IMPORTANT_PRINT("%" PRIxPTR " ", address);
         DEBUG_IMPORTANT_PRINT(" | ");
-        DEBUG_IMPORTANT_PRINT("%-33s", allocation.name);
+        DEBUG_IMPORTANT_PRINT("%-40s", allocation.name);
         DEBUG_IMPORTANT_PRINT(" | ");
         DEBUG_IMPORTANT_PRINT("Last allocated size: %-4" PRIuPTR, allocation.size);
         DEBUG_IMPORTANT_PRINT("]\n");

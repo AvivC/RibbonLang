@@ -93,6 +93,7 @@ void table_set_value_directly(Table* table, struct Value key, Value value) {
     unsigned long hash;
     if (!value_hash(&key, &hash)) {
     	// TODO: Report error
+        FAIL("Temporary FAIL: Couldn't hash.");
     }
 
     int slot = hash % table->capacity;
@@ -138,7 +139,7 @@ bool table_get_value_directly(Table* table, Value key, Value* out) {
 
     unsigned long hash;
     if (!value_hash(&key, &hash)) {
-    	// TODO: Report error
+    	FAIL("Temporary FAIL: Couldn't hash.");
     }
 
     int slot = hash % table->capacity;

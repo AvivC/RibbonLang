@@ -95,8 +95,18 @@ bool value_compare(Value a, Value b, int* output) {
 		}
 
 		case VALUE_ADDRESS: {
-			*output = 0;
-			return a.as.address == b.as.address;
+			uintptr_t addr1 = a.as.address;
+			uintptr_t addr2 = b.as.address;
+						
+			if (addr1 == addr2) {
+				*output = 0;
+			} else if (addr1 < addr2) {
+				*output = -1;
+			} else {
+				*output = 1;
+			}
+			
+			return true;
 		}
 
 		case VALUE_ALLOCATION: {

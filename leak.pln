@@ -1,0 +1,6 @@
+import math
+
+i = 0
+while i < 100000 {
+    math.sqrt(25)
+}

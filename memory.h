@@ -23,6 +23,6 @@ void* allocate_no_tracking(size_t size);
 void deallocate_no_tracking(void* pointer);
 void* reallocate_no_tracking(void* pointer, size_t new_size);
 
-void print_allocated_memory_entries(); // for debugging
+void memory_print_allocated_entries(); // for debugging
 
 #endif

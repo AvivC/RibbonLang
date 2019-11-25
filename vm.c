@@ -466,6 +466,8 @@ void vm_init(void) {
     vm.imported_modules = cell_table_new_empty();
     cell_table_init(&vm.globals);
     set_builtin_globals();
+
+	allocate(1024, "Dummy");
 }
 
 void vm_free(void) {

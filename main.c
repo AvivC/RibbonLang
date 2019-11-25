@@ -52,29 +52,29 @@ static void printStructures(int argc, char* argv[], Bytecode* chunk, AstNode* as
     }
 }
 
-static void printMemoryDiagnostic() {
+static void print_memory_diagnostic() {
     printf("======== Memory diagnostics ========");
     
     bool problem = false;
 
-    size_t allocatedMemory = get_allocated_memory();
-    if (allocatedMemory == 0) {
-        DEBUG_IMPORTANT_PRINT("\n*******\nAll memory freed.\n*******");
+    size_t allocated_memory = get_allocated_memory();
+    if (allocated_memory == 0) {
+        DEBUG_IMPORTANT_PRINT("\n*******\nAll memory freed.\n*******\n");
     } else {
-        DEBUG_IMPORTANT_PRINT("\n*******\nAllocated memory is %d, not 0!\n*******", allocatedMemory);
+        DEBUG_IMPORTANT_PRINT("\n*******\nAllocated memory is %d, not 0!\n*******\n", allocated_memory);
         problem = true;
     }
     
-    size_t numAllocations = get_allocations_count();
-    if (numAllocations == 0) {
-        DEBUG_IMPORTANT_PRINT("\n*******\nAll allocations freed.\n*******");
+    size_t num_allocations = get_allocations_count();
+    if (num_allocations == 0) {
+        DEBUG_IMPORTANT_PRINT("*******\nAll allocations freed.\n*******\n");
     } else {
-        DEBUG_IMPORTANT_PRINT("\n*******\nNumber of allocations which have not been freed is %d, not 0!\n*******", numAllocations);
+        DEBUG_IMPORTANT_PRINT("*******\nNumber of allocations which have not been freed is %d, not 0!\n*******\n", num_allocations);
         problem = true;
     }
     
     if (problem) {
-        print_allocated_memory_entries();
+        memory_print_allocated_entries();
     }
     
     printf("\n*******\n");
@@ -135,7 +135,7 @@ int main(int argc, char* argv[]) {
     if (!dryRun) {
     	// Dry running does no GC, so some things from the compiler aren't cleaned... So no point in printing diagnostics.
     	// Not ideal, but leave this for now
-    	printMemoryDiagnostic();
+    	print_memory_diagnostic();
     }
     #endif
     
