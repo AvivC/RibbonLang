@@ -160,7 +160,7 @@ static Value load_variable(ObjectString* name) {
 static void gc_mark_object(Object* object);
 
 static void gc_mark_table(Table* table) {
-	PointerArray entries = table_iterate(table);
+	PointerArray entries = table_iterate(table, "gc mark table_iterate buffer");
 
 	for (int i = 0; i < entries.count; i++) {
 		Node* entry = entries.values[i];

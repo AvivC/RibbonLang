@@ -88,8 +88,85 @@ int main(int argc, char* argv[]) {
 	// To make experimenting while working easy
 	if (TRYING_THINGS) {
 		printf("--- Experimentation mode. ---\n");
+
+        memory_init();
+
+        Table table;
+        table_init(&table);
+
+        Value v1 = MAKE_VALUE_NUMBER(1);
+        Value v2 = MAKE_VALUE_NUMBER(2);
+        Value v3 = MAKE_VALUE_NUMBER(3);
+        Value v4 = MAKE_VALUE_NUMBER(4);
+        Value v5 = MAKE_VALUE_NUMBER(5);
+        Value v6 = MAKE_VALUE_NUMBER(6);
+        Value v7 = MAKE_VALUE_NUMBER(7);
+        Value v8 = MAKE_VALUE_NUMBER(8);
+        Value v9 = MAKE_VALUE_NUMBER(9);
+        Value v10 = MAKE_VALUE_NUMBER(10);
+
+        Value k1 = MAKE_VALUE_NUMBER(100);
+        Value k2 = MAKE_VALUE_NUMBER(200);
+        Value k3 = MAKE_VALUE_NUMBER(300);
+        Value k4 = MAKE_VALUE_NUMBER(400);
+        Value k5 = MAKE_VALUE_NUMBER(500);
+        Value k6 = MAKE_VALUE_NUMBER(600);
+        Value k7 = MAKE_VALUE_NUMBER(700);
+        Value k8 = MAKE_VALUE_NUMBER(800);
+        Value k9 = MAKE_VALUE_NUMBER(900);
+        Value k10 = MAKE_VALUE_NUMBER(1000);
+
+        table_set(&table, k1, v1);
+        table_set(&table, k2, v2);
+        table_set(&table, k3, v3);
+        table_set(&table, k4, v4);
+        table_set(&table, k5, v5);
+        table_set(&table, k6, v6);
+        table_set(&table, k7, v7);
+        table_set(&table, k8, v8);
+        table_set(&table, k9, v9);
+        table_set(&table, k10, v10);
+
+        Value k11 = MAKE_VALUE_NUMBER(1100);
+        Value v11 = MAKE_VALUE_NUMBER(11);
+        Value k12 = MAKE_VALUE_NUMBER(1200);
+        Value v12 = MAKE_VALUE_NUMBER(12);
+        Value k13 = MAKE_VALUE_NUMBER(1300);
+        Value v13 = MAKE_VALUE_NUMBER(13);
+        table_set(&table, k11, v11);
+        table_set(&table, k12, v12);
+        table_set(&table, k13, v13);
+        
+        printf("\n");
+        table_print_debug(&table);
+        printf("\n");
+        table_print_debug_as_buckets(&table, true);
+
+        table_delete(&table, k6);
+
+        printf("\n");
+        table_print_debug(&table);
+        printf("\n");
+        table_print_debug_as_buckets(&table, true);
+
+        table_set(&table, k6, v6);
+
+        printf("\n");
+        table_print_debug(&table);
+        printf("\n");
+        table_print_debug_as_buckets(&table, true);
+
+        table_set(&table, k6, v4);
+
+        printf("\n");
+        table_print_debug(&table);
+        printf("\n");
+        table_print_debug_as_buckets(&table, true);
+
+
 		return 0;
 	}
+
     if (argc < 2 || argc > 5) {
         fprintf(stderr, "Usage: plane <file> [[-asm] [-tree] [-dry]]");
         return -1;

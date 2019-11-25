@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 
-#define DISABLE_GC 0  // Only set to 1 for debugging purposes when you need the GC to not run
+#define DISABLE_GC 1  // Only set to 1 for debugging purposes when you need the GC to not run
 
 #define DEBUG 0 // General debug printing
 #define DEBUG_TRACE_EXECUTION 0 // Show stack operations

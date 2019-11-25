@@ -194,12 +194,20 @@ bool table_delete(Table* table, Value key) {
     return false;
 }
 
-PointerArray table_iterate(Table* table) {
+PointerArray table_iterate(Table* table, const char* alloc_string) {
 	PointerArray array;
-	pointer_array_init(&array, "table_iterate pointer array buffer");
-    for (int i = 0; i < table->capacity; i++) {
+	pointer_array_init(&array, alloc_string);
+
+    for (size_t i = 0; i < table->capacity; i++) {
         Node* node = table->entries[i];
+
         while (node != NULL) {
+            if ((strcmp(alloc_string, "memory_print_allocated_entries() table_iterate buffer") == 0)
+                && (strcmp(node->value.as.allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0)) {
+                    printf("\n\nQQQQQQQQQQQQ\n\n");
+                    printf("\n\n%d\n\n", i);
+                }
+
             pointer_array_write(&array, node);
             node = node->next;
         }
@@ -209,7 +217,7 @@ PointerArray table_iterate(Table* table) {
 }
 
 void table_print(Table* table) {
-	PointerArray entries = table_iterate(table);
+	PointerArray entries = table_iterate(table, "table print table_iterate buffer");
 
 	printf("[");
 	for (int i = 0; i < entries.count; i++) {
@@ -228,11 +236,36 @@ void table_print(Table* table) {
 	pointer_array_free(&entries);
 }
 
+void table_print_debug_as_buckets(Table* table, bool show_empty_buckets) {
+    for (int i = 0; i < table->capacity; i++) {
+        Node* node = table->entries[i];
+
+        if (node != NULL || (node == NULL && show_empty_buckets)) {
+
+            printf("Bucket [%3d]", i);
+
+            while (node != NULL) {
+                printf("  --->  ");
+
+                printf("<");
+                value_print(node->key);
+                printf(" : ");
+                value_print(node->value);
+                printf(">");
+                node = node->next;
+            }
+
+            printf("\n");
+
+        }
+    }
+}
+
 void table_print_debug(Table* table) {
     // printf("Capacity: %d \nCount: %d \nCollisions: %d \n", table->capacity, table->count, table->collisions_counter);
     printf("Bucket capacity: %d \nBucket count: %d \n", table->capacity, table->bucket_count);
     
-    PointerArray entries = table_iterate(table);
+    PointerArray entries = table_iterate(table, "table print debug table_iterate buffer");
     if (table->capacity > 0) {
     	printf("Data: \n");
 		for (int i = 0; i < entries.count; i ++) {
@@ -252,7 +285,7 @@ void table_free(Table* table) {
     // TODO: Differentiate between inner iteration utility which exposes Node*s,
     // and the API function which should expose Entry objects or something (without the next member)
 
-    PointerArray entries = table_iterate(table);
+    PointerArray entries = table_iterate(table, "table free table_iterate buffer");
     for (size_t i = 0; i < entries.count; i++) {
         Node* node = entries.values[i];
         // deallocate(node, sizeof(Node), "Table linked list node");        

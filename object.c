@@ -96,7 +96,7 @@ static bool object_table_length(ValueArray args, Value* result) {
 	// 	}
 	// }
 
-	PointerArray entries = table_iterate(&self_table->table);
+	PointerArray entries = table_iterate(&self_table->table, "table object length table_iterate buffer");
     *result = MAKE_VALUE_NUMBER(entries.count);
 	pointer_array_free(&entries);
 
