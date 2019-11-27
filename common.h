@@ -15,7 +15,7 @@
 #define DEBUG_THREADING 0
 #define DEBUG_GC 0 // Show GC operations
 #define DEBUG_OBJECTS 0 // Show object operations
-#define DEBUG_MEMORY_EXECUTION 0 // Show low-level memory operations
+#define DEBUG_MEMORY_EXECUTION 1 // Show low-level memory operations
 #define DEBUG_SCANNER 0 // Show low level lexing output and such
 
 #define DEBUG_PAUSE_AFTER_OPCODES 0 // Wait for user input after each opcode

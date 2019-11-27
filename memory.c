@@ -79,6 +79,8 @@ static void* do_reallocation(void* pointer, size_t old_size, size_t new_size, co
         } else {
             FAIL("In reallocation, couldn't remove entry which was found in the table.");
         }
+    } else {
+        FAIL("memory do_reallocation(): Couldn't find marker to replace.");
     }
     
     allocated_memory -= old_size;
@@ -126,6 +128,7 @@ void memory_print_allocated_entries() {  // for debugging
 
     PointerArray entries = table_iterate(&allocations, "memory_print_allocated_entries() table_iterate buffer");
 
+    printf("\nCount: %d\n", entries.count); // Remove this line later
     for (size_t i = 0; i < entries.count; i++) {
         Node* entry = entries.values[i];
         ASSERT_VALUE_TYPE(entry->key, VALUE_ADDRESS);
@@ -135,22 +138,23 @@ void memory_print_allocated_entries() {  // for debugging
         void* address = (void*) entry->key.as.address;
         Allocation allocation = entry->value.as.allocation;
 
-        DEBUG_IMPORTANT_PRINT("[ %-3d: ", i);
-        // DEBUG_IMPORTANT_PRINT("%" PRIxPTR " ", address);
-        DEBUG_IMPORTANT_PRINT("%p", address);
-        DEBUG_IMPORTANT_PRINT(" | ");
-        DEBUG_IMPORTANT_PRINT("%-40s", allocation.name);
-        DEBUG_IMPORTANT_PRINT(" | ");
-        DEBUG_IMPORTANT_PRINT("Last allocated size: %-4" PRIuPTR, allocation.size);
-        DEBUG_IMPORTANT_PRINT("]\n");
-
+        if (strcmp(allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0) {
+            DEBUG_IMPORTANT_PRINT("[ %-3d: ", i);
+            // DEBUG_IMPORTANT_PRINT("%" PRIxPTR " ", address);
+            DEBUG_IMPORTANT_PRINT("%p", address);
+            DEBUG_IMPORTANT_PRINT(" | ");
+            DEBUG_IMPORTANT_PRINT("%-40s", allocation.name);
+            DEBUG_IMPORTANT_PRINT(" | ");
+            DEBUG_IMPORTANT_PRINT("Last allocated size: %-4" PRIuPTR " ]", allocation.size);
+            printf("\nN: %p\n\n", entry->next);
+        }
     }
 
 
-    printf("\nBucket capacity: %d \nBucket count: %d \n", allocations.capacity, allocations.bucket_count);
-    printf("\n");
-    table_print_debug_as_buckets(&allocations, false);
-    printf("\n");
+    // printf("\nBucket capacity: %d \nBucket count: %d \n", allocations.capacity, allocations.bucket_count);
+    // printf("\n");
+    // table_print_debug_as_buckets(&allocations, false);
+    // printf("\n");
 
     pointer_array_free(&entries);
 }

@@ -31,6 +31,12 @@ static bool keys_equal(Value v1, Value v2) {
 
 static void grow_table(Table* table) {
     DEBUG_MEMORY("Growing table.");
+
+    if (table->is_growing) {
+        FAIL("grow_table() called while table is already growing."); // For current debugging, remove later
+    }
+
+    table->is_growing = true;
     
     int old_capacity = table->capacity;
     Node** old_entries = table->entries;
@@ -40,13 +46,13 @@ static void grow_table(Table* table) {
 
     table->entries = allocate_suitably(table, sizeof(Node*) * table->capacity, "Hash table array");
 
-    for (int i = 0; i < table->capacity; i++) {
+    for (size_t i = 0; i < table->capacity; i++) {
         table->entries[i] = NULL;
     }
 
     DEBUG_MEMORY("Old capacity: %d. New capacity: %d", old_capacity, table->capacity);
     
-    for (int i = 0; i < old_capacity; i++) {
+    for (size_t i = 0; i < old_capacity; i++) {
         Node* old_entry = old_entries[i];
         
         while (old_entry != NULL) {
@@ -61,12 +67,15 @@ static void grow_table(Table* table) {
     DEBUG_MEMORY("Deallocating old table array.");
     // deallocate(old_entries, sizeof(Node*) * old_capacity, "Hash table array");
     deallocate_suitably(table, old_entries, sizeof(Node*) * old_capacity, "Hash table array");
+
+    table->is_growing = false;
 }
 
 void table_init(Table* table) {
     table->bucket_count = 0;
     table->capacity = 0;
     table->is_memory_infrastructure = false;
+    table->is_growing = false;
     // table->collisions_counter = 0;
     table->entries = NULL;
 }
@@ -202,13 +211,16 @@ PointerArray table_iterate(Table* table, const char* alloc_string) {
         Node* node = table->entries[i];
 
         while (node != NULL) {
-            if ((strcmp(alloc_string, "memory_print_allocated_entries() table_iterate buffer") == 0)
-                && (strcmp(node->value.as.allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0)) {
-                    printf("\n\nQQQQQQQQQQQQ\n\n");
-                    printf("\n\n%d\n\n", i);
-                }
+
+            if (strcmp(alloc_string, "memory_print_allocated_entries() table_iterate buffer") == 0) {
+                if (strcmp(node->value.as.allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0) {
+                    printf("\nFound: ");
+                    printf("Index: %d, node pointer: %p, node key: %p \n", i, node, (void*) node->key.as.address);
+                } 
+            }
 
             pointer_array_write(&array, node);
+
             node = node->next;
         }
     }
@@ -237,7 +249,7 @@ void table_print(Table* table) {
 }
 
 void table_print_debug_as_buckets(Table* table, bool show_empty_buckets) {
-    for (int i = 0; i < table->capacity; i++) {
+    for (size_t i = 0; i < table->capacity; i++) {
         Node* node = table->entries[i];
 
         if (node != NULL || (node == NULL && show_empty_buckets)) {
@@ -268,7 +280,7 @@ void table_print_debug(Table* table) {
     PointerArray entries = table_iterate(table, "table print debug table_iterate buffer");
     if (table->capacity > 0) {
     	printf("Data: \n");
-		for (int i = 0; i < entries.count; i ++) {
+		for (size_t i = 0; i < entries.count; i++) {
 			Node* entry = entries.values[i];
 			printf("%d = [Key: ", i);
 			value_print(entry->key);

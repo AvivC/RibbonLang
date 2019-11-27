@@ -78,7 +78,7 @@ static void print_memory_diagnostic() {
     }
     
     printf("\n*******\n");
-    object_print_all_objects();
+    // object_print_all_objects(); // Uncomment this!
     printf("*******\n");
 
     printf("======== End memory diagnostics ========\n");
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
         memory_init();
 
         Table table;
-        table_init(&table);
+        table_init_memory_infrastructure(&table);
 
         Value v1 = MAKE_VALUE_NUMBER(1);
         Value v2 = MAKE_VALUE_NUMBER(2);
@@ -105,27 +105,39 @@ int main(int argc, char* argv[]) {
         Value v9 = MAKE_VALUE_NUMBER(9);
         Value v10 = MAKE_VALUE_NUMBER(10);
 
-        Value k1 = MAKE_VALUE_NUMBER(100);
-        Value k2 = MAKE_VALUE_NUMBER(200);
-        Value k3 = MAKE_VALUE_NUMBER(300);
-        Value k4 = MAKE_VALUE_NUMBER(400);
-        Value k5 = MAKE_VALUE_NUMBER(500);
-        Value k6 = MAKE_VALUE_NUMBER(600);
-        Value k7 = MAKE_VALUE_NUMBER(700);
-        Value k8 = MAKE_VALUE_NUMBER(800);
-        Value k9 = MAKE_VALUE_NUMBER(900);
-        Value k10 = MAKE_VALUE_NUMBER(1000);
+        // Value k1 = MAKE_VALUE_NUMBER(100);
+        // Value k2 = MAKE_VALUE_NUMBER(200);
+        // Value k3 = MAKE_VALUE_NUMBER(300);
+        // Value k4 = MAKE_VALUE_NUMBER(400);
+        // Value k5 = MAKE_VALUE_NUMBER(500);
+        // Value k6 = MAKE_VALUE_NUMBER(600);
+        // Value k7 = MAKE_VALUE_NUMBER(700);
+        // Value k8 = MAKE_VALUE_NUMBER(800);
+        // Value k9 = MAKE_VALUE_NUMBER(900);
+        // Value k10 = MAKE_VALUE_NUMBER(1000);
 
-        table_set(&table, k1, v1);
-        table_set(&table, k2, v2);
-        table_set(&table, k3, v3);
-        table_set(&table, k4, v4);
-        table_set(&table, k5, v5);
-        table_set(&table, k6, v6);
-        table_set(&table, k7, v7);
-        table_set(&table, k8, v8);
-        table_set(&table, k9, v9);
-        table_set(&table, k10, v10);
+        Value k1 = MAKE_VALUE_ADDRESS((uintptr_t) malloc(97));
+        Value k2 = MAKE_VALUE_ADDRESS((uintptr_t) malloc(4));
+        Value k3 = MAKE_VALUE_ADDRESS((uintptr_t) malloc(22));
+        Value k4 = MAKE_VALUE_ADDRESS((uintptr_t) malloc(25));
+        Value k5 = MAKE_VALUE_ADDRESS((uintptr_t) malloc(15));
+        Value k6 = MAKE_VALUE_ADDRESS((uintptr_t) malloc(15));
+        Value k7 = MAKE_VALUE_ADDRESS((uintptr_t) malloc(207));
+        Value k8 = MAKE_VALUE_ADDRESS((uintptr_t) malloc(15));
+        Value k9 = MAKE_VALUE_ADDRESS((uintptr_t) malloc(642));
+        Value k10 = MAKE_VALUE_ADDRESS((uintptr_t) malloc(4));
+
+
+        table_set(&table, k1, v1); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, k2, v2); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, k3, v3); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, k4, v4); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, k5, v5); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, k6, v6); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, k7, v7); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, k8, v8); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, k9, v9); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, k10, v10); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
 
         Value k11 = MAKE_VALUE_NUMBER(1100);
         Value v11 = MAKE_VALUE_NUMBER(11);
@@ -133,36 +145,49 @@ int main(int argc, char* argv[]) {
         Value v12 = MAKE_VALUE_NUMBER(12);
         Value k13 = MAKE_VALUE_NUMBER(1300);
         Value v13 = MAKE_VALUE_NUMBER(13);
-        table_set(&table, k11, v11);
-        table_set(&table, k12, v12);
-        table_set(&table, k13, v13);
-        
-        printf("\n");
-        table_print_debug(&table);
-        printf("\n");
-        table_print_debug_as_buckets(&table, true);
+        table_set(&table, k11, v11); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, k12, v12); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, k13, v13); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
 
-        table_delete(&table, k6);
+        table_set(&table, k6, MAKE_VALUE_NUMBER(-1)); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
 
-        printf("\n");
-        table_print_debug(&table);
-        printf("\n");
-        table_print_debug_as_buckets(&table, true);
+        table_set(&table, MAKE_VALUE_NUMBER(-1), MAKE_VALUE_NUMBER(-1)); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, MAKE_VALUE_NUMBER(-2), MAKE_VALUE_NUMBER(-1)); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, MAKE_VALUE_NUMBER(-3), MAKE_VALUE_NUMBER(-1)); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_delete(&table, k4);
+        table_delete(&table, k2);
+        table_delete(&table, k13);
+        table_delete(&table, k10);
+        table_set(&table, MAKE_VALUE_NUMBER(-4), MAKE_VALUE_NUMBER(-1)); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, MAKE_VALUE_NUMBER(-5), MAKE_VALUE_NUMBER(-1)); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, MAKE_VALUE_NUMBER(-6), MAKE_VALUE_NUMBER(-1)); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, MAKE_VALUE_NUMBER(-7), MAKE_VALUE_NUMBER(-1)); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, MAKE_VALUE_NUMBER(-8), MAKE_VALUE_NUMBER(-1)); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, MAKE_VALUE_NUMBER(-9), MAKE_VALUE_NUMBER(-1)); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, MAKE_VALUE_NUMBER(-10), MAKE_VALUE_NUMBER(-1)); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
+        table_set(&table, MAKE_VALUE_NUMBER(-11), MAKE_VALUE_NUMBER(-1)); table_print_debug_as_buckets(&table, true); printf("\n---------------------------\n");
 
-        table_set(&table, k6, v6);
+        table_delete(&table, k8);
 
-        printf("\n");
-        table_print_debug(&table);
-        printf("\n");
-        table_print_debug_as_buckets(&table, true);
+        // table_print_debug(&table);
 
-        table_set(&table, k6, v4);
 
-        printf("\n");
-        table_print_debug(&table);
-        printf("\n");
-        table_print_debug_as_buckets(&table, true);
+        PointerArray entries = table_iterate(&table, "stuff");
 
+        for (size_t i = 0; i < entries.count; i++) {
+            Node* entry = entries.values[i];
+            printf("\n %d: %p\n", i, entry);
+
+            // uintptr_t address = entry->key.as.address;
+            void* address = (void*) entry->key.as.address;
+            Allocation allocation = entry->value.as.allocation;        
+        }
+
+
+        table_print_debug_as_buckets(&table, false);
+        printf("\n");
+
+        pointer_array_free(&entries);
 
 		return 0;
 	}
