@@ -644,6 +644,10 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 			print_call_stack();
 			printf("\n");
 
+			// printf("Memory allocations:");
+			// print_allocated_memory_entries();
+			// printf("\n");
+
 			#if DEBUG_MEMORY_EXECUTION
 				printAllObjects();
 			#endif
