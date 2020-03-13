@@ -109,14 +109,14 @@ void table_set_value_directly(Table* table, struct Value key, Value value) {
     Node* root_node = table->entries[slot];
     Node* node = root_node;
 
-    // Remove all this
-    if (value.type == VALUE_ALLOCATION && (strcmp(value.as.allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0)) {
-        if (!table->is_memory_infrastructure) {
-            FAIL("WTF");
-        }
+    // // Remove all this
+    // if (value.type == VALUE_ALLOCATION && (strcmp(value.as.allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0)) {
+    //     if (!table->is_memory_infrastructure) {
+    //         FAIL("WTF");
+    //     }
 
-        printf("Bucket selected for table iterate allocations buffer is: %d", slot);
-    }
+    //     printf("Bucket selected for table iterate allocations buffer is: %d", slot);
+    // }
 
     if (root_node == NULL) {
         table->bucket_count++;
@@ -221,15 +221,17 @@ PointerArray table_iterate(Table* table, const char* alloc_string) {
 
         while (node != NULL) {
 
-            if (strcmp(alloc_string, "memory_print_allocated_entries() table_iterate buffer") == 0) {
-                printf("\nWriting alloc '%s' to pointer array. Current bucket index %d\n",
-                                         node->value.as.allocation.name, i); // Remove
+            // Remove all of this
+            //
+            // if (strcmp(alloc_string, "memory_print_allocated_entries() table_iterate buffer") == 0) {
+            //     printf("\nWriting alloc '%s' to pointer array. Current bucket index %d\n",
+            //                              node->value.as.allocation.name, i); // Remove
 
-                if (strcmp(node->value.as.allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0) {
-                    printf("\nFound: ");
-                    printf("Index: %d, node pointer: %p, node key: %p \n", i, node, (void*) node->key.as.address);
-                }
-            }
+            //     if (strcmp(node->value.as.allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0) {
+            //         printf("\nFound: ");
+            //         printf("Index: %d, node pointer: %p, node key: %p \n", i, node, (void*) node->key.as.address);
+            //     }
+            // }
 
             pointer_array_write(&array, node);
             node = node->next;

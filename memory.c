@@ -131,36 +131,44 @@ void* reallocate_no_tracking(void* pointer, size_t new_size) {
 void memory_print_allocated_entries() {  // for debugging
     DEBUG_IMPORTANT_PRINT("Allocated memory entries:\n");
 
-    PointerArray entries = table_iterate(&allocations, "memory_print_allocated_entries() table_iterate buffer");
 
-    printf("\nCount: %d\n", entries.count); // Remove this line later
-    for (size_t i = 0; i < entries.count; i++) {
-        Node* entry = entries.values[i];
-        ASSERT_VALUE_TYPE(entry->key, VALUE_ADDRESS);
-        ASSERT_VALUE_TYPE(entry->value, VALUE_ALLOCATION);
+    // TODO: For now, we're using table_print_debug_as_buckets
+    // in order to avoid the circulatory problems created by using table_iterate for this (it allocates memory itself, which creates
+    // undeterministic output).
+    // Figure out a more elegant solution later, probably just do iteration in this function or something.
+    // Leaving all the rest commented out below for now because why not.
 
-        // uintptr_t address = entry->key.as.address;
-        void* address = (void*) entry->key.as.address;
-        Allocation allocation = entry->value.as.allocation;
+    // PointerArray entries = table_iterate(&allocations, "memory_print_allocated_entries() table_iterate buffer");
 
-        // if (strcmp(allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0) {
-            DEBUG_IMPORTANT_PRINT("[ %-3d: ", i);
-            // DEBUG_IMPORTANT_PRINT("%" PRIxPTR " ", address);
-            DEBUG_IMPORTANT_PRINT("%p", address);
-            DEBUG_IMPORTANT_PRINT(" | ");
-            DEBUG_IMPORTANT_PRINT("%-40s", allocation.name);
-            DEBUG_IMPORTANT_PRINT(" | ");
-            DEBUG_IMPORTANT_PRINT("Last allocated size: %-4" PRIuPTR " ]", allocation.size);
-            printf("\nN: %p\n\n", entry->next);
-        // }
-    }
+    // printf("\nCount: %d\n", entries.count); // Remove this line later
+    // for (size_t i = 0; i < entries.count; i++) {
+    //     Node* entry = entries.values[i];
+    //     ASSERT_VALUE_TYPE(entry->key, VALUE_ADDRESS);
+    //     ASSERT_VALUE_TYPE(entry->value, VALUE_ALLOCATION);
 
-    printf("\nBucket capacity: %d \nBucket count: %d \n", allocations.capacity, allocations.bucket_count);
+    //     // uintptr_t address = entry->key.as.address;
+    //     void* address = (void*) entry->key.as.address;
+    //     Allocation allocation = entry->value.as.allocation;
+
+    //     // if (strcmp(allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0) {
+    //     DEBUG_IMPORTANT_PRINT("[ %-3d: ", i);
+    //     // DEBUG_IMPORTANT_PRINT("%" PRIxPTR " ", address);
+    //     DEBUG_IMPORTANT_PRINT("%p", address);
+    //     DEBUG_IMPORTANT_PRINT(" | ");
+    //     DEBUG_IMPORTANT_PRINT("%-40s", allocation.name);
+    //     DEBUG_IMPORTANT_PRINT(" | ");
+    //     DEBUG_IMPORTANT_PRINT("Last allocated size: %-4" PRIuPTR " ]", allocation.size);
+    //     printf("\nN: %p\n\n", entry->next);
+    //     // }
+    // }
+
+    // printf("\nBucket capacity: %d \nBucket count: %d \n", allocations.capacity, allocations.bucket_count);
+
     printf("\n");
     table_print_debug_as_buckets(&allocations, false);
     printf("\n");
 
-    pointer_array_free(&entries);
+    // pointer_array_free(&entries);
 }
 
 
