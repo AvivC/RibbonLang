@@ -218,7 +218,7 @@ int main(int argc, char* argv[]) {
     // Must first init the VM, because some parts of the compiler depend on it
     vm_init();
 
-    allocate(1024, "Dummy"); // Just for testing, remove later
+    // allocate(1024, "Dummy"); // Just for testing, remove later
 
     Bytecode chunk;
     bytecode_init(&chunk);
