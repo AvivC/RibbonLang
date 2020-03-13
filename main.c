@@ -73,12 +73,14 @@ static void print_memory_diagnostic() {
         problem = true;
     }
     
-    if (problem) {
+    if (problem) { // Uncomment
         memory_print_allocated_entries();
     }
+
+    // memory_print_allocated_entries(); // Remove
     
-    printf("\n*******\n");
-    // object_print_all_objects(); // Uncomment this!
+    printf("*******\n");
+    object_print_all_objects();
     printf("*******\n");
 
     printf("======== End memory diagnostics ========\n");
@@ -215,6 +217,8 @@ int main(int argc, char* argv[]) {
 
     // Must first init the VM, because some parts of the compiler depend on it
     vm_init();
+
+    allocate(1024, "Dummy"); // Just for testing, remove later
 
     Bytecode chunk;
     bytecode_init(&chunk);

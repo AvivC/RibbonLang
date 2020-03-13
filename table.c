@@ -26,7 +26,7 @@ static void deallocate_suitably(Table* table, void* pointer, size_t size, const 
 static bool keys_equal(Value v1, Value v2) {
     int compare_result = -1;
     bool compare_success = value_compare(v1, v2, &compare_result);
-    return compare_success && compare_result == 0;
+    return compare_success && (compare_result == 0);
 }
 
 static void grow_table(Table* table) {
@@ -108,6 +108,15 @@ void table_set_value_directly(Table* table, struct Value key, Value value) {
     int slot = hash % table->capacity;
     Node* root_node = table->entries[slot];
     Node* node = root_node;
+
+    // Remove all this
+    if (value.type == VALUE_ALLOCATION && (strcmp(value.as.allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0)) {
+        if (!table->is_memory_infrastructure) {
+            FAIL("WTF");
+        }
+
+        printf("Bucket selected for table iterate allocations buffer is: %d", slot);
+    }
 
     if (root_node == NULL) {
         table->bucket_count++;
@@ -207,20 +216,22 @@ PointerArray table_iterate(Table* table, const char* alloc_string) {
 	PointerArray array;
 	pointer_array_init(&array, alloc_string);
 
-    for (size_t i = 0; i < table->capacity; i++) {
+    for (size_t i = 0; i < table->capacity; i++) { // TODO: Is it correct that we're iterating on table->capacity instead of table->count?
         Node* node = table->entries[i];
 
         while (node != NULL) {
 
             if (strcmp(alloc_string, "memory_print_allocated_entries() table_iterate buffer") == 0) {
+                printf("\nWriting alloc '%s' to pointer array. Current bucket index %d\n",
+                                         node->value.as.allocation.name, i); // Remove
+
                 if (strcmp(node->value.as.allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0) {
                     printf("\nFound: ");
                     printf("Index: %d, node pointer: %p, node key: %p \n", i, node, (void*) node->key.as.address);
-                } 
+                }
             }
 
             pointer_array_write(&array, node);
-
             node = node->next;
         }
     }

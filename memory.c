@@ -93,6 +93,11 @@ static void* do_allocation(void* pointer, size_t new_size, const char* what) {
     DEBUG_MEMORY("Allocating for '%s' %d bytes.", what, new_size);
 
     pointer = realloc(pointer, new_size); // realloc() with NULL is equal to malloc()
+
+    if (pointer == NULL) {
+        FAIL("Couldn't allocate new memory."); // Temp
+    }
+
     table_set(&allocations, MAKE_VALUE_ADDRESS(pointer), MAKE_VALUE_ALLOCATION(what, new_size));
     allocated_memory += new_size;
 
@@ -138,7 +143,7 @@ void memory_print_allocated_entries() {  // for debugging
         void* address = (void*) entry->key.as.address;
         Allocation allocation = entry->value.as.allocation;
 
-        if (strcmp(allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0) {
+        // if (strcmp(allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0) {
             DEBUG_IMPORTANT_PRINT("[ %-3d: ", i);
             // DEBUG_IMPORTANT_PRINT("%" PRIxPTR " ", address);
             DEBUG_IMPORTANT_PRINT("%p", address);
@@ -147,14 +152,13 @@ void memory_print_allocated_entries() {  // for debugging
             DEBUG_IMPORTANT_PRINT(" | ");
             DEBUG_IMPORTANT_PRINT("Last allocated size: %-4" PRIuPTR " ]", allocation.size);
             printf("\nN: %p\n\n", entry->next);
-        }
+        // }
     }
 
-
-    // printf("\nBucket capacity: %d \nBucket count: %d \n", allocations.capacity, allocations.bucket_count);
-    // printf("\n");
-    // table_print_debug_as_buckets(&allocations, false);
-    // printf("\n");
+    printf("\nBucket capacity: %d \nBucket count: %d \n", allocations.capacity, allocations.bucket_count);
+    printf("\n");
+    table_print_debug_as_buckets(&allocations, false);
+    printf("\n");
 
     pointer_array_free(&entries);
 }
