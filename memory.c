@@ -19,11 +19,15 @@ size_t get_allocated_memory() {
     return allocated_memory;
 }
 
+// size_t get_allocations_count() {
+//     PointerArray entries = table_iterate(&allocations, "get_allocations_count() table_iterate buffer");
+//     size_t count = entries.count;
+//     pointer_array_free(&entries);
+//     return count;
+// }
+
 size_t get_allocations_count() {
-    PointerArray entries = table_iterate(&allocations, "get_allocations_count() table_iterate buffer");
-    size_t count = entries.count;
-    pointer_array_free(&entries);
-    return count;
+    return allocations.num_entries;
 }
 
 static bool is_same_allocation(size_t size, const char* what, Allocation allocation) {

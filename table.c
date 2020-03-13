@@ -43,6 +43,7 @@ static void grow_table(Table* table) {
     
     table->capacity = GROW_CAPACITY(table->capacity);
     table->bucket_count = 0;
+    table->num_entries = 0;
 
     table->entries = allocate_suitably(table, sizeof(Node*) * table->capacity, "Hash table array");
 
@@ -78,6 +79,7 @@ void table_init(Table* table) {
     table->is_growing = false;
     // table->collisions_counter = 0;
     table->entries = NULL;
+    table->num_entries = 0;
 }
 
 void table_init_memory_infrastructure(Table* table) {
@@ -138,6 +140,8 @@ void table_set_value_directly(Table* table, struct Value key, Value value) {
 
         new_node->next = root_node;
         table->entries[slot] = new_node;
+
+        table->num_entries++;
     }
 }
 
@@ -202,6 +206,12 @@ bool table_delete(Table* table, Value key) {
                 // deallocate(node, sizeof(Node), "Table linked list node");
                 deallocate_suitably(table, node, sizeof(Node), "Table linked list node");
             }
+
+            if (table->num_entries <= 0) {
+                FAIL("table->num_entries <= 0 while deleting entry.");
+            }
+
+            table->num_entries--;
             return true;
         } else {
             previous = node;

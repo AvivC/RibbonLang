@@ -28,6 +28,7 @@ typedef struct {
     // int collisions_counter; // for debugging
     bool is_memory_infrastructure;
     bool is_growing; // for debugging
+    size_t num_entries;
 } Table;
 
 struct ObjectString;
