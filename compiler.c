@@ -97,9 +97,10 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             AstNodeVariable* node_variable = (AstNodeVariable*) node;
             
             Value name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_variable->name, node_variable->length));
-            int constant_index = bytecode_add_constant(bytecode, &name_constant);
+            size_t constant_index = (size_t) bytecode_add_constant(bytecode, &name_constant);
 
-            integer_array_write(&bytecode->referenced_names_indices, (size_t*) &constant_index);
+            // integer_array_write(&bytecode->referenced_names_indices, (size_t*) &constant_index);
+            integer_array_write(&bytecode->referenced_names_indices, &constant_index);
             
             emit_two_bytes(bytecode, OP_LOAD_VARIABLE, constant_index);
 
@@ -112,9 +113,10 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             compile_tree(node_assignment->value, bytecode);
 
 			Value name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_assignment->name, node_assignment->length));
-			int constant_index = bytecode_add_constant(bytecode, &name_constant);
+			size_t constant_index = (size_t) bytecode_add_constant(bytecode, &name_constant);
 
-			integer_array_write(&bytecode->assigned_names_indices, (size_t*) &constant_index);
+			// integer_array_write(&bytecode->assigned_names_indices, (size_t*) &constant_index);
+			integer_array_write(&bytecode->assigned_names_indices, &constant_index);
 			emit_two_bytes(bytecode, OP_SET_VARIABLE, constant_index);
 
             break;
@@ -141,8 +143,9 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             IntegerArray func_referenced_names_indices = func_bytecode.referenced_names_indices;
             for (int i = 0; i < func_referenced_names_indices.count; i++) {
             	Value referenced_name = func_bytecode.constants.values[func_referenced_names_indices.values[i]];
-            	int constant_index = bytecode_add_constant(bytecode, &referenced_name);
-            	integer_array_write(&bytecode->referenced_names_indices, (size_t*) &constant_index);
+            	size_t constant_index = (size_t) bytecode_add_constant(bytecode, &referenced_name);
+            	// integer_array_write(&bytecode->referenced_names_indices, (size_t*) &constant_index);
+            	integer_array_write(&bytecode->referenced_names_indices, &constant_index);
 			}
 
             Value obj_code_constant = MAKE_VALUE_OBJECT(object_code_new(func_bytecode));

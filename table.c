@@ -277,7 +277,7 @@ void table_print_debug_as_buckets(Table* table, bool show_empty_buckets) {
 
         if (node != NULL || (node == NULL && show_empty_buckets)) {
 
-            printf("Bucket [%3d]", i);
+            printf("Bucket [%3" PRI_SIZET "Z]", i);
 
             while (node != NULL) {
                 printf("  --->  ");
@@ -305,7 +305,7 @@ void table_print_debug(Table* table) {
     	printf("Data: \n");
 		for (size_t i = 0; i < entries.count; i++) {
 			Node* entry = entries.values[i];
-			printf("%d = [Key: ", i);
+			printf("%" PRI_SIZET " = [Key: ", i);
 			value_print(entry->key);
 			printf(", Value: ");
 			value_print(entry->value);
