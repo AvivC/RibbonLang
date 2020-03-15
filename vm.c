@@ -476,6 +476,7 @@ void vm_init(void) {
 	vm.threads = NULL;
 	vm.current_thread = NULL;
 	vm.thread_creation_counter = 0;
+	vm.thread_opcode_counter = 0;
 
 	// reset_stacks();
     vm.num_objects = 0;
@@ -691,7 +692,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 	DEBUG_TRACE("Starting interpreter loop.");
 
-	size_t thread_opcode_counter = 0;
+	// size_t thread_opcode_counter = 0;
 
     while (is_executing) {
 		DEBUG_TRACE("--------------------------");
@@ -1434,9 +1435,9 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
             }
         }
 
-		thread_opcode_counter = (thread_opcode_counter + 1) % THREAD_SWITCH_INTERVAL;
+		vm.thread_opcode_counter = (vm.thread_opcode_counter + 1) % THREAD_SWITCH_INTERVAL;
 		DEBUG_THREADING_PRINT("thread_opcode_counter: %d\n", thread_opcode_counter);
-		if (is_executing && thread_opcode_counter == 0) {
+		if (is_executing && vm.thread_opcode_counter == 0) {
 			ObjectThread* old_thread = vm.current_thread;
 			ObjectThread* new_thread = vm.current_thread->next_thread != NULL ? vm.current_thread->next_thread : vm.threads;
 			
