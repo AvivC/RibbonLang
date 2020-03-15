@@ -1,6 +1,6 @@
 #include "cell_table.h"
 #include "table.h"
-#include "object.h"
+#include "plane_object.h"
 
 void cell_table_init(CellTable* table) {
 	table_init(&table->table);

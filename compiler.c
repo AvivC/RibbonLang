@@ -1,7 +1,7 @@
 #include "string.h"
 #include "compiler.h"
 #include "parser.h"
-#include "object.h"
+#include "plane_object.h"
 #include "ast.h"
 #include "bytecode.h"
 #include "value.h"

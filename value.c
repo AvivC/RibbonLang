@@ -3,7 +3,7 @@
 #include <math.h>
 
 #include "value.h"
-#include "object.h"
+#include "plane_object.h"
 #include "memory.h"
 
 void value_print(Value value) {

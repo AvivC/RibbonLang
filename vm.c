@@ -4,7 +4,7 @@
 #include "vm.h"
 #include "common.h"
 #include "value.h"
-#include "object.h"
+#include "plane_object.h"
 #include "memory.h"
 #include "table.h"
 #include "builtins.h"
@@ -16,6 +16,7 @@
 #include "ast.h"
 #include "parser.h"
 #include "compiler.h"
+#include "builtin_module_gui.h"
 
 #define INITIAL_GC_THRESHOLD 10
 
@@ -397,12 +398,16 @@ void gc(void) {
 // 	vm.call_stack_top = vm.call_stack;
 // }
 
-static void register_builtin_function(const char* name, int num_params, char** params, NativeFunction function) {
+static ObjectFunction* make_native_function_with_params(const char* name, int num_params, char** params, NativeFunction function) {
 	char** params_buffer = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 	for (int i = 0; i < num_params; i++) {
 		params_buffer[i] = copy_cstring(params[i], strlen(params[i]), "ObjectFunction param cstring");
 	}
-	ObjectFunction* obj_function = object_native_function_new(function, params_buffer, num_params, NULL);
+	return object_native_function_new(function, params_buffer, num_params, NULL);
+}
+
+static void register_builtin_function(const char* name, int num_params, char** params, NativeFunction function) {
+	ObjectFunction* obj_function = make_native_function_with_params(name, num_params, params, function);
 	cell_table_set_value_cstring_key(&vm.globals, name, MAKE_VALUE_OBJECT(obj_function));
 }
 
@@ -416,6 +421,10 @@ static void set_builtin_globals(void) {
 static void set_builtin_modules(void) {
 	const char* gui_module_name = "gui";
 	ObjectModule* gui_module = object_module_native_new(object_string_copy_from_null_terminated(gui_module_name));
+
+	ObjectFunction* window_new_func = make_native_function_with_params("new_window", 1, (char*[]) {"function"}, gui_window_new);
+	object_set_atttribute_cstring_key((Object*) gui_module, "new_window", MAKE_VALUE_OBJECT(window_new_func));
+
 	cell_table_set_value_cstring_key(&vm.builtin_modules, gui_module_name, MAKE_VALUE_OBJECT(gui_module));
 }
 

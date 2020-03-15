@@ -1,7 +1,7 @@
 #include "disassembler.h"
 
 #include <stdio.h>
-#include "object.h"
+#include "plane_object.h"
 #include "value.h"
 #include "utils.h"
 

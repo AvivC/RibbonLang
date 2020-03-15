@@ -4,7 +4,7 @@
 #include "builtins.h"
 #include "value.h"
 #include "memory.h"
-#include "object.h"
+#include "plane_object.h"
 #include "io.h"
 
 bool builtin_print(ValueArray args, Value* out) {

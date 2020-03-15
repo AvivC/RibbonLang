@@ -52,7 +52,7 @@ static void* do_deallocation(void* pointer, size_t old_size, const char* what) {
     }
     
     DEBUG_MEMORY("Freeing '%s' ('%p') and %d bytes.", what, pointer, old_size);
-    free(pointer);
+    free(pointer); /* If pointer == NULL, free on NULL is a legal noop */
     allocated_memory -= old_size;
 
     return NULL;

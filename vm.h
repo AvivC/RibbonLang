@@ -4,7 +4,7 @@
 #include "bytecode.h"
 #include "table.h"
 #include "cell_table.h"
-#include "object.h"
+#include "plane_object.h"
 #include "value.h"
 
 typedef enum {

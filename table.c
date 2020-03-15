@@ -1,7 +1,7 @@
 #include <string.h>
 
 #include "table.h"
-#include "object.h"
+#include "plane_object.h"
 #include "memory.h"
 #include "common.h"
 #include "value.h"

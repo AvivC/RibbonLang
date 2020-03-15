@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "utils.h"
-#include "object.h"
+#include "plane_object.h"
 #include "vm.h"
 #include "value.h"
 #include "memory.h"

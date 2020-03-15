@@ -10,7 +10,7 @@
 #include "bytecode.h"
 #include "disassembler.h"
 #include "value.h"
-#include "object.h"
+#include "plane_object.h"
 #include "vm.h"
 #include "memory.h"
 
