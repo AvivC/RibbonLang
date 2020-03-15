@@ -542,6 +542,67 @@ static void print_all_threads(void) {
 	}
 }
 
+static bool load_text_module(ObjectString* module_name, const char* file_name_buffer, char** error_out) {
+	char* source = NULL;
+	size_t source_buffer_size = -1;
+	IOResult file_read_result = io_read_file(file_name_buffer, "File content buffer", &source, &source_buffer_size);
+
+	switch (file_read_result) {
+		case IO_SUCCESS: {
+
+			/* Parse text to AST */
+			AstNode* module_ast = parser_parse(source);
+
+			/* Compile AST to bytecode */
+			Bytecode module_bytecode;
+			bytecode_init(&module_bytecode);
+			compiler_compile(module_ast, &module_bytecode);
+
+			/* Free the no longer needed AST and source text */
+			ast_free_tree(module_ast);
+			deallocate(source, source_buffer_size, "File content buffer");
+
+			/* Wrap the Bytecode in an ObjectCode, and wrap the ObjectCode in an ObjectFunction */
+			ObjectCode* code_object = object_code_new(module_bytecode);
+			ObjectFunction* module_base_function = object_user_function_new(code_object, NULL, 0, NULL, cell_table_new_empty());
+
+			/* VERY ugly temporary hack ahead */
+			set_function_name(&MAKE_VALUE_OBJECT(module_base_function), object_string_copy_from_null_terminated("<Module base function>"));
+
+			/* Wrap the ObjectFunction in an ObjectModule */
+			ObjectModule* module = object_module_new(module_name, module_base_function);
+
+			/* ObjectModule has to be on the stack at the end of the import */
+			push(MAKE_VALUE_OBJECT(module));
+
+			/* "Call" the new module to start executing it in the next iteration */
+			StackFrame frame = new_stack_frame(current_thread()->ip, module_base_function, module, true);
+			push_frame(frame);
+			current_thread()->ip = module_base_function->code->bytecode.code;
+
+			/* Cache the new module in the global module cache */
+			cell_table_set_value_cstring_key(&vm.imported_modules, module_name->chars, MAKE_VALUE_OBJECT(module));
+
+			return true;
+		}
+		case IO_CLOSE_FILE_FAILURE: {
+			*error_out = "Failed to close file while loading module.";
+			return false;
+		}
+		case IO_READ_FILE_FAILURE: {
+			*error_out = "Failed to read file while loading module.";
+			return false;
+		}
+		case IO_OPEN_FILE_FAILURE: {
+			*error_out = "Failed to open file while loading module.";
+			return false;
+		}
+	}
+
+	FAIL("load_text_module - shouldn't reach here.");
+	return false;
+}
+
 InterpretResult vm_interpret(Bytecode* base_bytecode) {
     #define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
@@ -1282,79 +1343,66 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				memcpy(file_name_buffer + module_name->length, file_name_suffix, strlen(file_name_suffix));
 				file_name_buffer[module_name->length + strlen(file_name_suffix)] = '\0';
 
-				if (!io_file_exists(file_name_buffer)) {
-					// // First look in the builtin modules table
-					
-					// Value builtin_module_value;
-					// ObjectModule* module = NULL;
-					// if (cell_table_get_value_cstring_key(&vm.builtin_modules, file_name_buffer, &builtin_module_value)) {
-					// 	if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
-					// 		FAIL("Found non ObjectModule* in builtin modules table.");
-					// 	}
-
-
-					// }
-
-					// Look for the module in the standard library directory
-
-					size_t stdlib_module_path_size = strlen(VM_STDLIB_RELATIVE_PATH) + file_name_buffer_size;
-					char* stdlib_file_name_buffer = allocate(stdlib_module_path_size, file_name_alloc_string);
-					memcpy(stdlib_file_name_buffer, VM_STDLIB_RELATIVE_PATH, strlen(VM_STDLIB_RELATIVE_PATH));
-					memcpy(stdlib_file_name_buffer + strlen(VM_STDLIB_RELATIVE_PATH), file_name_buffer, strlen(file_name_buffer));
-					stdlib_file_name_buffer[strlen(VM_STDLIB_RELATIVE_PATH) + strlen(file_name_buffer)] = '\0';
-
-					if (io_file_exists(stdlib_file_name_buffer)) {
-						deallocate(file_name_buffer, file_name_buffer_size, file_name_alloc_string);
-						file_name_buffer = stdlib_file_name_buffer;
-						file_name_buffer_size = stdlib_module_path_size;
-					} else {
-						deallocate(stdlib_file_name_buffer, stdlib_module_path_size, file_name_alloc_string);
-						RUNTIME_ERROR("Module %s not found.", module_name->chars);
-						goto op_import_cleanup;
+				/* If a user module of this name exists */
+				if (io_file_exists(file_name_buffer)) {
+					char* load_module_error = NULL;
+					if (!load_text_module(module_name, file_name_buffer, &load_module_error)) {
+						RUNTIME_ERROR("%s", load_module_error);
 					}
+					goto op_import_cleanup;
 				}
 
-				char* source = NULL;
-				size_t source_buffer_size = -1;
-				IOResult file_read_result = io_read_file(file_name_buffer, "File content buffer", &source, &source_buffer_size);
+				/* If a user module doesn't exist, next step is to look in the builtin modules table */
 
-				switch (file_read_result) {
-					case IO_SUCCESS: {
-						AstNode* module_ast = parser_parse(source);
-						Bytecode module_bytecode;
-						bytecode_init(&module_bytecode);
-						compiler_compile(module_ast, &module_bytecode);
-						ast_free_tree(module_ast);
-						deallocate(source, source_buffer_size, "File content buffer");
-
-						ObjectCode* code_object = object_code_new(module_bytecode);
-						ObjectFunction* module_base_function = object_user_function_new(code_object, NULL, 0, NULL, cell_table_new_empty());
-						 /* VERY ugly temporary hack ahead*/
-						set_function_name(&MAKE_VALUE_OBJECT(module_base_function), object_string_copy_from_null_terminated("<Module base function>"));
-
-						ObjectModule* module = object_module_new(module_name, module_base_function);
-						push(MAKE_VALUE_OBJECT(module));
-
-						StackFrame frame = new_stack_frame(current_thread()->ip, module_base_function, module, true);
-						push_frame(frame);
-						current_thread()->ip = module_base_function->code->bytecode.code;
-
-						cell_table_set_value_cstring_key(&vm.imported_modules, module_name->chars, MAKE_VALUE_OBJECT(module));
-
-						goto op_import_cleanup;
+				Value builtin_module_value;
+				ObjectModule* module = NULL;
+				if (cell_table_get_value_cstring_key(&vm.builtin_modules, file_name_buffer, &builtin_module_value)) {
+					if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
+						FAIL("Found non ObjectModule* in builtin modules table.");
 					}
-					case IO_CLOSE_FILE_FAILURE: {
-						RUNTIME_ERROR("Failed to close file while loading module.");
-						goto op_import_cleanup;
+
+					/* Module required to be on stack after import, because next opcode (well, the one after the ugly OP_POP)
+					is OP_SET_VARIABLE to the name of the module */
+					push(MAKE_VALUE_OBJECT(module));
+
+					/* 
+					...
+					Currently, we assume all builtin modules are pure native modules.
+					So as opposed to loading a user or stdlib module, there's no code to execute here. 
+					... 
+					*/
+
+ 					/* Ugly hack to handle current situation in the compiler, see note earlier in OP_IMPORT case */
+					push(MAKE_VALUE_NIL());
+
+					/* Cache module */	
+					cell_table_set_value_cstring_key(&vm.imported_modules, module_name->chars, MAKE_VALUE_OBJECT(module));
+
+					goto op_import_cleanup;
+				}
+
+				/* If no such builtin module exist, the last step is to check if we have a stdlib module of this name */
+
+				size_t stdlib_module_path_size = strlen(VM_STDLIB_RELATIVE_PATH) + file_name_buffer_size;
+				char* stdlib_file_name_buffer = allocate(stdlib_module_path_size, file_name_alloc_string);
+				memcpy(stdlib_file_name_buffer, VM_STDLIB_RELATIVE_PATH, strlen(VM_STDLIB_RELATIVE_PATH));
+				memcpy(stdlib_file_name_buffer + strlen(VM_STDLIB_RELATIVE_PATH), file_name_buffer, strlen(file_name_buffer));
+				stdlib_file_name_buffer[strlen(VM_STDLIB_RELATIVE_PATH) + strlen(file_name_buffer)] = '\0';
+
+				if (io_file_exists(stdlib_file_name_buffer)) {
+					deallocate(file_name_buffer, file_name_buffer_size, file_name_alloc_string);
+
+					file_name_buffer = stdlib_file_name_buffer;
+					file_name_buffer_size = stdlib_module_path_size;
+
+					char* load_module_error = NULL;
+					if (!load_text_module(module_name, file_name_buffer, &load_module_error)) {
+						RUNTIME_ERROR("%s", load_module_error);
 					}
-					case IO_READ_FILE_FAILURE: {
-						RUNTIME_ERROR("Failed to read file while loading module.");
-						goto op_import_cleanup;
-					}
-					case IO_OPEN_FILE_FAILURE: {
-						RUNTIME_ERROR("Failed to open file while loading module.");
-						goto op_import_cleanup;
-					}
+					goto op_import_cleanup;
+				} else {
+					deallocate(stdlib_file_name_buffer, stdlib_module_path_size, file_name_alloc_string);
+					RUNTIME_ERROR("Module %s not found.", module_name->chars);
 				}
 
 				op_import_cleanup:

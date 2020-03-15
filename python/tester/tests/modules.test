@@ -72,3 +72,16 @@ test import stdlib module
 expect
     4
 end
+
+test user module takes precedence over stdlib module
+    import math
+    print(math.abs)  # should print nil since math.abs doesn't exist in the user module
+    import math  # won't print anything because module is already cached
+    print(math.abs)  # should print nil again
+file math.pln
+    print("I'm the math.pln user module")
+expect
+    I'm the math.pln user module
+    nil
+    nil
+end
