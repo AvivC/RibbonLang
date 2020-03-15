@@ -342,6 +342,7 @@ static void gc_mark(void) {
 
 	gc_mark_table(&vm.globals.table);
 	gc_mark_table(&vm.imported_modules.table);
+	gc_mark_table(&vm.builtin_modules.table);
 }
 
 static void gc_sweep(void) {
@@ -464,6 +465,7 @@ void vm_init(void) {
     vm.max_objects = INITIAL_GC_THRESHOLD;
     vm.allow_gc = false;
     vm.imported_modules = cell_table_new_empty();
+    vm.builtin_modules = cell_table_new_empty();
     cell_table_init(&vm.globals);
     set_builtin_globals();
 }
@@ -475,6 +477,7 @@ void vm_free(void) {
 	// reset_stacks();
 	cell_table_free(&vm.globals);
 	cell_table_free(&vm.imported_modules);
+	cell_table_free(&vm.builtin_modules);
 	// thread_array_free(&vm.threads);
 	// vm.current_thread_index = 0;
 	vm.threads = NULL;
@@ -1280,6 +1283,20 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 				file_name_buffer[module_name->length + strlen(file_name_suffix)] = '\0';
 
 				if (!io_file_exists(file_name_buffer)) {
+					// // First look in the builtin modules table
+					
+					// Value builtin_module_value;
+					// ObjectModule* module = NULL;
+					// if (cell_table_get_value_cstring_key(&vm.builtin_modules, file_name_buffer, &builtin_module_value)) {
+					// 	if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
+					// 		FAIL("Found non ObjectModule* in builtin modules table.");
+					// 	}
+
+
+					// }
+
+					// Look for the module in the standard library directory
+
 					size_t stdlib_module_path_size = strlen(VM_STDLIB_RELATIVE_PATH) + file_name_buffer_size;
 					char* stdlib_file_name_buffer = allocate(stdlib_module_path_size, file_name_alloc_string);
 					memcpy(stdlib_file_name_buffer, VM_STDLIB_RELATIVE_PATH, strlen(VM_STDLIB_RELATIVE_PATH));

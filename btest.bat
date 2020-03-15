@@ -9,7 +9,8 @@ echo Building...
 call build.bat
 
 if %errorlevel%==0 (
-    echo Build successful. Running tests. 
+    echo Build successful. Ready to run tests. 
+    pause
     
     call test.bat
     

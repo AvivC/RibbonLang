@@ -22,6 +22,7 @@ typedef struct {
 
     CellTable globals;
     CellTable imported_modules;
+    CellTable builtin_modules;
 
     int num_objects;
     int max_objects;
