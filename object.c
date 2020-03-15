@@ -464,6 +464,10 @@ ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function) {
 	return module;
 }
 
+ObjectModule* object_module_native_new(ObjectString* name) {
+	return object_module_new(name, NULL);
+}
+
 ObjectThread* object_thread_new(ObjectFunction* function, char* name) {
 	ObjectThread* thread = (ObjectThread*) allocate_object(sizeof(ObjectThread), "ObjectThread", OBJECT_THREAD);
 	thread->name = copy_null_terminated_cstring(name, "Thread name");

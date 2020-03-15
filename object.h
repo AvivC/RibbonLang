@@ -124,6 +124,7 @@ ObjectCell* object_cell_new(Value value);
 ObjectCell* object_cell_new_empty(void);
 
 ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function);
+ObjectModule* object_module_native_new(ObjectString* name);
 
 ObjectThread* object_thread_new(ObjectFunction* function, char* name);
 void object_thread_push_eval_stack(ObjectThread* thread, Value value);

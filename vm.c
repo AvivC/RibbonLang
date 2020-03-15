@@ -229,7 +229,9 @@ static void gc_mark_object_module(Object* object) {
 	ObjectModule* module = (ObjectModule*) object;
 
 	gc_mark_object((Object*) module->name);
-	gc_mark_object((Object*) module->function);
+	if (module->function != NULL) { /* function can be NULL if module is native */
+		gc_mark_object((Object*) module->function);
+	}
 }
 
 static void gc_mark_object_thread(Object* object) {
@@ -411,6 +413,12 @@ static void set_builtin_globals(void) {
 	register_builtin_function("spawn", 1, (char*[]) {"function"}, builtin_spawn);
 }
 
+static void set_builtin_modules(void) {
+	const char* gui_module_name = "gui";
+	ObjectModule* gui_module = object_module_native_new(object_string_copy_from_null_terminated(gui_module_name));
+	cell_table_set_value_cstring_key(&vm.builtin_modules, gui_module_name, MAKE_VALUE_OBJECT(gui_module));
+}
+
 static void call_user_function(ObjectFunction* function) {
 	ObjectThread* thread = current_thread();
 
@@ -468,6 +476,7 @@ void vm_init(void) {
     vm.builtin_modules = cell_table_new_empty();
     cell_table_init(&vm.globals);
     set_builtin_globals();
+	set_builtin_modules();
 }
 
 void vm_free(void) {
@@ -1356,7 +1365,7 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 				Value builtin_module_value;
 				ObjectModule* module = NULL;
-				if (cell_table_get_value_cstring_key(&vm.builtin_modules, file_name_buffer, &builtin_module_value)) {
+				if (cell_table_get_value_cstring_key(&vm.builtin_modules, module_name->chars, &builtin_module_value)) {
 					if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
 						FAIL("Found non ObjectModule* in builtin modules table.");
 					}
