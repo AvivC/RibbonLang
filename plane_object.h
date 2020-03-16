@@ -83,6 +83,7 @@ typedef struct {
 	ObjectModule* module;
 	CellTable local_variables;
 	bool is_module_base;
+	bool is_native;
 } StackFrame;
 
 typedef struct ObjectThread {
@@ -97,10 +98,10 @@ typedef struct ObjectThread {
 	ObjectFunction* base_function;
 
     Value* eval_stack_top;
-    Value eval_stack[THREAD_CALL_STACK_MAX];
+    Value eval_stack[THREAD_EVAL_STACK_MAX];
 
     StackFrame* call_stack_top;
-    StackFrame call_stack[THREAD_EVAL_STACK_MAX];
+    StackFrame call_stack[THREAD_CALL_STACK_MAX];
 } ObjectThread;
 
 DECLARE_DYNAMIC_ARRAY(ObjectThread*, ThreadArray, thread_array)
@@ -131,6 +132,7 @@ void object_thread_push_eval_stack(ObjectThread* thread, Value value);
 Value object_thread_pop_eval_stack(ObjectThread* thread);
 void object_thread_push_frame(ObjectThread* thread, StackFrame frame);
 StackFrame object_thread_pop_frame(ObjectThread* thread);
+StackFrame* object_thread_peek_frame(ObjectThread* thread, int offset);
 
 bool object_compare(Object* a, Object* b);
 

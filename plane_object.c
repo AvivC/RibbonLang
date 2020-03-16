@@ -577,8 +577,16 @@ void object_thread_push_frame(ObjectThread* thread, StackFrame frame) {
 }
 
 StackFrame object_thread_pop_frame(ObjectThread* thread) {
+	/* TODO: Stack underflow protection or at least assertion */
 	thread->call_stack_top--;
 	return *thread->call_stack_top;
+}
+
+StackFrame* object_thread_peek_frame(ObjectThread* thread, int offset) {
+	if ((thread->call_stack_top - thread->call_stack) < offset) {
+		return NULL;
+	}
+	return thread->call_stack_top - offset;
 }
 
 Value object_thread_pop_eval_stack(ObjectThread* thread) {

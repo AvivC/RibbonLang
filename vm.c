@@ -61,17 +61,20 @@ static void init_stack_frame(StackFrame* frame) {
 	frame->function = NULL;
 	frame->module = NULL;
 	frame->is_module_base = false;
+	frame->is_native = false;
 	cell_table_init(&frame->local_variables);
 }
 
-// module only required if is_module_base == true
-static StackFrame new_stack_frame(uint8_t* return_address, ObjectFunction* function, ObjectModule* module, bool is_module_base) {
+/* module only required if is_module_base == true */
+static StackFrame new_stack_frame(
+		uint8_t* return_address, ObjectFunction* function, ObjectModule* module, bool is_module_base, bool is_native) {
 	StackFrame frame;
 	init_stack_frame(&frame);
 	frame.return_address = return_address;
 	frame.function = function;
 	frame.module = module;
 	frame.is_module_base = is_module_base;
+	frame.is_native = is_native;
 	return frame;
 }
 
@@ -80,7 +83,12 @@ static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
 	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
 	ObjectModule* module = object_module_new(base_module_name, base_function);
-	return new_stack_frame(NULL, base_function, module, true);
+	return new_stack_frame(NULL, base_function, module, true, false);
+}
+
+void vm_call_function_directly(ObjectFunction* function) {
+	StackFrame frame = new_stack_frame(current_thread()->ip, function, NULL, false, false);
+	vm_interpret_frame(&frame); /* TODO: propagate return value of this call? */
 }
 
 /* Add a thread to the vm list of threads */
@@ -107,7 +115,7 @@ void vm_spawn_thread(ObjectFunction* function) {
 	ObjectThread* thread = object_thread_new(function, temp_name_buffer);
 	deallocate(temp_name_buffer, name_length + 1, "Temp thread name buffer");
 
-	*thread->call_stack_top = new_stack_frame(NULL, function, NULL, false);
+	*thread->call_stack_top = new_stack_frame(NULL, function, NULL, false, false);
 	thread->call_stack_top++;
 
 	add_thread(thread);
@@ -125,6 +133,10 @@ static void stack_frame_free(StackFrame* frame) {
 
 static StackFrame pop_frame(void) {
 	return object_thread_pop_frame(current_thread());
+}
+
+static StackFrame* peek_previous_frame(void) {
+	return object_thread_peek_frame(current_thread(), 2);
 }
 
 static CellTable* frame_locals_or_module_table(StackFrame* frame) {
@@ -435,7 +447,7 @@ static void call_user_function(ObjectFunction* function) {
 		push(MAKE_VALUE_OBJECT(function->self));
 	}
 
-	StackFrame frame = new_stack_frame(thread->ip, function, NULL, false);
+	StackFrame frame = new_stack_frame(thread->ip, function, NULL, false, false);
 	for (int i = 0; i < function->num_params; i++) {
 		const char* param_name = function->parameters[i];
 		Value argument = pop();
@@ -458,6 +470,18 @@ static bool call_native_function(ObjectFunction* function) {
 		value_array_write(&arguments, &value);
 	}
 
+	/* Push a native frame to keep the call stack in order.
+	Specifically, for the use case where a native function calls a user function.
+	Without this "native frame", OP_RETURN in the user function will make control jump
+	back to the point where the caller _native_ function was called. */
+	StackFrame native_frame = new_stack_frame(NULL, function, NULL, false, true);
+	push_frame(native_frame);
+
+	/* If the native function will end up calling a user function, the instruction
+	pointer will be moving forward. When we go back to this calling site, we have to
+	also remember to reset the instruction pointer. */
+	uint8_t* ip_before_call = current_thread()->ip;
+
 	Value result;
 	bool func_success = function->native_function(arguments, &result);
 	if (func_success) {
@@ -465,6 +489,9 @@ static bool call_native_function(ObjectFunction* function) {
 	} else {
 		push(MAKE_VALUE_NIL());
 	}
+
+	pop_frame(); /* Pop the native frame */
+	current_thread()->ip = ip_before_call; /* restore ip position */
 
 	value_array_free(&arguments);
 	return func_success;
@@ -595,7 +622,7 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 			push(MAKE_VALUE_OBJECT(module));
 
 			/* "Call" the new module to start executing it in the next iteration */
-			StackFrame frame = new_stack_frame(current_thread()->ip, module_base_function, module, true);
+			StackFrame frame = new_stack_frame(current_thread()->ip, module_base_function, module, true, false);
 			push_frame(frame);
 			current_thread()->ip = module_base_function->code->bytecode.code;
 
@@ -622,6 +649,7 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 	return false;
 }
 
+/* TODO: Leave public or make private? */
 InterpretResult vm_interpret_frame(StackFrame* frame) {
 	#define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
@@ -1057,7 +1085,16 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 
 			case OP_RETURN: {
 
+				/* Order of peek_previous_frame and pop_frame matters, because behavior of the former
+				depends on the state of the call stack */
+				StackFrame* previous_frame = peek_previous_frame();
                 StackFrame frame = pop_frame();
+
+				if (previous_frame != NULL && previous_frame->is_native) {
+					is_executing = false;
+					goto op_return_cleanup;
+				}
+
                 bool is_base_frame = frame.return_address == NULL;
                 if (is_base_frame) {
 
@@ -1154,13 +1191,13 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
                 	break;
                 }
 
+				/* TODO: Handle errors in native and user functions */
                 if (function->is_native) {
                 	if (!call_native_function(function)) {
                 		RUNTIME_ERROR("Native function failed.");
                 		break;
                 	}
                 } else {
-                	// TODO: Handle errors
                 	call_user_function(function);
                 }
 
@@ -1423,6 +1460,10 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 
 		vm.thread_opcode_counter = (vm.thread_opcode_counter + 1) % THREAD_SWITCH_INTERVAL;
 		DEBUG_THREADING_PRINT("thread_opcode_counter: %d\n", thread_opcode_counter);
+
+		/* TODO: Potential bug here? is_executing now means "is running current eval loop",
+		but in this case it's assumed to mean "is VM executing". This can kinda screw up thread scheduling, address this. */
+
 		if (is_executing && vm.thread_opcode_counter == 0) {
 			ObjectThread* old_thread = vm.current_thread;
 			ObjectThread* new_thread = vm.current_thread->next_thread != NULL ? vm.current_thread->next_thread : vm.threads;
@@ -1466,7 +1507,7 @@ InterpretResult vm_interpret_program(Bytecode* bytecode) {
 
 	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
 	ObjectModule* module = object_module_new(base_module_name, base_function);
-	StackFrame base_frame = new_stack_frame(NULL, base_function, module, true);
+	StackFrame base_frame = new_stack_frame(NULL, base_function, module, true, false);
 
 	DEBUG_TRACE("Starting interpreter loop.");
 	return vm_interpret_frame(&base_frame);

@@ -2,12 +2,16 @@
 
 #include "builtin_module_gui.h"
 #include "plane_object.h"
+#include "vm.h"
 
 static void show_window(GtkApplication* app, gpointer user_data) {
     GtkWidget* window = gtk_application_window_new (app);
     gtk_window_set_title(GTK_WINDOW(window), "Window");
     gtk_window_set_default_size(GTK_WINDOW(window), 200, 200);
     gtk_widget_show_all(window);
+
+    ObjectFunction* func = user_data;
+    vm_call_function_directly(func);
 }
 
 bool gui_window_new(ValueArray args, Value* out) {
@@ -21,6 +25,7 @@ bool gui_window_new(ValueArray args, Value* out) {
     // g_signal_connect(app, "activate", G_CALLBACK(show_window), NULL);
     g_signal_connect(app, "activate", G_CALLBACK(show_window), func);
     int status = g_application_run(G_APPLICATION(app), 0, NULL);
+    // printf("\nZ\n");
     g_object_unref(app);
 
     *out = MAKE_VALUE_NIL();
