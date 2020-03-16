@@ -231,7 +231,7 @@ int main(int argc, char* argv[]) {
     
     bool dryRun = checkCmdArg(argv, argc, 2, "-dry") || checkCmdArg(argv, argc, 3, "-dry") || checkCmdArg(argv, argc, 4, "-dry");
     if (!dryRun) {
-    	InterpretResult result = vm_interpret(&chunk);
+    	InterpretResult result = vm_interpret_program(&chunk);
     }
     
     vm_free();

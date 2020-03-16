@@ -114,7 +114,6 @@ void vm_spawn_thread(ObjectFunction* function) {
 }
 
 static void push_frame(StackFrame frame) {
-	// TODO: This should be a runtime error, not an assertion.
 	object_thread_push_frame(current_thread(), frame);
 }
 
@@ -622,8 +621,8 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 	return false;
 }
 
-InterpretResult vm_interpret(Bytecode* base_bytecode) {
-    #define BINARY_MATH_OP(op) do { \
+static InterpretResult interpret_current_frame(void) {
+	#define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
         Value a = pop(); \
         Value result; \
@@ -671,28 +670,12 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
 
 	#define THREAD_SWITCH_INTERVAL 16
 
-	ObjectCode* code = object_code_new(*base_bytecode);
-	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
-	ObjectThread* main_thread = object_thread_new(base_function, "<main thread>");
-	switch_to_new_thread(main_thread);
-
-	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
-	ObjectModule* module = object_module_new(base_module_name, base_function);
-	StackFrame base_frame = new_stack_frame(NULL, base_function, module, true);
-	push_frame(base_frame);
-
-	vm.allow_gc = true;
-	DEBUG_OBJECTS_PRINT("Set vm.allow_gc = true.");
-
-	current_thread()->ip = base_bytecode->code;
-	gc(); // Cleanup unused objects the compiler created
+	current_thread()->ip = current_frame()->function->code->bytecode.code;
 
 	bool is_executing = true;
 	bool runtime_error_occured = false;
 
 	DEBUG_TRACE("Starting interpreter loop.");
-
-	// size_t thread_opcode_counter = 0;
 
     while (is_executing) {
 		DEBUG_TRACE("--------------------------");
@@ -1465,6 +1448,27 @@ InterpretResult vm_interpret(Bytecode* base_bytecode) {
     #undef BINARY_MATH_OP
 
     return runtime_error_occured ? INTERPRET_RUNTIME_ERROR : INTERPRET_SUCCESS;
+}
+
+InterpretResult vm_interpret_program(Bytecode* bytecode) {
+	ObjectCode* code = object_code_new(*bytecode);
+	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
+	ObjectThread* main_thread = object_thread_new(base_function, "<main thread>");
+	switch_to_new_thread(main_thread);
+
+	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
+	ObjectModule* module = object_module_new(base_module_name, base_function);
+	StackFrame base_frame = new_stack_frame(NULL, base_function, module, true);
+	push_frame(base_frame);
+
+	vm.allow_gc = true;
+	DEBUG_OBJECTS_PRINT("Set vm.allow_gc = true.");
+
+ 	/* Cleanup unused objects the compiler created */
+	gc();
+
+	DEBUG_TRACE("Starting interpreter loop.");
+	return interpret_current_frame();
 }
 
 #undef READ_BYTE

@@ -34,7 +34,7 @@ extern VM vm;
 
 void vm_init(void);
 void vm_free(void);
-InterpretResult vm_interpret(Bytecode* chunk);
+InterpretResult vm_interpret_program(Bytecode* bytecode);
 
 void vm_spawn_thread(ObjectFunction* function);
 
