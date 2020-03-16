@@ -89,106 +89,8 @@ static void print_memory_diagnostic() {
 }
 
 int main(int argc, char* argv[]) {
-	// To make experimenting while working easy
 	if (TRYING_THINGS) {
 		printf("--- Experimentation mode. ---\n");
-
-        // memory_init();
-
-        // Table table;
-        // table_init_memory_infrastructure(&table);
-
-        // Value v1 = MAKE_VALUE_NUMBER(1);
-        // Value v2 = MAKE_VALUE_NUMBER(2);
-        // Value v3 = MAKE_VALUE_NUMBER(3);
-        // Value v4 = MAKE_VALUE_NUMBER(4);
-        // Value v5 = MAKE_VALUE_NUMBER(5);
-        // Value v6 = MAKE_VALUE_NUMBER(6);
-        // Value v7 = MAKE_VALUE_NUMBER(7);
-        // Value v8 = MAKE_VALUE_NUMBER(8);
-        // Value v9 = MAKE_VALUE_NUMBER(9);
-        // Value v10 = MAKE_VALUE_NUMBER(10);
-
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v2", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v2", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v2", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v2", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v2", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v2", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v2", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v2", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v1", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v2", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v3", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v4", v1); printf("\n%d\n", table.num_entries);
-        // table_delete(&table, MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated("v2"))); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v5", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v6", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v7", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v8", v1); printf("\n%d\n", table.num_entries);
-        // table_set_cstring_key(&table, "v9", v1); printf("\n%d\n", table.num_entries);
 
 		return 0;
 	}
@@ -200,7 +102,6 @@ int main(int argc, char* argv[]) {
 
     memory_init();
     
-//    char* source = readFile(argv[1]);
     char* source = NULL;
     size_t text_length = 0;
 
@@ -208,30 +109,23 @@ int main(int argc, char* argv[]) {
     	return -1;
     }
 
-//    if (source == NULL) {
-//        return -1;
-//    }
-    
     DEBUG_PRINT("Starting CPlane!\n\n");
 
-    // Must first init the VM, because some parts of the compiler depend on it
+    /* Must first init the VM because some parts of the compiler depend on it */
     vm_init();
 
-    // allocate(1024, "Dummy"); // Just for testing, remove later
-
-    Bytecode chunk;
-    bytecode_init(&chunk);
+    Bytecode bytecode;
+    bytecode_init(&bytecode);
     AstNode* ast = parser_parse(source);
-    compiler_compile(ast, &chunk);
+    compiler_compile(ast, &bytecode);
     
-	printStructures(argc, argv, &chunk, ast);
+	printStructures(argc, argv, &bytecode, ast);
     ast_free_tree(ast);
-//    free(source);
     deallocate(source, text_length, "Source file content");
     
     bool dryRun = checkCmdArg(argv, argc, 2, "-dry") || checkCmdArg(argv, argc, 3, "-dry") || checkCmdArg(argv, argc, 4, "-dry");
     if (!dryRun) {
-    	InterpretResult result = vm_interpret_program(&chunk);
+    	InterpretResult result = vm_interpret_program(&bytecode);
     }
     
     vm_free();

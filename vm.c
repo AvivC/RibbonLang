@@ -114,6 +114,7 @@ void vm_spawn_thread(ObjectFunction* function) {
 }
 
 static void push_frame(StackFrame frame) {
+	/* TODO: Why do we take a StackFrame and not StackFrame*? */
 	object_thread_push_frame(current_thread(), frame);
 }
 
@@ -621,7 +622,7 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 	return false;
 }
 
-static InterpretResult interpret_current_frame(void) {
+InterpretResult vm_interpret_frame(StackFrame* frame) {
 	#define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
         Value a = pop(); \
@@ -669,6 +670,8 @@ static InterpretResult interpret_current_frame(void) {
 	} while (false)
 
 	#define THREAD_SWITCH_INTERVAL 16
+
+	push_frame(*frame);
 
 	current_thread()->ip = current_frame()->function->code->bytecode.code;
 
@@ -1456,19 +1459,17 @@ InterpretResult vm_interpret_program(Bytecode* bytecode) {
 	ObjectThread* main_thread = object_thread_new(base_function, "<main thread>");
 	switch_to_new_thread(main_thread);
 
+	/* Cleanup unused objects created during compilation */
+	DEBUG_OBJECTS_PRINT("Setting vm.allow_gc = true.");
+	vm.allow_gc = true;
+	gc();
+
 	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
 	ObjectModule* module = object_module_new(base_module_name, base_function);
 	StackFrame base_frame = new_stack_frame(NULL, base_function, module, true);
-	push_frame(base_frame);
-
-	vm.allow_gc = true;
-	DEBUG_OBJECTS_PRINT("Set vm.allow_gc = true.");
-
- 	/* Cleanup unused objects the compiler created */
-	gc();
 
 	DEBUG_TRACE("Starting interpreter loop.");
-	return interpret_current_frame();
+	return vm_interpret_frame(&base_frame);
 }
 
 #undef READ_BYTE
