@@ -17,6 +17,7 @@
 #include "parser.h"
 #include "compiler.h"
 #include "builtin_module_gui.h"
+#include "builtin_test_module.h"
 
 #define INITIAL_GC_THRESHOLD 10
 
@@ -87,6 +88,7 @@ static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 }
 
 void vm_call_function_directly(ObjectFunction* function) {
+	/* TODO: Support multiple arguments */
 	StackFrame frame = new_stack_frame(current_thread()->ip, function, NULL, false, false);
 	vm_interpret_frame(&frame); /* TODO: propagate return value of this call? */
 }
@@ -438,6 +440,14 @@ static void set_builtin_modules(void) {
 	object_set_atttribute_cstring_key((Object*) gui_module, "new_window", MAKE_VALUE_OBJECT(window_new_func));
 
 	cell_table_set_value_cstring_key(&vm.builtin_modules, gui_module_name, MAKE_VALUE_OBJECT(gui_module));
+
+	const char* test_module_name = "_testing";
+	ObjectModule* test_module = object_module_native_new(object_string_copy_from_null_terminated(test_module_name));
+
+	ObjectFunction* demo_print_func = make_native_function_with_params("demo_print", 1, (char*[]) {"function"}, builtin_test_demo_print);
+	object_set_atttribute_cstring_key((Object*) test_module, "demo_print", MAKE_VALUE_OBJECT(demo_print_func));
+
+	cell_table_set_value_cstring_key(&vm.builtin_modules, test_module_name, MAKE_VALUE_OBJECT(test_module));
 }
 
 static void call_user_function(ObjectFunction* function) {

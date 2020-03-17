@@ -1,0 +1,11 @@
+test native function calls user function
+    import _testing
+    f = {
+        print("I'm a user function")
+    }
+    _testing.demo_print(f)
+expect
+    I'm a native function
+    I'm a user function
+    I'm a native function
+end
