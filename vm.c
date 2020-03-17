@@ -87,9 +87,24 @@ static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	return new_stack_frame(NULL, base_function, module, true, false);
 }
 
-void vm_call_function_directly(ObjectFunction* function) {
-	/* TODO: Support multiple arguments */
-	StackFrame frame = new_stack_frame(current_thread()->ip, function, NULL, false, false);
+void vm_call_function_directly(ObjectFunction* function, ValueArray args) {
+	ObjectThread* thread = current_thread();
+	StackFrame frame = new_stack_frame(thread->ip, function, NULL, false, false);
+
+	if (args.count != function->num_params) {
+		FAIL("User function called with unmatching params number."); /* TODO: Legit error? */
+	}
+
+	if (function->self != NULL) {
+		push(MAKE_VALUE_OBJECT(function->self));
+	}
+
+	for (int i = 0; i < function->num_params; i++) {
+		const char* param_name = function->parameters[i];
+		Value argument = args.values[i];
+		cell_table_set_value_cstring_key(&frame.local_variables, param_name, argument);
+	}
+
 	vm_interpret_frame(&frame); /* TODO: propagate return value of this call? */
 }
 

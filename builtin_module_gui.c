@@ -11,7 +11,9 @@ static void show_window(GtkApplication* app, gpointer user_data) {
     gtk_widget_show_all(window);
 
     ObjectFunction* func = user_data;
-    vm_call_function_directly(func);
+    ValueArray args;
+    value_array_init(&args);
+    vm_call_function_directly(func, args);
 }
 
 bool gui_window_new(ValueArray args, Value* out) {
