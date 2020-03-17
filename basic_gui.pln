@@ -1,0 +1,5 @@
+import gui
+gui.new_window({
+	print("X")
+})
+print("Y")

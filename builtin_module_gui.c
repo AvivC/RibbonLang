@@ -13,7 +13,8 @@ static void show_window(GtkApplication* app, gpointer user_data) {
     ObjectFunction* func = user_data;
     ValueArray args;
     value_array_init(&args);
-    vm_call_function_directly(func, args);
+    Value out;
+    vm_call_function_directly(func, args, &out);
 }
 
 bool gui_window_new(ValueArray args, Value* out) {

@@ -87,7 +87,7 @@ static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	return new_stack_frame(NULL, base_function, module, true, false);
 }
 
-void vm_call_function_directly(ObjectFunction* function, ValueArray args) {
+void vm_call_function_directly(ObjectFunction* function, ValueArray args, Value* out) {
 	ObjectThread* thread = current_thread();
 	StackFrame frame = new_stack_frame(thread->ip, function, NULL, false, false);
 
@@ -106,6 +106,8 @@ void vm_call_function_directly(ObjectFunction* function, ValueArray args) {
 	}
 
 	vm_interpret_frame(&frame); /* TODO: propagate return value of this call? */
+	Value return_value = pop();
+	*out = return_value;
 }
 
 /* Add a thread to the vm list of threads */
@@ -447,7 +449,7 @@ static void set_builtin_globals(void) {
 	register_builtin_function("spawn", 1, (char*[]) {"function"}, builtin_spawn);
 }
 
-static void set_builtin_modules(void) {
+static void register_builtin_modules(void) {
 	const char* gui_module_name = "gui";
 	ObjectModule* gui_module = object_module_native_new(object_string_copy_from_null_terminated(gui_module_name));
 
@@ -461,6 +463,10 @@ static void set_builtin_modules(void) {
 
 	ObjectFunction* demo_print_func = make_native_function_with_params("demo_print", 1, (char*[]) {"function"}, builtin_test_demo_print);
 	object_set_atttribute_cstring_key((Object*) test_module, "demo_print", MAKE_VALUE_OBJECT(demo_print_func));
+
+	ObjectFunction* call_callback_with_args_func = make_native_function_with_params(
+							"call_callback_with_args", 3, (char*[]) {"callback", "arg1", "arg2"}, builtin_test_call_callback_with_args);
+	object_set_atttribute_cstring_key((Object*) test_module, "call_callback_with_args", MAKE_VALUE_OBJECT(call_callback_with_args_func));
 
 	cell_table_set_value_cstring_key(&vm.builtin_modules, test_module_name, MAKE_VALUE_OBJECT(test_module));
 }
@@ -538,7 +544,7 @@ void vm_init(void) {
     vm.builtin_modules = cell_table_new_empty();
     cell_table_init(&vm.globals);
     set_builtin_globals();
-	set_builtin_modules();
+	register_builtin_modules();
 }
 
 void vm_free(void) {

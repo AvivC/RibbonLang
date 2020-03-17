@@ -9,3 +9,17 @@ expect
     I'm a user function
     I'm a native function
 end
+
+test native function calls user function with arguments and return value
+    import _testing
+    f = { takes a, b to
+        print("I'm a user callback")
+        return a + b
+    }
+    retval = _testing.call_callback_with_args(f, 10, 5)
+    print(retval)
+expect
+    I'm a native function
+    I'm a user callback
+    15
+end

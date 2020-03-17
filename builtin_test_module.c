@@ -10,9 +10,13 @@ bool builtin_test_demo_print(ValueArray args, Value* out) {
     }
 
     printf("I'm a native function\n");
+
     ValueArray func_args;
     value_array_init(&func_args);
-    vm_call_function_directly(function, func_args);
+    Value callback_out;
+    vm_call_function_directly(function, func_args, &callback_out);
+    value_array_free(&func_args);
+
     printf("I'm a native function\n");
 
     *out = MAKE_VALUE_NIL();
@@ -39,8 +43,11 @@ bool builtin_test_call_callback_with_args(ValueArray args, Value* out) {
     value_array_write(&callback_args, &arg1);
     value_array_write(&callback_args, &arg2);
 
-    vm_call_function_directly(callback, callback_args);
+    Value callback_out;
+    vm_call_function_directly(callback, callback_args, &callback_out);
+    
+    value_array_free(&callback_args);
 
-    *out = MAKE_VALUE_NIL();
+    *out = callback_out;
     return true;
 }
