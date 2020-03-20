@@ -36,7 +36,7 @@ void vm_init(void);
 void vm_free(void);
 InterpretResult vm_interpret_frame(StackFrame* frame);
 InterpretResult vm_interpret_program(Bytecode* bytecode);
-void vm_call_function_directly(ObjectFunction* function, ValueArray args, Value* out);
+InterpretResult vm_call_function_directly(ObjectFunction* function, ValueArray args, Value* out);
 
 void vm_spawn_thread(ObjectFunction* function);
 

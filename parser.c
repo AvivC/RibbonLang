@@ -38,7 +38,7 @@ typedef struct {
 } ParseRule;
 
 static void error(const char* errorMessage) {
-    fprintf(stderr, "On line %d: %s\n", parser.current.lineNumber, errorMessage);
+    fprintf(stdout, "On line %d: %s\n", parser.current.lineNumber, errorMessage);
     parser.had_error = true;
 }
 
@@ -433,7 +433,7 @@ static AstNode* statements(void) {
         // Checking for errors on statement boundaries
         if (parser.had_error) {
             // TODO: Proper compiler error propagations and such
-            fprintf(stderr, "Compiler exits with errors.\n");
+            fprintf(stdout, "Compiler exits with errors.\n");
             exit(EXIT_FAILURE);
         }
     }

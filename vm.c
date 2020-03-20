@@ -87,7 +87,7 @@ static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	return new_stack_frame(NULL, base_function, module, true, false);
 }
 
-void vm_call_function_directly(ObjectFunction* function, ValueArray args, Value* out) {
+InterpretResult vm_call_function_directly(ObjectFunction* function, ValueArray args, Value* out) {
 	ObjectThread* thread = current_thread();
 	StackFrame frame = new_stack_frame(thread->ip, function, NULL, false, false);
 
@@ -105,9 +105,14 @@ void vm_call_function_directly(ObjectFunction* function, ValueArray args, Value*
 		cell_table_set_value_cstring_key(&frame.local_variables, param_name, argument);
 	}
 
-	vm_interpret_frame(&frame); /* TODO: propagate return value of this call? */
-	Value return_value = pop();
-	*out = return_value;
+	InterpretResult func_exec_result = vm_interpret_frame(&frame);
+	
+	if (func_exec_result == INTERPRET_SUCCESS) {
+		Value return_value = pop();
+		*out = return_value;
+	}
+	
+	return func_exec_result;
 }
 
 /* Add a thread to the vm list of threads */
@@ -152,6 +157,10 @@ static void stack_frame_free(StackFrame* frame) {
 
 static StackFrame pop_frame(void) {
 	return object_thread_pop_frame(current_thread());
+}
+
+static StackFrame* peek_current_frame(void) {
+	return object_thread_peek_frame(current_thread(), 1);
 }
 
 static StackFrame* peek_previous_frame(void) {
@@ -699,8 +708,8 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 	// TODO: Implement an actual runtime error mechanism. This is a placeholder.
 	#define RUNTIME_ERROR(...) do { \
 		print_stack_trace(); \
-		fprintf(stderr, "Runtime error: " __VA_ARGS__); \
-		fprintf(stderr, "\n"); \
+		fprintf(stdout, "Runtime error: " __VA_ARGS__); \
+		fprintf(stdout, "\n"); \
 		runtime_error_occured = true; \
 		is_executing = false; \
 		/* Remember to break manually after using this macro! */ \
@@ -1517,9 +1526,19 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 		}
     }
 
+	if (vm.threads != NULL) {
+		ObjectThread* thread = current_thread();
+		while (thread->call_stack_top > thread->call_stack && !peek_current_frame()->is_native) {
+			StackFrame frame = pop_frame();
+			bool is_native = frame.is_native;
+
+			stack_frame_free(&frame);
+		}
+	}
+
     DEBUG_TRACE("\n--------------------------\n");
 	DEBUG_TRACE("Ended interpreter loop.");
-    
+
     #undef BINARY_MATH_OP
 
     return runtime_error_occured ? INTERPRET_RUNTIME_ERROR : INTERPRET_SUCCESS;

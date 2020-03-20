@@ -4,6 +4,9 @@
 #include "plane_object.h"
 #include "vm.h"
 
+/* Yep, big global variable for now, yikessss */
+static bool gui_app_healthy = true;
+
 static void show_window(GtkApplication* app, gpointer user_data) {
     GtkWidget* window = gtk_application_window_new (app);
     gtk_window_set_title(GTK_WINDOW(window), "Window");
@@ -14,10 +17,16 @@ static void show_window(GtkApplication* app, gpointer user_data) {
     ValueArray args;
     value_array_init(&args);
     Value out;
-    vm_call_function_directly(func, args, &out);
+    InterpretResult func_exec_result = vm_call_function_directly(func, args, &out);
+    if (func_exec_result != INTERPRET_SUCCESS) {
+        gui_app_healthy = false;
+        g_application_quit(G_APPLICATION(app));
+    }
 }
 
 bool gui_window_new(ValueArray args, Value* out) {
+    /* TODO: Currently assuming this function is only ever called once, deal with this later */
+
     ObjectFunction* func = NULL;
     if (args.count != 1 
         || (func = VALUE_AS_OBJECT(args.values[0], OBJECT_FUNCTION, ObjectFunction)) == NULL) {
@@ -32,5 +41,6 @@ bool gui_window_new(ValueArray args, Value* out) {
     g_object_unref(app);
 
     *out = MAKE_VALUE_NIL();
-    return true;
+
+    return gui_app_healthy;
 }

@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
 	}
 
     if (argc < 2 || argc > 5) {
-        fprintf(stderr, "Usage: plane <file> [[-asm] [-tree] [-dry]]");
+        fprintf(stdout, "Usage: plane <file> [[-asm] [-tree] [-dry]]");
         return -1;
     }
 

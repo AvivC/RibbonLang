@@ -23,3 +23,24 @@ expect
     I'm a user callback
     15
 end
+
+test native function calls user function that fails
+    # This is a super brittle test, for now. Look at the super specific (and certain to change) ugly error output.
+
+    import _testing
+    callback = { takes a, b to
+        return "" + a + b
+    }
+    retval = _testing.call_callback_with_args(callback, 10, 20)
+    print(retval)
+expect
+    I'm a native function
+    An error has occured. Stack trace (most recent call on top):
+        -> callback
+        -> <Anonymous function>
+        -> <Anonymous function>
+    Runtime error: @add function failed.
+    An error has occured. Stack trace (most recent call on top):
+        -> <Anonymous function>
+    Runtime error: Native function failed.
+end
