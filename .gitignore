@@ -1,6 +1,7 @@
 code.pln
 *.exe
 *.pyc
+*.dll
 .pytest_cache/
 python/tester/venv/
 python/tester/.idea/
