@@ -140,7 +140,7 @@ ObjectCell* object_cell_new(Value value);
 ObjectCell* object_cell_new_empty(void);
 
 ObjectClass* object_class_new(void);
-void object_class_set_name(ObjectClass* klass, char* name);
+void object_class_set_name(ObjectClass* klass, char* name, int length);
 
 ObjectInstance* object_instance_new(ObjectClass* klass);
 

@@ -422,8 +422,9 @@ void object_function_set_name(ObjectFunction* function, char* name) {
 	function->name = name;
 }
 
-void object_class_set_name(ObjectClass* klass, char* name) {
+void object_class_set_name(ObjectClass* klass, char* name, int length) {
 	klass->name = name;
+	klass->name_length = length;
 }
 
 ObjectCode* object_code_new(Bytecode chunk) {

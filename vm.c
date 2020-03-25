@@ -674,9 +674,9 @@ static void set_function_name(const Value* function_value, ObjectString* name) {
 
 static void set_class_name(const Value* class_value, ObjectString* name) {
 	ObjectClass* klass = (ObjectClass*) class_value->as.object;
-	deallocate(klass->name, klass->name_length, "Class name");
+	deallocate(klass->name, klass->name_length + 1, "Class name");
 	char* new_cstring_name = copy_null_terminated_cstring(name->chars, "Class name");
-	object_class_set_name(klass, new_cstring_name);
+	object_class_set_name(klass, new_cstring_name, strlen(new_cstring_name));
 }
 
 static void print_all_threads(void) {
@@ -1299,29 +1299,42 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             case OP_CALL: {
             	int explicit_arg_count = READ_BYTE();
 
-                if (peek().type != VALUE_OBJECT || (peek().type == VALUE_OBJECT && peek().as.object->type != OBJECT_FUNCTION)) {
-                	RUNTIME_ERROR("Illegal call target. Target type: %d.", peek().type);
-                	break;
-                }
+				if (peek().type != VALUE_OBJECT) {
+					RUNTIME_ERROR("Cannot call non-object.");
+					break;
+				}
 
-                ObjectFunction* function = OBJECT_AS_FUNCTION(pop().as.object);
+				if (peek().as.object->type == OBJECT_FUNCTION) {
+					ObjectFunction* function = OBJECT_AS_FUNCTION(pop().as.object);
 
-                bool is_method = function->self != NULL;
-                int actual_arg_count = explicit_arg_count + (is_method ? 1 : 0);
-                if (actual_arg_count != function->num_params) {
-                	RUNTIME_ERROR("Function called with %d arguments, needs %d.", explicit_arg_count, function->num_params);
-                	break;
-                }
+					bool is_method = function->self != NULL;
+					int actual_arg_count = explicit_arg_count + (is_method ? 1 : 0);
+					if (actual_arg_count != function->num_params) {
+						RUNTIME_ERROR("Function called with %d arguments, needs %d.", explicit_arg_count, function->num_params);
+						break;
+					}
 
-				/* TODO: Handle errors in native and user functions */
-                if (function->is_native) {
-                	if (!call_native_function(function)) {
-                		RUNTIME_ERROR("Native function failed.");
-                		break;
-                	}
-                } else {
-                	call_user_function(function);
-                }
+					/* TODO: Handle errors in native and user functions */
+					if (function->is_native) {
+						if (!call_native_function(function)) {
+							RUNTIME_ERROR("Native function failed.");
+							break;
+						}
+					} else {
+						call_user_function(function);
+					}
+				}
+
+				else if (peek().as.object->type == OBJECT_CLASS) {
+					ObjectClass* klass = (ObjectClass*) pop().as.object;
+					ObjectInstance* instance = object_instance_new(klass);
+					push(MAKE_VALUE_OBJECT(instance));
+				}
+
+				else {
+					RUNTIME_ERROR("Cannot call non function or class.");
+					break;
+				}
 
                 break;
             }
