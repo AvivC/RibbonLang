@@ -340,9 +340,9 @@ static void gc_mark_object_thread(Object* object) {
 	}
 }
 
-static void gc_mark_object_class(Object* object) {
-	ObjectClass* klass = (ObjectClass*) object;
-	gc_mark_object((Object*) klass->name);
+static void gc_mark_object_instance(Object* object) {
+	ObjectInstance* instance = (ObjectInstance*) object;
+	gc_mark_object((Object*) instance->klass);
 }
 
 static void gc_mark_object(Object* object) {
@@ -385,7 +385,11 @@ static void gc_mark_object(Object* object) {
 			return;
 		}
 		case OBJECT_CLASS: {
-			gc_mark_object_class(object);
+			/* Nothing - currently classes don't link to any other object except for their attributes. */
+			return;
+		}
+		case OBJECT_INSTANCE: {
+			gc_mark_object_instance(object);
 			return;
 		}
 	}

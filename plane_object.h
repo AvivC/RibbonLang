@@ -15,7 +15,8 @@ typedef enum {
 	OBJECT_CELL,
 	OBJECT_MODULE,
 	OBJECT_THREAD,
-	OBJECT_CLASS
+	OBJECT_CLASS,
+	OBJECT_INSTANCE
 } ObjectType;
 
 typedef enum {
@@ -113,6 +114,11 @@ typedef struct ObjectClass {
 	int name_length;
 } ObjectClass;
 
+typedef struct ObjectInstance {
+	Object base;
+	ObjectClass* klass;
+} ObjectInstance;
+
 DECLARE_DYNAMIC_ARRAY(ObjectThread*, ThreadArray, thread_array)
 
 ObjectString* object_string_copy(const char* string, int length);
@@ -135,6 +141,8 @@ ObjectCell* object_cell_new_empty(void);
 
 ObjectClass* object_class_new(void);
 void object_class_set_name(ObjectClass* klass, char* name);
+
+ObjectInstance* object_instance_new(ObjectClass* klass);
 
 ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function);
 ObjectModule* object_module_native_new(ObjectString* name);

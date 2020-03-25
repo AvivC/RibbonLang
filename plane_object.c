@@ -469,6 +469,12 @@ ObjectClass* object_class_new(void) {
 	return klass;
 }
 
+ObjectInstance* object_instance_new(ObjectClass* klass) {
+	ObjectInstance* instance = (ObjectInstance*) allocate_object(sizeof(ObjectInstance), "ObjectInstance", OBJECT_INSTANCE);
+	instance->klass = klass;
+	return instance;
+}
+
 ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function) {
 	ObjectModule* module = (ObjectModule*) allocate_object(sizeof(ObjectModule), "ObjectModule", OBJECT_MODULE);
 	module->name = name;
@@ -563,6 +569,12 @@ void object_free(Object* o) {
 			deallocate(class->name, class->name_length + 1, "Class name");
 			deallocate(class, sizeof(ObjectClass), "ObjectClass");
         	break;
+		}
+		case OBJECT_INSTANCE: {
+			ObjectInstance* instance = (ObjectInstance*) o;
+			DEBUG_OBJECTS_PRINT("Freeing ObjectInstance at '%p'", instance);
+			deallocate(instance, sizeof(ObjectInstance), "ObjectInstance");
+			break;
 		}
     }
     
@@ -667,6 +679,11 @@ void object_print(Object* o) {
 			printf("<Class %.*s>", name_length, name);
 			return;
 		}
+		case OBJECT_INSTANCE: {
+			ObjectInstance* instance = (ObjectInstance*) o;
+			printf("<%.*s instance>", instance->klass->name_length, instance->klass->name);
+			return;
+		}
     }
     
     FAIL("Unrecognized object type: %d", o->type);
@@ -763,6 +780,9 @@ bool object_hash(Object* object, unsigned long* result) {
 			return false;
 		}
 		case OBJECT_CLASS: {
+			return false;
+		}
+		case OBJECT_INSTANCE: {
 			return false;
 		}
 	}
