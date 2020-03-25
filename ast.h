@@ -26,7 +26,8 @@ typedef enum {
 	AST_NODE_KEY_ACCESS,
 	AST_NODE_KEY_ASSIGNMENT,
 	AST_NODE_TABLE,
-	AST_NODE_IMPORT
+	AST_NODE_IMPORT,
+    AST_NODE_CLASS
 } AstNodeType;
 
 extern const char* AST_NODE_TYPE_NAMES[];
@@ -90,6 +91,11 @@ typedef struct {
     AstNodeStatements* statements;
     ValueArray parameters;
 } AstNodeFunction;
+
+typedef struct {
+    AstNode base;
+    AstNodeStatements* body;
+} AstNodeClass;
 
 typedef struct {
     AstNode base;
@@ -195,6 +201,7 @@ AstNodeKeyAssignment* ast_new_node_key_assignment(AstNode* key, AstNode* value, 
 AstNodeUnary* ast_new_node_unary(AstNode* expression);
 AstNodeTable* ast_new_node_table(AstKeyValuePairArray pairs);
 AstNodeImport* ast_new_node_import(const char* name, int name_length);
+AstNodeClass* ast_new_node_class(AstNodeStatements* body);
 
 AstNodesKeyValuePair ast_new_key_value_pair(AstNode* key, AstNode* value);
 

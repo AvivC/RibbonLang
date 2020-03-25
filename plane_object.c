@@ -422,6 +422,10 @@ void object_function_set_name(ObjectFunction* function, char* name) {
 	function->name = name;
 }
 
+void object_class_set_name(ObjectClass* klass, char* name) {
+	klass->name = name;
+}
+
 ObjectCode* object_code_new(Bytecode chunk) {
 	ObjectCode* obj_code = (ObjectCode*) allocate_object(sizeof(ObjectCode), "ObjectCode", OBJECT_CODE);
 	obj_code->bytecode = chunk;
@@ -455,6 +459,14 @@ ObjectCell* object_cell_new_empty(void) {
 	cell->value = MAKE_VALUE_NIL(); // Just for kicks
 	cell->is_filled = false;
 	return cell;
+}
+
+ObjectClass* object_class_new(void) {
+	ObjectClass* klass = (ObjectClass*) allocate_object(sizeof(ObjectClass), "ObjectClass", OBJECT_CLASS);
+	const char* anonymous_class_name = "<Anonymous class>";
+	klass->name = copy_null_terminated_cstring(anonymous_class_name, "Class name");
+	klass->name_length = strlen(anonymous_class_name);
+	return klass;
 }
 
 ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function) {
@@ -545,6 +557,13 @@ void object_free(Object* o) {
 			deallocate(module, sizeof(ObjectModule), "ObjectModule");
         	break;
         }
+		case OBJECT_CLASS: {
+			ObjectClass* class = (ObjectClass*) o;
+			DEBUG_OBJECTS_PRINT("Freeing ObjectClass at '%p'", class);
+			deallocate(class->name, class->name_length + 1, "Class name");
+			deallocate(class, sizeof(ObjectClass), "ObjectClass");
+        	break;
+		}
     }
     
     vm.num_objects--;
@@ -641,6 +660,13 @@ void object_print(Object* o) {
 			printf("<Module %s>", module->name->chars);
 			return;
         }
+		case OBJECT_CLASS: {
+			ObjectClass* klass = (ObjectClass*) o;
+			const char* name = klass->name;
+			int name_length = klass->name_length;
+			printf("<Class %.*s>", name_length, name);
+			return;
+		}
     }
     
     FAIL("Unrecognized object type: %d", o->type);
@@ -710,6 +736,8 @@ void object_print_all_objects(void) {
 }
 
 bool object_hash(Object* object, unsigned long* result) {
+	/* Currently only possible to hash strings. Plug in implementations here as needed. */
+
 	switch (object->type) {
 		case OBJECT_STRING: {
 			ObjectString* string = (ObjectString*) object;
@@ -732,6 +760,9 @@ bool object_hash(Object* object, unsigned long* result) {
 			return false;
 		}
 		case OBJECT_THREAD: {
+			return false;
+		}
+		case OBJECT_CLASS: {
 			return false;
 		}
 	}

@@ -173,6 +173,30 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
             break;
         }
+
+		case AST_NODE_CLASS: {
+			AstNodeClass* node_class = (AstNodeClass*) node;
+
+			Bytecode body_bytecode;
+            bytecode_init(&body_bytecode);
+
+            compiler_compile((AstNode*) node_class->body, &body_bytecode);
+
+            IntegerArray refd_names_indices = body_bytecode.referenced_names_indices;
+            for (int i = 0; i < refd_names_indices.count; i++) {
+            	Value referenced_name = body_bytecode.constants.values[refd_names_indices.values[i]];
+            	size_t constant_index = (size_t) bytecode_add_constant(bytecode, &referenced_name);
+            	integer_array_write(&bytecode->referenced_names_indices, &constant_index);
+			}
+
+            Value obj_code_constant = MAKE_VALUE_OBJECT(object_code_new(body_bytecode));
+            emit_opcode_with_constant_operand(bytecode, OP_MAKE_CLASS, obj_code_constant);
+
+			/* Current hack necessary because of hard-coded OP_NIL OP_RETURN in compiler_compile. To fix later. */
+            emit_byte(bytecode, OP_POP);
+
+			break;
+		}
         
         case AST_NODE_CALL: {
             AstNodeCall* node_call = (AstNodeCall*) node;

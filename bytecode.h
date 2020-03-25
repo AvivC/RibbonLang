@@ -32,6 +32,7 @@ typedef enum {
 	OP_JUMP,
 	OP_MAKE_STRING,
 	OP_MAKE_FUNCTION,
+    OP_MAKE_CLASS,
 	OP_IMPORT,
 	OP_NIL,
     OP_RETURN

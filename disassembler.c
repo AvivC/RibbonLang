@@ -143,6 +143,9 @@ int disassembler_do_single_instruction(OP_CODE opcode, Bytecode* chunk, int offs
 		case OP_MAKE_FUNCTION: {
 			return constant_and_variable_length_constants_instruction("OP_MAKE_FUNCTION", chunk, offset);
 		}
+		case OP_MAKE_CLASS: {
+			return constant_instruction("OP_MAKE_CLASS", chunk, offset);
+		}
 		case OP_NIL: {
 			return simple_instruction("OP_NIL", chunk, offset);
 		}

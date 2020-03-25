@@ -60,21 +60,26 @@ static Value peek(void) {
 static void init_stack_frame(StackFrame* frame) {
 	frame->return_address = NULL;
 	frame->function = NULL;
-	frame->module = NULL;
-	frame->is_module_base = false;
+	// frame->module = NULL;
+	frame->base_entity = NULL;
+	// frame->is_module_base = false;
+	frame->is_entity_base = false;
 	frame->is_native = false;
 	cell_table_init(&frame->local_variables);
 }
 
 /* module only required if is_module_base == true */
 static StackFrame new_stack_frame(
-		uint8_t* return_address, ObjectFunction* function, ObjectModule* module, bool is_module_base, bool is_native) {
+		// uint8_t* return_address, ObjectFunction* function, ObjectModule* module, bool is_module_base, bool is_native) {
+		uint8_t* return_address, ObjectFunction* function, Object* base_entity, bool is_entity_base, bool is_native) {
 	StackFrame frame;
 	init_stack_frame(&frame);
 	frame.return_address = return_address;
 	frame.function = function;
-	frame.module = module;
-	frame.is_module_base = is_module_base;
+	// frame.module = module;
+	frame.base_entity = base_entity;
+	// frame.is_module_base = is_module_base;
+	frame.is_entity_base = is_entity_base;
 	frame.is_native = is_native;
 	return frame;
 }
@@ -84,7 +89,7 @@ static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
 	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
 	ObjectModule* module = object_module_new(base_module_name, base_function);
-	return new_stack_frame(NULL, base_function, module, true, false);
+	return new_stack_frame(NULL, base_function, (Object*) module, true, false);
 }
 
 InterpretResult vm_call_function_directly(ObjectFunction* function, ValueArray args, Value* out) {
@@ -95,6 +100,37 @@ InterpretResult vm_call_function_directly(ObjectFunction* function, ValueArray a
 		FAIL("User function called with unmatching params number."); /* TODO: Legit error? */
 	}
 
+	if (function->self != NULL) {
+		push(MAKE_VALUE_OBJECT(function->self));
+	}
+
+	for (int i = 0; i < function->num_params; i++) {
+		const char* param_name = function->parameters[i];
+		Value argument = args.values[i];
+		cell_table_set_value_cstring_key(&frame.local_variables, param_name, argument);
+	}
+
+	InterpretResult func_exec_result = vm_interpret_frame(&frame);
+	
+	if (func_exec_result == INTERPRET_SUCCESS) {
+		Value return_value = pop();
+		*out = return_value;
+	}
+	
+	return func_exec_result;
+}
+
+static InterpretResult do_call_function_directly(
+	ObjectFunction* function, Object* base_entity, bool is_entity_base, ValueArray args, Value* out) {
+
+	ObjectThread* thread = current_thread();
+	StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false);
+
+	if (args.count != function->num_params) {
+		FAIL("User function called with unmatching params number."); /* TODO: Legit error? */
+	}
+
+	/* TODO: Yeah this 'self' part almost certainly is wrong etc. */
 	if (function->self != NULL) {
 		push(MAKE_VALUE_OBJECT(function->self));
 	}
@@ -168,7 +204,8 @@ static StackFrame* peek_previous_frame(void) {
 }
 
 static CellTable* frame_locals_or_module_table(StackFrame* frame) {
-	return frame->is_module_base ? &frame->module->base.attributes : &frame->local_variables;
+	// return frame->is_module_base ? &frame->module->base.attributes : &frame->local_variables;
+	return frame->is_entity_base ? &frame->base_entity->attributes : &frame->local_variables;
 }
 
 /* The "correct" locals table depends on whether we are the base function of a module or not...
@@ -187,7 +224,8 @@ static Value load_variable(ObjectString* name) {
 	bool variable_found =
 			cell_table_get_value_cstring_key(locals, name->chars, &value)
 			|| cell_table_get_value_cstring_key(free_vars, name->chars, &value)
-			|| (current_frame()->is_module_base && cell_table_get_value_cstring_key(&current_frame()->module->base.attributes, name->chars, &value))
+			// || (current_frame()->is_module_base && cell_table_get_value_cstring_key(&current_frame()->module->base.attributes, name->chars, &value))
+			|| (current_frame()->is_entity_base && cell_table_get_value_cstring_key(&current_frame()->base_entity->attributes, name->chars, &value))
 			|| cell_table_get_value_cstring_key(globals, name->chars, &value);
 
 	if (variable_found) {
@@ -290,13 +328,21 @@ static void gc_mark_object_thread(Object* object) {
 	/* Mark everything on the call stack */
 	for (StackFrame* frame = thread->call_stack; frame != thread->call_stack_top; frame++) {
 		gc_mark_object((Object*) frame->function);
-		if (frame->module != NULL) {
-			gc_mark_object((Object*) frame->module);
+		// if (frame->module != NULL) {
+		// 	gc_mark_object((Object*) frame->module);
+		// }
+		if (frame->base_entity != NULL) {
+			gc_mark_object(frame->base_entity);
 		}
 
 		/* Mark the frame locals */
 		gc_mark_table(&frame_locals_or_module_table(frame)->table);
 	}
+}
+
+static void gc_mark_object_class(Object* object) {
+	ObjectClass* klass = (ObjectClass*) object;
+	gc_mark_object((Object*) klass->name);
 }
 
 static void gc_mark_object(Object* object) {
@@ -336,6 +382,10 @@ static void gc_mark_object(Object* object) {
 		}
 		case OBJECT_STRING: {
 			/* Nothing. Currently strings don't link to any other object except for their attributes, which were already marked. */
+			return;
+		}
+		case OBJECT_CLASS: {
+			gc_mark_object_class(object);
 			return;
 		}
 	}
@@ -618,6 +668,13 @@ static void set_function_name(const Value* function_value, ObjectString* name) {
 	object_function_set_name(function, new_cstring_name);
 }
 
+static void set_class_name(const Value* class_value, ObjectString* name) {
+	ObjectClass* klass = (ObjectClass*) class_value->as.object;
+	deallocate(klass->name, klass->name_length, "Class name");
+	char* new_cstring_name = copy_null_terminated_cstring(name->chars, "Class name");
+	object_class_set_name(klass, new_cstring_name);
+}
+
 static void print_all_threads(void) {
 	ObjectThread* thread = vm.threads;
 	while (thread != NULL) {
@@ -662,7 +719,8 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 			push(MAKE_VALUE_OBJECT(module));
 
 			/* "Call" the new module to start executing it in the next iteration */
-			StackFrame frame = new_stack_frame(current_thread()->ip, module_base_function, module, true, false);
+			// StackFrame frame = new_stack_frame(current_thread()->ip, module_base_function, module, true, false);
+			StackFrame frame = new_stack_frame(current_thread()->ip, module_base_function, (Object*) module, true, false);
 			push_frame(frame);
 			current_thread()->ip = module_base_function->code->bytecode.code;
 
@@ -1011,6 +1069,23 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             	break;
             }
 
+			case OP_MAKE_CLASS: {
+				ObjectCode* code_object = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
+
+				ObjectFunction* class_base_function = object_user_function_new(code_object, NULL, 0, NULL, cell_table_new_empty());
+				set_function_name(&MAKE_VALUE_OBJECT(class_base_function), object_string_copy_from_null_terminated("<Class base function>"));
+
+				ObjectClass* class = object_class_new();
+
+				StackFrame frame = new_stack_frame(current_thread()->ip, class_base_function, (Object*) class, true, false);
+				push_frame(frame);
+				current_thread()->ip = class_base_function->code->bytecode.code;
+
+				push(MAKE_VALUE_OBJECT(class));
+
+				break;
+			}
+
             case OP_MAKE_FUNCTION: {
 				ObjectCode* object_code = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
 
@@ -1209,6 +1284,9 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
                 if (object_value_is(value, OBJECT_FUNCTION)) {
                 	set_function_name(&value, name);
                 }
+				else if (object_value_is(value, OBJECT_CLASS)) {
+					set_class_name(&value, name);
+				}
 
                 cell_table_set_value_cstring_key(locals_or_module_table(), name->chars, value);
                 break;
@@ -1557,7 +1635,8 @@ InterpretResult vm_interpret_program(Bytecode* bytecode) {
 
 	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
 	ObjectModule* module = object_module_new(base_module_name, base_function);
-	StackFrame base_frame = new_stack_frame(NULL, base_function, module, true, false);
+	// StackFrame base_frame = new_stack_frame(NULL, base_function, module, true, false);
+	StackFrame base_frame = new_stack_frame(NULL, base_function, (Object*) module, true, false);
 
 	DEBUG_TRACE("Starting interpreter loop.");
 	return vm_interpret_frame(&base_frame);

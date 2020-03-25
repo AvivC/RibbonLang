@@ -263,6 +263,14 @@ static AstNode* boolean(int expression_level) {
 	return (AstNode*) ast_new_node_constant(MAKE_VALUE_BOOLEAN(boolean_value));
 }
 
+static AstNode* klass(int expression_level) {
+    skip_newlines();
+    consume(TOKEN_LEFT_BRACE, "Expected '{' to open class definition.");
+    AstNodeStatements* body = (AstNodeStatements*) statements();
+    consume(TOKEN_RIGHT_BRACE, "Expected '}' to close class definition.");
+    return (AstNode*) ast_new_node_class(body);
+}
+
 static void conditioned_clause(AstNodeStatements** body_out, AstNode** condition_out, int expression_level) {
 	*condition_out = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
 	skip_newlines();
@@ -351,6 +359,7 @@ static ParseRule rules[] = {
     {boolean, NULL, PREC_NONE},     // TOKEN_TRUE
     {boolean, NULL, PREC_NONE},     // TOKEN_FALSE
     {NULL, NULL, PREC_NONE},     // TOKEN_IMPORT
+    {klass, NULL, PREC_NONE},     // TOKEN_CLASS
     {NULL, NULL, PREC_NONE},           // TOKEN_EOF
     {NULL, NULL, PREC_NONE}            // TOKEN_ERROR
 };

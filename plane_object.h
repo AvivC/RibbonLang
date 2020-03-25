@@ -14,7 +14,8 @@ typedef enum {
 	OBJECT_TABLE,
 	OBJECT_CELL,
 	OBJECT_MODULE,
-	OBJECT_THREAD
+	OBJECT_THREAD,
+	OBJECT_CLASS
 } ObjectType;
 
 typedef enum {
@@ -80,9 +81,11 @@ typedef struct ObjectModule {
 typedef struct {
 	uint8_t* return_address;
 	ObjectFunction* function;
-	ObjectModule* module;
+	// ObjectModule* module;
+	Object* base_entity;
 	CellTable local_variables;
-	bool is_module_base;
+	// bool is_module_base;
+	bool is_entity_base;
 	bool is_native;
 } StackFrame;
 
@@ -104,6 +107,12 @@ typedef struct ObjectThread {
     StackFrame call_stack[THREAD_CALL_STACK_MAX];
 } ObjectThread;
 
+typedef struct ObjectClass {
+	Object base;
+	char* name;
+	int name_length;
+} ObjectClass;
+
 DECLARE_DYNAMIC_ARRAY(ObjectThread*, ThreadArray, thread_array)
 
 ObjectString* object_string_copy(const char* string, int length);
@@ -123,6 +132,9 @@ ObjectTable* object_table_new_empty(void);
 
 ObjectCell* object_cell_new(Value value);
 ObjectCell* object_cell_new_empty(void);
+
+ObjectClass* object_class_new(void);
+void object_class_set_name(ObjectClass* klass, char* name);
 
 ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function);
 ObjectModule* object_module_native_new(ObjectString* name);

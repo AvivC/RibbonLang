@@ -111,6 +111,8 @@ static Token parse_identifier() {
     	return make_token(TOKEN_NOT);
     } else if (check_token("import")) {
     	return make_token(TOKEN_IMPORT);
+    } else if (check_token("class")) {
+        return make_token(TOKEN_CLASS);
     }
     
     return make_token(TOKEN_IDENTIFIER);

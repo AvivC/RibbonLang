@@ -27,7 +27,7 @@ const char* AST_NODE_TYPE_NAMES[] = {
 	"AST_NODE_KEY_ASSIGNMENT",
 	"AST_NODE_TABLE",
 	"AST_NODE_IMPORT",
-	"AST_NODE_MODULE"
+	"AST_NODE_CLASS"
 };
 
 static void print_nesting_string(int nesting) {
@@ -324,6 +324,19 @@ static void print_node(AstNode* node, int nesting) {
 			printf("STRING: %.*s\n", node_string->length, node_string->string);
 			break;
 		}
+
+		case AST_NODE_CLASS: {
+			AstNodeClass* node_class = (AstNodeClass*) node;
+			print_nesting_string(nesting);
+			printf("CLASS\n");
+			print_nesting_string(nesting);
+			printf("Statements:\n");
+            PointerArray* statements = &node_class->body->statements;
+            for (int i = 0; i < statements->count; i++) {
+                print_node((AstNode*) statements->values[i], nesting + 1);
+            }
+			break;
+		}
     }
 }
 
@@ -522,6 +535,13 @@ static void node_free(AstNode* node, int nesting) {
 			deallocate(node_string, sizeof(AstNodeString), deallocationString);
 			break;
 		}
+
+		case AST_NODE_CLASS: {
+			AstNodeClass* node_class = (AstNodeClass*) node;
+			node_free((AstNode*) node_class->body, nesting + 1);
+			deallocate(node_class, sizeof(AstNodeClass), deallocationString);
+			break;
+		}
     }
 }
 
@@ -682,6 +702,12 @@ AstNodeImport* ast_new_node_import(const char* name, int name_length) {
 	AstNodeImport* node = ALLOCATE_AST_NODE(AstNodeImport, AST_NODE_IMPORT);
 	node->name = name;
 	node->name_length = name_length;
+	return node;
+}
+
+AstNodeClass* ast_new_node_class(AstNodeStatements* body) {
+	AstNodeClass* node = ALLOCATE_AST_NODE(AstNodeClass, AST_NODE_CLASS);
+	node->body = body;
 	return node;
 }
 
