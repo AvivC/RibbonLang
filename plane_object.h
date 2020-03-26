@@ -16,7 +16,8 @@ typedef enum {
 	OBJECT_MODULE,
 	OBJECT_THREAD,
 	OBJECT_CLASS,
-	OBJECT_INSTANCE
+	OBJECT_INSTANCE,
+	OBJECT_BOUND_METHOD
 } ObjectType;
 
 typedef enum {
@@ -119,6 +120,12 @@ typedef struct ObjectInstance {
 	ObjectClass* klass;
 } ObjectInstance;
 
+typedef struct ObjectBoundMethod {
+	Object base;
+	Object* self;
+	ObjectFunction* method;
+} ObjectBoundMethod;
+
 DECLARE_DYNAMIC_ARRAY(ObjectThread*, ThreadArray, thread_array)
 
 ObjectString* object_string_copy(const char* string, int length);
@@ -146,6 +153,8 @@ ObjectInstance* object_instance_new(ObjectClass* klass);
 
 ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function);
 ObjectModule* object_module_native_new(ObjectString* name);
+
+ObjectBoundMethod* object_bound_method_new(ObjectFunction* method, Object* self);
 
 ObjectThread* object_thread_new(ObjectFunction* function, char* name);
 void object_thread_push_eval_stack(ObjectThread* thread, Value value);

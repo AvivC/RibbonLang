@@ -208,7 +208,7 @@ static CellTable* frame_locals_or_module_table(StackFrame* frame) {
 	return frame->is_entity_base ? &frame->base_entity->attributes : &frame->local_variables;
 }
 
-/* The "correct" locals table depends on whether we are the base function of a module or not...
+/* The "correct" locals table depends on whether we are the base function of a module or class or not...
  * This design isn't great, should change it later. */
 static CellTable* locals_or_module_table(void) {
 	return frame_locals_or_module_table(current_frame());
@@ -345,6 +345,12 @@ static void gc_mark_object_instance(Object* object) {
 	gc_mark_object((Object*) instance->klass);
 }
 
+static void gc_mark_object_bound_method(Object* object) {
+	ObjectBoundMethod* bound_method = (ObjectBoundMethod*) object;
+	gc_mark_object(bound_method->self);
+	gc_mark_object((Object*) bound_method->method);
+}
+
 static void gc_mark_object(Object* object) {
 	assert_is_probably_valid_object(object);
 
@@ -390,6 +396,10 @@ static void gc_mark_object(Object* object) {
 		}
 		case OBJECT_INSTANCE: {
 			gc_mark_object_instance(object);
+			return;
+		}
+		case OBJECT_BOUND_METHOD: {
+			gc_mark_object_bound_method(object);
 			return;
 		}
 	}
@@ -1325,6 +1335,26 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 					}
 				}
 
+				else if (peek().as.object->type == OBJECT_BOUND_METHOD) {
+					ObjectBoundMethod* bound_method = (ObjectBoundMethod*) pop().as.object;
+					ObjectFunction* method = bound_method->method;
+
+					if (explicit_arg_count != method->num_params) {
+						RUNTIME_ERROR("Function called with %d arguments, needs %d.", explicit_arg_count, method->num_params);
+						break;
+					}
+					
+					/* TODO: Handle errors in native and user functions */
+					if (method->is_native) {
+						FAIL("Currently native-methods are unimplemented.");
+					} else {
+						call_user_function(method);
+						StackFrame* new_frame = peek_current_frame();
+						Object* self = bound_method->self;
+						cell_table_set_value_cstring_key(&new_frame->local_variables, "self", MAKE_VALUE_OBJECT(self));
+					}
+				}
+
 				else if (peek().as.object->type == OBJECT_CLASS) {
 					ObjectClass* klass = (ObjectClass*) pop().as.object;
 					ObjectInstance* instance = object_instance_new(klass);
@@ -1355,9 +1385,26 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
                 Value attr_value;
                 if (cell_table_get_value_cstring_key(&object->attributes, name->chars, &attr_value)) {
                 	push(attr_value);
-                } else {
-                	push(MAKE_VALUE_NIL());
+					break;
                 }
+
+				if (object->type == OBJECT_INSTANCE) {
+					ObjectInstance* instance = (ObjectInstance*) object;
+					ObjectClass* klass = instance->klass;
+					if (cell_table_get_value_cstring_key(&instance->klass->base.attributes, name->chars, &attr_value)) {
+						if (object_value_is(attr_value, OBJECT_FUNCTION)) {
+							ObjectFunction* method = (ObjectFunction*) attr_value.as.object;
+							ObjectBoundMethod* bound_method = object_bound_method_new(method, object);
+							attr_value = MAKE_VALUE_OBJECT(bound_method);
+						}
+
+						push(attr_value);
+						break;
+					}
+				}
+
+				/* TODO: Runtime error instead of nil */
+				push(MAKE_VALUE_NIL());
 
                 break;
             }

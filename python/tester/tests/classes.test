@@ -1,0 +1,54 @@
+test empty named class
+    Dog = class {}
+    print(Dog)
+expect
+    <Class Dog>
+end
+
+test empty anonymous class
+    print(class {})
+expect
+    <Class <Anonymous class>>
+end
+
+test class attributes
+    Dog = class {
+        x = 10
+        y = "20"
+        z = {
+            print("Hello")
+        }
+    }
+
+    print(Dog.x)
+    print(Dog.y)
+    Dog.z()
+
+    dog = Dog()
+    print(dog.x)
+    print(dog.y)
+    dog.z()
+
+    Dog.y = 30
+
+    print(Dog.x)
+    print(Dog.y)
+    Dog.z()
+
+    print(dog.x)
+    print(dog.y)
+    dog.z()
+expect
+    10
+    20
+    Hello
+    10
+    20
+    Hello
+    10
+    30
+    Hello
+    10
+    30
+    Hello
+end

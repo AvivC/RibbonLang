@@ -427,6 +427,14 @@ void object_class_set_name(ObjectClass* klass, char* name, int length) {
 	klass->name_length = length;
 }
 
+ObjectBoundMethod* object_bound_method_new(ObjectFunction* method, Object* self) {
+	ObjectBoundMethod* bound_method 
+		= (ObjectBoundMethod*) allocate_object(sizeof(ObjectBoundMethod), "ObjectBoundMethod", OBJECT_BOUND_METHOD);
+	bound_method->method = method;
+	bound_method->self = self;
+	return bound_method;
+}
+
 ObjectCode* object_code_new(Bytecode chunk) {
 	ObjectCode* obj_code = (ObjectCode*) allocate_object(sizeof(ObjectCode), "ObjectCode", OBJECT_CODE);
 	obj_code->bytecode = chunk;
@@ -577,6 +585,12 @@ void object_free(Object* o) {
 			deallocate(instance, sizeof(ObjectInstance), "ObjectInstance");
 			break;
 		}
+		case OBJECT_BOUND_METHOD: {
+			ObjectBoundMethod* bound_method = (ObjectBoundMethod*) o;
+			DEBUG_OBJECTS_PRINT("Freeing ObjectBoundMethod at '%p'", instance);
+			deallocate(bound_method, sizeof(ObjectBoundMethod), "ObjectBoundMethod");
+			break;
+		}
     }
     
     vm.num_objects--;
@@ -685,6 +699,14 @@ void object_print(Object* o) {
 			printf("<%.*s instance>", instance->klass->name_length, instance->klass->name);
 			return;
 		}
+		case OBJECT_BOUND_METHOD: {
+			ObjectBoundMethod* bound_method = (ObjectBoundMethod*) o;
+			ObjectFunction* method = bound_method->method;
+			printf("<Bound method %s of object ", method->name);
+			object_print(bound_method->self);
+			printf(">");
+			return;
+		}
     }
     
     FAIL("Unrecognized object type: %d", o->type);
@@ -784,6 +806,9 @@ bool object_hash(Object* object, unsigned long* result) {
 			return false;
 		}
 		case OBJECT_INSTANCE: {
+			return false;
+		}
+		case OBJECT_BOUND_METHOD: {
 			return false;
 		}
 	}
