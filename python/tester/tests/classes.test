@@ -52,3 +52,148 @@ expect
     30
     Hello
 end
+
+test constructors
+    Cat = class {
+        @init = { takes name, favorite_food to
+            self.name = name
+            self.favorite_food = favorite_food
+        }
+
+        meow = { takes to_whom to
+            print("Meow, " + to_whom)
+            print("My name is " + self.name + " and I love " + self.favorite_food + "!")
+        }
+
+        breed = { takes other_cat to
+            self.meow(other_cat.name)
+            print("Let's make kittens!")
+            return [Cat("Catti", "pizza"), Cat("Cattul", "pasta")]
+        }
+    }
+
+    cat = Cat("ElCatoo", "lasagna")
+    cat.meow("Aviv")
+
+    offspring = cat.breed(Cat("Cattaluna", "kitkat"))
+    catti = offspring[0]
+    cattul = offspring[1]
+
+    print("First kitten is " + catti.name + " and likes " + catti.favorite_food)
+    print("Second kitten is " + cattul.name + " and likes " + cattul.favorite_food)
+expect
+    Meow, Aviv
+    My name is ElCatoo and I love lasagna!
+    Meow, Cattaluna
+    My name is ElCatoo and I love lasagna!
+    Let's make kittens!
+    First kitten is Catti and likes pizza
+    Second kitten is Cattul and likes pasta
+end
+
+test self is captured by closures in methods
+    also_just_some_variable = 100
+
+    Guitar = class {
+        @init = { takes type to
+            if type == "electric" {
+                self.style = "rock"
+            } else {
+                self.style = "classical"
+            }
+        }
+
+        make_song = { takes times to
+            return {
+                i = 0
+                while i < times {
+                    print("I'm a " + self.style + " song")
+                    i = i + 1
+                }
+
+                print(also_just_some_variable)
+            }
+        }
+    }
+
+    myguitar = Guitar("electric")
+    song = myguitar.make_song(2)
+    song()
+
+    myguitar = Guitar("acoustic")
+    song = myguitar.make_song(3)
+    song()
+expect
+    I'm a rock song
+    I'm a rock song
+    100
+    I'm a classical song
+    I'm a classical song
+    I'm a classical song
+    100
+end
+
+test more funky classes stuff
+    SpeciesMaker = class {
+
+        make_animal = { takes species_name, is_carnivor, height to
+
+            return class {
+                @init = { takes name to
+                    self.name = name
+                    self.species_name = species_name
+                    self.is_carnivor = is_carnivor
+                    # height will be used directly from the free variables
+                }
+
+                greet = {
+                    print("Hello, my name is " + self.name + " and I am a " + self.species_name + "!")
+
+                    if self.is_carnivor {
+                        print("I'm eating MEAT")
+                    } else {
+                        print("I like a good salad :)")
+                    }
+
+                    if height > 5 {
+                        print("I'm very tall")
+                    } else {
+                        print("I'm short")
+                    }
+
+                    return true  # just for kicks
+                }
+            }
+
+        }
+
+    }
+
+    maker = SpeciesMaker()
+
+    Dog = maker.make_animal("Dog", true, 2)
+    Kangaroo = maker.make_animal("Kangaroo", false, 6)
+
+    milki = Dog("Milki")
+    brandy = Dog("Brandy")
+    milki.greet()
+    brandy.greet()
+
+    chicko = Kangaroo("Chicko")
+    lukka = Kangaroo("Lukka")
+    chicko.greet()
+    lukka.greet()
+expect
+    Hello, my name is Milki and I am a Dog!
+    I'm eating MEAT
+    I'm short
+    Hello, my name is Brandy and I am a Dog!
+    I'm eating MEAT
+    I'm short
+    Hello, my name is Chicko and I am a Kangaroo!
+    I like a good salad :)
+    I'm very tall
+    Hello, my name is Lukka and I am a Kangaroo!
+    I like a good salad :)
+    I'm very tall
+end

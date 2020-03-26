@@ -470,11 +470,12 @@ ObjectCell* object_cell_new_empty(void) {
 	return cell;
 }
 
-ObjectClass* object_class_new(void) {
+ObjectClass* object_class_new(ObjectFunction* base_function) {
 	ObjectClass* klass = (ObjectClass*) allocate_object(sizeof(ObjectClass), "ObjectClass", OBJECT_CLASS);
 	const char* anonymous_class_name = "<Anonymous class>";
 	klass->name = copy_null_terminated_cstring(anonymous_class_name, "Class name");
 	klass->name_length = strlen(anonymous_class_name);
+	klass->base_function = base_function;
 	return klass;
 }
 
@@ -819,20 +820,37 @@ bool object_hash(Object* object, unsigned long* result) {
 	return false;
 }
 
-void object_set_attribute(Object* object, ObjectString* key, Value value) {
-	cell_table_set_value_directly(&object->attributes, MAKE_VALUE_OBJECT(key), value);
-}
-
-bool object_get_attribute(Object* object, ObjectString* key, Value* out) {
-	return cell_table_get_value_directly(&object->attributes, key, out);
-}
-
 void object_set_atttribute_cstring_key(Object* object, const char* key, Value value) {
 	cell_table_set_value_cstring_key(&object->attributes, key, value);
 }
 
-bool object_get_attribute_cstring_key(Object* object, const char* key, Value* out) {
-	return cell_table_get_value_cstring_key(&object->attributes, key, out);
+bool object_load_attribute(Object* object, ObjectString* name, Value* out) {
+	Value attr_value;
+	if (cell_table_get_value_cstring_key(&object->attributes, name->chars, &attr_value)) {
+		*out = attr_value;
+		return true;
+	}
+
+	if (object->type == OBJECT_INSTANCE) {
+		ObjectInstance* instance = (ObjectInstance*) object;
+		ObjectClass* klass = instance->klass;
+		if (cell_table_get_value_cstring_key(&instance->klass->base.attributes, name->chars, &attr_value)) {
+			if (object_value_is(attr_value, OBJECT_FUNCTION)) {
+				ObjectFunction* method = (ObjectFunction*) attr_value.as.object;
+				ObjectBoundMethod* bound_method = object_bound_method_new(method, object);
+				attr_value = MAKE_VALUE_OBJECT(bound_method);
+			}
+
+			*out = attr_value;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool object_load_attribute_cstring_key(Object* object, const char* name, Value* out) {
+	return object_load_attribute(object, object_string_copy_from_null_terminated(name), out);
 }
 
 IMPLEMENT_DYNAMIC_ARRAY(ObjectThread*, ThreadArray, thread_array)

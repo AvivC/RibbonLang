@@ -65,22 +65,22 @@ static void init_stack_frame(StackFrame* frame) {
 	// frame->is_module_base = false;
 	frame->is_entity_base = false;
 	frame->is_native = false;
+	frame->discard_return_value = false;
 	cell_table_init(&frame->local_variables);
 }
 
 /* module only required if is_module_base == true */
 static StackFrame new_stack_frame(
-		// uint8_t* return_address, ObjectFunction* function, ObjectModule* module, bool is_module_base, bool is_native) {
-		uint8_t* return_address, ObjectFunction* function, Object* base_entity, bool is_entity_base, bool is_native) {
+		uint8_t* return_address, ObjectFunction* function, 
+		Object* base_entity, bool is_entity_base, bool is_native, bool discard_return_value) {
 	StackFrame frame;
 	init_stack_frame(&frame);
 	frame.return_address = return_address;
 	frame.function = function;
-	// frame.module = module;
 	frame.base_entity = base_entity;
-	// frame.is_module_base = is_module_base;
 	frame.is_entity_base = is_entity_base;
 	frame.is_native = is_native;
+	frame.discard_return_value = discard_return_value;
 	return frame;
 }
 
@@ -89,12 +89,12 @@ static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
 	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
 	ObjectModule* module = object_module_new(base_module_name, base_function);
-	return new_stack_frame(NULL, base_function, (Object*) module, true, false);
+	return new_stack_frame(NULL, base_function, (Object*) module, true, false, false);
 }
 
 InterpretResult vm_call_function_directly(ObjectFunction* function, ValueArray args, Value* out) {
 	ObjectThread* thread = current_thread();
-	StackFrame frame = new_stack_frame(thread->ip, function, NULL, false, false);
+	StackFrame frame = new_stack_frame(thread->ip, function, NULL, false, false, false);
 
 	if (args.count != function->num_params) {
 		FAIL("User function called with unmatching params number."); /* TODO: Legit error? */
@@ -124,7 +124,7 @@ static InterpretResult do_call_function_directly(
 	ObjectFunction* function, Object* base_entity, bool is_entity_base, ValueArray args, Value* out) {
 
 	ObjectThread* thread = current_thread();
-	StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false);
+	StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false, false);
 
 	if (args.count != function->num_params) {
 		FAIL("User function called with unmatching params number."); /* TODO: Legit error? */
@@ -175,7 +175,7 @@ void vm_spawn_thread(ObjectFunction* function) {
 	ObjectThread* thread = object_thread_new(function, temp_name_buffer);
 	deallocate(temp_name_buffer, name_length + 1, "Temp thread name buffer");
 
-	*thread->call_stack_top = new_stack_frame(NULL, function, NULL, false, false);
+	*thread->call_stack_top = new_stack_frame(NULL, function, NULL, false, false, false);
 	thread->call_stack_top++;
 
 	add_thread(thread);
@@ -551,7 +551,7 @@ static void call_user_function(ObjectFunction* function) {
 		push(MAKE_VALUE_OBJECT(function->self));
 	}
 
-	StackFrame frame = new_stack_frame(thread->ip, function, NULL, false, false);
+	StackFrame frame = new_stack_frame(thread->ip, function, NULL, false, false, false);
 	for (int i = 0; i < function->num_params; i++) {
 		const char* param_name = function->parameters[i];
 		Value argument = pop();
@@ -578,7 +578,7 @@ static bool call_native_function(ObjectFunction* function) {
 	Specifically, for the use case where a native function calls a user function.
 	Without this "native frame", OP_RETURN in the user function will make control jump
 	back to the point where the caller _native_ function was called. */
-	StackFrame native_frame = new_stack_frame(NULL, function, NULL, false, true);
+	StackFrame native_frame = new_stack_frame(NULL, function, NULL, false, true, false);
 	push_frame(native_frame);
 
 	/* If the native function will end up calling a user function, the instruction
@@ -734,7 +734,7 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 
 			/* "Call" the new module to start executing it in the next iteration */
 			// StackFrame frame = new_stack_frame(current_thread()->ip, module_base_function, module, true, false);
-			StackFrame frame = new_stack_frame(current_thread()->ip, module_base_function, (Object*) module, true, false);
+			StackFrame frame = new_stack_frame(current_thread()->ip, module_base_function, (Object*) module, true, false, false);
 			push_frame(frame);
 			current_thread()->ip = module_base_function->code->bytecode.code;
 
@@ -759,6 +759,68 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 
 	FAIL("load_text_module - shouldn't reach here.");
 	return false;
+}
+
+static CellTable find_free_vars_for_new_function(ObjectCode* func_code) {
+	IntegerArray names_refd_in_created_func = func_code->bytecode.referenced_names_indices;
+	int names_refd_count = names_refd_in_created_func.count;
+
+	CellTable free_vars = cell_table_new_empty();
+
+	for (int i = 0; i < names_refd_count; i++) {
+		/* Get the name of the variable referenced inside the created function */
+		size_t refd_name_index = names_refd_in_created_func.values[i];
+		Value refd_name_value = func_code->bytecode.constants.values[refd_name_index];
+		if (!object_value_is(refd_name_value, OBJECT_STRING)) {
+			FAIL("Referenced name constant must be an ObjectString*");
+		}
+		ObjectString* refd_name = (ObjectString*) refd_name_value.as.object;
+
+		/* If the cell for the refd_name exists in our current local scope, we take that cell
+		* and put it in the free_vars of the created function.
+		* If it doesn't, we check to see if this name is assigned anywhere in the current running function,
+		* even though it hasn't been assigned yet, because if we later assign it in this current function, we would like
+		* the created closure to be able to see the new value.
+		* If it is assigned anywhere in the current function, we create a new empty cell, and we put it in both our
+		* own local scope and the free_vars of the newly created function.
+		* If it isn't assigned in our currently running function, the last resort is to look it up in our own free_vars.
+		* This should create the chain of nested closures.
+		* We look in our free_vars as the "last resort", because we want more inner references to shadow more outer references
+		* for the created closure.
+		* If the cell does exist in the free_vars, we put it in the new free_vars.
+		* If it doesn't, than the name mentioned in the closure is either a reference to a global or an error. We'll find out
+		* when the closure runs. */
+
+		ObjectCell* cell = NULL;
+
+		if (cell_table_get_cell_cstring_key(locals_or_module_table(), refd_name->chars, &cell)) {
+			cell_table_set_cell_cstring_key(&free_vars, refd_name->chars, cell);
+		} else {
+			Bytecode* current_bytecode = &current_frame()->function->code->bytecode;
+			IntegerArray* assigned_names_indices = &current_bytecode->assigned_names_indices;
+
+			for (int i = 0; i < assigned_names_indices->count; i++) {
+				size_t assigned_name_index = assigned_names_indices->values[i];
+				Value assigned_name_constant = current_bytecode->constants.values[assigned_name_index];
+				ObjectString* assigned_name = NULL;
+				ASSERT_VALUE_AS_OBJECT(assigned_name, assigned_name_constant, OBJECT_STRING, ObjectString, "Expected ObjectString* as assigned name.")
+
+				if (object_strings_equal(refd_name, assigned_name)) {
+					cell = object_cell_new_empty();
+					cell_table_set_cell_cstring_key(&free_vars, refd_name->chars, cell);
+					cell_table_set_cell_cstring_key(locals_or_module_table(), refd_name->chars, cell);
+					break;
+				}
+			}
+
+			CellTable* current_func_free_vars = &current_frame()->function->free_vars;
+			if (cell == NULL && cell_table_get_cell_cstring_key(current_func_free_vars, refd_name->chars, &cell)) {
+				cell_table_set_cell_cstring_key(&free_vars, refd_name->chars, cell);
+			}
+		}
+	}
+
+	return free_vars;
 }
 
 /* TODO: Leave public or make private? */
@@ -1084,14 +1146,15 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             }
 
 			case OP_MAKE_CLASS: {
-				ObjectCode* code_object = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
+				ObjectCode* class_body_code = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
+				CellTable base_func_free_vars = find_free_vars_for_new_function(class_body_code);
 
-				ObjectFunction* class_base_function = object_user_function_new(code_object, NULL, 0, NULL, cell_table_new_empty());
+				ObjectFunction* class_base_function = object_user_function_new(class_body_code, NULL, 0, NULL, base_func_free_vars);
 				set_function_name(&MAKE_VALUE_OBJECT(class_base_function), object_string_copy_from_null_terminated("<Class base function>"));
 
-				ObjectClass* class = object_class_new();
+				ObjectClass* class = object_class_new(class_base_function);
 
-				StackFrame frame = new_stack_frame(current_thread()->ip, class_base_function, (Object*) class, true, false);
+				StackFrame frame = new_stack_frame(current_thread()->ip, class_base_function, (Object*) class, true, false, false);
 				push_frame(frame);
 				current_thread()->ip = class_base_function->code->bytecode.code;
 
@@ -1118,72 +1181,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 					params[i] = copy_cstring(param_object_string->chars, param_object_string->length, "ObjectFunction param cstring");
 				}
 
-				/* Loop through the names mentioned in the created function.
-				 * We want to figure out what to put in the created function's free variables table. */
-				IntegerArray names_refd_in_created_func = object_code->bytecode.referenced_names_indices;
-				int names_refd_count = names_refd_in_created_func.count;
-				CellTable new_function_free_vars;
-				cell_table_init(&new_function_free_vars);
-
-				for (int i = 0; i < names_refd_count; i++) {
-					/* Get the name of the variable referenced inside the created function */
-					size_t refd_name_index = names_refd_in_created_func.values[i];
-					Value refd_name_value = object_code->bytecode.constants.values[refd_name_index];
-					if (!object_value_is(refd_name_value, OBJECT_STRING)) {
-						FAIL("Referenced name constant must be an ObjectString*");
-					}
-					ObjectString* refd_name = (ObjectString*) refd_name_value.as.object;
-
-					/* If the cell for the refd_name exists in our current local scope, we take that cell
-					 * and put it in the free_vars of the created function.
-					 * If it doesn't, we check to see if this name is assigned anywhere in the current running function,
-					 * even though it hasn't been assigned yet, because if we later assign it in this current function, we would like
-					 * the created closure to be able to see the new value.
-					 * If it is assigned anywhere in the current function, we create a new empty cell, and we put it in both our
-					 * own local scope and the free_vars of the newly created function.
-					 * If it isn't assigned in our currently running function, the last resort is to look it up in our own free_vars.
-					 * This should create the chain of nested closures.
-					 * We look in our free_vars as the "last resort", because we want more inner references to shadow more outer references
-					 * for the created closure.
-					 * If the cell does exist in the free_vars, we put it in the new free_vars.
-					 * If it doesn't, than the name mentioned in the closure is either a reference to a global or an error. We'll find out
-					 * when the closure runs. */
-
-					ObjectCell* cell = NULL;
-
-					if (cell_table_get_cell_cstring_key(locals_or_module_table(), refd_name->chars, &cell)) {
-						cell_table_set_cell_cstring_key(&new_function_free_vars, refd_name->chars, cell);
-					} else {
-						Bytecode* current_bytecode = &current_frame()->function->code->bytecode;
-						IntegerArray* assigned_names_indices = &current_bytecode->assigned_names_indices;
-
-						/* Loop through all of the names assigned in the currently running function */
-						for (int i = 0; i < assigned_names_indices->count; i++) {
-							/* Get the name of the assigned variable */
-							size_t assigned_name_index = assigned_names_indices->values[i];
-							Value assigned_name_constant = current_bytecode->constants.values[assigned_name_index];
-							ObjectString* assigned_name = NULL;
-							ASSERT_VALUE_AS_OBJECT(assigned_name, assigned_name_constant, OBJECT_STRING, ObjectString, "Expected ObjectString* as assigned name.")
-
-							/* If the name referenced in the created function matches the name assigned in the current function... */
-							if (object_strings_equal(refd_name, assigned_name)) {
-								/* Create a new empty cell, and put it both in the current locals table and in
-								 * the created functions free variables. This creates the link between the two. */
-								cell = object_cell_new_empty();
-								cell_table_set_cell_cstring_key(&new_function_free_vars, refd_name->chars, cell);
-								cell_table_set_cell_cstring_key(locals_or_module_table(), refd_name->chars, cell);
-								break;
-							}
-						}
-
-						/* If we still hadn't found a matching cell, we look in our free_vars */
-						CellTable* current_func_free_vars = &current_frame()->function->free_vars;
-						if (cell == NULL && cell_table_get_cell_cstring_key(current_func_free_vars, refd_name->chars, &cell)) {
-							cell_table_set_cell_cstring_key(&new_function_free_vars, refd_name->chars, cell);
-						}
-					}
-				}
-
+				CellTable new_function_free_vars = find_free_vars_for_new_function(object_code);
 				ObjectFunction* function = object_user_function_new(object_code, params, num_params, NULL, new_function_free_vars);
 				push(MAKE_VALUE_OBJECT(function));
 				break;
@@ -1218,6 +1216,10 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 				depends on the state of the call stack */
 				StackFrame* previous_frame = peek_previous_frame();
                 StackFrame frame = pop_frame();
+
+				if (frame.discard_return_value) {
+					pop();
+				}
 
 				if (previous_frame != NULL && previous_frame->is_native) {
 					is_executing = false;
@@ -1358,6 +1360,34 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 				else if (peek().as.object->type == OBJECT_CLASS) {
 					ObjectClass* klass = (ObjectClass*) pop().as.object;
 					ObjectInstance* instance = object_instance_new(klass);
+
+					Value init_method_value;
+					if (object_load_attribute_cstring_key((Object*) instance, "@init", &init_method_value)) {
+						ObjectBoundMethod* init_bound_method = NULL;
+						if ((init_bound_method = VALUE_AS_OBJECT(init_method_value, OBJECT_BOUND_METHOD, ObjectBoundMethod)) == NULL) {
+							RUNTIME_ERROR("@init attribute of class is not a method.");
+							break;
+						}
+
+						ObjectFunction* init_method = init_bound_method->method;
+
+						if (explicit_arg_count != init_method->num_params) {
+							RUNTIME_ERROR("@init called with %d arguments, needs %d.", explicit_arg_count, init_method->num_params);
+							break;
+						}
+						
+						/* TODO: Handle errors in native and user functions */
+						if (init_method->is_native) {
+							FAIL("Currently native-methods are unimplemented.");
+						} else {
+							call_user_function(init_method);
+							StackFrame* new_frame = peek_current_frame();
+							Object* self = init_bound_method->self;
+							cell_table_set_value_cstring_key(&new_frame->local_variables, "self", MAKE_VALUE_OBJECT(self));
+							new_frame->discard_return_value = true;
+						}
+					}
+
 					push(MAKE_VALUE_OBJECT(instance));
 				}
 
@@ -1381,31 +1411,14 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
                 	break;
                 }
 
-                Object* object = obj_val.as.object;
-                Value attr_value;
-                if (cell_table_get_value_cstring_key(&object->attributes, name->chars, &attr_value)) {
-                	push(attr_value);
+				Value attr_value;
+                if (object_load_attribute(obj_val.as.object, name, &attr_value)) {
+					push(attr_value);
 					break;
-                }
-
-				if (object->type == OBJECT_INSTANCE) {
-					ObjectInstance* instance = (ObjectInstance*) object;
-					ObjectClass* klass = instance->klass;
-					if (cell_table_get_value_cstring_key(&instance->klass->base.attributes, name->chars, &attr_value)) {
-						if (object_value_is(attr_value, OBJECT_FUNCTION)) {
-							ObjectFunction* method = (ObjectFunction*) attr_value.as.object;
-							ObjectBoundMethod* bound_method = object_bound_method_new(method, object);
-							attr_value = MAKE_VALUE_OBJECT(bound_method);
-						}
-
-						push(attr_value);
-						break;
-					}
 				}
 
 				/* TODO: Runtime error instead of nil */
 				push(MAKE_VALUE_NIL());
-
                 break;
             }
 
@@ -1700,7 +1713,7 @@ InterpretResult vm_interpret_program(Bytecode* bytecode) {
 	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
 	ObjectModule* module = object_module_new(base_module_name, base_function);
 	// StackFrame base_frame = new_stack_frame(NULL, base_function, module, true, false);
-	StackFrame base_frame = new_stack_frame(NULL, base_function, (Object*) module, true, false);
+	StackFrame base_frame = new_stack_frame(NULL, base_function, (Object*) module, true, false, false);
 
 	DEBUG_TRACE("Starting interpreter loop.");
 	return vm_interpret_frame(&base_frame);

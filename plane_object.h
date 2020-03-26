@@ -83,12 +83,11 @@ typedef struct ObjectModule {
 typedef struct {
 	uint8_t* return_address;
 	ObjectFunction* function;
-	// ObjectModule* module;
 	Object* base_entity;
 	CellTable local_variables;
-	// bool is_module_base;
 	bool is_entity_base;
 	bool is_native;
+	bool discard_return_value;
 } StackFrame;
 
 typedef struct ObjectThread {
@@ -113,6 +112,7 @@ typedef struct ObjectClass {
 	Object base;
 	char* name;
 	int name_length;
+	ObjectFunction* base_function;
 } ObjectClass;
 
 typedef struct ObjectInstance {
@@ -146,7 +146,7 @@ ObjectTable* object_table_new_empty(void);
 ObjectCell* object_cell_new(Value value);
 ObjectCell* object_cell_new_empty(void);
 
-ObjectClass* object_class_new(void);
+ObjectClass* object_class_new(ObjectFunction* base_function);
 void object_class_set_name(ObjectClass* klass, char* name, int length);
 
 ObjectInstance* object_instance_new(ObjectClass* klass);
@@ -189,11 +189,8 @@ bool object_value_is(Value value, ObjectType type);
 
 void object_set_atttribute_cstring_key(Object* object, const char* key, Value value);
 
-bool object_get_attribute_cstring_key(Object* object, const char* key, Value* out);
-
-void object_set_attribute(Object* object, ObjectString* key, Value value);
-
-bool object_get_attribute(Object* object, ObjectString* key, Value* out);
+bool object_load_attribute(Object* object, ObjectString* name, Value* out);
+bool object_load_attribute_cstring_key(Object* object, const char* name, Value* out);
 
 #define VALUE_AS_OBJECT(value, object_type, cast) object_value_is(value, object_type) ? (cast*) value.as.object : NULL
 

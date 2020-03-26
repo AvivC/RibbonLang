@@ -43,7 +43,7 @@ static bool is_end_of_code(char c) {
 }
 
 static bool is_alpha(char c) {
-    return isalpha(c) || c == '_';
+    return isalpha(c) || c == '_' || c == '@';
 }
 
 static bool is_digit(char c) {
