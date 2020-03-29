@@ -2,7 +2,7 @@
 #include <math.h>
 
 #include "common.h"
-#include "utils.h"
+#include "plane_utils.h"
 #include "plane_object.h"
 #include "vm.h"
 #include "value.h"

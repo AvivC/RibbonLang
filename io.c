@@ -3,7 +3,7 @@
 
 #include "io.h"
 #include "memory.h"
-#include "utils.h"
+#include "plane_utils.h"
 
 IOResult io_read_file(const char* file_name, const char* alloc_string, char** text_out, size_t* text_length_out) {
     FILE* file = fopen(file_name, "r");

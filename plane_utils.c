@@ -1,8 +1,8 @@
 #include <string.h>
 
-#include "utils.h"
+#include "plane_utils.h"
 #include "memory.h"
-// #include <windows.h>
+#include <windows.h>
 // #include <dbghelp.h>
 
 uint16_t two_bytes_to_short(uint8_t a, uint8_t b) {
@@ -54,6 +54,61 @@ unsigned int hash_int(unsigned int x) {
     x = ((x >> 16) ^ x) * 0x45d9f3b;
     x = (x >> 16) ^ x;
     return x;
+}
+
+char* concat_cstrings(const char* str1, int str1_length, const char* str2, int str2_length, const char* alloc_string) {
+	size_t file_name_buffer_size = str1_length + str2_length + 1;
+	char* result = allocate(file_name_buffer_size, alloc_string);
+	memcpy(result, str1, str1_length);
+	memcpy(result + str1_length, str2, str2_length);
+	result[str1_length + str2_length] = '\0';
+
+	return result;
+}
+
+char* concat_null_terminated_cstrings(const char* str1, const char* str2, const char* alloc_string) {
+	return concat_cstrings(str1, strlen(str1), str2, strlen(str2), alloc_string);
+}
+
+char* concat_multi_null_terminated_cstring(int count, char** strings, const char* alloc_string) {
+	char* result = allocate(strlen(strings[0]) + 1, alloc_string);
+	strcpy(result, strings[0]);
+
+	for (int i = 1; i < count; i++) {
+		char* string = strings[i];
+		char* old_result = result;
+		result = concat_null_terminated_cstrings(result, string, alloc_string);
+		deallocate(old_result, strlen(old_result) + 1, alloc_string);
+	}
+
+	return result;
+}
+
+char* find_interpreter_directory(void) {
+	char* dir_path = NULL;
+
+	DWORD MAX_LENGTH = 500;
+	char* exec_path = allocate(MAX_LENGTH, "interpreter executable path");
+
+	DWORD get_module_name_result = GetModuleFileNameA(NULL, exec_path, MAX_LENGTH);
+	if (get_module_name_result == 0 || get_module_name_result == MAX_LENGTH) {
+		goto cleanup;
+	}
+
+	char* last_slash;
+	if ((last_slash = strrchr(exec_path, '\\')) == NULL) {
+		goto cleanup;
+	}
+
+	int directory_length = last_slash - exec_path;
+	dir_path = allocate(directory_length + 1, "interpreter directory path");
+	memcpy(dir_path, exec_path, directory_length);
+	dir_path[directory_length] = '\0';
+
+	cleanup:
+	deallocate(exec_path, MAX_LENGTH, "interpreter executable path");
+
+	return dir_path;
 }
 
 IMPLEMENT_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)

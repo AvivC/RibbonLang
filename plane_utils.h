@@ -1,5 +1,5 @@
-#ifndef plane_utils_h
-#define plane_utils_h
+#ifndef plane_plane_utils_h
+#define plane_plane_utils_h
 
 #include "common.h"
 #include "dynamic_array.h"
@@ -17,6 +17,12 @@ char* copy_null_terminated_cstring(const char* string, const char* what);
 unsigned long hash_string(const char* string);
 unsigned long hash_string_bounded(const char* string, int length);
 unsigned int hash_int(unsigned int x);
+
+char* concat_cstrings(const char* str1, int str1_length, const char* str2, int str2_length, const char* alloc_string);
+char* concat_null_terminated_cstrings(const char* str1, const char* str2, const char* alloc_string);
+char* concat_multi_null_terminated_cstring(int count, char** strings, const char* alloc_string);
+
+char* find_interpreter_directory(void);
 
 DECLARE_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)
 

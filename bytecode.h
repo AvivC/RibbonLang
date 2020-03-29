@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "value_array.h"
-#include "utils.h"
+#include "plane_utils.h"
 
 typedef enum {
     OP_CONSTANT,

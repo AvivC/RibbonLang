@@ -10,7 +10,7 @@
 #include "builtins.h"
 #include "bytecode.h"
 #include "disassembler.h"
-#include "utils.h"
+#include "plane_utils.h"
 #include "pointerarray.h"
 #include "io.h"
 #include "ast.h"
@@ -21,7 +21,7 @@
 
 #define INITIAL_GC_THRESHOLD 10
 
-#define VM_STDLIB_RELATIVE_PATH "stdlib/"
+#define VM_STDLIB_RELATIVE_PATH "\\stdlib\\"
 
 VM vm;
 
@@ -1572,24 +1572,18 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             		break;
             	}
 
-            	const char* file_name_suffix = ".pln";
+				const char* file_name_suffix = ".pln";
 				const char* file_name_alloc_string = "File name buffer";
-				size_t file_name_buffer_size = module_name->length + strlen(file_name_suffix) + 1;
-				char* file_name_buffer = allocate(file_name_buffer_size, file_name_alloc_string);
-				memcpy(file_name_buffer, module_name->chars, module_name->length);
-				memcpy(file_name_buffer + module_name->length, file_name_suffix, strlen(file_name_suffix));
-				file_name_buffer[module_name->length + strlen(file_name_suffix)] = '\0';
+				char* file_name = concat_cstrings(
+					module_name->chars, module_name->length, file_name_suffix, strlen(file_name_suffix), file_name_alloc_string);
 
-				/* If a user module of this name exists */
-				if (io_file_exists(file_name_buffer)) {
+				if (io_file_exists(file_name)) {
 					char* load_module_error = NULL;
-					if (!load_text_module(module_name, file_name_buffer, &load_module_error)) {
+					if (!load_text_module(module_name, file_name, &load_module_error)) {
 						RUNTIME_ERROR("%s", load_module_error);
 					}
 					goto op_import_cleanup;
 				}
-
-				/* If a user module doesn't exist, next step is to look in the builtin modules table */
 
 				Value builtin_module_value;
 				ObjectModule* module = NULL;
@@ -1598,52 +1592,38 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 						FAIL("Found non ObjectModule* in builtin modules table.");
 					}
 
-					/* Module required to be on stack after import, because next opcode (well, the one after the ugly OP_POP)
-					is OP_SET_VARIABLE to the name of the module */
 					push(MAKE_VALUE_OBJECT(module));
-
-					/* 
-					...
-					Currently, we assume all builtin modules are pure native modules.
-					So as opposed to loading a user or stdlib module, there's no code to execute here. 
-					... 
-					*/
 
  					/* Ugly hack to handle current situation in the compiler, see note earlier in OP_IMPORT case */
 					push(MAKE_VALUE_NIL());
 
-					/* Cache module */	
 					cell_table_set_value_cstring_key(&vm.imported_modules, module_name->chars, MAKE_VALUE_OBJECT(module));
 
 					goto op_import_cleanup;
 				}
 
-				/* If no such builtin module exist, the last step is to check if we have a stdlib module of this name */
-
-				size_t stdlib_module_path_size = strlen(VM_STDLIB_RELATIVE_PATH) + file_name_buffer_size;
-				char* stdlib_file_name_buffer = allocate(stdlib_module_path_size, file_name_alloc_string);
-				memcpy(stdlib_file_name_buffer, VM_STDLIB_RELATIVE_PATH, strlen(VM_STDLIB_RELATIVE_PATH));
-				memcpy(stdlib_file_name_buffer + strlen(VM_STDLIB_RELATIVE_PATH), file_name_buffer, strlen(file_name_buffer));
-				stdlib_file_name_buffer[strlen(VM_STDLIB_RELATIVE_PATH) + strlen(file_name_buffer)] = '\0';
+				char* interpreter_directory = find_interpreter_directory();
+				char* stdlib_file_name_buffer = concat_multi_null_terminated_cstring(
+					3, (char*[]) {interpreter_directory, VM_STDLIB_RELATIVE_PATH, file_name}, file_name_alloc_string);
+				deallocate(interpreter_directory, strlen(interpreter_directory) + 1, "Interpreter directory path");
 
 				if (io_file_exists(stdlib_file_name_buffer)) {
-					deallocate(file_name_buffer, file_name_buffer_size, file_name_alloc_string);
+					deallocate(file_name, strlen(file_name) + 1, file_name_alloc_string);
 
-					file_name_buffer = stdlib_file_name_buffer;
-					file_name_buffer_size = stdlib_module_path_size;
+					file_name = stdlib_file_name_buffer;
 
 					char* load_module_error = NULL;
-					if (!load_text_module(module_name, file_name_buffer, &load_module_error)) {
+					if (!load_text_module(module_name, file_name, &load_module_error)) {
 						RUNTIME_ERROR("%s", load_module_error);
 					}
 					goto op_import_cleanup;
-				} else {
-					deallocate(stdlib_file_name_buffer, stdlib_module_path_size, file_name_alloc_string);
-					RUNTIME_ERROR("Module %s not found.", module_name->chars);
 				}
 
+				deallocate(stdlib_file_name_buffer, strlen(stdlib_file_name_buffer) + 1, file_name_alloc_string);
+				RUNTIME_ERROR("Module %s not found.", module_name->chars);
+
 				op_import_cleanup:
-				deallocate(file_name_buffer, file_name_buffer_size, file_name_alloc_string);
+				deallocate(file_name, strlen(file_name) + 1, file_name_alloc_string);
 
             	break;
             }

@@ -6,7 +6,7 @@
 #include "bytecode.h"
 #include "value.h"
 #include "memory.h"
-#include "utils.h"
+#include "plane_utils.h"
 
 static void emit_byte(Bytecode* chunk, uint8_t byte) {
 	bytecode_write(chunk, byte);

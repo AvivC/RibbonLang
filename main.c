@@ -106,6 +106,7 @@ int main(int argc, char* argv[]) {
     size_t text_length = 0;
 
     if (io_read_file(argv[1], "Source file content", &source, &text_length) != IO_SUCCESS) {
+        printf("Failed to open file.");
     	return -1;
     }
 
