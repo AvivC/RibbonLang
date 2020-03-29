@@ -104,9 +104,15 @@ int main(int argc, char* argv[]) {
     
     char* source = NULL;
     size_t text_length = 0;
+    char* main_file_path = argv[1];
 
-    if (io_read_file(argv[1], "Source file content", &source, &text_length) != IO_SUCCESS) {
-        printf("Failed to open file.");
+    char* working_dir = get_current_directory();
+    char *absolute_file_path = concat_multi_null_terminated_cstrings(
+        3, (char*[]) {working_dir, "\\", main_file_path}, "main module absolute path");
+    deallocate(working_dir, strlen(working_dir) + 1, "working directory path");
+
+    if (io_read_file(absolute_file_path, "Source file content", &source, &text_length) != IO_SUCCESS) {
+        printf("Failed to open file.\n");
     	return -1;
     }
 
@@ -126,7 +132,7 @@ int main(int argc, char* argv[]) {
     
     bool dryRun = checkCmdArg(argv, argc, 2, "-dry") || checkCmdArg(argv, argc, 3, "-dry") || checkCmdArg(argv, argc, 4, "-dry");
     if (!dryRun) {
-    	InterpretResult result = vm_interpret_program(&bytecode);
+    	InterpretResult result = vm_interpret_program(&bytecode, absolute_file_path);
     }
     
     vm_free();

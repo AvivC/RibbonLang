@@ -20,9 +20,12 @@ unsigned int hash_int(unsigned int x);
 
 char* concat_cstrings(const char* str1, int str1_length, const char* str2, int str2_length, const char* alloc_string);
 char* concat_null_terminated_cstrings(const char* str1, const char* str2, const char* alloc_string);
-char* concat_multi_null_terminated_cstring(int count, char** strings, const char* alloc_string);
+char* concat_multi_null_terminated_cstrings(int count, char** strings, const char* alloc_string);
+char* concat_multi_cstrings(int count, char** strings, int lengths[], char* alloc_string);
 
 char* find_interpreter_directory(void);
+char* get_current_directory(void);
+char* directory_from_path(char* path);
 
 DECLARE_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)
 

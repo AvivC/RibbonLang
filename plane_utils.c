@@ -70,8 +70,9 @@ char* concat_null_terminated_cstrings(const char* str1, const char* str2, const 
 	return concat_cstrings(str1, strlen(str1), str2, strlen(str2), alloc_string);
 }
 
-char* concat_multi_null_terminated_cstring(int count, char** strings, const char* alloc_string) {
+char* concat_multi_null_terminated_cstrings(int count, char** strings, const char* alloc_string) {
 	char* result = allocate(strlen(strings[0]) + 1, alloc_string);
+	result[strlen(strings[0])] == '\0';
 	strcpy(result, strings[0]);
 
 	for (int i = 1; i < count; i++) {
@@ -84,9 +85,31 @@ char* concat_multi_null_terminated_cstring(int count, char** strings, const char
 	return result;
 }
 
+char* concat_multi_cstrings(int count, char** strings, int lengths[], char* alloc_string) {
+	char* result = allocate(lengths[0] + 1, alloc_string);
+	memcpy(result, strings[0], lengths[0]);
+	result[lengths[0]] == '\0';
+
+	int length_sum = lengths[0];
+
+	for (int i = 1; i < count; i++) {
+		char* string = strings[i];
+		int length = lengths[i];
+
+		char* old_result = result;
+		result = concat_cstrings(result, length_sum, string, length, alloc_string);
+		deallocate(old_result, length_sum + 1, alloc_string);
+
+		length_sum += length;
+	}
+
+	return result;
+}
+
 char* find_interpreter_directory(void) {
 	char* dir_path = NULL;
 
+	/* TODO: Use Windows MAX_PATH instead */
 	DWORD MAX_LENGTH = 500;
 	char* exec_path = allocate(MAX_LENGTH, "interpreter executable path");
 
@@ -109,6 +132,34 @@ char* find_interpreter_directory(void) {
 	deallocate(exec_path, MAX_LENGTH, "interpreter executable path");
 
 	return dir_path;
+}
+
+char* directory_from_path(char* path) {
+	char* last_slash;
+	if ((last_slash = strrchr(path, '\\')) == NULL) {
+		return NULL;
+	}
+
+	int directory_length = last_slash - path;
+	char* dir_path = allocate(directory_length + 1, "directory path");
+
+	if (dir_path == NULL) {
+		return NULL;
+	}
+
+	memcpy(dir_path, path, directory_length);
+	dir_path[directory_length] = '\0';
+
+	return dir_path;
+}
+
+char* get_current_directory(void) {
+	LPTSTR dir = allocate(MAX_PATH, "working directory path");
+	DWORD result = GetCurrentDirectory(MAX_PATH, dir);
+	if (result == 0 || result >= MAX_PATH - 1) {
+		return NULL;
+	}
+	return reallocate(dir, MAX_PATH, strlen(dir) + 1, "working directory path");
 }
 
 IMPLEMENT_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)

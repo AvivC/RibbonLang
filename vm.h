@@ -28,6 +28,8 @@ typedef struct {
     int num_objects;
     int max_objects;
     bool allow_gc;
+
+    char* main_module_path; /* Used as root for locating user modules during imports, etc. */
 } VM;
 
 extern VM vm;
@@ -35,7 +37,7 @@ extern VM vm;
 void vm_init(void);
 void vm_free(void);
 InterpretResult vm_interpret_frame(StackFrame* frame);
-InterpretResult vm_interpret_program(Bytecode* bytecode);
+InterpretResult vm_interpret_program(Bytecode* bytecode, char* main_module_path);
 InterpretResult vm_call_function_directly(ObjectFunction* function, ValueArray args, Value* out);
 
 void vm_spawn_thread(ObjectFunction* function);

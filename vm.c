@@ -60,16 +60,13 @@ static Value peek(void) {
 static void init_stack_frame(StackFrame* frame) {
 	frame->return_address = NULL;
 	frame->function = NULL;
-	// frame->module = NULL;
 	frame->base_entity = NULL;
-	// frame->is_module_base = false;
 	frame->is_entity_base = false;
 	frame->is_native = false;
 	frame->discard_return_value = false;
 	cell_table_init(&frame->local_variables);
 }
 
-/* module only required if is_module_base == true */
 static StackFrame new_stack_frame(
 		uint8_t* return_address, ObjectFunction* function, 
 		Object* base_entity, bool is_entity_base, bool is_native, bool discard_return_value) {
@@ -204,7 +201,6 @@ static StackFrame* peek_previous_frame(void) {
 }
 
 static CellTable* frame_locals_or_module_table(StackFrame* frame) {
-	// return frame->is_module_base ? &frame->module->base.attributes : &frame->local_variables;
 	return frame->is_entity_base ? &frame->base_entity->attributes : &frame->local_variables;
 }
 
@@ -407,40 +403,7 @@ static void gc_mark_object(Object* object) {
 	FAIL("GC couldn't mark object, unknown object type: %d", object->type);
 }
 
-// static void gc_mark(void) {
-// 	ObjectThread* thread = current_thread();
-
-// 	/* Mark everything on the evaluation stack */
-// 	for (Value* value = thread->eval_stack; value != thread->eval_stack_top; value++) {
-// 		if (value->type == VALUE_OBJECT) {
-// 			gc_mark_object(value->as.object);
-// 		}
-// 	}
-
-// 	/* Mark everything on the call stack */
-// 	for (StackFrame* frame = thread->call_stack; frame != thread->call_stack_top; frame++) {
-// 		gc_mark_object((Object*) frame->function);
-// 		if (frame->module != NULL) {
-// 			gc_mark_object((Object*) frame->module);
-// 		}
-
-// 		/* Mark the frame locals */
-// 		gc_mark_table(&frame_locals_or_module_table(frame)->table);
-// 	}
-
-// 	/* Mark the global objects */
-// 	gc_mark_table(&vm.globals.table);
-
-// 	/* Mark all imported modules */
-// 	gc_mark_table(&vm.imported_modules.table);
-// }
-
 static void gc_mark(void) {
-	// for (int i = 0; i < vm.threads.count; i++) {
-	// 	ObjectThread* thread = vm.threads.values[i];
-	// 	gc_mark_object((Object*) thread);
-	// }
-
 	ObjectThread* thread = vm.threads;
 	while (thread != NULL) {
 		gc_mark_object((Object*) thread);
@@ -496,11 +459,6 @@ void gc(void) {
 
 	#endif
 }
-
-// static void reset_stacks(void) {
-// 	vm.eval_stack_top = vm.eval_stack;
-// 	vm.call_stack_top = vm.call_stack;
-// }
 
 static ObjectFunction* make_native_function_with_params(const char* name, int num_params, char** params, NativeFunction function) {
 	char** params_buffer = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
@@ -602,14 +560,11 @@ static bool call_native_function(ObjectFunction* function) {
 }
 
 void vm_init(void) {
-	// thread_array_init(&vm.threads);
-	// vm.current_thread_index = 0;
 	vm.threads = NULL;
 	vm.current_thread = NULL;
 	vm.thread_creation_counter = 0;
 	vm.thread_opcode_counter = 0;
 
-	// reset_stacks();
     vm.num_objects = 0;
     vm.max_objects = INITIAL_GC_THRESHOLD;
     vm.allow_gc = false;
@@ -618,35 +573,25 @@ void vm_init(void) {
     cell_table_init(&vm.globals);
     set_builtin_globals();
 	register_builtin_modules();
+
+	vm.main_module_path = NULL;
 }
 
 void vm_free(void) {
-	// for (StackFrame* frame = vm.call_stack; frame != vm.call_stack_top; frame++) {
-	// 	stack_frame_free(frame);
-	// }
-	// reset_stacks();
 	cell_table_free(&vm.globals);
 	cell_table_free(&vm.imported_modules);
 	cell_table_free(&vm.builtin_modules);
-	// thread_array_free(&vm.threads);
-	// vm.current_thread_index = 0;
 	vm.threads = NULL;
 	vm.current_thread = NULL;
 
 	gc(); // TODO: probably move upper
 
-    // vm.ip = NULL;
     vm.num_objects = 0;
     vm.max_objects = INITIAL_GC_THRESHOLD;
     vm.allow_gc = false;
-}
 
-// static void print_stack_trace(void) {
-// 	printf("Stack trace:\n");
-// 	for (StackFrame* frame = vm.call_stack; frame < vm.call_stack_top; frame++) {
-// 		printf("    - %s\n", frame->function->name);
-// 	}
-// }
+	deallocate(vm.main_module_path, strlen(vm.main_module_path) + 1, "main module absolute path");
+}
 
 static void print_call_stack(void) {
 	ObjectThread* thread = current_thread();
@@ -1572,10 +1517,19 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             		break;
             	}
 
-				const char* file_name_suffix = ".pln";
-				const char* file_name_alloc_string = "File name buffer";
+				char* file_name_suffix = ".pln";
+				char* file_name_alloc_string = "File name buffer";
 				char* file_name = concat_cstrings(
 					module_name->chars, module_name->length, file_name_suffix, strlen(file_name_suffix), file_name_alloc_string);
+
+				// char* working_dir = get_current_directory();
+				// concat_null_terminated_cstrings(working_dir, vm.main_module_path, "main module absolute path");
+
+				// char* file_name = concat_multi_cstrings(
+				// 	3, 
+				// 	(char*[]) { (char*) vm.main_module_path, module_name->chars, file_name_suffix },
+				// 	(int[]) { strlen(vm.main_module_path), module_name->length, strlen(file_name_suffix) },
+				// 	file_name_alloc_string);
 
 				if (io_file_exists(file_name)) {
 					char* load_module_error = NULL;
@@ -1603,7 +1557,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 				}
 
 				char* interpreter_directory = find_interpreter_directory();
-				char* stdlib_file_name_buffer = concat_multi_null_terminated_cstring(
+				char* stdlib_file_name_buffer = concat_multi_null_terminated_cstrings(
 					3, (char*[]) {interpreter_directory, VM_STDLIB_RELATIVE_PATH, file_name}, file_name_alloc_string);
 				deallocate(interpreter_directory, strlen(interpreter_directory) + 1, "Interpreter directory path");
 
@@ -1679,7 +1633,9 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
     return runtime_error_occured ? INTERPRET_RUNTIME_ERROR : INTERPRET_SUCCESS;
 }
 
-InterpretResult vm_interpret_program(Bytecode* bytecode) {
+InterpretResult vm_interpret_program(Bytecode* bytecode, char* main_module_path) {
+	vm.main_module_path = main_module_path;
+
 	ObjectCode* code = object_code_new(*bytecode);
 	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
 	ObjectThread* main_thread = object_thread_new(base_function, "<main thread>");
@@ -1692,7 +1648,6 @@ InterpretResult vm_interpret_program(Bytecode* bytecode) {
 
 	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
 	ObjectModule* module = object_module_new(base_module_name, base_function);
-	// StackFrame base_frame = new_stack_frame(NULL, base_function, module, true, false);
 	StackFrame base_frame = new_stack_frame(NULL, base_function, (Object*) module, true, false, false);
 
 	DEBUG_TRACE("Starting interpreter loop.");
