@@ -29,7 +29,9 @@ typedef struct {
     int max_objects;
     bool allow_gc;
 
-    char* main_module_path; /* Used as root for locating user modules during imports, etc. */
+    /* Used as roots for locating different modules during imports, etc. */
+    char* main_module_path;
+    char* interpreter_dir_path;
 } VM;
 
 extern VM vm;

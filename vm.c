@@ -21,7 +21,8 @@
 
 #define INITIAL_GC_THRESHOLD 10
 
-#define VM_STDLIB_RELATIVE_PATH "\\stdlib\\"
+// #define VM_STDLIB_RELATIVE_PATH "\\stdlib\\"
+#define VM_STDLIB_RELATIVE_PATH "stdlib"
 
 VM vm;
 
@@ -575,6 +576,7 @@ void vm_init(void) {
 	register_builtin_modules();
 
 	vm.main_module_path = NULL;
+	vm.interpreter_dir_path = find_interpreter_directory();
 }
 
 void vm_free(void) {
@@ -591,6 +593,7 @@ void vm_free(void) {
     vm.allow_gc = false;
 
 	deallocate(vm.main_module_path, strlen(vm.main_module_path) + 1, "main module absolute path");
+	deallocate(vm.interpreter_dir_path, strlen(vm.interpreter_dir_path) + 1, "interpreter directory path");
 }
 
 static void print_call_stack(void) {
@@ -1502,38 +1505,37 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             	break;
             }
 
-            case OP_IMPORT: {
-            	ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
+			case OP_IMPORT: {
+				ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
 
-            	Value module_value;
+				char* user_module_file_suffix = ".pln";
+
+				char* main_module_dir = NULL;
+				char* user_module_file_name = NULL;
+				char* user_module_path = NULL;
+				char* stdlib_path = NULL;
+				char* stdlib_module_path = NULL;
+
+				Value module_value;
             	bool module_already_imported = cell_table_get_value_cstring_key(&vm.imported_modules, module_name->chars, &module_value);
             	if (module_already_imported) {
             		push(module_value);
-            		push(MAKE_VALUE_NIL()); // This is a patch because currently the compiler puts a OP_NIL OP_RETURN
-            								// at the end of the module, just the same as with functions.
-            								// And so after we import something, the bytecode does OP_POP to get rid of the NIL.
-            								// So if we don't import the module because it's already cached, we should push the NIL ourselves.
-            								// Remove this ugly patch after we fixed the compiler regarding this stuff.
+            		push(MAKE_VALUE_NIL()); /* This is a patch because currently the compiler puts a OP_NIL OP_RETURN
+            								 at the end of the module, just the same as with functions.
+            								 And so after we import something, the bytecode does OP_POP to get rid of the NIL.
+            								 So if we don't import the module because it's already cached, we should push the NIL ourselves.
+            								 Remove this ugly patch after we fixed the compiler regarding this stuff. */
             		break;
             	}
 
-				char* file_name_suffix = ".pln";
-				char* file_name_alloc_string = "File name buffer";
-				char* file_name = concat_cstrings(
-					module_name->chars, module_name->length, file_name_suffix, strlen(file_name_suffix), file_name_alloc_string);
+				main_module_dir = directory_from_path(vm.main_module_path);
+				user_module_file_name = concat_cstrings(
+					module_name->chars, module_name->length, user_module_file_suffix, strlen(user_module_file_suffix), "user module file name");
+				user_module_path = concat_null_terminated_paths(main_module_dir, user_module_file_name, "user module path");
 
-				// char* working_dir = get_current_directory();
-				// concat_null_terminated_cstrings(working_dir, vm.main_module_path, "main module absolute path");
-
-				// char* file_name = concat_multi_cstrings(
-				// 	3, 
-				// 	(char*[]) { (char*) vm.main_module_path, module_name->chars, file_name_suffix },
-				// 	(int[]) { strlen(vm.main_module_path), module_name->length, strlen(file_name_suffix) },
-				// 	file_name_alloc_string);
-
-				if (io_file_exists(file_name)) {
+				if (io_file_exists(user_module_path)) {
 					char* load_module_error = NULL;
-					if (!load_text_module(module_name, file_name, &load_module_error)) {
+					if (!load_text_module(module_name, user_module_path, &load_module_error)) {
 						RUNTIME_ERROR("%s", load_module_error);
 					}
 					goto op_import_cleanup;
@@ -1556,31 +1558,112 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 					goto op_import_cleanup;
 				}
 
-				char* interpreter_directory = find_interpreter_directory();
-				char* stdlib_file_name_buffer = concat_multi_null_terminated_cstrings(
-					3, (char*[]) {interpreter_directory, VM_STDLIB_RELATIVE_PATH, file_name}, file_name_alloc_string);
-				deallocate(interpreter_directory, strlen(interpreter_directory) + 1, "Interpreter directory path");
+				stdlib_path = concat_null_terminated_paths(vm.interpreter_dir_path, VM_STDLIB_RELATIVE_PATH, "stdlib path");
+				stdlib_module_path = concat_null_terminated_paths(stdlib_path, user_module_file_name, "stdlib module path");
 
-				if (io_file_exists(stdlib_file_name_buffer)) {
-					deallocate(file_name, strlen(file_name) + 1, file_name_alloc_string);
-
-					file_name = stdlib_file_name_buffer;
-
+				if (io_file_exists(stdlib_module_path)) {
 					char* load_module_error = NULL;
-					if (!load_text_module(module_name, file_name, &load_module_error)) {
+					if (!load_text_module(module_name, stdlib_module_path, &load_module_error)) {
 						RUNTIME_ERROR("%s", load_module_error);
 					}
 					goto op_import_cleanup;
 				}
 
-				deallocate(stdlib_file_name_buffer, strlen(stdlib_file_name_buffer) + 1, file_name_alloc_string);
-				RUNTIME_ERROR("Module %s not found.", module_name->chars);
-
 				op_import_cleanup:
-				deallocate(file_name, strlen(file_name) + 1, file_name_alloc_string);
+				if (main_module_dir != NULL) {
+					deallocate(main_module_dir, strlen(main_module_dir) + 1, "directory path");
+				}
+				if (user_module_file_name != NULL) {
+					deallocate(user_module_file_name, strlen(user_module_file_name) + 1, "user module file name");
+				}
+				if (user_module_path != NULL) {
+					deallocate(user_module_path, strlen(user_module_path) + 1, "user module path");
+				}
+				if (stdlib_path != NULL) {
+					deallocate(stdlib_path, strlen(stdlib_path) + 1, "stdlib path");
+				}
+				if (stdlib_module_path != NULL) {
+					deallocate(stdlib_module_path, strlen(stdlib_module_path) + 1, "stdlib module path");
+				}
 
-            	break;
-            }
+				break;
+			}
+
+            // case OP_IMPORT: {
+            // 	ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
+
+            // 	Value module_value;
+            // 	bool module_already_imported = cell_table_get_value_cstring_key(&vm.imported_modules, module_name->chars, &module_value);
+            // 	if (module_already_imported) {
+            // 		push(module_value);
+            // 		push(MAKE_VALUE_NIL()); // This is a patch because currently the compiler puts a OP_NIL OP_RETURN
+            // 								// at the end of the module, just the same as with functions.
+            // 								// And so after we import something, the bytecode does OP_POP to get rid of the NIL.
+            // 								// So if we don't import the module because it's already cached, we should push the NIL ourselves.
+            // 								// Remove this ugly patch after we fixed the compiler regarding this stuff.
+            // 		break;
+            // 	}
+
+			// 	char* file_name_suffix = ".pln";
+			// 	char* file_name_alloc_string = "File name buffer";
+			// 	char* file_name = concat_cstrings(
+			// 		module_name->chars, module_name->length, file_name_suffix, strlen(file_name_suffix), file_name_alloc_string);
+
+			// 	char* main_module_dir = directory_from_path(vm.main_module_path);
+			// 	char* abs_user_module_path = concat_null_terminated_paths(main_module_dir, file_name, "user module path");
+
+			// 	// if (io_file_exists(file_name)) {
+			// 	if (io_file_exists(abs_user_module_path)) {
+			// 		char* load_module_error = NULL;
+			// 		// if (!load_text_module(module_name, file_name, &load_module_error)) {
+			// 		if (!load_text_module(module_name, abs_user_module_path, &load_module_error)) {
+			// 			RUNTIME_ERROR("%s", load_module_error);
+			// 		}
+			// 		goto op_import_cleanup;
+			// 	}
+
+			// 	Value builtin_module_value;
+			// 	ObjectModule* module = NULL;
+			// 	if (cell_table_get_value_cstring_key(&vm.builtin_modules, module_name->chars, &builtin_module_value)) {
+			// 		if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
+			// 			FAIL("Found non ObjectModule* in builtin modules table.");
+			// 		}
+
+			// 		push(MAKE_VALUE_OBJECT(module));
+
+ 			// 		/* Ugly hack to handle current situation in the compiler, see note earlier in OP_IMPORT case */
+			// 		push(MAKE_VALUE_NIL());
+
+			// 		cell_table_set_value_cstring_key(&vm.imported_modules, module_name->chars, MAKE_VALUE_OBJECT(module));
+
+			// 		goto op_import_cleanup;
+			// 	}
+
+			// 	char* interpreter_directory = find_interpreter_directory();
+			// 	char* stdlib_file_name_buffer = concat_multi_null_terminated_cstrings(
+			// 		3, (char*[]) {interpreter_directory, VM_STDLIB_RELATIVE_PATH, file_name}, file_name_alloc_string);
+			// 	deallocate(interpreter_directory, strlen(interpreter_directory) + 1, "Interpreter directory path");
+
+			// 	if (io_file_exists(stdlib_file_name_buffer)) {
+			// 		deallocate(file_name, strlen(file_name) + 1, file_name_alloc_string);
+
+			// 		file_name = stdlib_file_name_buffer;
+
+			// 		char* load_module_error = NULL;
+			// 		if (!load_text_module(module_name, file_name, &load_module_error)) {
+			// 			RUNTIME_ERROR("%s", load_module_error);
+			// 		}
+			// 		goto op_import_cleanup;
+			// 	}
+
+			// 	deallocate(stdlib_file_name_buffer, strlen(stdlib_file_name_buffer) + 1, file_name_alloc_string);
+			// 	RUNTIME_ERROR("Module %s not found.", module_name->chars);
+
+			// 	op_import_cleanup:
+			// 	deallocate(file_name, strlen(file_name) + 1, file_name_alloc_string);
+
+            // 	break;
+            // }
 
             default: {
             	FAIL("Unknown opcode: %d. At ip: %p", opcode, current_thread()->ip - 1);

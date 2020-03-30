@@ -162,6 +162,10 @@ char* get_current_directory(void) {
 	return reallocate(dir, MAX_PATH, strlen(dir) + 1, "working directory path");
 }
 
+char* concat_null_terminated_paths(char* p1, char* p2, char* alloc_string) {
+	return concat_multi_null_terminated_cstrings(3, (char*[]) {p1, "\\", p2}, alloc_string);
+}
+
 IMPLEMENT_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)
 
 IMPLEMENT_DYNAMIC_ARRAY(char, CharacterArray, character_array)
