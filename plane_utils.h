@@ -26,7 +26,7 @@ char* concat_multi_cstrings(int count, char** strings, int lengths[], char* allo
 char* concat_null_terminated_paths(char* p1, char* p2, char* alloc_string);
 
 char* find_interpreter_directory(void);
-char* get_current_directory(void);
+char* get_current_working_directory(void);
 char* directory_from_path(char* path);
 
 DECLARE_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)

@@ -19,13 +19,6 @@ size_t get_allocated_memory() {
     return allocated_memory;
 }
 
-// size_t get_allocations_count() {
-//     PointerArray entries = table_iterate(&allocations, "get_allocations_count() table_iterate buffer");
-//     size_t count = entries.count;
-//     pointer_array_free(&entries);
-//     return count;
-// }
-
 size_t get_allocations_count() {
     return allocations.num_entries;
 }

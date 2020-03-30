@@ -1569,6 +1569,8 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 					goto op_import_cleanup;
 				}
 
+				RUNTIME_ERROR("Couldn't find module %s", module_name->chars);
+
 				op_import_cleanup:
 				if (main_module_dir != NULL) {
 					deallocate(main_module_dir, strlen(main_module_dir) + 1, "directory path");

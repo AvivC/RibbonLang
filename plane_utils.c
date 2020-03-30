@@ -153,7 +153,7 @@ char* directory_from_path(char* path) {
 	return dir_path;
 }
 
-char* get_current_directory(void) {
+char* get_current_working_directory(void) {
 	LPTSTR dir = allocate(MAX_PATH, "working directory path");
 	DWORD result = GetCurrentDirectory(MAX_PATH, dir);
 	if (result == 0 || result >= MAX_PATH - 1) {
