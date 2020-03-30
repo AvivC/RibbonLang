@@ -85,3 +85,15 @@ expect
     nil
     nil
 end
+
+test unfound module raises error
+    # Generally we currently lack error-case tests, because the output of errors is temporary
+    # and the tests will be fragile. In this case we do write one, and will rewrite it in the future
+
+    import the_pretty_horse_module
+    print("This will never print")
+expect
+    An error has occured. Stack trace (most recent call on top):
+        -> <Anonymous function>
+    Runtime error: Couldn't find module the_pretty_horse_module
+end
