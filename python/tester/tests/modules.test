@@ -97,3 +97,17 @@ expect
         -> <Anonymous function>
     Runtime error: Couldn't find module the_pretty_horse_module
 end
+
+test load stdlib extension module
+    import myextension
+    print(myextension.multiply(2, 8.5))
+expect
+    17
+end
+
+test load user extension module
+    import myuserextension
+    print(myuserextension.multiply(8, 4))
+expect
+    32
+end

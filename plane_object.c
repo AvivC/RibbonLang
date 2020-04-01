@@ -489,11 +489,14 @@ ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function) {
 	ObjectModule* module = (ObjectModule*) allocate_object(sizeof(ObjectModule), "ObjectModule", OBJECT_MODULE);
 	module->name = name;
 	module->function = function;
+	module->dll = NULL;
 	return module;
 }
 
-ObjectModule* object_module_native_new(ObjectString* name) {
-	return object_module_new(name, NULL);
+ObjectModule* object_module_native_new(ObjectString* name, HMODULE dll) {
+	ObjectModule* module = object_module_new(name, NULL);
+	module->dll = dll;
+	return module;
 }
 
 ObjectThread* object_thread_new(ObjectFunction* function, char* name) {
@@ -570,6 +573,9 @@ void object_free(Object* o) {
         case OBJECT_MODULE: {
         	ObjectModule* module = (ObjectModule*) o;
 			DEBUG_OBJECTS_PRINT("Freeing ObjectModule at '%p'", cell);
+			if (module->dll != NULL) {
+				FreeLibrary(module->dll);
+			}
 			deallocate(module, sizeof(ObjectModule), "ObjectModule");
         	break;
         }
@@ -685,7 +691,11 @@ void object_print(Object* o) {
         }
         case OBJECT_MODULE: {
         	ObjectModule* module = (ObjectModule*) o;
-			printf("<Module %s>", module->name->chars);
+			if (module->dll != NULL) {
+				printf("<Extension module %s>", module->name->chars);
+			} else {
+				printf("<Module %s>", module->name->chars);
+			}
 			return;
         }
 		case OBJECT_CLASS: {
@@ -820,7 +830,7 @@ bool object_hash(Object* object, unsigned long* result) {
 	return false;
 }
 
-void object_set_atttribute_cstring_key(Object* object, const char* key, Value value) {
+void object_set_attribute_cstring_key(Object* object, const char* key, Value value) {
 	cell_table_set_value_cstring_key(&object->attributes, key, value);
 }
 

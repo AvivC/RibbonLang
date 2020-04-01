@@ -2,6 +2,7 @@
 #include <windows.h>
 
 #include "vm.h"
+#include "plane.h"
 #include "common.h"
 #include "value.h"
 #include "plane_object.h"
@@ -483,22 +484,22 @@ static void set_builtin_globals(void) {
 
 static void register_builtin_modules(void) {
 	const char* gui_module_name = "gui";
-	ObjectModule* gui_module = object_module_native_new(object_string_copy_from_null_terminated(gui_module_name));
+	ObjectModule* gui_module = object_module_native_new(object_string_copy_from_null_terminated(gui_module_name), NULL);
 
 	ObjectFunction* window_new_func = make_native_function_with_params("new_window", 1, (char*[]) {"function"}, gui_window_new);
-	object_set_atttribute_cstring_key((Object*) gui_module, "new_window", MAKE_VALUE_OBJECT(window_new_func));
+	object_set_attribute_cstring_key((Object*) gui_module, "new_window", MAKE_VALUE_OBJECT(window_new_func));
 
 	cell_table_set_value_cstring_key(&vm.builtin_modules, gui_module_name, MAKE_VALUE_OBJECT(gui_module));
 
 	const char* test_module_name = "_testing";
-	ObjectModule* test_module = object_module_native_new(object_string_copy_from_null_terminated(test_module_name));
+	ObjectModule* test_module = object_module_native_new(object_string_copy_from_null_terminated(test_module_name), NULL);
 
 	ObjectFunction* demo_print_func = make_native_function_with_params("demo_print", 1, (char*[]) {"function"}, builtin_test_demo_print);
-	object_set_atttribute_cstring_key((Object*) test_module, "demo_print", MAKE_VALUE_OBJECT(demo_print_func));
+	object_set_attribute_cstring_key((Object*) test_module, "demo_print", MAKE_VALUE_OBJECT(demo_print_func));
 
 	ObjectFunction* call_callback_with_args_func = make_native_function_with_params(
 							"call_callback_with_args", 3, (char*[]) {"callback", "arg1", "arg2"}, builtin_test_call_callback_with_args);
-	object_set_atttribute_cstring_key((Object*) test_module, "call_callback_with_args", MAKE_VALUE_OBJECT(call_callback_with_args_func));
+	object_set_attribute_cstring_key((Object*) test_module, "call_callback_with_args", MAKE_VALUE_OBJECT(call_callback_with_args_func));
 
 	cell_table_set_value_cstring_key(&vm.builtin_modules, test_module_name, MAKE_VALUE_OBJECT(test_module));
 }
@@ -707,6 +708,35 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 
 	FAIL("load_text_module - shouldn't reach here.");
 	return false;
+}
+
+#define LOAD_EXTENSION_SUCCESS 0
+#define LOAD_EXTENSION_OPEN_FAILURE 1
+#define LOAD_EXTENSION_NO_INIT_FUNCTION 2
+
+static int load_extension_module(ObjectString* module_name, char* path) {
+	HMODULE handle = LoadLibraryA(path);
+
+	if (handle == NULL) {
+		return LOAD_EXTENSION_OPEN_FAILURE;
+	}
+
+	ExtensionInitFunction init_function = (ExtensionInitFunction) GetProcAddress(handle, "plane_module_init");
+
+	if (init_function == NULL) {
+		FreeLibrary(handle);
+		return LOAD_EXTENSION_NO_INIT_FUNCTION;
+	}
+
+	ObjectModule* extension_module = object_module_native_new(module_name, handle);
+	init_function(API, extension_module);
+
+	push(MAKE_VALUE_OBJECT(extension_module));
+	push(MAKE_VALUE_NIL()); /* Temporary patch, see related notes above */
+
+	cell_table_set_value_cstring_key(&vm.imported_modules, module_name->chars, MAKE_VALUE_OBJECT(extension_module));
+
+	return LOAD_EXTENSION_SUCCESS;
 }
 
 static CellTable find_free_vars_for_new_function(ObjectCode* func_code) {
@@ -1506,15 +1536,23 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             }
 
 			case OP_IMPORT: {
+				/* TODO: Precise automated tests for import resolution order. It's one thing which isn't totally
+				tested because of lack of functionality in the test runner right now */
+
 				ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
 
 				char* user_module_file_suffix = ".pln";
+				char* extension_module_file_suffix = ".dll";
 
 				char* main_module_dir = NULL;
 				char* user_module_file_name = NULL;
 				char* user_module_path = NULL;
+				char* user_extension_module_path = NULL;
 				char* stdlib_path = NULL;
 				char* stdlib_module_path = NULL;
+				char* user_extension_module_file_name = NULL;
+				char* extension_module_file_name = NULL;
+				char* stdlib_extension_path = NULL;
 
 				Value module_value;
             	bool module_already_imported = cell_table_get_value_cstring_key(&vm.imported_modules, module_name->chars, &module_value);
@@ -1541,9 +1579,29 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 					goto op_import_cleanup;
 				}
 
+				user_extension_module_file_name = concat_cstrings(
+					module_name->chars, module_name->length, 
+					extension_module_file_suffix, strlen(extension_module_file_suffix), "user extension module file name");
+				user_extension_module_path = concat_null_terminated_paths(
+					main_module_dir, user_extension_module_file_name, "user extension module path");
+
+				if (io_file_exists(user_extension_module_path)) {
+					int result = load_extension_module(module_name, user_extension_module_path);
+					if (result == LOAD_EXTENSION_OPEN_FAILURE) {
+						DWORD error = GetLastError();
+						RUNTIME_ERROR("Unable to open extension module %s. Error code: %ld", user_extension_module_file_name, error);
+						goto op_import_cleanup;
+					}
+					if (result == LOAD_EXTENSION_NO_INIT_FUNCTION) {
+						RUNTIME_ERROR("Unable to get plane_module_init function from extension module %s", user_extension_module_file_name);
+						goto op_import_cleanup;
+					}
+					goto op_import_cleanup;
+				}
+
 				Value builtin_module_value;
-				ObjectModule* module = NULL;
 				if (cell_table_get_value_cstring_key(&vm.builtin_modules, module_name->chars, &builtin_module_value)) {
+					ObjectModule* module = NULL;
 					if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
 						FAIL("Found non ObjectModule* in builtin modules table.");
 					}
@@ -1569,6 +1627,25 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 					goto op_import_cleanup;
 				}
 
+				extension_module_file_name = concat_cstrings(
+					module_name->chars, module_name->length, extension_module_file_suffix, strlen(extension_module_file_suffix),
+					"extension module file name");
+				stdlib_extension_path = concat_null_terminated_paths(stdlib_path, extension_module_file_name, "stdlib extension path");
+
+				if (io_file_exists(stdlib_extension_path)) {
+					int result = load_extension_module(module_name, stdlib_extension_path);
+					if (result == LOAD_EXTENSION_OPEN_FAILURE) {
+						DWORD error = GetLastError();
+						RUNTIME_ERROR("Unable to open extension module %s. Error code: %ld", extension_module_file_name, error);
+						goto op_import_cleanup;
+					}
+					if (result == LOAD_EXTENSION_NO_INIT_FUNCTION) {
+						RUNTIME_ERROR("Unable to get plane_module_init function from extension module %s", extension_module_file_name);
+						goto op_import_cleanup;
+					}
+					goto op_import_cleanup;
+				}
+
 				RUNTIME_ERROR("Couldn't find module %s", module_name->chars);
 
 				op_import_cleanup:
@@ -1581,11 +1658,23 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 				if (user_module_path != NULL) {
 					deallocate(user_module_path, strlen(user_module_path) + 1, "user module path");
 				}
+				if (user_extension_module_path != NULL) {
+					deallocate(user_extension_module_path, strlen(user_extension_module_path) + 1, "user extension module path");
+				}
 				if (stdlib_path != NULL) {
 					deallocate(stdlib_path, strlen(stdlib_path) + 1, "stdlib path");
 				}
 				if (stdlib_module_path != NULL) {
 					deallocate(stdlib_module_path, strlen(stdlib_module_path) + 1, "stdlib module path");
+				}
+				if (user_extension_module_file_name != NULL) {
+					deallocate(user_extension_module_file_name, strlen(user_extension_module_file_name) + 1, "user extension module file name");
+				}
+				if (extension_module_file_name != NULL) {
+					deallocate(extension_module_file_name, strlen(extension_module_file_name) + 1, "extension module file name");
+				}
+				if (stdlib_extension_path != NULL) {
+					deallocate(stdlib_extension_path, strlen(stdlib_extension_path) + 1, "stdlib extension path");
 				}
 
 				break;

@@ -1,6 +1,8 @@
 #ifndef plane_object_h
 #define plane_object_h
 
+#include <Windows.h>
+
 #include "bytecode.h"
 #include "common.h"
 #include "table.h"
@@ -49,7 +51,7 @@ typedef struct ObjectCode {
     Bytecode bytecode;
 } ObjectCode;
 
-typedef bool (*NativeFunction)(ValueArray, Value*);
+typedef bool __cdecl (*NativeFunction)(ValueArray, Value*);
 
 typedef struct ObjectCell {
 	Object base;
@@ -75,6 +77,7 @@ typedef struct ObjectModule {
 	Object base;
 	ObjectString* name;
 	ObjectFunction* function;
+	HMODULE dll;
 } ObjectModule;
 
 #define THREAD_EVAL_STACK_MAX 255
@@ -126,6 +129,8 @@ typedef struct ObjectBoundMethod {
 	ObjectFunction* method;
 } ObjectBoundMethod;
 
+typedef bool (*NativeFunction) (ValueArray, Value*);
+
 DECLARE_DYNAMIC_ARRAY(ObjectThread*, ThreadArray, thread_array)
 
 ObjectString* object_string_copy(const char* string, int length);
@@ -152,7 +157,7 @@ void object_class_set_name(ObjectClass* klass, char* name, int length);
 ObjectInstance* object_instance_new(ObjectClass* klass);
 
 ObjectModule* object_module_new(ObjectString* name, ObjectFunction* function);
-ObjectModule* object_module_native_new(ObjectString* name);
+ObjectModule* object_module_native_new(ObjectString* name, HMODULE dll);
 
 ObjectBoundMethod* object_bound_method_new(ObjectFunction* method, Object* self);
 
@@ -187,7 +192,7 @@ ObjectFunction* object_as_function(Object* o);
 
 bool object_value_is(Value value, ObjectType type);
 
-void object_set_atttribute_cstring_key(Object* object, const char* key, Value value);
+void object_set_attribute_cstring_key(Object* object, const char* key, Value value);
 
 bool object_load_attribute(Object* object, ObjectString* name, Value* out);
 bool object_load_attribute_cstring_key(Object* object, const char* name, Value* out);
