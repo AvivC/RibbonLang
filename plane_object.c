@@ -418,6 +418,14 @@ ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char**
     return objFunc;
 }
 
+ObjectFunction* make_native_function_with_params(const char* name, int num_params, char** params, NativeFunction function) {
+	char** params_buffer = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+	for (int i = 0; i < num_params; i++) {
+		params_buffer[i] = copy_cstring(params[i], strlen(params[i]), "ObjectFunction param cstring");
+	}
+	return object_native_function_new(function, params_buffer, num_params, NULL);
+}
+
 void object_function_set_name(ObjectFunction* function, char* name) {
 	function->name = name;
 }
@@ -470,17 +478,33 @@ ObjectCell* object_cell_new_empty(void) {
 	return cell;
 }
 
-ObjectClass* object_class_new(ObjectFunction* base_function) {
+static ObjectClass* object_class_new_base(ObjectFunction* base_function, char* name, size_t instance_size) {
 	ObjectClass* klass = (ObjectClass*) allocate_object(sizeof(ObjectClass), "ObjectClass", OBJECT_CLASS);
-	const char* anonymous_class_name = "<Anonymous class>";
-	klass->name = copy_null_terminated_cstring(anonymous_class_name, "Class name");
-	klass->name_length = strlen(anonymous_class_name);
+	name = name == NULL ? "<Anonymous class>" : name;
+	klass->name = copy_null_terminated_cstring(name, "Class name");
+	klass->name_length = strlen(name);
 	klass->base_function = base_function;
+	klass->instance_size = instance_size;
 	return klass;
 }
 
+ObjectClass* object_class_new(ObjectFunction* base_function, char* name) {
+	return object_class_new_base(base_function, name, 0);
+}
+
+ObjectClass* object_class_native_new(char* name, size_t instance_size) {
+	return object_class_new_base(NULL, name, instance_size);
+}
+
 ObjectInstance* object_instance_new(ObjectClass* klass) {
-	ObjectInstance* instance = (ObjectInstance*) allocate_object(sizeof(ObjectInstance), "ObjectInstance", OBJECT_INSTANCE);
+	ObjectInstance* instance = NULL;
+
+	if (klass->instance_size > 0) { // Native class
+		instance = (ObjectInstance*) allocate_object(klass->instance_size, "ObjectInstance", OBJECT_INSTANCE);
+	} else { // User class
+		instance = (ObjectInstance*) allocate_object(sizeof(ObjectInstance), "ObjectInstance", OBJECT_INSTANCE);
+	}
+	
 	instance->klass = klass;
 	return instance;
 }

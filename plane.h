@@ -3,6 +3,7 @@
 
 /* Interface for extension modules */
 
+/* TODO: Need include all these? Review */
 #include "common.h"
 #include "memory.h"
 #include "plane_object.h"
@@ -16,12 +17,13 @@ typedef struct {
     ObjectFunction* (*object_native_function_new) (NativeFunction nativeFunction, char** parameters, int numParams, Object* self);
     void (*object_set_attribute_cstring_key) (Object* object, const char* key, Value value);
     char* (*copy_null_terminated_cstring) (const char* string, const char* what);
+    ObjectFunction* (*make_native_function_with_params) (const char* name, int num_params, char** params, NativeFunction function);
+    ObjectClass* (*object_class_native_new) (char* name, size_t instance_size);
+    ObjectInstance* (*object_instance_new) (ObjectClass* klass);
 } PlaneApi;
 
 PlaneApi API;
 
 typedef bool __cdecl (*ExtensionInitFunction) (PlaneApi, ObjectModule*);
-
-// PlaneApi plane_api_instance(void);
 
 #endif

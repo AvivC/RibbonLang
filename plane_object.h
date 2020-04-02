@@ -116,6 +116,7 @@ typedef struct ObjectClass {
 	char* name;
 	int name_length;
 	ObjectFunction* base_function;
+	size_t instance_size;
 } ObjectClass;
 
 typedef struct ObjectInstance {
@@ -142,6 +143,7 @@ ObjectString* object_string_copy_from_null_terminated(const char* string);
 ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self, CellTable free_vars);
 ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams, Object* self);
 void object_function_set_name(ObjectFunction* function, char* name);
+ObjectFunction* make_native_function_with_params(const char* name, int num_params, char** params, NativeFunction function);
 
 ObjectCode* object_code_new(Bytecode chunk);
 
@@ -151,7 +153,8 @@ ObjectTable* object_table_new_empty(void);
 ObjectCell* object_cell_new(Value value);
 ObjectCell* object_cell_new_empty(void);
 
-ObjectClass* object_class_new(ObjectFunction* base_function);
+ObjectClass* object_class_new(ObjectFunction* base_function, char* name);
+ObjectClass* object_class_native_new(char* name, size_t instance_size);
 void object_class_set_name(ObjectClass* klass, char* name, int length);
 
 ObjectInstance* object_instance_new(ObjectClass* klass);

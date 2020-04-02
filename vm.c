@@ -462,14 +462,6 @@ void gc(void) {
 	#endif
 }
 
-static ObjectFunction* make_native_function_with_params(const char* name, int num_params, char** params, NativeFunction function) {
-	char** params_buffer = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
-	for (int i = 0; i < num_params; i++) {
-		params_buffer[i] = copy_cstring(params[i], strlen(params[i]), "ObjectFunction param cstring");
-	}
-	return object_native_function_new(function, params_buffer, num_params, NULL);
-}
-
 static void register_builtin_function(const char* name, int num_params, char** params, NativeFunction function) {
 	ObjectFunction* obj_function = make_native_function_with_params(name, num_params, params, function);
 	cell_table_set_value_cstring_key(&vm.globals, name, MAKE_VALUE_OBJECT(obj_function));
@@ -1130,7 +1122,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 				ObjectFunction* class_base_function = object_user_function_new(class_body_code, NULL, 0, NULL, base_func_free_vars);
 				set_function_name(&MAKE_VALUE_OBJECT(class_base_function), object_string_copy_from_null_terminated("<Class base function>"));
 
-				ObjectClass* class = object_class_new(class_base_function);
+				ObjectClass* class = object_class_new(class_base_function, NULL);
 
 				StackFrame frame = new_stack_frame(current_thread()->ip, class_base_function, (Object*) class, true, false, false);
 				push_frame(frame);
