@@ -341,7 +341,20 @@ static void gc_mark_object_thread(Object* object) {
 static void gc_mark_object_instance(Object* object) {
 	/* TODO: Handle native instances */
 	ObjectInstance* instance = (ObjectInstance*) object;
-	gc_mark_object((Object*) instance->klass);
+	ObjectClass* klass = instance->klass;
+
+	gc_mark_object((Object*) klass);
+
+	if (klass->instance_size > 0) {
+		/* Native class */
+
+		if (klass->gc_mark_func != NULL) {
+			Object** leefs = klass->gc_mark_func(instance);
+			for (Object* leef = leefs[0]; leef != NULL; leef++) {
+				gc_mark_object(leef);
+			}
+		}
+	}
 }
 
 static void gc_mark_object_bound_method(Object* object) {

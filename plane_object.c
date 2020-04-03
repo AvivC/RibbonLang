@@ -480,7 +480,9 @@ ObjectCell* object_cell_new_empty(void) {
 	return cell;
 }
 
-static ObjectClass* object_class_new_base(ObjectFunction* base_function, char* name, size_t instance_size, DeallocationFunction dealloc_func) {
+static ObjectClass* object_class_new_base(
+		ObjectFunction* base_function, char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_func) {
+
 	ObjectClass* klass = (ObjectClass*) allocate_object(sizeof(ObjectClass), "ObjectClass", OBJECT_CLASS);
 	name = name == NULL ? "<Anonymous class>" : name;
 	klass->name = copy_null_terminated_cstring(name, "Class name");
@@ -488,18 +490,24 @@ static ObjectClass* object_class_new_base(ObjectFunction* base_function, char* n
 	klass->base_function = base_function;
 	klass->instance_size = instance_size;
 	klass->dealloc_func = dealloc_func;
+	klass->gc_mark_func = gc_mark_func;
+
 	return klass;
 }
 
 ObjectClass* object_class_new(ObjectFunction* base_function, char* name) {
-	return object_class_new_base(base_function, name, 0, NULL);
+	return object_class_new_base(base_function, name, 0, NULL, NULL);
 }
 
-ObjectClass* object_class_native_new(char* name, size_t instance_size, DeallocationFunction dealloc_func) {
+ObjectClass* object_class_native_new(char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_func) {
 	if (dealloc_func == NULL) {
 		FAIL("NULL dealloc_func passed for native class.");
 	}
-	return object_class_new_base(NULL, name, instance_size, dealloc_func);
+	if (instance_size <= 0) {
+		FAIL("instance_size <= passed for native class.");
+	}
+
+	return object_class_new_base(NULL, name, instance_size, dealloc_func, gc_mark_func);
 }
 
 ObjectInstance* object_instance_new(ObjectClass* klass) {
