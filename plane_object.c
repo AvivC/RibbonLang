@@ -478,22 +478,26 @@ ObjectCell* object_cell_new_empty(void) {
 	return cell;
 }
 
-static ObjectClass* object_class_new_base(ObjectFunction* base_function, char* name, size_t instance_size) {
+static ObjectClass* object_class_new_base(ObjectFunction* base_function, char* name, size_t instance_size, DeallocationFunction dealloc_func) {
 	ObjectClass* klass = (ObjectClass*) allocate_object(sizeof(ObjectClass), "ObjectClass", OBJECT_CLASS);
 	name = name == NULL ? "<Anonymous class>" : name;
 	klass->name = copy_null_terminated_cstring(name, "Class name");
 	klass->name_length = strlen(name);
 	klass->base_function = base_function;
 	klass->instance_size = instance_size;
+	klass->dealloc_func = dealloc_func;
 	return klass;
 }
 
 ObjectClass* object_class_new(ObjectFunction* base_function, char* name) {
-	return object_class_new_base(base_function, name, 0);
+	return object_class_new_base(base_function, name, 0, NULL);
 }
 
-ObjectClass* object_class_native_new(char* name, size_t instance_size) {
-	return object_class_new_base(NULL, name, instance_size);
+ObjectClass* object_class_native_new(char* name, size_t instance_size, DeallocationFunction dealloc_func) {
+	if (dealloc_func == NULL) {
+		FAIL("NULL dealloc_func passed for native class.");
+	}
+	return object_class_new_base(NULL, name, instance_size, dealloc_func);
 }
 
 ObjectInstance* object_instance_new(ObjectClass* klass) {
@@ -613,7 +617,17 @@ void object_free(Object* o) {
 		case OBJECT_INSTANCE: {
 			ObjectInstance* instance = (ObjectInstance*) o;
 			DEBUG_OBJECTS_PRINT("Freeing ObjectInstance at '%p'", instance);
-			deallocate(instance, sizeof(ObjectInstance), "ObjectInstance");
+
+			ObjectClass* klass = instance->klass;
+			if (klass->instance_size > 0) {
+				/* Native class */
+				klass->dealloc_func(instance);
+				deallocate(instance, klass->instance_size, "ObjectInstance");
+			} else {
+				/* Plane class */
+				deallocate(instance, sizeof(ObjectInstance), "ObjectInstance");
+			}
+
 			break;
 		}
 		case OBJECT_BOUND_METHOD: {

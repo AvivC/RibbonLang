@@ -111,12 +111,17 @@ typedef struct ObjectThread {
     StackFrame call_stack[THREAD_CALL_STACK_MAX];
 } ObjectThread;
 
+typedef struct ObjectInstance ObjectInstance;
+typedef void (*DeallocationFunction)(struct ObjectInstance *);
+
 typedef struct ObjectClass {
+	/* TODO: Make distinction between plane and native classes clearer. Different types? Flag? Union? */
 	Object base;
 	char* name;
 	int name_length;
 	ObjectFunction* base_function;
 	size_t instance_size;
+	DeallocationFunction dealloc_func;
 } ObjectClass;
 
 typedef struct ObjectInstance {
@@ -154,7 +159,7 @@ ObjectCell* object_cell_new(Value value);
 ObjectCell* object_cell_new_empty(void);
 
 ObjectClass* object_class_new(ObjectFunction* base_function, char* name);
-ObjectClass* object_class_native_new(char* name, size_t instance_size);
+ObjectClass* object_class_native_new(char* name, size_t instance_size, DeallocationFunction dealloc_func);
 void object_class_set_name(ObjectClass* klass, char* name, int length);
 
 ObjectInstance* object_instance_new(ObjectClass* klass);

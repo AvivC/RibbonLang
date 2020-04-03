@@ -20,6 +20,7 @@
 
 #define DEBUG_PAUSE_AFTER_OPCODES 0 // Wait for user input after each opcode
 
+#define PRINT_MEMORY_DIAGNOSTICS 1 // Usually leave on in dev. Disable for release
 #define DEBUG_IMPORTANT 1 // Pretty much always leave this on, at least in dev - printing critical diagnosis and such
 
 #if DEBUG

@@ -150,7 +150,9 @@ int main(int argc, char* argv[]) {
     if (!dryRun) {
     	// Dry running does no GC, so some things from the compiler aren't cleaned... So no point in printing diagnostics.
     	// Not ideal, but leave this for now
+        #if PRINT_MEMORY_DIAGNOSTICS
     	print_memory_diagnostic();
+        #endif
     }
     #endif
     

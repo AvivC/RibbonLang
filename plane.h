@@ -18,8 +18,9 @@ typedef struct {
     void (*object_set_attribute_cstring_key) (Object* object, const char* key, Value value);
     char* (*copy_null_terminated_cstring) (const char* string, const char* what);
     ObjectFunction* (*make_native_function_with_params) (const char* name, int num_params, char** params, NativeFunction function);
-    ObjectClass* (*object_class_native_new) (char* name, size_t instance_size);
+    ObjectClass* (*object_class_native_new) (char* name, size_t instance_size, DeallocationFunction dealloc_func);
     ObjectInstance* (*object_instance_new) (ObjectClass* klass);
+    char* (*copy_cstring) (const char* string, int length, const char* what);
 } PlaneApi;
 
 PlaneApi API;

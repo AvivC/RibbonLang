@@ -9,5 +9,6 @@ PlaneApi API = {
     .object_set_attribute_cstring_key = object_set_attribute_cstring_key,
     .make_native_function_with_params = make_native_function_with_params,
     .object_class_native_new = object_class_native_new,
-    .object_instance_new = object_instance_new
+    .object_instance_new = object_instance_new,
+    .copy_cstring = copy_cstring
 };

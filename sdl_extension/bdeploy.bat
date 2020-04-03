@@ -1,4 +1,4 @@
 pushd %~dp0
 call build.bat
-copy graphics.dll ..\graphics.dll
+copy graphics.dll ..\stdlib\graphics.dll
 popd
