@@ -707,7 +707,8 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 #define LOAD_EXTENSION_NO_INIT_FUNCTION 2
 
 static int load_extension_module(ObjectString* module_name, char* path) {
-	HMODULE handle = LoadLibraryA(path);
+	// HMODULE handle = LoadLibraryA(path);
+	HMODULE handle = LoadLibraryExA(path, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR);
 
 	if (handle == NULL) {
 		return LOAD_EXTENSION_OPEN_FAILURE;
