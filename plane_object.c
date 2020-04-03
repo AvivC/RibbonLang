@@ -453,6 +453,8 @@ ObjectTable* object_table_new(Table table) {
 	ObjectTable* object_table = (ObjectTable*) allocate_object(sizeof(ObjectTable), "ObjectTable", OBJECT_TABLE);
 	object_table->table = table;
 
+	/* TODO: The method system changed. At time of writing tables and strings still use this kind of thing, we
+	need to change it at some point. */
 	set_object_native_method((Object*) object_table, "length", (char*[]){}, 0, object_table_length);
 	set_object_native_method((Object*) object_table, "@get_key", (char*[]){"other"}, 1, table_get_key_function);
 	set_object_native_method((Object*) object_table, "@set_key", (char*[]){"key", "value"}, 2, table_set_key_function);

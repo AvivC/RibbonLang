@@ -1,0 +1,1 @@
+notepad python\tester\tests\%1.test
