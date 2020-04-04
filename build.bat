@@ -1,5 +1,3 @@
 cls
-gcc -pthread -mms-bitfields -IC:/msys64_new/mingw64/include/gtk-3.0 -IC:/msys64_new/mingw64/include/cairo -IC:/msys64_new/mingw64/include -IC:/msys64_new/mingw64/include/pango-1.0 -IC:/msys64_new/mingw64/include/fribidi -IC:/msys64_new/mingw64/include -IC:/msys64_new/mingw64/include/atk-1.0 -IC:/msys64_new/mingw64/include/cairo -IC:/msys64_new/mingw64/include/pixman-1 -IC:/msys64_new/mingw64/include -IC:/msys64_new/mingw64/include/freetype2 -IC:/msys64_new/mingw64/include -IC:/msys64_new/mingw64/include/harfbuzz -IC:/msys64_new/mingw64/include/libpng16 -IC:/msys64_new/mingw64/include/gdk-pixbuf-2.0 -IC:/msys64_new/mingw64/include -IC:/msys64_new/mingw64/lib/libffi-3.2.1/include -IC:/msys64_new/mingw64/include/glib-2.0 -IC:/msys64_new/mingw64/lib/glib-2.0/include -IC:/msys64_new/mingw64/include *.c -o plane.exe -g -Wall -Wno-unused -LC:/msys64_new/mingw64/lib -lShlwapi -lgtk-3 -lgdk-3 -lz -lgdi32 -limm32 -lshell32 -lole32 -Wl,-luuid -lwinmm -ldwmapi -lsetupapi -lcfgmgr32 -lpangowin32-1.0 -lpangocairo-1.0 -lpango-1.0 -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lintl
-
-
+gcc -IC:/msys64_new/mingw64/include *.c -o plane.exe -g -Wall -Wno-unused -LC:/msys64_new/mingw64/lib -lShlwapi
 
