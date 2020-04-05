@@ -180,7 +180,6 @@ StackFrame* object_thread_peek_frame(ObjectThread* thread, int offset);
 
 bool object_compare(Object* a, Object* b);
 
-bool object_cstrings_equal(const char* a, const char* b);
 bool object_strings_equal(ObjectString* a, ObjectString* b);
 
 void object_free(Object* object);

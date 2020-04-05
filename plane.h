@@ -32,6 +32,8 @@ typedef struct {
 
     void (*table_set) (Table* table, struct Value key, Value value);
     bool (*table_get) (Table* table, struct Value key, Value* out);
+    void (*table_set_cstring_key) (Table* table, const char* key, Value value);
+    bool (*table_get_cstring_key) (Table* table, const char* key, Value* out);
     ObjectTable* (*object_table_new_empty) (void);
 
     const char* EXTENSION_ALLOC_STRING_CSTRING;

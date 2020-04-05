@@ -8,9 +8,14 @@ static ObjectModule* this;
 static ObjectClass* texture_class;
 static ObjectClass* window_class;
 static ObjectClass* renderer_class;
+static ObjectClass* rect_class;
+static ObjectClass* event_class;
 
-size_t owned_string_counter = 0;
+static size_t owned_string_counter = 0;
 static ObjectTable* owned_strings;
+
+static size_t cached_strings_counter = 0;
+static ObjectTable* cached_strings;
 
 typedef struct ObjectInstanceTexture {
     ObjectInstance base;
@@ -29,6 +34,16 @@ typedef struct ObjectInstanceRenderer {
     ObjectInstanceWindow* window;
 } ObjectInstanceRenderer;
 
+typedef struct ObjectInstanceRect {
+    ObjectInstance base;
+    SDL_Rect rect; /* Not a pointer - inline in struct */
+} ObjectInstanceRect;
+
+typedef struct ObjectInstanceEvent {
+    ObjectInstance base;
+    SDL_Event event; /* Not a pointer - inline in struct */
+} ObjectInstanceEvent;
+
 static ObjectInstanceTexture* new_texture(SDL_Texture* texture) {
     ObjectInstanceTexture* instance = (ObjectInstanceTexture*) plane.object_instance_new(texture_class);
     instance->texture = texture;
@@ -46,6 +61,18 @@ static ObjectInstanceRenderer* new_renderer(SDL_Renderer* renderer, ObjectInstan
     ObjectInstanceRenderer* instance = (ObjectInstanceRenderer*) plane.object_instance_new(renderer_class);
     instance->renderer = renderer;
     instance->window = window;
+    return instance;
+}
+
+static ObjectInstanceRect* new_rect(SDL_Rect rect) {
+    ObjectInstanceRect* instance = (ObjectInstanceRect*) plane.object_instance_new(rect_class);
+    instance->rect = rect;
+    return instance;
+}
+
+static ObjectInstanceEvent* new_event(SDL_Event event) {
+    ObjectInstanceEvent* instance = (ObjectInstanceEvent*) plane.object_instance_new(event_class);
+    instance->event = event;
     return instance;
 }
 
@@ -169,6 +196,14 @@ static void texture_class_deallocate(ObjectInstance* instance) {
     }
 }
 
+static void rect_class_deallocate(ObjectInstance* instance) {
+    /* Currently nothing to do here */
+}
+
+static void event_class_deallocate(ObjectInstance* instance) {
+    /* Currently nothing to do here */
+}
+
 static Object** renderer_class_gc_mark(ObjectInstance* instance) {
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) instance;
     // Object** leefs = plane.allocate(sizeof(Object*) * 2, "Native ObjectInstance gc mark leefs");
@@ -196,6 +231,186 @@ static void renderer_class_deallocate(ObjectInstance* instance) {
     }
 }
 
+static bool log_message(ValueArray args, Value* out) {
+    int category = args.values[0].as.number;
+    int priority = args.values[1].as.number;
+    ObjectString* message = (ObjectString*) args.values[2].as.object;
+
+    ObjectString* message_to_print;
+
+    Value cached_val;
+    if (plane.table_get(&cached_strings->table, MAKE_VALUE_OBJECT(message), &cached_val)) {
+        message_to_print = (ObjectString*) cached_val.as.object;
+    } else {
+        ObjectString* null_delimited_message = plane.object_string_clone(message);
+        message_to_print = null_delimited_message;
+        plane.table_set(&cached_strings->table, MAKE_VALUE_OBJECT(null_delimited_message), MAKE_VALUE_OBJECT(null_delimited_message));
+    }
+
+    SDL_LogMessage(category, priority, message_to_print->chars);
+    *out = MAKE_VALUE_NIL();
+    return true;
+}
+
+static bool query_texture(ValueArray args, Value* out) {
+    ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[0].as.object;
+    ObjectTable* out_table = (ObjectTable*) args.values[1].as.object;
+
+    Uint32 format;
+    int access, width, height;
+    int result = SDL_QueryTexture(texture->texture, &format, &access, &width, &height);
+
+    plane.table_set_cstring_key(&out_table->table, "format", MAKE_VALUE_NUMBER(format));
+    plane.table_set_cstring_key(&out_table->table, "access", MAKE_VALUE_NUMBER(access));
+    plane.table_set_cstring_key(&out_table->table, "width", MAKE_VALUE_NUMBER(width));
+    plane.table_set_cstring_key(&out_table->table, "height", MAKE_VALUE_NUMBER(height));
+
+    *out = MAKE_VALUE_NUMBER(result);
+    return true;   
+}
+
+static bool set_render_draw_color(ValueArray args, Value* out) {
+    ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
+    int r = args.values[1].as.number;
+    int g = args.values[2].as.number;
+    int b = args.values[3].as.number;
+    int a = args.values[4].as.number;
+
+    *out = MAKE_VALUE_NUMBER(SDL_SetRenderDrawColor(renderer->renderer, r, g, b, a));
+    return true;   
+}
+
+static bool render_clear(ValueArray args, Value* out) {
+    ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
+    *out = MAKE_VALUE_NUMBER(SDL_RenderClear(renderer->renderer));
+    return true;   
+}
+
+static bool render_present(ValueArray args, Value* out) {
+    ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
+    SDL_RenderPresent(renderer->renderer);
+    *out = MAKE_VALUE_NIL();
+    return true;   
+}
+
+static bool render_copy(ValueArray args, Value* out) {
+    ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
+    ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[1].as.object;
+
+    SDL_Rect* src_rect;
+    if (args.values[2].type == VALUE_NIL) {
+        src_rect = NULL;
+    } else {
+        ObjectInstanceRect* src_rect_instance = (ObjectInstanceRect*) args.values[2].as.object;
+        src_rect = &src_rect_instance->rect;
+    }
+
+    SDL_Rect* dst_rect;
+    if (args.values[3].type == VALUE_NIL) {
+        dst_rect = NULL;
+    } else {
+        ObjectInstanceRect* dst_rect_instance = (ObjectInstanceRect*) args.values[2].as.object;
+        dst_rect = &dst_rect_instance->rect;
+    }
+
+    *out = MAKE_VALUE_NUMBER(SDL_RenderCopy(renderer->renderer, texture->texture, src_rect, dst_rect));
+    return true;   
+}
+
+static bool img_load_texture(ValueArray args, Value* out) {
+    ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
+    ObjectString* filename = (ObjectString*) args.values[1].as.object;
+
+    /* Cloning makes sure it's null delimited */
+    ObjectString* file_null_delimited = plane.object_string_clone(filename);
+    plane.table_set(&owned_strings->table, MAKE_VALUE_NUMBER(owned_string_counter++), MAKE_VALUE_OBJECT(file_null_delimited));
+
+    SDL_Texture* texture = IMG_LoadTexture(renderer->renderer, file_null_delimited->chars);
+    
+    if (texture == NULL) {
+        *out = MAKE_VALUE_NIL();
+        return true;
+    }
+
+    *out = MAKE_VALUE_OBJECT(new_texture(texture));
+    return true;
+}
+
+static bool poll_event(ValueArray args, Value* out) {
+    SDL_Event event;
+    int result = SDL_PollEvent(&event);
+
+    if (result != 0 && result != 1) {
+        /* Ummmm.... should we? */
+        FAIL("SDL_PollEvent returned a non 1 or 0 value: %d", result);
+    }
+
+    if (result == 1) {
+        *out = MAKE_VALUE_OBJECT(new_event(event));
+    } else {
+        *out = MAKE_VALUE_NIL();
+    }
+    
+    return true;
+}
+
+static bool get_ticks(ValueArray args, Value* out) {
+    *out = MAKE_VALUE_NUMBER(SDL_GetTicks());
+    return true;
+}
+
+static bool delay(ValueArray args, Value* out) {
+    int ms = args.values[0].as.number;
+    SDL_Delay(ms);
+    *out = MAKE_VALUE_NIL();
+    return true;
+}
+
+static bool render_draw_line(ValueArray args, Value* out) {
+    ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
+    int x1 = args.values[1].as.number;
+    int y1 = args.values[2].as.number;
+    int x2 = args.values[3].as.number;
+    int y2 = args.values[4].as.number;
+
+    *out = MAKE_VALUE_NUMBER(SDL_RenderDrawLine(renderer->renderer, x1, y1, x2, y2));
+    return true;
+}
+
+static bool set_render_draw_blend_mode(ValueArray args, Value* out) {
+    ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
+    int blend_mode = args.values[1].as.number;
+
+    *out = MAKE_VALUE_NUMBER(SDL_SetRenderDrawBlendMode(renderer->renderer, blend_mode));
+    return true;
+}
+
+static bool set_texture_blend_mode(ValueArray args, Value* out) {
+    ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[0].as.object;
+    int blend_mode = args.values[1].as.number;
+
+    *out = MAKE_VALUE_NUMBER(SDL_SetTextureBlendMode(texture->texture, blend_mode));
+    return true;
+}
+
+static bool set_texture_color_mod(ValueArray args, Value* out) {
+    ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[0].as.object;
+    int r = args.values[1].as.number;
+    int g = args.values[2].as.number;
+    int b = args.values[3].as.number;
+
+    *out = MAKE_VALUE_NUMBER(SDL_SetTextureColorMod(texture->texture, r, g, b));
+    return true;
+}
+
+static bool set_texture_alpha_mod(ValueArray args, Value* out) {
+    ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[0].as.object;
+    int alpha = args.values[1].as.number;
+
+    *out = MAKE_VALUE_NUMBER(SDL_SetTextureAlphaMod(texture->texture, alpha));
+    return true;
+}
+
 static void expose_function(char* name, int num_params, char** params, NativeFunction function) {
     Value value = MAKE_VALUE_OBJECT(plane.make_native_function_with_params(name, num_params, params, function));
     plane.object_set_attribute_cstring_key((Object*) this, name, value);
@@ -211,6 +426,10 @@ __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module)
     owned_strings = plane.object_table_new_empty();
     plane.object_set_attribute_cstring_key((Object*) this, "_owned_strings", MAKE_VALUE_OBJECT(owned_strings));
 
+    cached_strings_counter = 0;
+    cached_strings = plane.object_table_new_empty();
+    plane.object_set_attribute_cstring_key((Object*) this, "_cached_strings", MAKE_VALUE_OBJECT(cached_strings));
+
     /* Init and expose classes */
 
     texture_class = api.object_class_native_new("Texture", sizeof(ObjectInstanceTexture), texture_class_deallocate, NULL);
@@ -221,6 +440,12 @@ __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module)
 
     renderer_class = api.object_class_native_new("Renderer", sizeof(ObjectInstanceRenderer), renderer_class_deallocate, renderer_class_gc_mark);
     plane.object_set_attribute_cstring_key((Object*) this, "Renderer", MAKE_VALUE_OBJECT(renderer_class));
+
+    rect_class = api.object_class_native_new("Rect", sizeof(ObjectInstanceRect), rect_class_deallocate, NULL);
+    plane.object_set_attribute_cstring_key((Object*) this, "Rect", MAKE_VALUE_OBJECT(rect_class));
+
+    event_class = api.object_class_native_new("Event", sizeof(ObjectInstanceEvent), event_class_deallocate, NULL);
+    plane.object_set_attribute_cstring_key((Object*) this, "Event", MAKE_VALUE_OBJECT(event_class));
 
     /* Init and explose function */
 
@@ -233,6 +458,21 @@ __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module)
     expose_function("destroy_renderer", 1, (char*[]) {"renderer"}, destroy_renderer);
     expose_function("destroy_window", 1, (char*[]) {"window"}, destroy_window);
     expose_function("quit", 0, NULL, quit);
+    expose_function("log_message", 3, (char*[]) {"category", "priority", "message"}, log_message);
+    expose_function("img_load_texture", 2, (char*[]) {"renderer", "filename"}, img_load_texture);
+    expose_function("query_texture", 2, (char*[]) {"texture", "out_table"}, query_texture);
+    expose_function("set_render_draw_color", 5, (char*[]) {"renderer", "r", "g", "b", "a"}, set_render_draw_color);
+    expose_function("render_clear", 1, (char*[]) {"renderer"}, render_clear);
+    expose_function("render_present", 1, (char*[]) {"renderer"}, render_present);
+    expose_function("render_copy", 4, (char*[]) {"renderer", "texture", "src_rect", "dst_rect"}, render_copy);
+    expose_function("poll_event", 0, NULL, poll_event);
+    expose_function("get_ticks", 0, NULL, get_ticks);
+    expose_function("delay", 1, (char*[]) {"ms"}, delay);
+    expose_function("render_draw_line", 5, (char*[]) {"renderer", "x1", "y1", "x2", "y2"}, render_draw_line);
+    expose_function("set_render_draw_blend_mode", 2, (char*[]) {"renderer", "blend_mode"}, set_render_draw_blend_mode);
+    expose_function("set_texture_blend_mode", 2, (char*[]) {"texture", "blend_mode"}, set_texture_blend_mode);
+    expose_function("set_texture_color_mod", 4, (char*[]) {"texture", "r", "g", "b"}, set_texture_color_mod);
+    expose_function("set_texture_alpha_mod", 2, (char*[]) {"texture", "alpha"}, set_texture_alpha_mod);
 
     /* Init and expose constants */
 
@@ -244,6 +484,8 @@ __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module)
     plane.object_set_attribute_cstring_key((Object*) this, "SDL_RENDERER_ACCELERATED", MAKE_VALUE_NUMBER(SDL_RENDERER_ACCELERATED));
     plane.object_set_attribute_cstring_key((Object*) this, "IMG_INIT_PNG", MAKE_VALUE_NUMBER(IMG_INIT_PNG));
     plane.object_set_attribute_cstring_key((Object*) this, "IMG_INIT_JPG", MAKE_VALUE_NUMBER(IMG_INIT_JPG));
+    plane.object_set_attribute_cstring_key((Object*) this, "SDL_LOG_CATEGORY_APPLICATION", MAKE_VALUE_NUMBER(SDL_LOG_CATEGORY_APPLICATION));
+    plane.object_set_attribute_cstring_key((Object*) this, "SDL_LOG_PRIORITY_INFO", MAKE_VALUE_NUMBER(SDL_LOG_PRIORITY_INFO));
 
     return true;
 }

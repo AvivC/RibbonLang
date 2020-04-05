@@ -384,13 +384,13 @@ ObjectString** object_create_copied_strings_array(const char** strings, int num,
 	return array;
 }
 
-bool object_cstrings_equal(const char* a, const char* b) {
-    // Assuming NULL-terminated strings
-    return strcmp(a, b) == 0;
+bool object_cstrings_equal(const char* a, const char* b, int length) {
+    // return strcmp(a, b) == 0; // This assumes null terminated strings
+    return strncmp(a, b, length) == 0;
 }
 
 bool object_strings_equal(ObjectString* a, ObjectString* b) {
-    return (a->length == b->length) && (object_cstrings_equal(a->chars, b->chars));
+    return (a->length == b->length) && (object_cstrings_equal(a->chars, b->chars, a->length));
 }
 
 static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, Object* self, CellTable free_vars) {
