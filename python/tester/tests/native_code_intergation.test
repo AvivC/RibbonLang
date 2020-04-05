@@ -37,7 +37,7 @@ expect
     I'm a native function
     An error has occured. Stack trace (most recent call on top):
         -> callback
-        -> <Anonymous function>
+        -> call_callback_with_args
         -> <Anonymous function>
     Runtime error: @add function failed.
     An error has occured. Stack trace (most recent call on top):

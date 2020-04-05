@@ -150,7 +150,7 @@ ObjectString* object_string_copy_from_null_terminated(const char* string);
 ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self, CellTable free_vars);
 ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams, Object* self);
 void object_function_set_name(ObjectFunction* function, char* name);
-ObjectFunction* make_native_function_with_params(const char* name, int num_params, char** params, NativeFunction function);
+ObjectFunction* make_native_function_with_params(char* name, int num_params, char** params, NativeFunction function);
 
 ObjectCode* object_code_new(Bytecode chunk);
 

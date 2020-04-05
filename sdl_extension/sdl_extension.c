@@ -70,11 +70,13 @@ static bool create_window(ValueArray args, Value* out) {
     it's a literal?
     Anyway it seems unlikely, so for now leave it like this. Later should consider a different approach. */
 
-    char* title = plane.copy_cstring(title_arg->chars, title_arg->length, "SDL_Window title");
+    // char* title = plane.copy_cstring(title_arg->chars, title_arg->length, "SDL_Window title");
+    char* title = plane.copy_cstring(title_arg->chars, title_arg->length, plane.EXTENSION_ALLOC_STRING_CSTRING);
     SDL_Window* window = SDL_CreateWindow(title, x_arg, y_arg, w_arg, h_arg, flags_arg);
 
     if (window == NULL) {
-        plane.deallocate(title, strlen(title) + 1, "SDL_Window title");
+        // plane.deallocate(title, strlen(title) + 1, "SDL_Window title");
+        plane.deallocate(title, strlen(title) + 1, plane.EXTENSION_ALLOC_STRING_CSTRING);
         *out = MAKE_VALUE_NIL();
         return true; /* Right now we don't consider it a fatal failure. We're just a very thin wrapper. */
     }
@@ -103,7 +105,7 @@ static bool set_hint(ValueArray args, Value* out) {
 static bool create_renderer(ValueArray args, Value* out) {
     ObjectInstanceWindow* window = (ObjectInstanceWindow*) args.values[0].as.object;
     int index = args.values[1].as.number;
-    Uint32 flags = args.values[1].as.number;
+    Uint32 flags = args.values[2].as.number;
 
     /* Hopefully passing window->window is safe and makes sense? I think it is */
     SDL_Renderer* renderer = SDL_CreateRenderer(window->window, index, flags);
@@ -117,16 +119,60 @@ static bool create_renderer(ValueArray args, Value* out) {
     return true;
 }
 
+static bool img_init(ValueArray args, Value* out) {
+    int flags = args.values[0].as.number;
+    int result = IMG_Init(flags);
+    *out = MAKE_VALUE_NUMBER(result);
+    return true;
+}
+
+static bool show_cursor(ValueArray args, Value* out) {
+    int toggle = args.values[0].as.number;
+    int result = SDL_ShowCursor(toggle);
+    *out = MAKE_VALUE_NUMBER(result);
+    return true;
+}
+
+static bool destroy_renderer(ValueArray args, Value* out) {
+    ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
+    if (renderer->renderer != NULL) {
+        SDL_DestroyRenderer(renderer->renderer);
+        renderer->renderer = NULL;
+    }
+    *out = MAKE_VALUE_NIL();
+    return true;
+}
+
+static bool destroy_window(ValueArray args, Value* out) {
+    ObjectInstanceWindow* window = (ObjectInstanceWindow*) args.values[0].as.object;
+    if (window->window != NULL) {
+        SDL_DestroyWindow(window->window);
+        window->window = NULL;
+    }
+    *out = MAKE_VALUE_NIL();
+    return true;
+}
+
+static bool quit(ValueArray args, Value* out) {
+    SDL_Quit();
+    *out = MAKE_VALUE_NIL();
+    return true;
+}
+
 static void texture_class_deallocate(ObjectInstance* instance) {
     /* object_free in the interpreter takes care of freeing the ObjectInstance using it's klass->instance_size,
     so everything else will be correctly freed. Here we only free the things special for ObjectInstanceTexture. */
     ObjectInstanceTexture* texture = (ObjectInstanceTexture*) instance;
-    SDL_DestroyTexture(texture->texture);
+    if (texture->texture != NULL) {
+        SDL_DestroyTexture(texture->texture);
+        texture->texture = NULL;
+    }
 }
 
 static Object** renderer_class_gc_mark(ObjectInstance* instance) {
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) instance;
-    Object** leefs = plane.allocate(sizeof(Object*) * 2, "Native ObjectInstance gc mark leefs");
+    // Object** leefs = plane.allocate(sizeof(Object*) * 2, "Native ObjectInstance gc mark leefs");
+    Object** leefs = plane.allocate(sizeof(Object*) * 2, plane.EXTENSION_ALLOC_STRING_GC_LEEFS);
     leefs[0] = (Object*) renderer->window;
     leefs[1] = NULL;
     return leefs;
@@ -134,13 +180,25 @@ static Object** renderer_class_gc_mark(ObjectInstance* instance) {
 
 static void window_class_deallocate(ObjectInstance* instance) {
     ObjectInstanceWindow* window = (ObjectInstanceWindow*) instance;
-    SDL_DestroyWindow(window->window);
-    plane.deallocate(window->title, strlen(window->title) + 1, "SDL_Window title");
+    if (window->window != NULL) {
+        SDL_DestroyWindow(window->window);
+        window->window = NULL;
+    }
+    // plane.deallocate(window->title, strlen(window->title) + 1, "SDL_Window title");
+    plane.deallocate(window->title, strlen(window->title) + 1, plane.EXTENSION_ALLOC_STRING_CSTRING);
 }
 
 static void renderer_class_deallocate(ObjectInstance* instance) {
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) instance;
-    SDL_DestroyRenderer(renderer->renderer);
+    if (renderer->renderer != NULL) {
+        SDL_DestroyRenderer(renderer->renderer);
+        renderer->renderer = NULL;
+    }
+}
+
+static void expose_function(char* name, int num_params, char** params, NativeFunction function) {
+    Value value = MAKE_VALUE_OBJECT(plane.make_native_function_with_params(name, num_params, params, function));
+    plane.object_set_attribute_cstring_key((Object*) this, name, value);
 }
 
 __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module) {
@@ -166,19 +224,15 @@ __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module)
 
     /* Init and explose function */
 
-    Value sdl_init_attr = MAKE_VALUE_OBJECT(plane.make_native_function_with_params("init", 1, (char*[]) {"flags"}, init));
-    plane.object_set_attribute_cstring_key((Object*) this, "init", sdl_init_attr);
-
-    Value sdl_set_hint_attr = MAKE_VALUE_OBJECT(plane.make_native_function_with_params("set_hint", 2, (char*[]) {"name", "value"}, set_hint));
-    plane.object_set_attribute_cstring_key((Object*) this, "set_hint", sdl_set_hint_attr);
-
-    Value sdl_create_renderer_attr = 
-        MAKE_VALUE_OBJECT(plane.make_native_function_with_params("create_renderer", 3, (char*[]) {"window", "index", "flags"}, create_renderer));
-    plane.object_set_attribute_cstring_key((Object*) this, "create_renderer", sdl_create_renderer_attr);
-
-    Value sdl_create_window_attr = MAKE_VALUE_OBJECT(
-        plane.make_native_function_with_params("create_window", 6, (char*[]) {"title", "x", "y", "w", "h", "flags"}, create_window));
-    plane.object_set_attribute_cstring_key((Object*) this, "create_window", sdl_create_window_attr);
+    expose_function("init", 1, (char*[]) {"flags"}, init);
+    expose_function("set_hint", 2, (char*[]) {"name", "value"}, set_hint);
+    expose_function("create_renderer", 3, (char*[]) {"window", "index", "flags"}, create_renderer);
+    expose_function("create_window", 6, (char*[]) {"title", "x", "y", "w", "h", "flags"}, create_window);
+    expose_function("img_init", 1, (char*[]) {"flags"}, img_init);
+    expose_function("show_cursor", 1, (char*[]) {"toggle"}, show_cursor);
+    expose_function("destroy_renderer", 1, (char*[]) {"renderer"}, destroy_renderer);
+    expose_function("destroy_window", 1, (char*[]) {"window"}, destroy_window);
+    expose_function("quit", 0, NULL, quit);
 
     /* Init and expose constants */
 
@@ -188,6 +242,8 @@ __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module)
                         "SDL_HINT_RENDER_SCALE_QUALITY",
                         MAKE_VALUE_OBJECT(plane.object_string_copy_from_null_terminated(SDL_HINT_RENDER_SCALE_QUALITY)));
     plane.object_set_attribute_cstring_key((Object*) this, "SDL_RENDERER_ACCELERATED", MAKE_VALUE_NUMBER(SDL_RENDERER_ACCELERATED));
+    plane.object_set_attribute_cstring_key((Object*) this, "IMG_INIT_PNG", MAKE_VALUE_NUMBER(IMG_INIT_PNG));
+    plane.object_set_attribute_cstring_key((Object*) this, "IMG_INIT_JPG", MAKE_VALUE_NUMBER(IMG_INIT_JPG));
 
     return true;
 }

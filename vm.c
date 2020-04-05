@@ -338,7 +338,6 @@ static void gc_mark_object_thread(Object* object) {
 }
 
 static void gc_mark_object_instance(Object* object) {
-	/* TODO: Handle native instances */
 	ObjectInstance* instance = (ObjectInstance*) object;
 	ObjectClass* klass = instance->klass;
 
@@ -349,9 +348,11 @@ static void gc_mark_object_instance(Object* object) {
 
 		if (klass->gc_mark_func != NULL) {
 			Object** leefs = klass->gc_mark_func(instance);
-			for (Object* leef = leefs[0]; leef != NULL; leef++) {
-				gc_mark_object(leef);
+			size_t count = 1; /* Include NULL terminator */
+			for (Object** leef = leefs; *leef != NULL; leef++, count++) {
+				gc_mark_object(*leef);
 			}
+			deallocate(leefs, sizeof(Object*) * count, API.EXTENSION_ALLOC_STRING_GC_LEEFS);
 		}
 	}
 }
@@ -475,7 +476,7 @@ void gc(void) {
 	#endif
 }
 
-static void register_builtin_function(const char* name, int num_params, char** params, NativeFunction function) {
+static void register_builtin_function(char* name, int num_params, char** params, NativeFunction function) {
 	ObjectFunction* obj_function = make_native_function_with_params(name, num_params, params, function);
 	cell_table_set_value_cstring_key(&vm.globals, name, MAKE_VALUE_OBJECT(obj_function));
 }
@@ -548,6 +549,8 @@ static bool call_native_function(ObjectFunction* function) {
 	if (func_success) {
 		push(result);
 	} else {
+		/* TODO: Probably a bug! Some functions still push NIL even if returning false. Need to sort this
+		in one way or the other. */
 		push(MAKE_VALUE_NIL());
 	}
 
@@ -623,7 +626,6 @@ static Object* read_constant_as_object(ObjectType type) {
 
 static void set_function_name(const Value* function_value, ObjectString* name) {
 	ObjectFunction* function = (ObjectFunction*) function_value->as.object;
-	deallocate(function->name, strlen(function->name) + 1, "Function name");
 	char* new_cstring_name = copy_null_terminated_cstring(name->chars, "Function name");
 	object_function_set_name(function, new_cstring_name);
 }

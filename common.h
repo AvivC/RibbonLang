@@ -10,6 +10,7 @@
 
 #define DISABLE_GC 0  // Only set to 1 for debugging purposes when you need the GC to not run
 
+/* Generally keep these OFF unless you need them specifically */
 #define DEBUG 0 // General debug printing
 #define DEBUG_TRACE_EXECUTION 0 // Show stack operations
 #define DEBUG_THREADING 0
@@ -17,9 +18,9 @@
 #define DEBUG_OBJECTS 0 // Show object operations
 #define DEBUG_MEMORY_EXECUTION 0 // Show low-level memory operations
 #define DEBUG_SCANNER 0 // Show low level lexing output and such
-
 #define DEBUG_PAUSE_AFTER_OPCODES 0 // Wait for user input after each opcode
 
+/* Always leave these two ON in DEV */
 #define PRINT_MEMORY_DIAGNOSTICS 1 // Usually leave on in dev. Disable for release
 #define DEBUG_IMPORTANT 1 // Pretty much always leave this on, at least in dev - printing critical diagnosis and such
 

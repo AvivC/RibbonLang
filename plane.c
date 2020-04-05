@@ -16,5 +16,8 @@ PlaneApi API = {
     .object_table_new_empty = object_table_new_empty,
     .object_string_take = object_string_take,
     .object_string_copy_from_null_terminated = object_string_copy_from_null_terminated,
-    .object_string_clone = object_string_clone
+    .object_string_clone = object_string_clone,
+    .EXTENSION_ALLOC_STRING_CSTRING = "extension cstring",
+    .EXTENSION_ALLOC_STRING_GC_LEEFS = "extension gc leefs",
+    .EXTENSION_ALLOC_STRING_MISC = "extension memory allocation"
 };

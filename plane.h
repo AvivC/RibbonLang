@@ -1,9 +1,9 @@
 #ifndef plane_plane_h
 #define plane_plane_h
 
-/* Interface for extension modules */
+/* Declaring an interface passed in extension modules */
 
-/* TODO: Need include all these? Review */
+/* TODO: Need to include all these? Review */
 #include "common.h"
 #include "memory.h"
 #include "plane_object.h"
@@ -16,7 +16,7 @@ typedef struct {
     void* (*reallocate) (void* pointer, size_t oldSize, size_t newSize, const char* what);
 
     ObjectFunction* (*object_native_function_new) (NativeFunction nativeFunction, char** parameters, int numParams, Object* self);
-    ObjectFunction* (*make_native_function_with_params) (const char* name, int num_params, char** params, NativeFunction function);
+    ObjectFunction* (*make_native_function_with_params) (char* name, int num_params, char** params, NativeFunction function);
 
     ObjectClass* (*object_class_native_new) (char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_function);
     ObjectInstance* (*object_instance_new) (ObjectClass* klass);
@@ -33,9 +33,13 @@ typedef struct {
     void (*table_set) (Table* table, struct Value key, Value value);
     bool (*table_get) (Table* table, struct Value key, Value* out);
     ObjectTable* (*object_table_new_empty) (void);
+
+    const char* EXTENSION_ALLOC_STRING_CSTRING;
+    const char* EXTENSION_ALLOC_STRING_GC_LEEFS;
+    const char* EXTENSION_ALLOC_STRING_MISC;
 } PlaneApi;
 
-PlaneApi API;
+extern PlaneApi API;
 
 typedef bool __cdecl (*ExtensionInitFunction) (PlaneApi, ObjectModule*);
 

@@ -418,15 +418,26 @@ ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char**
     return objFunc;
 }
 
-ObjectFunction* make_native_function_with_params(const char* name, int num_params, char** params, NativeFunction function) {
+ObjectFunction* make_native_function_with_params(char* name, int num_params, char** params, NativeFunction function) {
+	/* name must be null terminated. It is copied and ObjectFunction takes ownership over the copy.
+	Can simply be a literal. Otherwise caller must free it later. */
+
 	char** params_buffer = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 	for (int i = 0; i < num_params; i++) {
 		params_buffer[i] = copy_cstring(params[i], strlen(params[i]), "ObjectFunction param cstring");
 	}
-	return object_native_function_new(function, params_buffer, num_params, NULL);
+	ObjectFunction* func = object_native_function_new(function, params_buffer, num_params, NULL);
+	name = copy_null_terminated_cstring(name, "Function name");
+	object_function_set_name(func, name);
+	return func;
 }
 
 void object_function_set_name(ObjectFunction* function, char* name) {
+	if (function->name == NULL) {
+		FAIL("function->name == NULL in object_function_set_name");
+	}
+
+	deallocate(function->name, strlen(function->name) + 1, "Function name");
 	function->name = name;
 }
 
