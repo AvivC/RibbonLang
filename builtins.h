@@ -3,9 +3,9 @@
 
 #include "value.h"
 
-bool builtin_print(ValueArray args, Value* out);
-bool builtin_input(ValueArray args, Value* out);
-bool builtin_read_file(ValueArray args, Value* out);
-bool builtin_spawn(ValueArray args, Value* out);
+bool builtin_print(Object* self, ValueArray args, Value* out);
+bool builtin_input(Object* self, ValueArray args, Value* out);
+bool builtin_read_file(Object* self, ValueArray args, Value* out);
+bool builtin_spawn(Object* self, ValueArray args, Value* out);
 
 #endif

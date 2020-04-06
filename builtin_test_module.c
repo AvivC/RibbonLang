@@ -3,7 +3,7 @@
 #include "plane_object.h"
 #include "vm.h"
 
-bool builtin_test_demo_print(ValueArray args, Value* out) {
+bool builtin_test_demo_print(Object* self, ValueArray args, Value* out) {
     ObjectFunction* function = NULL;
     if ((function = VALUE_AS_OBJECT(args.values[0], OBJECT_FUNCTION, ObjectFunction)) == NULL) {
         FAIL("builtin_test_demo_print recieved non function as argument.");
@@ -23,7 +23,7 @@ bool builtin_test_demo_print(ValueArray args, Value* out) {
     return func_exec_result == INTERPRET_SUCCESS;
 }
 
-bool builtin_test_call_callback_with_args(ValueArray args, Value* out) {
+bool builtin_test_call_callback_with_args(Object* self, ValueArray args, Value* out) {
     if (args.count != 3) {
         FAIL("builtin_test_call_callback_with_args didn't receive 3 arguments (callback, arg, arg).");
     }

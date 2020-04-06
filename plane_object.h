@@ -25,7 +25,7 @@ typedef enum {
 typedef enum {
 	METHOD_ACCESS_SUCCESS,
 	METHOD_ACCESS_NO_SUCH_ATTR,
-	METHOD_ACCESS_ATTR_NOT_FUNCTION
+	METHOD_ACCESS_ATTR_NOT_BOUND_METHOD
 } MethodAccessResult;
 
 typedef struct Object {
@@ -51,7 +51,7 @@ typedef struct ObjectCode {
     Bytecode bytecode;
 } ObjectCode;
 
-typedef bool __cdecl (*NativeFunction)(ValueArray, Value*);
+typedef bool (*NativeFunction)(Object*, ValueArray, Value*);
 
 typedef struct ObjectCell {
 	Object base;
@@ -65,7 +65,6 @@ typedef struct ObjectFunction {
     char** parameters;
     int num_params;
     bool is_native;
-    Object* self;
     CellTable free_vars;
     union {
     	NativeFunction native_function;
@@ -137,16 +136,14 @@ typedef struct ObjectBoundMethod {
 	ObjectFunction* method;
 } ObjectBoundMethod;
 
-typedef bool (*NativeFunction) (ValueArray, Value*);
-
 ObjectString* object_string_copy(const char* string, int length);
 ObjectString* object_string_take(char* chars, int length);
 ObjectString* object_string_clone(ObjectString* original);
 ObjectString** object_create_copied_strings_array(const char** strings, int num, const char* allocDescription);
 ObjectString* object_string_copy_from_null_terminated(const char* string);
 
-ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self, CellTable free_vars);
-ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams, Object* self);
+ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, CellTable free_vars);
+ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams);
 void object_function_set_name(ObjectFunction* function, char* name);
 ObjectFunction* make_native_function_with_params(char* name, int num_params, char** params, NativeFunction function);
 
@@ -189,7 +186,8 @@ void object_thread_print_diagnostic(ObjectThread* thread);
 
 bool object_hash(Object* object, unsigned long* result);
 
-MethodAccessResult object_get_method(Object* object, const char* method_name, ObjectFunction** out);
+// MethodAccessResult object_get_method(Object* object, const char* method_name, ObjectFunction** out);
+MethodAccessResult object_get_method(Object* object, const char* method_name, ObjectBoundMethod** out);
 
 #define OBJECT_AS_STRING(o) (object_as_string(o))
 #define OBJECT_AS_FUNCTION(o) (object_as_function(o))

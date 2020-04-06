@@ -21,7 +21,6 @@
 
 #define INITIAL_GC_THRESHOLD 10
 
-// #define VM_STDLIB_RELATIVE_PATH "\\stdlib\\"
 #define VM_STDLIB_RELATIVE_PATH "stdlib"
 
 VM vm;
@@ -84,7 +83,7 @@ static StackFrame new_stack_frame(
 
 static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	ObjectCode* code = object_code_new(*base_chunk);
-	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
+	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, cell_table_new_empty());
 	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
 	ObjectModule* module = object_module_new(base_module_name, base_function);
 	return new_stack_frame(NULL, base_function, (Object*) module, true, false, false);
@@ -98,40 +97,9 @@ InterpretResult vm_call_function_directly(ObjectFunction* function, ValueArray a
 		FAIL("User function called with unmatching params number."); /* TODO: Legit error? */
 	}
 
-	if (function->self != NULL) {
-		push(MAKE_VALUE_OBJECT(function->self));
-	}
-
-	for (int i = 0; i < function->num_params; i++) {
-		const char* param_name = function->parameters[i];
-		Value argument = args.values[i];
-		cell_table_set_value_cstring_key(&frame.local_variables, param_name, argument);
-	}
-
-	InterpretResult func_exec_result = vm_interpret_frame(&frame);
-	
-	if (func_exec_result == INTERPRET_SUCCESS) {
-		Value return_value = pop();
-		*out = return_value;
-	}
-	
-	return func_exec_result;
-}
-
-static InterpretResult do_call_function_directly(
-	ObjectFunction* function, Object* base_entity, bool is_entity_base, ValueArray args, Value* out) {
-
-	ObjectThread* thread = current_thread();
-	StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false, false);
-
-	if (args.count != function->num_params) {
-		FAIL("User function called with unmatching params number."); /* TODO: Legit error? */
-	}
-
-	/* TODO: Yeah this 'self' part almost certainly is wrong etc. */
-	if (function->self != NULL) {
-		push(MAKE_VALUE_OBJECT(function->self));
-	}
+	// if (function->self != NULL) {
+	// 	push(MAKE_VALUE_OBJECT(function->self));
+	// }
 
 	for (int i = 0; i < function->num_params; i++) {
 		const char* param_name = function->parameters[i];
@@ -221,7 +189,6 @@ static Value load_variable(ObjectString* name) {
 	bool variable_found =
 			cell_table_get_value_cstring_key(locals, name->chars, &value)
 			|| cell_table_get_value_cstring_key(free_vars, name->chars, &value)
-			// || (current_frame()->is_module_base && cell_table_get_value_cstring_key(&current_frame()->module->base.attributes, name->chars, &value))
 			|| (current_frame()->is_entity_base && cell_table_get_value_cstring_key(&current_frame()->base_entity->attributes, name->chars, &value))
 			|| cell_table_get_value_cstring_key(globals, name->chars, &value);
 
@@ -280,9 +247,6 @@ static void gc_mark_function_free_vars(ObjectFunction* function) {
 
 static void gc_mark_object_function(Object* object) {
 	ObjectFunction* function = OBJECT_AS_FUNCTION(object);
-	if (function->self != NULL) {
-		gc_mark_object((Object*) function->self);
-	}
 	if (!function->is_native) {
 		ObjectCode* code_object = function->code;
 		gc_mark_object((Object*) code_object);
@@ -505,10 +469,6 @@ static void register_builtin_modules(void) {
 static void call_user_function(ObjectFunction* function) {
 	ObjectThread* thread = current_thread();
 
-	if (function->self != NULL) {
-		push(MAKE_VALUE_OBJECT(function->self));
-	}
-
 	StackFrame frame = new_stack_frame(thread->ip, function, NULL, false, false, false);
 	for (int i = 0; i < function->num_params; i++) {
 		const char* param_name = function->parameters[i];
@@ -520,11 +480,7 @@ static void call_user_function(ObjectFunction* function) {
 	thread->ip = function->code->bytecode.code;
 }
 
-static bool call_native_function(ObjectFunction* function) {
-	if (function->self != NULL) {
-		push(MAKE_VALUE_OBJECT(function->self));
-	}
-
+static bool call_native_function(ObjectFunction* function, Object* self) {
 	ValueArray arguments;
 	value_array_init(&arguments);
 	for (int i = 0; i < function->num_params; i++) {
@@ -545,7 +501,9 @@ static bool call_native_function(ObjectFunction* function) {
 	uint8_t* ip_before_call = current_thread()->ip;
 
 	Value result;
-	bool func_success = function->native_function(arguments, &result);
+	// bool func_success = function->native_function(arguments, &result);
+	// bool func_success = function->native_function(NULL, arguments, &result);
+	bool func_success = function->native_function(self, arguments, &result);
 	if (func_success) {
 		push(result);
 	} else {
@@ -669,7 +627,7 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 
 			/* Wrap the Bytecode in an ObjectCode, and wrap the ObjectCode in an ObjectFunction */
 			ObjectCode* code_object = object_code_new(module_bytecode);
-			ObjectFunction* module_base_function = object_user_function_new(code_object, NULL, 0, NULL, cell_table_new_empty());
+			ObjectFunction* module_base_function = object_user_function_new(code_object, NULL, 0, cell_table_new_empty());
 
 			/* VERY ugly temporary hack ahead */
 			set_function_name(&MAKE_VALUE_OBJECT(module_base_function), object_string_copy_from_null_terminated("<Module base function>"));
@@ -948,14 +906,20 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 					ObjectBoundMethod* add_bound_method = (ObjectBoundMethod*) add_method.as.object;
 					Object* self = add_bound_method->self;
 
+					if (subject != self) {
+						FAIL("Before calling @add, subject is different than the bound method's self attribute.");
+					}
+
 					ValueArray arguments;
 					value_array_init(&arguments);
-					value_array_write(&arguments, &MAKE_VALUE_OBJECT(self));
+					// value_array_write(&arguments, &MAKE_VALUE_OBJECT(self));
 					value_array_write(&arguments, &other);
 
 					Value result;
 					if (add_bound_method->method->is_native) {
-						if (!add_bound_method->method->native_function(arguments, &result)) {
+						// if (!add_bound_method->method->native_function(arguments, &result)) {
+						// if (!add_bound_method->method->native_function(NULL, arguments, &result)) {
+						if (!add_bound_method->method->native_function(self, arguments, &result)) {
 							RUNTIME_ERROR("@add function failed.");
 							goto cleanup;
 						}
@@ -1127,7 +1091,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 				ObjectCode* class_body_code = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
 				CellTable base_func_free_vars = find_free_vars_for_new_function(class_body_code);
 
-				ObjectFunction* class_base_function = object_user_function_new(class_body_code, NULL, 0, NULL, base_func_free_vars);
+				ObjectFunction* class_base_function = object_user_function_new(class_body_code, NULL, 0, base_func_free_vars);
 				set_function_name(&MAKE_VALUE_OBJECT(class_base_function), object_string_copy_from_null_terminated("<Class base function>"));
 
 				ObjectClass* class = object_class_new(class_base_function, NULL);
@@ -1160,7 +1124,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 				}
 
 				CellTable new_function_free_vars = find_free_vars_for_new_function(object_code);
-				ObjectFunction* function = object_user_function_new(object_code, params, num_params, NULL, new_function_free_vars);
+				ObjectFunction* function = object_user_function_new(object_code, params, num_params, new_function_free_vars);
 				push(MAKE_VALUE_OBJECT(function));
 				break;
 			}
@@ -1297,16 +1261,13 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 				if (peek().as.object->type == OBJECT_FUNCTION) {
 					ObjectFunction* function = OBJECT_AS_FUNCTION(pop().as.object);
 
-					bool is_method = function->self != NULL;
-					int actual_arg_count = explicit_arg_count + (is_method ? 1 : 0);
-					if (actual_arg_count != function->num_params) {
+					if (explicit_arg_count != function->num_params) {
 						RUNTIME_ERROR("Function called with %d arguments, needs %d.", explicit_arg_count, function->num_params);
 						break;
 					}
 
-					/* TODO: Handle errors in native and user functions */
 					if (function->is_native) {
-						if (!call_native_function(function)) {
+						if (!call_native_function(function, NULL)) {
 							RUNTIME_ERROR("Native function failed.");
 							break;
 						}
@@ -1324,9 +1285,11 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 						break;
 					}
 					
-					/* TODO: Handle errors in native and user functions */
 					if (method->is_native) {
-						FAIL("Currently native-methods are unimplemented.");
+						if (!call_native_function(method, (Object*) bound_method->self)) {
+							RUNTIME_ERROR("Native @init method failed.");
+							break;
+						}
 					} else {
 						call_user_function(method);
 						StackFrame* new_frame = peek_current_frame();
@@ -1350,16 +1313,12 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 						ObjectFunction* init_method = init_bound_method->method;
 
 						if (explicit_arg_count != init_method->num_params) {
-						// if (explicit_arg_count != init_method->num_params - 1) {
 							RUNTIME_ERROR("@init called with %d arguments, needs %d.", explicit_arg_count, init_method->num_params);
 							break;
 						}
 						
-						/* TODO: Handle errors in native and user functions */
 						if (init_method->is_native) {
-							// FAIL("Currently native-methods are unimplemented.");
-							push(MAKE_VALUE_OBJECT(init_bound_method->self));
-							if (!call_native_function(init_method)) {
+							if (!call_native_function(init_method, (Object*) instance)) {
 								RUNTIME_ERROR("Native @init method failed.");
 								break;
 							}
@@ -1435,7 +1394,6 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             	}
 
             	Object* subject = subject_value.as.object;
-
             	Value key = pop();
 
 				Value key_access_method_value;
@@ -1444,21 +1402,25 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 					break;
 				}
 
-				if (!object_value_is(key_access_method_value, OBJECT_FUNCTION)) {
-					RUNTIME_ERROR("Object's @get_key isn't a function.");
+				if (!object_value_is(key_access_method_value, OBJECT_BOUND_METHOD)) {
+					RUNTIME_ERROR("Object's @get_key isn't a method.");
 					break;
 				}
 
-				ObjectFunction* method_as_func = (ObjectFunction*) key_access_method_value.as.object;
+				ObjectBoundMethod* bound_method = (ObjectBoundMethod*) key_access_method_value.as.object;
+				Object* self = bound_method->self;
+
+				if (subject != self) {
+					FAIL("Before calling @get_key, subject was different than bound method's self attribute.");
+				}
 
 				ValueArray arguments;
 				value_array_init(&arguments);
-				value_array_write(&arguments, &subject_value);
 				value_array_write(&arguments, &key);
 
 				Value result;
-				if (method_as_func->is_native) {
-					if (!method_as_func->native_function(arguments, &result)) {
+				if (bound_method->method->is_native) {
+					if (!bound_method->method->native_function(self, arguments, &result)) {
 						RUNTIME_ERROR("@get_key function failed.");
 						goto op_access_key_cleanup;
 					}
@@ -1485,18 +1447,23 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 
             	Object* subject = subject_as_value.as.object;
 
-            	ObjectFunction* set_method = NULL;
+            	ObjectBoundMethod* set_method = NULL;
             	MethodAccessResult access_result = -1;
             	if ((access_result = object_get_method(subject, "@set_key", &set_method)) == METHOD_ACCESS_SUCCESS) {
+					Object* self = set_method->self;
+
+					if (self != subject) {
+						FAIL("Before calling @set_key, subject was different from bound method's self attribute.");
+					}
+
     				ValueArray arguments;
     				value_array_init(&arguments);
-    				value_array_write(&arguments, &subject_as_value);
     				value_array_write(&arguments, &key);
     				value_array_write(&arguments, &value);
 
     				Value throwaway_result;
-    				if (set_method->is_native) {
-    					if (!set_method->native_function(arguments, &throwaway_result)) {
+    				if (set_method->method->is_native) {
+    					if (!set_method->method->native_function(self, arguments, &throwaway_result)) {
     						RUNTIME_ERROR("@set_key function failed.");
     						goto op_set_key_cleanup;
     					}
@@ -1509,8 +1476,8 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             	} else if (access_result == METHOD_ACCESS_NO_SUCH_ATTR) {
             		RUNTIME_ERROR("Object doesn't support @set_key method.");
             		break;
-            	} else if (access_result == METHOD_ACCESS_ATTR_NOT_FUNCTION) {
-            		RUNTIME_ERROR("Object's @set_key isn't a function.");
+            	} else if (access_result == METHOD_ACCESS_ATTR_NOT_BOUND_METHOD) {
+            		RUNTIME_ERROR("Object's @set_key isn't a bound method.");
             		break;
             	} else {
             		FAIL("Illegal value for access_result: %d", access_result);
@@ -1689,82 +1656,6 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 				break;
 			}
 
-            // case OP_IMPORT: {
-            // 	ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
-
-            // 	Value module_value;
-            // 	bool module_already_imported = cell_table_get_value_cstring_key(&vm.imported_modules, module_name->chars, &module_value);
-            // 	if (module_already_imported) {
-            // 		push(module_value);
-            // 		push(MAKE_VALUE_NIL()); // This is a patch because currently the compiler puts a OP_NIL OP_RETURN
-            // 								// at the end of the module, just the same as with functions.
-            // 								// And so after we import something, the bytecode does OP_POP to get rid of the NIL.
-            // 								// So if we don't import the module because it's already cached, we should push the NIL ourselves.
-            // 								// Remove this ugly patch after we fixed the compiler regarding this stuff.
-            // 		break;
-            // 	}
-
-			// 	char* file_name_suffix = ".pln";
-			// 	char* file_name_alloc_string = "File name buffer";
-			// 	char* file_name = concat_cstrings(
-			// 		module_name->chars, module_name->length, file_name_suffix, strlen(file_name_suffix), file_name_alloc_string);
-
-			// 	char* main_module_dir = directory_from_path(vm.main_module_path);
-			// 	char* abs_user_module_path = concat_null_terminated_paths(main_module_dir, file_name, "user module path");
-
-			// 	// if (io_file_exists(file_name)) {
-			// 	if (io_file_exists(abs_user_module_path)) {
-			// 		char* load_module_error = NULL;
-			// 		// if (!load_text_module(module_name, file_name, &load_module_error)) {
-			// 		if (!load_text_module(module_name, abs_user_module_path, &load_module_error)) {
-			// 			RUNTIME_ERROR("%s", load_module_error);
-			// 		}
-			// 		goto op_import_cleanup;
-			// 	}
-
-			// 	Value builtin_module_value;
-			// 	ObjectModule* module = NULL;
-			// 	if (cell_table_get_value_cstring_key(&vm.builtin_modules, module_name->chars, &builtin_module_value)) {
-			// 		if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
-			// 			FAIL("Found non ObjectModule* in builtin modules table.");
-			// 		}
-
-			// 		push(MAKE_VALUE_OBJECT(module));
-
- 			// 		/* Ugly hack to handle current situation in the compiler, see note earlier in OP_IMPORT case */
-			// 		push(MAKE_VALUE_NIL());
-
-			// 		cell_table_set_value_cstring_key(&vm.imported_modules, module_name->chars, MAKE_VALUE_OBJECT(module));
-
-			// 		goto op_import_cleanup;
-			// 	}
-
-			// 	char* interpreter_directory = find_interpreter_directory();
-			// 	char* stdlib_file_name_buffer = concat_multi_null_terminated_cstrings(
-			// 		3, (char*[]) {interpreter_directory, VM_STDLIB_RELATIVE_PATH, file_name}, file_name_alloc_string);
-			// 	deallocate(interpreter_directory, strlen(interpreter_directory) + 1, "Interpreter directory path");
-
-			// 	if (io_file_exists(stdlib_file_name_buffer)) {
-			// 		deallocate(file_name, strlen(file_name) + 1, file_name_alloc_string);
-
-			// 		file_name = stdlib_file_name_buffer;
-
-			// 		char* load_module_error = NULL;
-			// 		if (!load_text_module(module_name, file_name, &load_module_error)) {
-			// 			RUNTIME_ERROR("%s", load_module_error);
-			// 		}
-			// 		goto op_import_cleanup;
-			// 	}
-
-			// 	deallocate(stdlib_file_name_buffer, strlen(stdlib_file_name_buffer) + 1, file_name_alloc_string);
-			// 	RUNTIME_ERROR("Module %s not found.", module_name->chars);
-
-			// 	op_import_cleanup:
-			// 	deallocate(file_name, strlen(file_name) + 1, file_name_alloc_string);
-
-            // 	break;
-            // }
-
             default: {
             	FAIL("Unknown opcode: %d. At ip: %p", opcode, current_thread()->ip - 1);
             }
@@ -1820,7 +1711,7 @@ InterpretResult vm_interpret_program(Bytecode* bytecode, char* main_module_path)
 	vm.main_module_path = main_module_path;
 
 	ObjectCode* code = object_code_new(*bytecode);
-	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, NULL, cell_table_new_empty());
+	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, cell_table_new_empty());
 	ObjectThread* main_thread = object_thread_new(base_function, "<main thread>");
 	switch_to_new_thread(main_thread);
 

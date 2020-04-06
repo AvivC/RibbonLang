@@ -15,7 +15,7 @@ typedef struct {
     void (*deallocate) (void* pointer, size_t oldSize, const char* what);
     void* (*reallocate) (void* pointer, size_t oldSize, size_t newSize, const char* what);
 
-    ObjectFunction* (*object_native_function_new) (NativeFunction nativeFunction, char** parameters, int numParams, Object* self);
+    ObjectFunction* (*object_native_function_new) (NativeFunction nativeFunction, char** parameters, int numParams);
     ObjectFunction* (*make_native_function_with_params) (char* name, int num_params, char** params, NativeFunction function);
 
     ObjectClass* (*object_class_native_new) (char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_function);

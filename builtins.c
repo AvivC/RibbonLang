@@ -7,7 +7,7 @@
 #include "plane_object.h"
 #include "io.h"
 
-bool builtin_print(ValueArray args, Value* out) {
+bool builtin_print(Object* self, ValueArray args, Value* out) {
 	value_print(args.values[0]);
 	printf("\n");
 	fflush(stdout);
@@ -16,7 +16,7 @@ bool builtin_print(ValueArray args, Value* out) {
 	return true;
 }
 
-bool builtin_input(ValueArray args, Value* out) {
+bool builtin_input(Object* self, ValueArray args, Value* out) {
 	// TODO: Error handling
 	// TODO: Write dedicated tests
 
@@ -48,7 +48,7 @@ bool builtin_input(ValueArray args, Value* out) {
 	return true;
 }
 
-bool builtin_read_file(ValueArray args, Value* out) {
+bool builtin_read_file(Object* self, ValueArray args, Value* out) {
 	if (!object_value_is(args.values[0], OBJECT_STRING)) {
 		return false;
 	}
@@ -84,7 +84,7 @@ bool builtin_read_file(ValueArray args, Value* out) {
 	return false;
 }
 
-bool builtin_spawn(ValueArray args, Value* out) {
+bool builtin_spawn(Object* self, ValueArray args, Value* out) {
 	ObjectFunction* function = VALUE_AS_OBJECT(args.values[0], OBJECT_FUNCTION, ObjectFunction);
 	if (function == NULL) {
 		*out = MAKE_VALUE_NIL();

@@ -30,28 +30,46 @@ bool object_value_is(Value value, ObjectType type) {
 }
 
 static void set_object_native_method(Object* object, const char* method_name, char** params, int num_params, NativeFunction function) {
-	int num_params_including_self = num_params + 1;
-	char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
+	// int num_params_including_self = num_params + 1;
+	// char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
+	char** copied_params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 
-	copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+	// copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+	// for (int i = 0; i < num_params; i++) {
+	// 	copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
+	// }
+
 	for (int i = 0; i < num_params; i++) {
-		copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
+		copied_params[i] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
 	}
 
-	ObjectFunction* method = object_native_function_new(function, copied_params, num_params_including_self, object);
-	cell_table_set_value_cstring_key(&object->attributes, method_name, MAKE_VALUE_OBJECT(method));
+	// ObjectFunction* method = object_native_function_new(function, copied_params, num_params_including_self, object);
+	// ObjectFunction* method = object_native_function_new(function, copied_params, num_params_including_self, NULL);
+	ObjectFunction* method = object_native_function_new(function, copied_params, num_params);
+	ObjectBoundMethod* bound_method = object_bound_method_new(method, object);
+	cell_table_set_value_cstring_key(&object->attributes, method_name, MAKE_VALUE_OBJECT(bound_method));
+	// object_set_attribute_cstring_key(object, method_name, MAKE_VALUE_OBJECT(bound_method));
 }
 
-static bool object_string_add(ValueArray args, Value* result) {
-	Value self_value = args.values[0];
-	Value other_value = args.values[1];
+static bool object_string_add(Object* self, ValueArray args, Value* result) {
+	// Value self_value = args.values[0];
+	Value other_value = args.values[0];
 
-    if (!object_value_is(self_value, OBJECT_STRING) || !object_value_is(other_value, OBJECT_STRING)) {
+    // if (!object_value_is(self_value, OBJECT_STRING) || !object_value_is(other_value, OBJECT_STRING)) {
+    // 	*result = MAKE_VALUE_NIL();
+    // 	return false;
+    // }
+
+	if (!object_value_is(other_value, OBJECT_STRING)) {
     	*result = MAKE_VALUE_NIL();
     	return false;
     }
 
-    ObjectString* self_string = OBJECT_AS_STRING(self_value.as.object);
+	if (self->type != OBJECT_STRING) {
+		FAIL("@add called on non ObjectString");
+	}
+
+    ObjectString* self_string = OBJECT_AS_STRING(self);
     ObjectString* other_string = OBJECT_AS_STRING(other_value.as.object);
 
     char* buffer = allocate(self_string->length + other_string->length + 1, "Object string buffer");
@@ -65,27 +83,43 @@ static bool object_string_add(ValueArray args, Value* result) {
     return true;
 }
 
-static bool object_string_length(ValueArray args, Value* result) {
-	Value self_value = args.values[0];
+static bool object_string_length(Object* self, ValueArray args, Value* result) {
+	// Value self_value = args.values[0];
 
-    if (!object_value_is(self_value, OBJECT_STRING)) {
-    	FAIL("String length method called on none ObjectString.");
-    }
+    // if (!object_value_is(self_value, OBJECT_STRING)) {
+    // 	FAIL("String length method called on none ObjectString.");
+    // }
 
-    ObjectString* self_string = OBJECT_AS_STRING(self_value.as.object);
+	if (args.count != 0) {
+		FAIL("string length() called with arguments.");
+	}
+
+	if (self->type != OBJECT_STRING) {
+		FAIL("string length() called on non ObjectString");
+	}
+
+    ObjectString* self_string = OBJECT_AS_STRING(self);
 
     *result = MAKE_VALUE_NUMBER(self_string->length);
     return true;
 }
 
-static bool object_table_length(ValueArray args, Value* result) {
-	Value self_value = args.values[0];
+static bool object_table_length(Object* self, ValueArray args, Value* result) {
+	// Value self_value = args.values[0];
 
-    if (!object_value_is(self_value, OBJECT_TABLE)) {
-    	FAIL("Table length method called on none ObjectTable.");
-    }
+    // if (!object_value_is(self_value, OBJECT_TABLE)) {
+    // 	FAIL("Table length method called on none ObjectTable.");
+    // }
 
-    ObjectTable* self_table = (ObjectTable*) self_value.as.object;
+	if (args.count != 0) {
+		FAIL("table length() called with arguments.");
+	}
+
+	if (self->type != OBJECT_TABLE) {
+		FAIL("table length() called on non ObjectTable");
+	}
+
+    ObjectTable* self_table = (ObjectTable*) self;
 
 	PointerArray entries = table_iterate(&self_table->table, "table object length table_iterate buffer");
     *result = MAKE_VALUE_NUMBER(entries.count);
@@ -94,22 +128,26 @@ static bool object_table_length(ValueArray args, Value* result) {
     return true;
 }
 
-static bool object_string_get_key(ValueArray args, Value* result) {
+static bool object_string_get_key(Object* self, ValueArray args, Value* result) {
 	// TODO: Proper error reporting mechanisms! not just a boolean which tells the user nothing.
 
-	Value self_value = args.values[0];
-	Value other_value = args.values[1];
+	// Value self_value = args.values[0];
+	// Value other_value = args.values[1];
+	Value other_value = args.values[0];
 
-    if (!object_value_is(self_value, OBJECT_STRING)) {
-    	FAIL("String @get_key called on none ObjectString.");
-    }
+	if (self->type != OBJECT_STRING) {
+		FAIL("string @get_key called on non ObjectString");
+	}
+    // if (!object_value_is(self_value, OBJECT_STRING)) {
+    // 	FAIL("String @get_key called on none ObjectString.");
+    // }
 
     if (other_value.type != VALUE_NUMBER) {
     	*result = MAKE_VALUE_NIL();
     	return false;
     }
 
-    ObjectString* self_string = object_as_string(self_value.as.object);
+    ObjectString* self_string = object_as_string(self);
 
     double other_as_number = other_value.as.number;
     bool number_is_integer = floor(other_as_number) == other_as_number;
@@ -128,17 +166,22 @@ static bool object_string_get_key(ValueArray args, Value* result) {
     return true;
 }
 
-static bool table_get_key_function(ValueArray args, Value* result) {
+static bool table_get_key_function(Object* self, ValueArray args, Value* result) {
 	// TODO: Proper error reporting mechanisms! not just a boolean which tells the user nothing.
 
-	Value self_value = args.values[0];
-	Value key = args.values[1];
+	// Value self_value = args.values[0];
+	// Value key = args.values[1];
+	Value key = args.values[0];
 
-    if (!object_value_is(self_value, OBJECT_TABLE)) {
-    	FAIL("Table @get_key called on none ObjectTable.");
-    }
+	if (self->type != OBJECT_TABLE) {
+		FAIL("table @get_key called on non ObjectTable");
+	}
 
-    ObjectTable* self_table = (ObjectTable*) self_value.as.object;
+    // if (!object_value_is(self_value, OBJECT_TABLE)) {
+    // 	FAIL("Table @get_key called on none ObjectTable.");
+    // }
+
+    ObjectTable* self_table = (ObjectTable*) self;
 
     Value value;
     if (table_get(&self_table->table, key, &value)) {
@@ -150,20 +193,27 @@ static bool table_get_key_function(ValueArray args, Value* result) {
     return true;
 }
 
-static bool table_set_key_function(ValueArray args, Value* result) {
-	if (args.count != 3) {
-		FAIL("Table @set_key called with argument number other than 3: %d", args.count);
+static bool table_set_key_function(Object* self, ValueArray args, Value* result) {
+	if (args.count != 2) {
+		FAIL("Table @set_key called with argument number other than 2: %d", args.count);
 	}
 
-	Value self_value = args.values[0];
-	Value key_value = args.values[1];
-	Value value_to_set = args.values[2];
+	// Value self_value = args.values[0];
+	// Value key_value = args.values[1];
+	Value key_value = args.values[0];
+	// Value value_to_set = args.values[2];
+	Value value_to_set = args.values[1];
 
-    if (!object_value_is(self_value, OBJECT_TABLE)) {
-    	FAIL("Table @set_key called on none ObjectTable.");
-    }
+    // if (!object_value_is(self_value, OBJECT_TABLE)) {
+    // 	FAIL("Table @set_key called on none ObjectTable.");
+    // }
 
-    ObjectTable* self_table = (ObjectTable*) self_value.as.object;
+	if (self->type != OBJECT_TABLE) {
+		FAIL("table @set_key called on non ObjectTable");
+	}
+
+    // ObjectTable* self_table = (ObjectTable*) self_value.as.object;
+    ObjectTable* self_table = (ObjectTable*) self;
 
     table_set(&self_table->table, key_value, value_to_set);
 
@@ -257,65 +307,42 @@ static ObjectString* object_string_new(char* chars, int length) {
     string->chars = chars;
 	string->length = length;
 
-	// ObjectFunction* string_add_method = NULL;
-	ObjectFunction* string_add_method = make_native_function_with_params("@add", 2, (char*[]) {"self", "other"}, object_string_add);
+	// ObjectFunction* string_add_method = make_native_function_with_params("@add", 2, (char*[]) {"self", "other"}, object_string_add);
+	ObjectFunction* string_add_method = make_native_function_with_params("@add", 1, (char*[]) {"other"}, object_string_add);
 	ObjectBoundMethod* string_add_bound_method = object_bound_method_new(string_add_method, (Object*) string);
 
-	// char* params[] =  {"other"};
-	// int num_params = 1;
-	// int num_params_including_self = num_params + 1;
-	// char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
+	// ObjectFunction* string_get_key_method = make_native_function_with_params("@get_key", 2, (char*[]) {"self", "other"}, object_string_get_key);
+	ObjectFunction* string_get_key_method = make_native_function_with_params("@get_key", 1, (char*[]) {"other"}, object_string_get_key);
+	ObjectBoundMethod* string_get_key_bound_method = object_bound_method_new(string_get_key_method, (Object*) string);
 
-	// copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
-	// for (int i = 0; i < num_params; i++) {
-	// 	copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
+	ObjectFunction* string_length_method = make_native_function_with_params("length", 0, NULL, object_string_length);
+	ObjectBoundMethod* string_length_bound_method = object_bound_method_new(string_length_method, (Object*) string);
+
+	// ObjectFunction* string_length_method = NULL;
+
+	// if (string_length_method == NULL) {
+	// 	char* params[] =  {};
+	// 	int num_params = 0;
+	// 	int num_params_including_self = num_params + 1;
+	// 	char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
+
+	// 	copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
+	// 	for (int i = 0; i < num_params; i++) {
+	// 		copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
+	// 	}
+
+	// 	string_length_method = object_native_function_new(object_string_length, copied_params, num_params_including_self, (Object*) string);
 	// }
-
-	// string_add_method = object_native_function_new(object_string_add, copied_params, num_params_including_self, (Object*) string);
-
-	// static ObjectFunction* string_get_key_method = NULL;
-	ObjectFunction* string_get_key_method = NULL;
-
-	if (string_get_key_method == NULL) {
-		char* params[] =  {"other"};
-		int num_params = 1;
-		int num_params_including_self = num_params + 1;
-		char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
-
-		copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
-		for (int i = 0; i < num_params; i++) {
-			copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
-		}
-
-		string_get_key_method = object_native_function_new(object_string_get_key, copied_params, num_params_including_self, (Object*) string);
-	}
-
-	// static ObjectFunction* string_length_method = NULL;
-	ObjectFunction* string_length_method = NULL;
-
-	if (string_length_method == NULL) {
-		char* params[] =  {};
-		int num_params = 0;
-		int num_params_including_self = num_params + 1;
-		char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
-
-		copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
-		for (int i = 0; i < num_params; i++) {
-			copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
-		}
-
-		string_length_method = object_native_function_new(object_string_length, copied_params, num_params_including_self, (Object*) string);
-	}
 
 	ObjectString* add_attr_key = object_string_new_partial("@add", strlen("@add"));
 	// cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(add_attr_key), MAKE_VALUE_OBJECT(string_add_method));
 	cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(add_attr_key), MAKE_VALUE_OBJECT(string_add_bound_method));
 
 	ObjectString* get_key_attr_key = object_string_new_partial("@get_key", strlen("@get_key"));
-	cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(get_key_attr_key), MAKE_VALUE_OBJECT(string_get_key_method));
+	cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(get_key_attr_key), MAKE_VALUE_OBJECT(string_get_key_bound_method));
 
 	ObjectString* length_attr_key = object_string_new_partial("length", strlen("length"));
-	cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(length_attr_key), MAKE_VALUE_OBJECT(string_length_method));
+	cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(length_attr_key), MAKE_VALUE_OBJECT(string_length_bound_method));
 
     return string;
 }
@@ -356,27 +383,26 @@ bool object_strings_equal(ObjectString* a, ObjectString* b) {
     return (a->length == b->length) && (object_cstrings_equal(a->chars, b->chars, a->length));
 }
 
-static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, Object* self, CellTable free_vars) {
+static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, CellTable free_vars) {
     ObjectFunction* objFunc = (ObjectFunction*) allocate_object(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
     objFunc->name = copy_null_terminated_cstring("<Anonymous function>", "Function name");
     objFunc->is_native = isNative;
     objFunc->parameters = parameters;
     objFunc->num_params = numParams;
-    objFunc->self = self;
     objFunc->free_vars = free_vars;
     return objFunc;
 }
 
-ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, Object* self, CellTable free_vars) {
+ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, CellTable free_vars) {
     DEBUG_OBJECTS_PRINT("Creating user function object.");
-    ObjectFunction* objFunc = object_function_base_new(false, parameters, numParams, self, free_vars);
+    ObjectFunction* objFunc = object_function_base_new(false, parameters, numParams, free_vars);
     objFunc->code = code;
     return objFunc;
 }
 
-ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams, Object* self) {
+ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams) {
     DEBUG_OBJECTS_PRINT("Creating native function object.");
-    ObjectFunction* objFunc = object_function_base_new(true, parameters, numParams, self, cell_table_new_empty());
+    ObjectFunction* objFunc = object_function_base_new(true, parameters, numParams, cell_table_new_empty());
     objFunc->native_function = nativeFunction;
     return objFunc;
 }
@@ -389,7 +415,7 @@ ObjectFunction* make_native_function_with_params(char* name, int num_params, cha
 	for (int i = 0; i < num_params; i++) {
 		params_buffer[i] = copy_cstring(params[i], strlen(params[i]), "ObjectFunction param cstring");
 	}
-	ObjectFunction* func = object_native_function_new(function, params_buffer, num_params, NULL);
+	ObjectFunction* func = object_native_function_new(function, params_buffer, num_params);
 	name = copy_null_terminated_cstring(name, "Function name");
 	object_function_set_name(func, name);
 	return func;
@@ -778,17 +804,17 @@ ObjectString* object_as_string(Object* o) {
 	return (ObjectString*) o;
 }
 
-MethodAccessResult object_get_method(Object* object, const char* method_name, ObjectFunction** out) {
-	Value method_value;
-	if (!cell_table_get_value_cstring_key(&object->attributes, method_name, &method_value)) {
+MethodAccessResult object_get_method(Object* object, const char* method_name, ObjectBoundMethod** out) {
+	Value attr_val;
+	if (!object_load_attribute_cstring_key(object, method_name, &attr_val)) {
 		return METHOD_ACCESS_NO_SUCH_ATTR;
 	}
 
-	if (!object_value_is(method_value, OBJECT_FUNCTION)) {
-		return METHOD_ACCESS_ATTR_NOT_FUNCTION;
+	if (!object_value_is(attr_val, OBJECT_BOUND_METHOD)) {
+		return METHOD_ACCESS_ATTR_NOT_BOUND_METHOD;
 	}
 
-	*out = (ObjectFunction*) method_value.as.object;
+	*out = (ObjectBoundMethod*) attr_val.as.object;
 	return METHOD_ACCESS_SUCCESS;
 }
 
