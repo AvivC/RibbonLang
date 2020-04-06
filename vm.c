@@ -931,30 +931,31 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             case OP_ADD: {
             	if (peek_at(2).type == VALUE_OBJECT) {
             		Value other = pop();
-            		Value self_val = pop();
+            		Value subject_val = pop();
 
-            		Object* self = self_val.as.object;
+            		Object* subject = subject_val.as.object;
             		Value add_method;
-            		if (!cell_table_get_value_cstring_key(&self->attributes, "@add", &add_method)) {
+            		if (!cell_table_get_value_cstring_key(&subject->attributes, "@add", &add_method)) {
             			RUNTIME_ERROR("Object doesn't support @add method.");
             			break;
             		}
 
-					if (!object_value_is(add_method, OBJECT_FUNCTION)) {
-						RUNTIME_ERROR("Objects @add isn't a function.");
+					if (!object_value_is(add_method, OBJECT_BOUND_METHOD)) {
+						RUNTIME_ERROR("Objects @add isn't a method.");
 						break;
 					}
 
-					ObjectFunction* add_method_as_func = (ObjectFunction*) add_method.as.object;
+					ObjectBoundMethod* add_bound_method = (ObjectBoundMethod*) add_method.as.object;
+					Object* self = add_bound_method->self;
 
 					ValueArray arguments;
 					value_array_init(&arguments);
-					value_array_write(&arguments, &self_val);
+					value_array_write(&arguments, &MAKE_VALUE_OBJECT(self));
 					value_array_write(&arguments, &other);
 
 					Value result;
-					if (add_method_as_func->is_native) {
-						if (!add_method_as_func->native_function(arguments, &result)) {
+					if (add_bound_method->method->is_native) {
+						if (!add_bound_method->method->native_function(arguments, &result)) {
 							RUNTIME_ERROR("@add function failed.");
 							goto cleanup;
 						}
@@ -1349,13 +1350,19 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 						ObjectFunction* init_method = init_bound_method->method;
 
 						if (explicit_arg_count != init_method->num_params) {
+						// if (explicit_arg_count != init_method->num_params - 1) {
 							RUNTIME_ERROR("@init called with %d arguments, needs %d.", explicit_arg_count, init_method->num_params);
 							break;
 						}
 						
 						/* TODO: Handle errors in native and user functions */
 						if (init_method->is_native) {
-							FAIL("Currently native-methods are unimplemented.");
+							// FAIL("Currently native-methods are unimplemented.");
+							push(MAKE_VALUE_OBJECT(init_bound_method->self));
+							if (!call_native_function(init_method)) {
+								RUNTIME_ERROR("Native @init method failed.");
+								break;
+							}
 						} else {
 							call_user_function(init_method);
 							StackFrame* new_frame = peek_current_frame();
@@ -1363,6 +1370,9 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 							cell_table_set_value_cstring_key(&new_frame->local_variables, "self", MAKE_VALUE_OBJECT(self));
 							new_frame->discard_return_value = true;
 						}
+					} else if (explicit_arg_count != 0) {
+						RUNTIME_ERROR("@init function of class %.*s doesn't take parameters.", klass->name_length, klass->name);
+						break;
 					}
 
 					push(MAKE_VALUE_OBJECT(instance));

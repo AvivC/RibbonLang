@@ -139,8 +139,6 @@ typedef struct ObjectBoundMethod {
 
 typedef bool (*NativeFunction) (ValueArray, Value*);
 
-DECLARE_DYNAMIC_ARRAY(ObjectThread*, ThreadArray, thread_array)
-
 ObjectString* object_string_copy(const char* string, int length);
 ObjectString* object_string_take(char* chars, int length);
 ObjectString* object_string_clone(ObjectString* original);
