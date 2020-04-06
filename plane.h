@@ -43,6 +43,6 @@ typedef struct {
 
 extern PlaneApi API;
 
-typedef bool __cdecl (*ExtensionInitFunction) (PlaneApi, ObjectModule*);
+typedef bool (*ExtensionInitFunction) (PlaneApi, ObjectModule*);
 
 #endif

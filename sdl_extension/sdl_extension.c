@@ -76,14 +76,14 @@ static ObjectInstanceEvent* new_event(SDL_Event event) {
     return instance;
 }
 
-static bool init(ValueArray args, Value* out) {
+static bool init(Object* self, ValueArray args, Value* out) {
     int flags = args.values[0].as.number;
     double result = SDL_Init(flags);
     *out = MAKE_VALUE_NUMBER(result);
     return true;
 }
 
-static bool create_window(ValueArray args, Value* out) {
+static bool create_window(Object* self, ValueArray args, Value* out) {
     ObjectString* title_arg = (ObjectString*) (args.values[0].as.object);
     double x_arg = args.values[1].as.number;
     double y_arg = args.values[2].as.number;
@@ -113,7 +113,7 @@ static bool create_window(ValueArray args, Value* out) {
     return true;
 }
 
-static bool set_hint(ValueArray args, Value* out) {
+static bool set_hint(Object* self, ValueArray args, Value* out) {
     ObjectString* name_arg = (ObjectString*) args.values[0].as.object;
     ObjectString* value_arg = (ObjectString*) args.values[1].as.object;
 
@@ -129,7 +129,7 @@ static bool set_hint(ValueArray args, Value* out) {
     return true;
 }
 
-static bool create_renderer(ValueArray args, Value* out) {
+static bool create_renderer(Object* self, ValueArray args, Value* out) {
     ObjectInstanceWindow* window = (ObjectInstanceWindow*) args.values[0].as.object;
     int index = args.values[1].as.number;
     Uint32 flags = args.values[2].as.number;
@@ -146,21 +146,21 @@ static bool create_renderer(ValueArray args, Value* out) {
     return true;
 }
 
-static bool img_init(ValueArray args, Value* out) {
+static bool img_init(Object* self, ValueArray args, Value* out) {
     int flags = args.values[0].as.number;
     int result = IMG_Init(flags);
     *out = MAKE_VALUE_NUMBER(result);
     return true;
 }
 
-static bool show_cursor(ValueArray args, Value* out) {
+static bool show_cursor(Object* self, ValueArray args, Value* out) {
     int toggle = args.values[0].as.number;
     int result = SDL_ShowCursor(toggle);
     *out = MAKE_VALUE_NUMBER(result);
     return true;
 }
 
-static bool destroy_renderer(ValueArray args, Value* out) {
+static bool destroy_renderer(Object* self, ValueArray args, Value* out) {
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     if (renderer->renderer != NULL) {
         SDL_DestroyRenderer(renderer->renderer);
@@ -170,7 +170,7 @@ static bool destroy_renderer(ValueArray args, Value* out) {
     return true;
 }
 
-static bool destroy_window(ValueArray args, Value* out) {
+static bool destroy_window(Object* self, ValueArray args, Value* out) {
     ObjectInstanceWindow* window = (ObjectInstanceWindow*) args.values[0].as.object;
     if (window->window != NULL) {
         SDL_DestroyWindow(window->window);
@@ -180,7 +180,7 @@ static bool destroy_window(ValueArray args, Value* out) {
     return true;
 }
 
-static bool quit(ValueArray args, Value* out) {
+static bool quit(Object* self, ValueArray args, Value* out) {
     SDL_Quit();
     *out = MAKE_VALUE_NIL();
     return true;
@@ -231,7 +231,7 @@ static void renderer_class_deallocate(ObjectInstance* instance) {
     }
 }
 
-static bool log_message(ValueArray args, Value* out) {
+static bool log_message(Object* self, ValueArray args, Value* out) {
     int category = args.values[0].as.number;
     int priority = args.values[1].as.number;
     ObjectString* message = (ObjectString*) args.values[2].as.object;
@@ -252,7 +252,7 @@ static bool log_message(ValueArray args, Value* out) {
     return true;
 }
 
-static bool query_texture(ValueArray args, Value* out) {
+static bool query_texture(Object* self, ValueArray args, Value* out) {
     ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[0].as.object;
     ObjectTable* out_table = (ObjectTable*) args.values[1].as.object;
 
@@ -269,7 +269,7 @@ static bool query_texture(ValueArray args, Value* out) {
     return true;   
 }
 
-static bool set_render_draw_color(ValueArray args, Value* out) {
+static bool set_render_draw_color(Object* self, ValueArray args, Value* out) {
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     int r = args.values[1].as.number;
     int g = args.values[2].as.number;
@@ -280,20 +280,20 @@ static bool set_render_draw_color(ValueArray args, Value* out) {
     return true;   
 }
 
-static bool render_clear(ValueArray args, Value* out) {
+static bool render_clear(Object* self, ValueArray args, Value* out) {
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     *out = MAKE_VALUE_NUMBER(SDL_RenderClear(renderer->renderer));
     return true;   
 }
 
-static bool render_present(ValueArray args, Value* out) {
+static bool render_present(Object* self, ValueArray args, Value* out) {
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     SDL_RenderPresent(renderer->renderer);
     *out = MAKE_VALUE_NIL();
     return true;   
 }
 
-static bool render_copy(ValueArray args, Value* out) {
+static bool render_copy(Object* self, ValueArray args, Value* out) {
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[1].as.object;
 
@@ -317,7 +317,7 @@ static bool render_copy(ValueArray args, Value* out) {
     return true;   
 }
 
-static bool img_load_texture(ValueArray args, Value* out) {
+static bool img_load_texture(Object* self, ValueArray args, Value* out) {
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     ObjectString* filename = (ObjectString*) args.values[1].as.object;
 
@@ -336,7 +336,7 @@ static bool img_load_texture(ValueArray args, Value* out) {
     return true;
 }
 
-static bool poll_event(ValueArray args, Value* out) {
+static bool poll_event(Object* self, ValueArray args, Value* out) {
     SDL_Event event;
     int result = SDL_PollEvent(&event);
 
@@ -354,19 +354,19 @@ static bool poll_event(ValueArray args, Value* out) {
     return true;
 }
 
-static bool get_ticks(ValueArray args, Value* out) {
+static bool get_ticks(Object* self, ValueArray args, Value* out) {
     *out = MAKE_VALUE_NUMBER(SDL_GetTicks());
     return true;
 }
 
-static bool delay(ValueArray args, Value* out) {
+static bool delay(Object* self, ValueArray args, Value* out) {
     int ms = args.values[0].as.number;
     SDL_Delay(ms);
     *out = MAKE_VALUE_NIL();
     return true;
 }
 
-static bool render_draw_line(ValueArray args, Value* out) {
+static bool render_draw_line(Object* self, ValueArray args, Value* out) {
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     int x1 = args.values[1].as.number;
     int y1 = args.values[2].as.number;
@@ -377,7 +377,7 @@ static bool render_draw_line(ValueArray args, Value* out) {
     return true;
 }
 
-static bool set_render_draw_blend_mode(ValueArray args, Value* out) {
+static bool set_render_draw_blend_mode(Object* self, ValueArray args, Value* out) {
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     int blend_mode = args.values[1].as.number;
 
@@ -385,7 +385,7 @@ static bool set_render_draw_blend_mode(ValueArray args, Value* out) {
     return true;
 }
 
-static bool set_texture_blend_mode(ValueArray args, Value* out) {
+static bool set_texture_blend_mode(Object* self, ValueArray args, Value* out) {
     ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[0].as.object;
     int blend_mode = args.values[1].as.number;
 
@@ -393,7 +393,7 @@ static bool set_texture_blend_mode(ValueArray args, Value* out) {
     return true;
 }
 
-static bool set_texture_color_mod(ValueArray args, Value* out) {
+static bool set_texture_color_mod(Object* self, ValueArray args, Value* out) {
     ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[0].as.object;
     int r = args.values[1].as.number;
     int g = args.values[2].as.number;
@@ -403,7 +403,7 @@ static bool set_texture_color_mod(ValueArray args, Value* out) {
     return true;
 }
 
-static bool set_texture_alpha_mod(ValueArray args, Value* out) {
+static bool set_texture_alpha_mod(Object* self, ValueArray args, Value* out) {
     ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[0].as.object;
     int alpha = args.values[1].as.number;
 

@@ -1,1 +1,1 @@
-notepad python\tester\tests\%1.test
+start notepad python\tester\tests\%1.test

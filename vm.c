@@ -97,10 +97,6 @@ InterpretResult vm_call_function_directly(ObjectFunction* function, ValueArray a
 		FAIL("User function called with unmatching params number."); /* TODO: Legit error? */
 	}
 
-	// if (function->self != NULL) {
-	// 	push(MAKE_VALUE_OBJECT(function->self));
-	// }
-
 	for (int i = 0; i < function->num_params; i++) {
 		const char* param_name = function->parameters[i];
 		Value argument = args.values[i];
@@ -189,7 +185,7 @@ static Value load_variable(ObjectString* name) {
 	bool variable_found =
 			cell_table_get_value_cstring_key(locals, name->chars, &value)
 			|| cell_table_get_value_cstring_key(free_vars, name->chars, &value)
-			|| (current_frame()->is_entity_base && cell_table_get_value_cstring_key(&current_frame()->base_entity->attributes, name->chars, &value))
+			|| (current_frame()->is_entity_base && object_load_attribute_cstring_key(current_frame()->base_entity, name->chars, &value))
 			|| cell_table_get_value_cstring_key(globals, name->chars, &value);
 
 	if (variable_found) {
@@ -466,18 +462,28 @@ static void register_builtin_modules(void) {
 	cell_table_set_value_cstring_key(&vm.builtin_modules, test_module_name, MAKE_VALUE_OBJECT(test_module));
 }
 
-static void call_user_function(ObjectFunction* function) {
+static void call_user_function_custom_frame(ObjectFunction* function, Object* self, Object* base_entity, bool discard_return_value) {
 	ObjectThread* thread = current_thread();
 
-	StackFrame frame = new_stack_frame(thread->ip, function, NULL, false, false, false);
+	bool is_entity_base = base_entity != NULL;
+	StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false, discard_return_value);
+
 	for (int i = 0; i < function->num_params; i++) {
 		const char* param_name = function->parameters[i];
 		Value argument = pop();
 		cell_table_set_value_cstring_key(&frame.local_variables, param_name, argument);
 	}
 
+	if (self != NULL) {
+		cell_table_set_value_cstring_key(&frame.local_variables, "self", MAKE_VALUE_OBJECT(self));
+	}
+
 	push_frame(frame);
 	thread->ip = function->code->bytecode.code;
+}
+
+static void call_user_function(ObjectFunction* function, Object* self) {
+	call_user_function_custom_frame(function, self, NULL, false);
 }
 
 static bool call_native_function(ObjectFunction* function, Object* self) {
@@ -497,12 +503,10 @@ static bool call_native_function(ObjectFunction* function, Object* self) {
 
 	/* If the native function will end up calling a user function, the instruction
 	pointer will be moving forward. When we go back to this calling site, we have to
-	also remember to reset the instruction pointer. */
+	also remember to restore the instruction pointer. */
 	uint8_t* ip_before_call = current_thread()->ip;
 
 	Value result;
-	// bool func_success = function->native_function(arguments, &result);
-	// bool func_success = function->native_function(NULL, arguments, &result);
 	bool func_success = function->native_function(self, arguments, &result);
 	if (func_success) {
 		push(result);
@@ -639,10 +643,7 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 			push(MAKE_VALUE_OBJECT(module));
 
 			/* "Call" the new module to start executing it in the next iteration */
-			// StackFrame frame = new_stack_frame(current_thread()->ip, module_base_function, module, true, false);
-			StackFrame frame = new_stack_frame(current_thread()->ip, module_base_function, (Object*) module, true, false, false);
-			push_frame(frame);
-			current_thread()->ip = module_base_function->code->bytecode.code;
+			call_user_function_custom_frame(module_base_function, NULL, (Object*) module, false);
 
 			/* Cache the new module in the global module cache */
 			cell_table_set_value_cstring_key(&vm.imported_modules, module_name->chars, MAKE_VALUE_OBJECT(module));
@@ -888,12 +889,12 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             
             case OP_ADD: {
             	if (peek_at(2).type == VALUE_OBJECT) {
-            		Value other = pop();
-            		Value subject_val = pop();
+            		Value other = peek_at(1);
+            		Value subject_val = peek_at(2);
 
             		Object* subject = subject_val.as.object;
             		Value add_method;
-            		if (!cell_table_get_value_cstring_key(&subject->attributes, "@add", &add_method)) {
+            		if (!object_load_attribute_cstring_key(subject, "@add", &add_method)) {
             			RUNTIME_ERROR("Object doesn't support @add method.");
             			break;
             		}
@@ -910,27 +911,14 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 						FAIL("Before calling @add, subject is different than the bound method's self attribute.");
 					}
 
-					ValueArray arguments;
-					value_array_init(&arguments);
-					// value_array_write(&arguments, &MAKE_VALUE_OBJECT(self));
-					value_array_write(&arguments, &other);
-
-					Value result;
 					if (add_bound_method->method->is_native) {
-						// if (!add_bound_method->method->native_function(arguments, &result)) {
-						// if (!add_bound_method->method->native_function(NULL, arguments, &result)) {
-						if (!add_bound_method->method->native_function(self, arguments, &result)) {
+						if (!call_native_function(add_bound_method->method, add_bound_method->self)) {
 							RUNTIME_ERROR("@add function failed.");
-							goto cleanup;
+							break;
 						}
-						push(result);
 					} else {
 						// TODO: user function
 					}
-
-					cleanup:
-					value_array_free(&arguments);
-
             	} else {
             		BINARY_MATH_OP(+);
             	}
@@ -1096,9 +1084,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 
 				ObjectClass* class = object_class_new(class_base_function, NULL);
 
-				StackFrame frame = new_stack_frame(current_thread()->ip, class_base_function, (Object*) class, true, false, false);
-				push_frame(frame);
-				current_thread()->ip = class_base_function->code->bytecode.code;
+				call_user_function_custom_frame(class_base_function, NULL, (Object*) class, false);
 
 				push(MAKE_VALUE_OBJECT(class));
 
@@ -1251,7 +1237,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             }
             
             case OP_CALL: {
-            	int explicit_arg_count = READ_BYTE();
+            	int arg_count = READ_BYTE();
 
 				if (peek().type != VALUE_OBJECT) {
 					RUNTIME_ERROR("Cannot call non-object.");
@@ -1261,8 +1247,8 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 				if (peek().as.object->type == OBJECT_FUNCTION) {
 					ObjectFunction* function = OBJECT_AS_FUNCTION(pop().as.object);
 
-					if (explicit_arg_count != function->num_params) {
-						RUNTIME_ERROR("Function called with %d arguments, needs %d.", explicit_arg_count, function->num_params);
+					if (arg_count != function->num_params) {
+						RUNTIME_ERROR("Function called with %d arguments, needs %d.", arg_count, function->num_params);
 						break;
 					}
 
@@ -1272,7 +1258,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 							break;
 						}
 					} else {
-						call_user_function(function);
+						call_user_function(function, NULL);
 					}
 				}
 
@@ -1280,8 +1266,8 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 					ObjectBoundMethod* bound_method = (ObjectBoundMethod*) pop().as.object;
 					ObjectFunction* method = bound_method->method;
 
-					if (explicit_arg_count != method->num_params) {
-						RUNTIME_ERROR("Function called with %d arguments, needs %d.", explicit_arg_count, method->num_params);
+					if (arg_count != method->num_params) {
+						RUNTIME_ERROR("Function called with %d arguments, needs %d.", arg_count, method->num_params);
 						break;
 					}
 					
@@ -1291,10 +1277,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 							break;
 						}
 					} else {
-						call_user_function(method);
-						StackFrame* new_frame = peek_current_frame();
-						Object* self = bound_method->self;
-						cell_table_set_value_cstring_key(&new_frame->local_variables, "self", MAKE_VALUE_OBJECT(self));
+						call_user_function(method, bound_method->self);
 					}
 				}
 
@@ -1310,10 +1293,14 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 							break;
 						}
 
+						if (init_bound_method->self != (Object*) instance) {
+							FAIL("When instantiating class, bound method's self and subject instance are different.");
+						}
+
 						ObjectFunction* init_method = init_bound_method->method;
 
-						if (explicit_arg_count != init_method->num_params) {
-							RUNTIME_ERROR("@init called with %d arguments, needs %d.", explicit_arg_count, init_method->num_params);
+						if (arg_count != init_method->num_params) {
+							RUNTIME_ERROR("@init called with %d arguments, needs %d.", arg_count, init_method->num_params);
 							break;
 						}
 						
@@ -1323,13 +1310,9 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 								break;
 							}
 						} else {
-							call_user_function(init_method);
-							StackFrame* new_frame = peek_current_frame();
-							Object* self = init_bound_method->self;
-							cell_table_set_value_cstring_key(&new_frame->local_variables, "self", MAKE_VALUE_OBJECT(self));
-							new_frame->discard_return_value = true;
+							call_user_function_custom_frame(init_method, init_bound_method->self, NULL, true);
 						}
-					} else if (explicit_arg_count != 0) {
+					} else if (arg_count != 0) {
 						RUNTIME_ERROR("@init function of class %.*s doesn't take parameters.", klass->name_length, klass->name);
 						break;
 					}
@@ -1394,10 +1377,10 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             	}
 
             	Object* subject = subject_value.as.object;
-            	Value key = pop();
+            	Value key = peek();
 
 				Value key_access_method_value;
-				if (!cell_table_get_value_cstring_key(&subject->attributes, "@get_key", &key_access_method_value)) {
+				if (!object_load_attribute_cstring_key(subject, "@get_key", &key_access_method_value)) {
 					RUNTIME_ERROR("Object doesn't support @get_key method.");
 					break;
 				}
@@ -1414,23 +1397,15 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 					FAIL("Before calling @get_key, subject was different than bound method's self attribute.");
 				}
 
-				ValueArray arguments;
-				value_array_init(&arguments);
-				value_array_write(&arguments, &key);
-
 				Value result;
 				if (bound_method->method->is_native) {
-					if (!bound_method->method->native_function(self, arguments, &result)) {
+					if (!call_native_function(bound_method->method, self)) {
 						RUNTIME_ERROR("@get_key function failed.");
-						goto op_access_key_cleanup;
+						break;
 					}
-					push(result);
 				} else {
 					// TODO: user function
 				}
-
-				op_access_key_cleanup:
-				value_array_free(&arguments);
 
             	break;
             }
