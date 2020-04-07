@@ -1,0 +1,31 @@
+also_just_some_variable = 100
+
+    Guitar = class {
+        @init = { takes type to
+            if type == "electric" {
+                self.style = "rock"
+            } else {
+                self.style = "classical"
+            }
+        }
+
+        make_song = { takes times to
+            return {
+                i = 0
+                while i < times {
+                    print("I'm a " + self.style + " song")
+                    i = i + 1
+                }
+
+                print(also_just_some_variable)
+            }
+        }
+    }
+
+    myguitar = Guitar("electric")
+    song = myguitar.make_song(2)
+    song()
+
+    myguitar = Guitar("acoustic")
+    song = myguitar.make_song(3)
+    song()

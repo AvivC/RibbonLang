@@ -186,6 +186,7 @@ static Value load_variable(ObjectString* name) {
 			cell_table_get_value_cstring_key(locals, name->chars, &value)
 			|| cell_table_get_value_cstring_key(free_vars, name->chars, &value)
 			|| (current_frame()->is_entity_base && object_load_attribute_cstring_key(current_frame()->base_entity, name->chars, &value))
+			// || (current_frame()->is_entity_base && cell_table_get_value_cstring_key(&current_frame()->base_entity->attributes, name->chars, &value))
 			|| cell_table_get_value_cstring_key(globals, name->chars, &value);
 
 	if (variable_found) {
@@ -1273,7 +1274,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 					
 					if (method->is_native) {
 						if (!call_native_function(method, (Object*) bound_method->self)) {
-							RUNTIME_ERROR("Native @init method failed.");
+							RUNTIME_ERROR("Native function failed.");
 							break;
 						}
 					} else {

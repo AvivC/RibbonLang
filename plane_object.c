@@ -755,7 +755,7 @@ void object_print(Object* o) {
 		}
 		case OBJECT_INSTANCE: {
 			ObjectInstance* instance = (ObjectInstance*) o;
-			printf("<%.*s instance>", instance->klass->name_length, instance->klass->name);
+			printf("<%.*s instance at %p>", instance->klass->name_length, instance->klass->name, instance);
 			return;
 		}
 		case OBJECT_BOUND_METHOD: {
@@ -763,7 +763,7 @@ void object_print(Object* o) {
 			ObjectFunction* method = bound_method->method;
 			printf("<Bound method %s of object ", method->name);
 			object_print(bound_method->self);
-			printf(">");
+			printf(" at %p>", bound_method);
 			return;
 		}
     }
@@ -880,6 +880,16 @@ bool object_hash(Object* object, unsigned long* result) {
 
 void object_set_attribute_cstring_key(Object* object, const char* key, Value value) {
 	cell_table_set_value_cstring_key(&object->attributes, key, value);
+}
+
+static Value function_value_to_bound_method(Value func_value, Object* self) {
+	if (!object_value_is(func_value, OBJECT_FUNCTION)) {
+		FAIL("Function-to-BoundMethod called with non function.");
+	}
+
+	ObjectFunction* function = (ObjectFunction*) func_value.as.object;
+	ObjectBoundMethod* bound_method = object_bound_method_new(function, self);
+	return MAKE_VALUE_OBJECT(bound_method);
 }
 
 bool object_load_attribute(Object* object, ObjectString* name, Value* out) {
