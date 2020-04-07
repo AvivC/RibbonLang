@@ -156,7 +156,8 @@ ObjectCell* object_cell_new(Value value);
 ObjectCell* object_cell_new_empty(void);
 
 ObjectClass* object_class_new(ObjectFunction* base_function, char* name);
-ObjectClass* object_class_native_new(char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_function);
+ObjectClass* object_class_native_new(
+		char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_func, ObjectFunction* constructor);
 void object_class_set_name(ObjectClass* klass, char* name, int length);
 
 ObjectInstance* object_instance_new(ObjectClass* klass);

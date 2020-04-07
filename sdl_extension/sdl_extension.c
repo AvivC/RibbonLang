@@ -70,6 +70,21 @@ static ObjectInstanceRect* new_rect(SDL_Rect rect) {
     return instance;
 }
 
+static bool rect_init(Object* self, ValueArray args, Value* out) {
+    ObjectInstanceRect* instance = (ObjectInstanceRect*) self;
+    
+    double x = args.values[0].as.number;
+    double y = args.values[1].as.number;
+    double w = args.values[2].as.number;
+    double h = args.values[3].as.number;
+
+    SDL_Rect rect = {.x = x, .y = y, .w = w, .h = h};
+    instance->rect = rect;
+
+    *out = MAKE_VALUE_NIL(); /* Value is discarded anyway, but has to be pushed */
+    return true;
+}
+
 static ObjectInstanceEvent* new_event(SDL_Event event) {
     ObjectInstanceEvent* instance = (ObjectInstanceEvent*) plane.object_instance_new(event_class);
     instance->event = event;
@@ -416,6 +431,14 @@ static void expose_function(char* name, int num_params, char** params, NativeFun
     plane.object_set_attribute_cstring_key((Object*) this, name, value);
 }
 
+static ObjectClass* expose_class(
+    char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_func, ObjectFunction* init_func) {
+
+    ObjectClass* klass = plane.object_class_native_new(name, instance_size, dealloc_func, gc_mark_func, init_func);
+    plane.object_set_attribute_cstring_key((Object*) this, name, MAKE_VALUE_OBJECT(klass));
+    return klass;
+}
+
 __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module) {
     plane = api;
     this = module;
@@ -432,20 +455,12 @@ __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module)
 
     /* Init and expose classes */
 
-    texture_class = api.object_class_native_new("Texture", sizeof(ObjectInstanceTexture), texture_class_deallocate, NULL);
-    plane.object_set_attribute_cstring_key((Object*) this, "Texture", MAKE_VALUE_OBJECT(texture_class));
-
-    window_class = api.object_class_native_new("Window", sizeof(ObjectInstanceWindow), window_class_deallocate, NULL);
-    plane.object_set_attribute_cstring_key((Object*) this, "Window", MAKE_VALUE_OBJECT(window_class));
-
-    renderer_class = api.object_class_native_new("Renderer", sizeof(ObjectInstanceRenderer), renderer_class_deallocate, renderer_class_gc_mark);
-    plane.object_set_attribute_cstring_key((Object*) this, "Renderer", MAKE_VALUE_OBJECT(renderer_class));
-
-    rect_class = api.object_class_native_new("Rect", sizeof(ObjectInstanceRect), rect_class_deallocate, NULL);
-    plane.object_set_attribute_cstring_key((Object*) this, "Rect", MAKE_VALUE_OBJECT(rect_class));
-
-    event_class = api.object_class_native_new("Event", sizeof(ObjectInstanceEvent), event_class_deallocate, NULL);
-    plane.object_set_attribute_cstring_key((Object*) this, "Event", MAKE_VALUE_OBJECT(event_class));
+    texture_class = expose_class("Texture", sizeof(ObjectInstanceTexture), texture_class_deallocate, NULL, NULL);
+    window_class = expose_class("Window", sizeof(ObjectInstanceWindow), window_class_deallocate, NULL, NULL);
+    renderer_class = expose_class("Renderer", sizeof(ObjectInstanceRenderer), renderer_class_deallocate, renderer_class_gc_mark, NULL);
+    rect_class = expose_class("Rect", sizeof(ObjectInstanceRect), rect_class_deallocate, NULL, 
+                plane.make_native_function_with_params("@init", 4, (char*[]) {"x", "y", "w", "h"}, rect_init));
+    event_class = expose_class("Event", sizeof(ObjectInstanceEvent), event_class_deallocate, NULL, NULL);
 
     /* Init and explose function */
 

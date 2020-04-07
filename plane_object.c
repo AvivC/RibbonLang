@@ -377,7 +377,8 @@ ObjectClass* object_class_new(ObjectFunction* base_function, char* name) {
 	return object_class_new_base(base_function, name, 0, NULL, NULL);
 }
 
-ObjectClass* object_class_native_new(char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_func) {
+ObjectClass* object_class_native_new(
+		char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_func, ObjectFunction* constructor) {
 	if (dealloc_func == NULL) {
 		FAIL("NULL dealloc_func passed for native class.");
 	}
@@ -385,7 +386,13 @@ ObjectClass* object_class_native_new(char* name, size_t instance_size, Deallocat
 		FAIL("instance_size <= passed for native class.");
 	}
 
-	return object_class_new_base(NULL, name, instance_size, dealloc_func, gc_mark_func);
+	ObjectClass* klass = object_class_new_base(NULL, name, instance_size, dealloc_func, gc_mark_func);
+
+	if (constructor != NULL) {
+		object_set_attribute_cstring_key((Object*) klass, "@init", MAKE_VALUE_OBJECT(constructor));
+	}
+
+	return klass;
 }
 
 ObjectInstance* object_instance_new(ObjectClass* klass) {

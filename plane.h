@@ -18,7 +18,8 @@ typedef struct {
     ObjectFunction* (*object_native_function_new) (NativeFunction nativeFunction, char** parameters, int numParams);
     ObjectFunction* (*make_native_function_with_params) (char* name, int num_params, char** params, NativeFunction function);
 
-    ObjectClass* (*object_class_native_new) (char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_function);
+    ObjectClass* (*object_class_native_new) (
+		char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_func, ObjectFunction* constructor);
     ObjectInstance* (*object_instance_new) (ObjectClass* klass);
 
     void (*object_set_attribute_cstring_key) (Object* object, const char* key, Value value);

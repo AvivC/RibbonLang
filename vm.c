@@ -524,6 +524,12 @@ static bool call_native_function(ObjectFunction* function, Object* self) {
 	return func_success;
 }
 
+static bool call_native_function_discard_return_value(ObjectFunction* function, Object* self) {
+	bool result = call_native_function(function, self);
+	pop();
+	return result;
+}
+
 void vm_init(void) {
 	vm.threads = NULL;
 	vm.current_thread = NULL;
@@ -879,6 +885,10 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 		if (vm.num_objects >= vm.max_objects) {
 			gc();
 		}
+
+		#if GC_STRESS_TEST
+		gc();
+		#endif
 
         switch (opcode) {
             case OP_CONSTANT: {
@@ -1294,7 +1304,8 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 							break;
 						}
 
-						if (init_bound_method->self != (Object*) instance) {
+						Object* self = init_bound_method->self;
+						if (self != (Object*) instance) {
 							FAIL("When instantiating class, bound method's self and subject instance are different.");
 						}
 
@@ -1306,12 +1317,13 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 						}
 						
 						if (init_method->is_native) {
-							if (!call_native_function(init_method, (Object*) instance)) {
+							// if (!call_native_function(init_method, self)) {
+							if (!call_native_function_discard_return_value(init_method, self)) {
 								RUNTIME_ERROR("Native @init method failed.");
 								break;
 							}
 						} else {
-							call_user_function_custom_frame(init_method, init_bound_method->self, NULL, true);
+							call_user_function_custom_frame(init_method, self, NULL, true);
 						}
 					} else if (arg_count != 0) {
 						RUNTIME_ERROR("@init function of class %.*s doesn't take parameters.", klass->name_length, klass->name);
