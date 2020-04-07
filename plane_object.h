@@ -128,6 +128,7 @@ typedef struct ObjectClass {
 typedef struct ObjectInstance {
 	Object base;
 	ObjectClass* klass;
+	bool is_initialized;
 } ObjectInstance;
 
 typedef struct ObjectBoundMethod {

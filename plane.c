@@ -1,6 +1,9 @@
 #include "plane.h"
 
 PlaneApi API = {
+    .EXTENSION_ALLOC_STRING_CSTRING = "extension cstring",
+    .EXTENSION_ALLOC_STRING_GC_LEEFS = "extension gc leefs",
+    .EXTENSION_ALLOC_STRING_MISC = "extension memory allocation",
     .allocate = allocate,
     .deallocate = deallocate,
     .reallocate = reallocate,
@@ -19,7 +22,7 @@ PlaneApi API = {
     .object_string_take = object_string_take,
     .object_string_copy_from_null_terminated = object_string_copy_from_null_terminated,
     .object_string_clone = object_string_clone,
-    .EXTENSION_ALLOC_STRING_CSTRING = "extension cstring",
-    .EXTENSION_ALLOC_STRING_GC_LEEFS = "extension gc leefs",
-    .EXTENSION_ALLOC_STRING_MISC = "extension memory allocation"
+    .value_array_init = value_array_init,
+    .value_array_write = value_array_write,
+    .value_array_free = value_array_free
 };

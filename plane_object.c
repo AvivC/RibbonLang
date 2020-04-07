@@ -405,6 +405,8 @@ ObjectInstance* object_instance_new(ObjectClass* klass) {
 	}
 	
 	instance->klass = klass;
+	instance->is_initialized = false;
+
 	return instance;
 }
 
@@ -516,7 +518,9 @@ void object_free(Object* o) {
 			ObjectClass* klass = instance->klass;
 			if (klass->instance_size > 0) {
 				/* Native class */
-				klass->dealloc_func(instance);
+				if (instance->is_initialized) {
+					klass->dealloc_func(instance);
+				}
 				deallocate(instance, klass->instance_size, "ObjectInstance");
 			} else {
 				/* Plane class */

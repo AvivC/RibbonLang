@@ -111,3 +111,19 @@ test load user extension module
 expect
     32
 end
+
+test extension classes
+    import myuserextension
+
+    MyThingA = myuserextension.MyThingA
+    
+    thing_a = MyThingA("Hello world :D")
+    print(thing_a.get_text())
+
+    thing_b = myuserextension.MyThingB(thing_a)
+    multiply_func = thing_b.get_text_multiplied
+    print(multiply_func(3))
+expect
+    Hello world :D
+    Hello world :DHello world :DHello world :D
+end

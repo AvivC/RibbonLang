@@ -307,7 +307,7 @@ static void gc_mark_object_instance(Object* object) {
 	if (klass->instance_size > 0) {
 		/* Native class */
 
-		if (klass->gc_mark_func != NULL) {
+		if (klass->gc_mark_func != NULL && instance->is_initialized) {
 			Object** leefs = klass->gc_mark_func(instance);
 			size_t count = 1; /* Include NULL terminator */
 			for (Object** leef = leefs; *leef != NULL; leef++, count++) {
@@ -1330,6 +1330,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 						break;
 					}
 
+					instance->is_initialized = true;
 					push(MAKE_VALUE_OBJECT(instance));
 				}
 

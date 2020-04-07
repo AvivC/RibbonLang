@@ -1,0 +1,33 @@
+import graphics
+
+graphics.init(graphics.SDL_INIT_VIDEO)
+
+window = graphics.create_window("My window!", graphics.SDL_WINDOWPOS_UNDEFINED, graphics.SDL_WINDOWPOS_UNDEFINED, 500, 350, 0)
+
+graphics.set_hint(graphics.SDL_HINT_RENDER_SCALE_QUALITY, "linear")
+
+renderer = graphics.create_renderer(window, -1, graphics.SDL_RENDERER_ACCELERATED)
+
+graphics.img_init(graphics.IMG_INIT_PNG)
+
+graphics.show_cursor(0)
+
+graphics.log_message(graphics.SDL_LOG_CATEGORY_APPLICATION, graphics.SDL_LOG_PRIORITY_INFO, "Some logging :D :D")
+
+texture = graphics.img_load_texture(renderer, "others\player.png")  # relative to CWD
+
+texture_details = []
+query_result = graphics.query_texture(texture, texture_details)
+print(texture_details)
+print(query_result)
+
+r = graphics.Rect(100, 200, 50, 50)
+print(r)
+
+input()
+
+graphics.destroy_renderer(renderer)
+
+graphics.destroy_window(window)
+
+graphics.quit()

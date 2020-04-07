@@ -11,6 +11,10 @@
 #include "table.h"
 
 typedef struct {
+    const char* EXTENSION_ALLOC_STRING_CSTRING;
+    const char* EXTENSION_ALLOC_STRING_GC_LEEFS;
+    const char* EXTENSION_ALLOC_STRING_MISC;
+
     void* (*allocate) (size_t size, const char* what);
     void (*deallocate) (void* pointer, size_t oldSize, const char* what);
     void* (*reallocate) (void* pointer, size_t oldSize, size_t newSize, const char* what);
@@ -37,9 +41,9 @@ typedef struct {
     bool (*table_get_cstring_key) (Table* table, const char* key, Value* out);
     ObjectTable* (*object_table_new_empty) (void);
 
-    const char* EXTENSION_ALLOC_STRING_CSTRING;
-    const char* EXTENSION_ALLOC_STRING_GC_LEEFS;
-    const char* EXTENSION_ALLOC_STRING_MISC;
+    void (*value_array_init) (ValueArray*);
+    void (*value_array_write) (ValueArray*, Value*);
+    void (*value_array_free) (ValueArray*);
 } PlaneApi;
 
 extern PlaneApi API;

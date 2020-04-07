@@ -221,7 +221,6 @@ static void event_class_deallocate(ObjectInstance* instance) {
 
 static Object** renderer_class_gc_mark(ObjectInstance* instance) {
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) instance;
-    // Object** leefs = plane.allocate(sizeof(Object*) * 2, "Native ObjectInstance gc mark leefs");
     Object** leefs = plane.allocate(sizeof(Object*) * 2, plane.EXTENSION_ALLOC_STRING_GC_LEEFS);
     leefs[0] = (Object*) renderer->window;
     leefs[1] = NULL;
