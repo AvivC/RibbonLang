@@ -1,1 +1,1 @@
-start notepad++ -nosession -lpython %1 %*
+start notepad %1

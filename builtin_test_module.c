@@ -14,7 +14,7 @@ bool builtin_test_demo_print(Object* self, ValueArray args, Value* out) {
     ValueArray func_args;
     value_array_init(&func_args);
     Value callback_out;
-    InterpretResult func_exec_result = vm_call_function_directly(function, func_args, &callback_out);
+    InterpretResult func_exec_result = vm_call_function_directly(function, NULL, func_args, &callback_out);
     value_array_free(&func_args);
 
     printf("I'm a native function\n");
@@ -44,7 +44,7 @@ bool builtin_test_call_callback_with_args(Object* self, ValueArray args, Value* 
     value_array_write(&callback_args, &arg2);
 
     Value callback_out;
-    InterpretResult func_exec_result = vm_call_function_directly(callback, callback_args, &callback_out);
+    InterpretResult func_exec_result = vm_call_function_directly(callback, NULL, callback_args, &callback_out);
     
     value_array_free(&callback_args);
 

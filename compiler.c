@@ -192,8 +192,8 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             Value obj_code_constant = MAKE_VALUE_OBJECT(object_code_new(body_bytecode));
             emit_opcode_with_constant_operand(bytecode, OP_MAKE_CLASS, obj_code_constant);
 
-			/* Current hack necessary because of hard-coded OP_NIL OP_RETURN in compiler_compile. To fix later. */
-            emit_byte(bytecode, OP_POP);
+			// /* Current hack necessary because of hard-coded OP_NIL OP_RETURN in compiler_compile. To fix later. */
+            // emit_byte(bytecode, OP_POP);
 
 			break;
 		}
@@ -257,14 +257,14 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         	Value module_name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_import->name, node_import->name_length));
         	emit_opcode_with_constant_operand(bytecode, OP_IMPORT, module_name_constant);
 
-        	/* Ugly hack ahead:
-        	 * Currently, the compiler always puts a OP_NIL OP_RETURN at the end of the code object.
-        	 * So after a code object returns we always have something left on the stack (possibly a nil).
-        	 * This kind of makes sense for functions, but not for modules...
-        	 * Since this is currently the case, we always need to OP_POP after 'calling' a module, until we change how the compiler works. */
-        	emit_byte(bytecode, OP_POP);
+        	// /* Ugly hack ahead:
+        	//  * Currently, the compiler always puts a OP_NIL OP_RETURN at the end of the code object.
+        	//  * So after a code object returns we always have something left on the stack (possibly a nil).
+        	//  * This kind of makes sense for functions, but not for modules...
+        	//  * Since this is currently the case, we always need to OP_POP after 'calling' a module, until we change how the compiler works. */
+        	// emit_byte(bytecode, OP_POP);
 
-        	emit_opcode_with_constant_operand(bytecode, OP_SET_VARIABLE, module_name_constant);
+        	// emit_opcode_with_constant_operand(bytecode, OP_SET_VARIABLE, module_name_constant);
 
         	break;
         }
