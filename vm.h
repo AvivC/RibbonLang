@@ -16,6 +16,15 @@ typedef enum {
     CALL_RESULT_INVALID_CALLABLE
 } CallResult;
 
+typedef enum {
+    IMPORT_RESULT_SUCCESS,
+    IMPORT_RESULT_OPEN_FAILED,
+    IMPORT_RESULT_READ_FAILED,
+    IMPORT_RESULT_CLOSE_FAILED,
+    IMPORT_RESULT_EXTENSION_NO_INIT_FUNCTION,
+    IMPORT_RESULT_MODULE_NOT_FOUND
+} ImportResult;
+
 typedef struct {
 	Object* objects;
 
@@ -40,6 +49,12 @@ typedef struct {
 extern VM vm;
 
 CallResult vm_call_object(Object* object, ValueArray args, Value* out);
+
+ImportResult vm_import_module(ObjectString* module_name);
+ImportResult vm_import_module_cstring(char* name);
+
+ObjectModule* vm_get_module(ObjectString* name);
+ObjectModule* vm_get_module_cstring(char* name);
 
 void vm_init(void);
 void vm_free(void);

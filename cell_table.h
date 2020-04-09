@@ -20,8 +20,8 @@ void cell_table_set_cell_cstring_key(CellTable* table, const char* key, struct O
 bool cell_table_get_value_cstring_key(CellTable* table, const char* key, Value* out);
 bool cell_table_get_cell_cstring_key(CellTable* table, const char* key, struct ObjectCell** out);
 
-void cell_table_set_value_directly(CellTable* table, Value key, Value value);
-bool cell_table_get_value_directly(CellTable* table, struct ObjectString* key, Value* out);
+void cell_table_set_value(CellTable* table, Value key, Value value);
+bool cell_table_get_value(CellTable* table, struct ObjectString* key, Value* out);
 
 void cell_table_free(CellTable* table);
 

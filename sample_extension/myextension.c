@@ -14,6 +14,7 @@ typedef struct {
     ObjectInstanceMyThingA* a;
 } ObjectInstanceMyThingB;
 
+#ifdef EXTENSION_1
 static bool multiply(Object* self, ValueArray args, Value* out) {
     if (args.count != 2) {
         *out = MAKE_VALUE_NIL();
@@ -30,6 +31,7 @@ static bool multiply(Object* self, ValueArray args, Value* out) {
     *out = MAKE_VALUE_NUMBER(num1 * num2);
     return true;
 }
+#endif
 
 static void my_thing_a_dealloc(ObjectInstance* instance) {
     ObjectInstanceMyThingA* my_thing_a = (ObjectInstanceMyThingA*) instance;
@@ -96,16 +98,53 @@ static bool my_thing_b_get_text_multiplied(Object* self, ValueArray args, Value*
     return true;
 }
 
+#ifdef EXTENSION_2
+static bool square(Object* self, ValueArray args, Value* out) {
+    Value number = args.values[0];
+
+    plane.vm_import_module_cstring("myuserextension");
+    ObjectModule* other_extension = plane.vm_get_module_cstring("myuserextension");
+
+    Value multiply_method_val;
+    if (!plane.object_load_attribute_cstring_key((Object*) other_extension, "multiply", &multiply_method_val)) {
+        *out = MAKE_VALUE_NIL();
+        return false;
+    }
+
+    ValueArray multiply_args;
+    plane.value_array_init(&multiply_args);
+    plane.value_array_write(&multiply_args, &number);
+    plane.value_array_write(&multiply_args, &number);
+    Value sqr_result;
+    plane.vm_call_object(multiply_method_val.as.object, multiply_args, &sqr_result);
+    plane.value_array_free(&multiply_args);
+
+    *out = sqr_result;
+    return true;
+}
+#endif
+
 MYEXTENSIONAPI bool plane_module_init(PlaneApi api, ObjectModule* module) {
     plane = api;
 
+    #ifdef EXTENSION_1
     char** multiply_params = api.allocate(sizeof(char*) * 2, "Parameters list cstrings");
     multiply_params[0] = api.copy_null_terminated_cstring("x", "ObjectFunction param cstring");
     multiply_params[1] = api.copy_null_terminated_cstring("y", "ObjectFunction param cstring");
-
+    
     ObjectFunction* multiply_function = api.object_native_function_new(multiply, multiply_params, 2);
     Value multiply_func_value = MAKE_VALUE_OBJECT(multiply_function);
     api.object_set_attribute_cstring_key((Object*) module, "multiply", multiply_func_value);   
+    #endif
+
+    #ifdef EXTENSION_2
+    char** squared_params = api.allocate(sizeof(char*) * 1, "Parameters list cstrings");
+    squared_params[0] = api.copy_null_terminated_cstring("number", "ObjectFunction param cstring");
+
+    ObjectFunction* sqr_function = api.object_native_function_new(square, squared_params, 1);
+    Value sqr_func_value = MAKE_VALUE_OBJECT(sqr_function);
+    api.object_set_attribute_cstring_key((Object*) module, "square", sqr_func_value);   
+    #endif
 
     ObjectFunction* constructor_a = plane.make_native_function_with_params("@init", 1, (char*[]) {"text"}, my_thing_a_init);
 

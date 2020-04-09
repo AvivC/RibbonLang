@@ -536,8 +536,13 @@ void vm_free(void) {
     vm.max_objects = INITIAL_GC_THRESHOLD;
     vm.allow_gc = false;
 
-	deallocate(vm.main_module_path, strlen(vm.main_module_path) + 1, "main module absolute path");
-	deallocate(vm.interpreter_dir_path, strlen(vm.interpreter_dir_path) + 1, "interpreter directory path");
+	/* These two will be NULL if we are running in -dry mode. Maybe this isn't the best solution, but for now it's fine. */
+	if (vm.main_module_path != NULL) {
+		deallocate(vm.main_module_path, strlen(vm.main_module_path) + 1, "main module absolute path");
+	}
+	if (vm.interpreter_dir_path != NULL) {
+		deallocate(vm.interpreter_dir_path, strlen(vm.interpreter_dir_path) + 1, "interpreter directory path");
+	}
 }
 
 static void print_call_stack(void) {
@@ -593,7 +598,7 @@ static void print_all_threads(void) {
 static bool call_plane_function_custom_frame(
 		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity, Value* out);
 
-static bool load_text_module(ObjectString* module_name, const char* file_name_buffer, char** error_out) {
+static ImportResult load_text_module(ObjectString* module_name, const char* file_name_buffer) {
 	char* source = NULL;
 	size_t source_buffer_size = -1;
 	IOResult file_read_result = io_read_file(file_name_buffer, "File content buffer", &source, &source_buffer_size);
@@ -635,30 +640,33 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 			value_array_free(&args);
 
 			// cell_table_set_value_cstring_key(locals_or_module_table(), name->chars, value);
-			cell_table_set_value_directly(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
+			cell_table_set_value(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
 
 			/* Cache the new module in the global module cache */
 			// cell_table_set_value_cstring_key(&vm.imported_modules, module_name->chars, MAKE_VALUE_OBJECT(module));
-			cell_table_set_value_directly(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
+			cell_table_set_value(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
 
-			return true;
+			return IMPORT_RESULT_SUCCESS;
 		}
 		case IO_CLOSE_FILE_FAILURE: {
-			*error_out = "Failed to close file while loading module.";
-			return false;
+			// *error_out = "Failed to close file while loading module.";
+			// return false;
+			return IMPORT_RESULT_CLOSE_FAILED;
 		}
 		case IO_READ_FILE_FAILURE: {
-			*error_out = "Failed to read file while loading module.";
-			return false;
+			// *error_out = "Failed to read file while loading module.";
+			// return false;
+			return IMPORT_RESULT_READ_FAILED;
 		}
 		case IO_OPEN_FILE_FAILURE: {
-			*error_out = "Failed to open file while loading module.";
-			return false;
+			// *error_out = "Failed to open file while loading module.";
+			// return false;
+			return IMPORT_RESULT_OPEN_FAILED;
 		}
 	}
 
 	FAIL("load_text_module - shouldn't reach here.");
-	return false;
+	return IMPORT_RESULT_READ_FAILED;
 }
 
 static bool call_plane_function(ObjectFunction* function, Object* self, ValueArray args, Value* out);
@@ -743,37 +751,199 @@ CallResult vm_call_object(Object* object, ValueArray args, Value* out) {
 	}
 }
 
-#define LOAD_EXTENSION_SUCCESS 0
-#define LOAD_EXTENSION_OPEN_FAILURE 1
-#define LOAD_EXTENSION_NO_INIT_FUNCTION 2
+// #define LOAD_EXTENSION_SUCCESS 0
+// #define LOAD_EXTENSION_OPEN_FAILURE 1
+// #define LOAD_EXTENSION_NO_INIT_FUNCTION 2
 
-static int load_extension_module(ObjectString* module_name, char* path) {
+static ImportResult load_extension_module(ObjectString* module_name, char* path) {
 	HMODULE handle = LoadLibraryExA(path, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR);
 
 	if (handle == NULL) {
-		return LOAD_EXTENSION_OPEN_FAILURE;
+		// return LOAD_EXTENSION_OPEN_FAILURE;
+		return IMPORT_RESULT_OPEN_FAILED;
 	}
 
 	ExtensionInitFunction init_function = (ExtensionInitFunction) GetProcAddress(handle, "plane_module_init");
 
 	if (init_function == NULL) {
 		FreeLibrary(handle);
-		return LOAD_EXTENSION_NO_INIT_FUNCTION;
+		// return LOAD_EXTENSION_NO_INIT_FUNCTION;
+		return IMPORT_RESULT_EXTENSION_NO_INIT_FUNCTION;
 	}
 
 	ObjectModule* extension_module = object_module_native_new(module_name, handle);
 	init_function(API, extension_module);
 
-	cell_table_set_value_directly(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(extension_module));
+	cell_table_set_value(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(extension_module));
 
-	cell_table_set_value_directly(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(extension_module));
+	cell_table_set_value(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(extension_module));
 
 	// push(MAKE_VALUE_OBJECT(extension_module));
 	// push(MAKE_VALUE_NIL()); /* Temporary patch, see related notes above */
 
 	// cell_table_set_value_cstring_key(&vm.imported_modules, module_name->chars, MAKE_VALUE_OBJECT(extension_module));
 
-	return LOAD_EXTENSION_SUCCESS;
+	return IMPORT_RESULT_SUCCESS;
+}
+
+ImportResult vm_import_module(ObjectString* module_name) {
+	char* user_module_file_suffix = ".pln";
+	char* extension_module_file_suffix = ".dll";
+
+	char* main_module_dir = NULL;
+	char* user_module_file_name = NULL;
+	char* user_module_path = NULL;
+	char* user_extension_module_path = NULL;
+	char* stdlib_path = NULL;
+	char* stdlib_module_path = NULL;
+	char* user_extension_module_file_name = NULL;
+	char* extension_module_file_name = NULL;
+	char* stdlib_extension_path = NULL;
+
+	ImportResult import_result = IMPORT_RESULT_SUCCESS;
+
+	Value module_value;
+	bool module_already_imported = cell_table_get_value_cstring_key(&vm.imported_modules, module_name->chars, &module_value);
+	if (module_already_imported) {
+		if (!object_value_is(module_value, OBJECT_MODULE)) {
+			FAIL("Non ObjectModule found in global module cache.");
+		}
+		
+		cell_table_set_value(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), module_value);
+		cell_table_set_value(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), module_value);
+
+		return IMPORT_RESULT_SUCCESS;
+	}
+
+	main_module_dir = directory_from_path(vm.main_module_path);
+	user_module_file_name = concat_cstrings(
+		module_name->chars, module_name->length, user_module_file_suffix, strlen(user_module_file_suffix), "user module file name");
+	user_module_path = concat_null_terminated_paths(main_module_dir, user_module_file_name, "user module path");
+
+	if (io_file_exists(user_module_path)) {
+		import_result = load_text_module(module_name, user_module_path);
+		goto import_module_cleanup;
+	}
+
+	user_extension_module_file_name = concat_cstrings(
+		module_name->chars, module_name->length, 
+		extension_module_file_suffix, strlen(extension_module_file_suffix), "user extension module file name");
+	user_extension_module_path = concat_null_terminated_paths(
+		main_module_dir, user_extension_module_file_name, "user extension module path");
+
+	if (io_file_exists(user_extension_module_path)) {
+		import_result = load_extension_module(module_name, user_extension_module_path);
+		// if (result == LOAD_EXTENSION_OPEN_FAILURE) {
+		// 	DWORD error = GetLastError();
+		// 	RUNTIME_ERROR("Unable to open extension module %s. Error code: %ld", user_extension_module_file_name, error);
+		// 	goto op_import_cleanup;
+		// }
+		// if (result == LOAD_EXTENSION_NO_INIT_FUNCTION) {
+		// 	RUNTIME_ERROR("Unable to get plane_module_init function from extension module %s", user_extension_module_file_name);
+		// 	goto op_import_cleanup;
+		// }
+		goto import_module_cleanup;
+	}
+
+	Value builtin_module_value;
+	if (cell_table_get_value_cstring_key(&vm.builtin_modules, module_name->chars, &builtin_module_value)) {
+		ObjectModule* module = NULL;
+		if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
+			FAIL("Found non ObjectModule* in builtin modules table.");
+		}
+
+		cell_table_set_value(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
+		cell_table_set_value(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
+
+		goto import_module_cleanup;
+	}
+
+	stdlib_path = concat_null_terminated_paths(vm.interpreter_dir_path, VM_STDLIB_RELATIVE_PATH, "stdlib path");
+	stdlib_module_path = concat_null_terminated_paths(stdlib_path, user_module_file_name, "stdlib module path");
+
+	if (io_file_exists(stdlib_module_path)) {
+		import_result = load_text_module(module_name, stdlib_module_path);
+		// char* load_module_error = NULL;
+		// if (!load_text_module(module_name, stdlib_module_path, &load_module_error)) {
+		// 	RUNTIME_ERROR("%s", load_module_error);
+		// }
+		goto import_module_cleanup;
+	}
+
+	extension_module_file_name = concat_cstrings(
+		module_name->chars, module_name->length, extension_module_file_suffix, strlen(extension_module_file_suffix),
+		"extension module file name");
+	stdlib_extension_path = concat_null_terminated_paths(stdlib_path, extension_module_file_name, "stdlib extension path");
+
+	if (io_file_exists(stdlib_extension_path)) {
+		import_result = load_extension_module(module_name, stdlib_extension_path);
+		// int result = load_extension_module(module_name, stdlib_extension_path);
+		// if (result == LOAD_EXTENSION_OPEN_FAILURE) {
+		// 	DWORD error = GetLastError();
+		// 	RUNTIME_ERROR("Unable to open extension module %s. Error code: %ld", extension_module_file_name, error);
+		// 	goto op_import_cleanup;
+		// }
+		// if (result == LOAD_EXTENSION_NO_INIT_FUNCTION) {
+		// 	RUNTIME_ERROR("Unable to get plane_module_init function from extension module %s", extension_module_file_name);
+		// 	goto op_import_cleanup;
+		// }
+		goto import_module_cleanup;
+	}
+
+	// RUNTIME_ERROR("Couldn't find module %s", module_name->chars);
+	import_result = IMPORT_RESULT_MODULE_NOT_FOUND;
+
+	import_module_cleanup:
+	if (main_module_dir != NULL) {
+		deallocate(main_module_dir, strlen(main_module_dir) + 1, "directory path");
+	}
+	if (user_module_file_name != NULL) {
+		deallocate(user_module_file_name, strlen(user_module_file_name) + 1, "user module file name");
+	}
+	if (user_module_path != NULL) {
+		deallocate(user_module_path, strlen(user_module_path) + 1, "user module path");
+	}
+	if (user_extension_module_path != NULL) {
+		deallocate(user_extension_module_path, strlen(user_extension_module_path) + 1, "user extension module path");
+	}
+	if (stdlib_path != NULL) {
+		deallocate(stdlib_path, strlen(stdlib_path) + 1, "stdlib path");
+	}
+	if (stdlib_module_path != NULL) {
+		deallocate(stdlib_module_path, strlen(stdlib_module_path) + 1, "stdlib module path");
+	}
+	if (user_extension_module_file_name != NULL) {
+		deallocate(user_extension_module_file_name, strlen(user_extension_module_file_name) + 1, "user extension module file name");
+	}
+	if (extension_module_file_name != NULL) {
+		deallocate(extension_module_file_name, strlen(extension_module_file_name) + 1, "extension module file name");
+	}
+	if (stdlib_extension_path != NULL) {
+		deallocate(stdlib_extension_path, strlen(stdlib_extension_path) + 1, "stdlib extension path");
+	}
+
+	return import_result;
+}
+
+ImportResult vm_import_module_cstring(char* name) {
+	return vm_import_module(object_string_copy_from_null_terminated(name));
+}
+
+ObjectModule* vm_get_module(ObjectString* name) {
+	Value module_value;
+	if (cell_table_get_value(&vm.imported_modules, name, &module_value)) {
+		if (!object_value_is(module_value, OBJECT_MODULE)) {
+			FAIL("In vm_get_module, found non ObjectModule in vm.imported_modules.");
+		}
+
+		return (ObjectModule*) module_value.as.object;
+	}
+
+	return NULL;
+}
+
+ObjectModule* vm_get_module_cstring(char* name) {
+	return vm_get_module(object_string_copy_from_null_terminated(name));
 }
 
 static CellTable find_free_vars_for_new_function(ObjectCode* func_code) {
@@ -1491,145 +1661,178 @@ static bool vm_interpret_frame(StackFrame* frame) {
             }
 
 			case OP_IMPORT: {
-				/* TODO: Precise automated tests for import resolution order. It's one thing which isn't totally
-				tested because of lack of functionality in the test runner right now */
-
 				ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
+				ImportResult import_result = vm_import_module(module_name);
 
-				char* user_module_file_suffix = ".pln";
-				char* extension_module_file_suffix = ".dll";
-
-				char* main_module_dir = NULL;
-				char* user_module_file_name = NULL;
-				char* user_module_path = NULL;
-				char* user_extension_module_path = NULL;
-				char* stdlib_path = NULL;
-				char* stdlib_module_path = NULL;
-				char* user_extension_module_file_name = NULL;
-				char* extension_module_file_name = NULL;
-				char* stdlib_extension_path = NULL;
-
-				Value module_value;
-            	bool module_already_imported = cell_table_get_value_cstring_key(&vm.imported_modules, module_name->chars, &module_value);
-            	if (module_already_imported) {
-					if (!object_value_is(module_value, OBJECT_MODULE)) {
-						FAIL("Non ObjectModule found in global module cache.");
+				switch (import_result) {
+					case IMPORT_RESULT_SUCCESS: {
+						break;
 					}
-					
-					cell_table_set_value_directly(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), module_value);
-					cell_table_set_value_directly(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), module_value);
-            		break;
-            	}
-
-				main_module_dir = directory_from_path(vm.main_module_path);
-				user_module_file_name = concat_cstrings(
-					module_name->chars, module_name->length, user_module_file_suffix, strlen(user_module_file_suffix), "user module file name");
-				user_module_path = concat_null_terminated_paths(main_module_dir, user_module_file_name, "user module path");
-
-				if (io_file_exists(user_module_path)) {
-					char* load_module_error = NULL;
-					if (!load_text_module(module_name, user_module_path, &load_module_error)) {
-						RUNTIME_ERROR("%s", load_module_error);
+					case IMPORT_RESULT_OPEN_FAILED: {
+						RUNTIME_ERROR("Couldn't open module %.*s.", module_name->length, module_name->chars);
+						break;
 					}
-					goto op_import_cleanup;
-				}
-
-				user_extension_module_file_name = concat_cstrings(
-					module_name->chars, module_name->length, 
-					extension_module_file_suffix, strlen(extension_module_file_suffix), "user extension module file name");
-				user_extension_module_path = concat_null_terminated_paths(
-					main_module_dir, user_extension_module_file_name, "user extension module path");
-
-				if (io_file_exists(user_extension_module_path)) {
-					int result = load_extension_module(module_name, user_extension_module_path);
-					if (result == LOAD_EXTENSION_OPEN_FAILURE) {
-						DWORD error = GetLastError();
-						RUNTIME_ERROR("Unable to open extension module %s. Error code: %ld", user_extension_module_file_name, error);
-						goto op_import_cleanup;
+					case IMPORT_RESULT_READ_FAILED: {
+						RUNTIME_ERROR("Couldn't read module %.*s.", module_name->length, module_name->chars);
+						break;
 					}
-					if (result == LOAD_EXTENSION_NO_INIT_FUNCTION) {
-						RUNTIME_ERROR("Unable to get plane_module_init function from extension module %s", user_extension_module_file_name);
-						goto op_import_cleanup;
+					case IMPORT_RESULT_CLOSE_FAILED: {
+						RUNTIME_ERROR("Couldn't close module %.*s.", module_name->length, module_name->chars);
+						break;
 					}
-					goto op_import_cleanup;
-				}
-
-				Value builtin_module_value;
-				if (cell_table_get_value_cstring_key(&vm.builtin_modules, module_name->chars, &builtin_module_value)) {
-					ObjectModule* module = NULL;
-					if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
-						FAIL("Found non ObjectModule* in builtin modules table.");
+					case IMPORT_RESULT_EXTENSION_NO_INIT_FUNCTION: {
+						RUNTIME_ERROR("Extension module %.*s doesn't export an init function.", module_name->length, module_name->chars);
+						break;
 					}
-
-					cell_table_set_value_directly(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
-					cell_table_set_value_directly(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
-
-					goto op_import_cleanup;
-				}
-
-				stdlib_path = concat_null_terminated_paths(vm.interpreter_dir_path, VM_STDLIB_RELATIVE_PATH, "stdlib path");
-				stdlib_module_path = concat_null_terminated_paths(stdlib_path, user_module_file_name, "stdlib module path");
-
-				if (io_file_exists(stdlib_module_path)) {
-					char* load_module_error = NULL;
-					if (!load_text_module(module_name, stdlib_module_path, &load_module_error)) {
-						RUNTIME_ERROR("%s", load_module_error);
+					case IMPORT_RESULT_MODULE_NOT_FOUND: {
+						RUNTIME_ERROR("Couldn't find module %.*s.", module_name->length, module_name->chars);
+						break;
 					}
-					goto op_import_cleanup;
 				}
-
-				extension_module_file_name = concat_cstrings(
-					module_name->chars, module_name->length, extension_module_file_suffix, strlen(extension_module_file_suffix),
-					"extension module file name");
-				stdlib_extension_path = concat_null_terminated_paths(stdlib_path, extension_module_file_name, "stdlib extension path");
-
-				if (io_file_exists(stdlib_extension_path)) {
-					int result = load_extension_module(module_name, stdlib_extension_path);
-					if (result == LOAD_EXTENSION_OPEN_FAILURE) {
-						DWORD error = GetLastError();
-						RUNTIME_ERROR("Unable to open extension module %s. Error code: %ld", extension_module_file_name, error);
-						goto op_import_cleanup;
-					}
-					if (result == LOAD_EXTENSION_NO_INIT_FUNCTION) {
-						RUNTIME_ERROR("Unable to get plane_module_init function from extension module %s", extension_module_file_name);
-						goto op_import_cleanup;
-					}
-					goto op_import_cleanup;
-				}
-
-				RUNTIME_ERROR("Couldn't find module %s", module_name->chars);
-
-				op_import_cleanup:
-				if (main_module_dir != NULL) {
-					deallocate(main_module_dir, strlen(main_module_dir) + 1, "directory path");
-				}
-				if (user_module_file_name != NULL) {
-					deallocate(user_module_file_name, strlen(user_module_file_name) + 1, "user module file name");
-				}
-				if (user_module_path != NULL) {
-					deallocate(user_module_path, strlen(user_module_path) + 1, "user module path");
-				}
-				if (user_extension_module_path != NULL) {
-					deallocate(user_extension_module_path, strlen(user_extension_module_path) + 1, "user extension module path");
-				}
-				if (stdlib_path != NULL) {
-					deallocate(stdlib_path, strlen(stdlib_path) + 1, "stdlib path");
-				}
-				if (stdlib_module_path != NULL) {
-					deallocate(stdlib_module_path, strlen(stdlib_module_path) + 1, "stdlib module path");
-				}
-				if (user_extension_module_file_name != NULL) {
-					deallocate(user_extension_module_file_name, strlen(user_extension_module_file_name) + 1, "user extension module file name");
-				}
-				if (extension_module_file_name != NULL) {
-					deallocate(extension_module_file_name, strlen(extension_module_file_name) + 1, "extension module file name");
-				}
-				if (stdlib_extension_path != NULL) {
-					deallocate(stdlib_extension_path, strlen(stdlib_extension_path) + 1, "stdlib extension path");
-				}
-
+				
 				break;
 			}
+
+		// 	case OP_IMPORT: {
+		// 		/* TODO: Precise automated tests for import resolution order. It's one thing which isn't totally
+		// 		tested because of lack of functionality in the test runner right now */
+
+		// 		ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
+
+		// 		char* user_module_file_suffix = ".pln";
+		// 		char* extension_module_file_suffix = ".dll";
+
+		// 		char* main_module_dir = NULL;
+		// 		char* user_module_file_name = NULL;
+		// 		char* user_module_path = NULL;
+		// 		char* user_extension_module_path = NULL;
+		// 		char* stdlib_path = NULL;
+		// 		char* stdlib_module_path = NULL;
+		// 		char* user_extension_module_file_name = NULL;
+		// 		char* extension_module_file_name = NULL;
+		// 		char* stdlib_extension_path = NULL;
+
+		// 		Value module_value;
+        //     	bool module_already_imported = cell_table_get_value_cstring_key(&vm.imported_modules, module_name->chars, &module_value);
+        //     	if (module_already_imported) {
+		// 			if (!object_value_is(module_value, OBJECT_MODULE)) {
+		// 				FAIL("Non ObjectModule found in global module cache.");
+		// 			}
+					
+		// 			cell_table_set_value_directly(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), module_value);
+		// 			cell_table_set_value_directly(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), module_value);
+        //     		break;
+        //     	}
+
+		// 		main_module_dir = directory_from_path(vm.main_module_path);
+		// 		user_module_file_name = concat_cstrings(
+		// 			module_name->chars, module_name->length, user_module_file_suffix, strlen(user_module_file_suffix), "user module file name");
+		// 		user_module_path = concat_null_terminated_paths(main_module_dir, user_module_file_name, "user module path");
+
+		// 		if (io_file_exists(user_module_path)) {
+		// 			char* load_module_error = NULL;
+		// 			if (!load_text_module(module_name, user_module_path, &load_module_error)) {
+		// 				RUNTIME_ERROR("%s", load_module_error);
+		// 			}
+		// 			goto op_import_cleanup;
+		// 		}
+
+		// 		user_extension_module_file_name = concat_cstrings(
+		// 			module_name->chars, module_name->length, 
+		// 			extension_module_file_suffix, strlen(extension_module_file_suffix), "user extension module file name");
+		// 		user_extension_module_path = concat_null_terminated_paths(
+		// 			main_module_dir, user_extension_module_file_name, "user extension module path");
+
+		// 		if (io_file_exists(user_extension_module_path)) {
+		// 			int result = load_extension_module(module_name, user_extension_module_path);
+		// 			if (result == LOAD_EXTENSION_OPEN_FAILURE) {
+		// 				DWORD error = GetLastError();
+		// 				RUNTIME_ERROR("Unable to open extension module %s. Error code: %ld", user_extension_module_file_name, error);
+		// 				goto op_import_cleanup;
+		// 			}
+		// 			if (result == LOAD_EXTENSION_NO_INIT_FUNCTION) {
+		// 				RUNTIME_ERROR("Unable to get plane_module_init function from extension module %s", user_extension_module_file_name);
+		// 				goto op_import_cleanup;
+		// 			}
+		// 			goto op_import_cleanup;
+		// 		}
+
+		// 		Value builtin_module_value;
+		// 		if (cell_table_get_value_cstring_key(&vm.builtin_modules, module_name->chars, &builtin_module_value)) {
+		// 			ObjectModule* module = NULL;
+		// 			if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
+		// 				FAIL("Found non ObjectModule* in builtin modules table.");
+		// 			}
+
+		// 			cell_table_set_value_directly(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
+		// 			cell_table_set_value_directly(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
+
+		// 			goto op_import_cleanup;
+		// 		}
+
+		// 		stdlib_path = concat_null_terminated_paths(vm.interpreter_dir_path, VM_STDLIB_RELATIVE_PATH, "stdlib path");
+		// 		stdlib_module_path = concat_null_terminated_paths(stdlib_path, user_module_file_name, "stdlib module path");
+
+		// 		if (io_file_exists(stdlib_module_path)) {
+		// 			char* load_module_error = NULL;
+		// 			if (!load_text_module(module_name, stdlib_module_path, &load_module_error)) {
+		// 				RUNTIME_ERROR("%s", load_module_error);
+		// 			}
+		// 			goto op_import_cleanup;
+		// 		}
+
+		// 		extension_module_file_name = concat_cstrings(
+		// 			module_name->chars, module_name->length, extension_module_file_suffix, strlen(extension_module_file_suffix),
+		// 			"extension module file name");
+		// 		stdlib_extension_path = concat_null_terminated_paths(stdlib_path, extension_module_file_name, "stdlib extension path");
+
+		// 		if (io_file_exists(stdlib_extension_path)) {
+		// 			int result = load_extension_module(module_name, stdlib_extension_path);
+		// 			if (result == LOAD_EXTENSION_OPEN_FAILURE) {
+		// 				DWORD error = GetLastError();
+		// 				RUNTIME_ERROR("Unable to open extension module %s. Error code: %ld", extension_module_file_name, error);
+		// 				goto op_import_cleanup;
+		// 			}
+		// 			if (result == LOAD_EXTENSION_NO_INIT_FUNCTION) {
+		// 				RUNTIME_ERROR("Unable to get plane_module_init function from extension module %s", extension_module_file_name);
+		// 				goto op_import_cleanup;
+		// 			}
+		// 			goto op_import_cleanup;
+		// 		}
+
+		// 		RUNTIME_ERROR("Couldn't find module %s", module_name->chars);
+
+		// 		op_import_cleanup:
+		// 		if (main_module_dir != NULL) {
+		// 			deallocate(main_module_dir, strlen(main_module_dir) + 1, "directory path");
+		// 		}
+		// 		if (user_module_file_name != NULL) {
+		// 			deallocate(user_module_file_name, strlen(user_module_file_name) + 1, "user module file name");
+		// 		}
+		// 		if (user_module_path != NULL) {
+		// 			deallocate(user_module_path, strlen(user_module_path) + 1, "user module path");
+		// 		}
+		// 		if (user_extension_module_path != NULL) {
+		// 			deallocate(user_extension_module_path, strlen(user_extension_module_path) + 1, "user extension module path");
+		// 		}
+		// 		if (stdlib_path != NULL) {
+		// 			deallocate(stdlib_path, strlen(stdlib_path) + 1, "stdlib path");
+		// 		}
+		// 		if (stdlib_module_path != NULL) {
+		// 			deallocate(stdlib_module_path, strlen(stdlib_module_path) + 1, "stdlib module path");
+		// 		}
+		// 		if (user_extension_module_file_name != NULL) {
+		// 			deallocate(user_extension_module_file_name, strlen(user_extension_module_file_name) + 1, "user extension module file name");
+		// 		}
+		// 		if (extension_module_file_name != NULL) {
+		// 			deallocate(extension_module_file_name, strlen(extension_module_file_name) + 1, "extension module file name");
+		// 		}
+		// 		if (stdlib_extension_path != NULL) {
+		// 			deallocate(stdlib_extension_path, strlen(stdlib_extension_path) + 1, "stdlib extension path");
+		// 		}
+
+		// 		break;
+		// 	}
 
             default: {
             	FAIL("Unknown opcode: %d. At ip: %p", opcode, current_thread()->ip - 1);
@@ -1668,7 +1871,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
 		StackFrame finished_frame = pop_frame();
 		stack_frame_free(&finished_frame);
 	}
-	
+
     DEBUG_TRACE("\n--------------------------\n");
 	DEBUG_TRACE("Ended interpreter loop.");
 

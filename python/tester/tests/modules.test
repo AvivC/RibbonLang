@@ -95,7 +95,7 @@ test unfound module raises error
 expect
     An error has occured. Stack trace (most recent call on top):
         -> <Anonymous function>
-    Runtime error: Couldn't find module the_pretty_horse_module
+    Runtime error: Couldn't find module the_pretty_horse_module.
 end
 
 test load stdlib extension module

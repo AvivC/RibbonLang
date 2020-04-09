@@ -5,6 +5,7 @@
 
 /* TODO: Need to include all these? Review */
 #include "common.h"
+#include "vm.h"
 #include "memory.h"
 #include "plane_object.h"
 #include "value.h"
@@ -41,9 +42,19 @@ typedef struct {
     bool (*table_get_cstring_key) (Table* table, const char* key, Value* out);
     ObjectTable* (*object_table_new_empty) (void);
 
+    bool (*object_load_attribute) (Object* object, ObjectString* name, Value* out);
+    bool (*object_load_attribute_cstring_key) (Object* object, const char* name, Value* out);
+
     void (*value_array_init) (ValueArray*);
     void (*value_array_write) (ValueArray*, Value*);
     void (*value_array_free) (ValueArray*);
+
+    CallResult (*vm_call_object) (Object* object, ValueArray args, Value* out);
+
+    ImportResult (*vm_import_module) (ObjectString* module_name);
+    ImportResult (*vm_import_module_cstring) (char* module_name);
+    ObjectModule* (*vm_get_module) (ObjectString* name);
+    ObjectModule* (*vm_get_module_cstring) (char* name);
 } PlaneApi;
 
 extern PlaneApi API;

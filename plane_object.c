@@ -214,13 +214,13 @@ static ObjectString* object_string_new(char* chars, int length) {
 
 	ObjectString* add_attr_key = object_string_new_partial("@add", strlen("@add"));
 	// cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(add_attr_key), MAKE_VALUE_OBJECT(string_add_method));
-	cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(add_attr_key), MAKE_VALUE_OBJECT(string_add_bound_method));
+	cell_table_set_value(&string->base.attributes, MAKE_VALUE_OBJECT(add_attr_key), MAKE_VALUE_OBJECT(string_add_bound_method));
 
 	ObjectString* get_key_attr_key = object_string_new_partial("@get_key", strlen("@get_key"));
-	cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(get_key_attr_key), MAKE_VALUE_OBJECT(string_get_key_bound_method));
+	cell_table_set_value(&string->base.attributes, MAKE_VALUE_OBJECT(get_key_attr_key), MAKE_VALUE_OBJECT(string_get_key_bound_method));
 
 	ObjectString* length_attr_key = object_string_new_partial("length", strlen("length"));
-	cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(length_attr_key), MAKE_VALUE_OBJECT(string_length_bound_method));
+	cell_table_set_value(&string->base.attributes, MAKE_VALUE_OBJECT(length_attr_key), MAKE_VALUE_OBJECT(string_length_bound_method));
 
     return string;
 }
