@@ -89,64 +89,6 @@ static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
 	return new_stack_frame(NULL, base_function, (Object*) module, true, false, false);
 }
 
-static InterpretResult call_function_directly_custom_frame(
-		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity, Value* out) {
-	ObjectThread* thread = current_thread();
-	bool is_entity_base = base_entity != NULL;
-	StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false, false);
-
-	if (args.count != function->num_params) {
-		FAIL("User function called with unmatching params number."); /* TODO: Legit error? */
-	}
-
-	for (int i = 0; i < function->num_params; i++) {
-		const char* param_name = function->parameters[i];
-		Value argument = args.values[i];
-		cell_table_set_value_cstring_key(&frame.local_variables, param_name, argument);
-	}
-
-	if (self != NULL) {
-		cell_table_set_value_cstring_key(&frame.local_variables, "self", MAKE_VALUE_OBJECT(self));
-	}
-
-	InterpretResult func_exec_result = vm_interpret_frame(&frame);
-	
-	if (func_exec_result == INTERPRET_SUCCESS) {
-		Value return_value = pop();
-		*out = return_value;
-	}
-	
-	return func_exec_result;
-}
-
-InterpretResult vm_call_function_directly(ObjectFunction* function, Object* self, ValueArray args, Value* out) {
-	return call_function_directly_custom_frame(function, self, args, NULL, out);
-}
-
-// InterpretResult vm_call_function_directly(ObjectFunction* function, ValueArray args, Value* out) {
-// 	ObjectThread* thread = current_thread();
-// 	StackFrame frame = new_stack_frame(thread->ip, function, NULL, false, false, false);
-
-// 	if (args.count != function->num_params) {
-// 		FAIL("User function called with unmatching params number."); /* TODO: Legit error? */
-// 	}
-
-// 	for (int i = 0; i < function->num_params; i++) {
-// 		const char* param_name = function->parameters[i];
-// 		Value argument = args.values[i];
-// 		cell_table_set_value_cstring_key(&frame.local_variables, param_name, argument);
-// 	}
-
-// 	InterpretResult func_exec_result = vm_interpret_frame(&frame);
-	
-// 	if (func_exec_result == INTERPRET_SUCCESS) {
-// 		Value return_value = pop();
-// 		*out = return_value;
-// 	}
-	
-// 	return func_exec_result;
-// }
-
 /* Add a thread to the vm list of threads */
 static void add_thread(ObjectThread* thread) {
 	thread->previous_thread = NULL;
@@ -457,6 +399,16 @@ void gc(void) {
 	#endif
 }
 
+static ValueArray collect_values(int count) {
+	ValueArray values;
+	value_array_init(&values);
+	for (int i = 0; i < count; i++) {
+		Value value = pop();
+		value_array_write(&values, &value);
+	}
+	return values;
+}
+
 static void register_builtin_function(char* name, int num_params, char** params, NativeFunction function) {
 	ObjectFunction* obj_function = make_native_function_with_params(name, num_params, params, function);
 	cell_table_set_value_cstring_key(&vm.globals, name, MAKE_VALUE_OBJECT(obj_function));
@@ -506,7 +458,7 @@ static void call_user_function(ObjectFunction* function, Object* self) {
 	call_user_function_custom_frame(function, self, NULL, false);
 }
 
-static bool call_native_function_directly(ObjectFunction* function, Object* self, ValueArray arguments, Value* out) {
+static bool call_native_function(ObjectFunction* function, Object* self, ValueArray arguments, Value* out) {
 	/* Push a native frame to keep the call stack in order.
 	Specifically, for the use case where a native function calls a user function.
 	Without this "native frame", OP_RETURN in the user function will make control jump
@@ -535,16 +487,11 @@ static bool call_native_function_directly(ObjectFunction* function, Object* self
 	return func_success;
 }
 
-static bool call_native_function(ObjectFunction* function, Object* self) {
-	ValueArray arguments;
-	value_array_init(&arguments);
-	for (int i = 0; i < function->num_params; i++) {
-		Value value = pop();
-		value_array_write(&arguments, &value);
-	}
+static bool call_native_function_args_from_stack(ObjectFunction* function, Object* self) {
+	ValueArray arguments = collect_values(function->num_params);
 
 	Value result;
-	bool success = call_native_function_directly(function, self, arguments, &result);
+	bool success = call_native_function(function, self, arguments, &result);
 	value_array_free(&arguments);
 	push(result);
 
@@ -552,7 +499,7 @@ static bool call_native_function(ObjectFunction* function, Object* self) {
 }
 
 static bool call_native_function_discard_return_value(ObjectFunction* function, Object* self) {
-	bool result = call_native_function(function, self);
+	bool result = call_native_function_args_from_stack(function, self);
 	pop();
 	return result;
 }
@@ -643,6 +590,9 @@ static void print_all_threads(void) {
 	}
 }
 
+static bool call_plane_function_custom_frame(
+		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity, Value* out);
+
 static bool load_text_module(ObjectString* module_name, const char* file_name_buffer, char** error_out) {
 	char* source = NULL;
 	size_t source_buffer_size = -1;
@@ -681,7 +631,7 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 			ValueArray args;
 			value_array_init(&args);
 			Value throwaway_result;
-			call_function_directly_custom_frame(module_base_function, NULL, args, (Object*) module, &throwaway_result);
+			call_plane_function_custom_frame(module_base_function, NULL, args, (Object*) module, &throwaway_result);
 			value_array_free(&args);
 
 			// cell_table_set_value_cstring_key(locals_or_module_table(), name->chars, value);
@@ -711,49 +661,53 @@ static bool load_text_module(ObjectString* module_name, const char* file_name_bu
 	return false;
 }
 
-static CallResult call_function_directly(ObjectFunction* function, ValueArray args, Value* out) {
-	if (function->is_native) {
-		Value result;
-		if (!call_native_function_directly(function, NULL, args, &result)) {
-			return CALL_RESULT_NATIVE_EXECUTION_FAILED;
-		}
-		*out = result;
-		return CALL_RESULT_SUCCESS;
-	} else {
-		Value result;
-		if (vm_call_function_directly(function, NULL, args, &result) == INTERPRET_SUCCESS) {
-			*out = result;
-			return CALL_RESULT_SUCCESS;
-		}
-		return CALL_RESULT_CODE_EXECUTION_FAILED;
+static bool call_plane_function(ObjectFunction* function, Object* self, ValueArray args, Value* out);
+
+static CallResult call_function(ObjectFunction* function, ValueArray args, Value* out) {
+	if (args.count != function->num_params) {
+		return CALL_RESULT_INVALID_ARGUMENT_COUNT;
 	}
-}
 
-static CallResult call_bound_method_directly(ObjectBoundMethod* bound_method, ValueArray args, Value* out) {
-	ObjectFunction* method = bound_method->method;
-
-	if (method->is_native) {
-		if (call_native_function_directly(method, bound_method->self, args, out)) {
+	if (function->is_native) {
+		if (call_native_function(function, NULL, args, out)) {
 			return CALL_RESULT_SUCCESS;
 		}
 		return CALL_RESULT_NATIVE_EXECUTION_FAILED;
-	} else {
-		if (vm_call_function_directly(method, bound_method->self, args, out) == INTERPRET_SUCCESS) {
-			return CALL_RESULT_SUCCESS;
-		}
-		return CALL_RESULT_CODE_EXECUTION_FAILED;
 	}
+
+	if (call_plane_function(function, NULL, args, out)) {
+		return CALL_RESULT_SUCCESS;
+	}
+	return CALL_RESULT_PLANE_CODE_EXECUTION_FAILED;
 }
 
-static CallResult call_class_directly(ObjectClass* klass, ValueArray args, Value* out) {
+static CallResult call_bound_method(ObjectBoundMethod* bound_method, ValueArray args, Value* out) {
+	ObjectFunction* method = bound_method->method;
+
+	if (method->num_params != args.count) {
+		return CALL_RESULT_INVALID_ARGUMENT_COUNT;
+	}
+
+	if (method->is_native) {
+		if (call_native_function(method, bound_method->self, args, out)) {
+			return CALL_RESULT_SUCCESS;
+		}
+		return CALL_RESULT_NATIVE_EXECUTION_FAILED;
+	}
+
+	if (call_plane_function(method, bound_method->self, args, out)) {
+		return CALL_RESULT_SUCCESS;
+	}
+	return CALL_RESULT_PLANE_CODE_EXECUTION_FAILED;
+}
+
+static CallResult call_class(ObjectClass* klass, ValueArray args, Value* out) {
 	ObjectInstance* instance = object_instance_new(klass);
 
 	Value init_method_value;
 	if (object_load_attribute_cstring_key((Object*) instance, "@init", &init_method_value)) {
 		ObjectBoundMethod* init_bound_method = NULL;
 		if ((init_bound_method = VALUE_AS_OBJECT(init_method_value, OBJECT_BOUND_METHOD, ObjectBoundMethod)) == NULL) {
-			// RUNTIME_ERROR("@init attribute of class is not a method.");
-			// break;
 			return CALL_RESULT_CLASS_INIT_NOT_METHOD;
 		}
 
@@ -762,86 +716,31 @@ static CallResult call_class_directly(ObjectClass* klass, ValueArray args, Value
 			FAIL("When instantiating class, bound method's self and subject instance are different.");
 		}
 
-		ObjectFunction* init_method = init_bound_method->method;
-
-		if (args.count != init_method->num_params) {
-			// RUNTIME_ERROR("@init called with %d arguments, needs %d.", arg_count, init_method->num_params);
-			// break;
-			return CALL_RESULT_INVALID_ARGUMENT_COUNT;
-		}
-		
-		if (init_method->is_native) {
-			// if (!call_native_function(init_method, self)) {
-			// if (!call_native_function_discard_return_value(init_method, self)) {
-			Value result; /* We discard this */
-			if (!call_native_function_directly(init_method, self, args, &result)) {
-				// RUNTIME_ERROR("Native @init method failed.");
-				// break;
-				return CALL_RESULT_NATIVE_EXECUTION_FAILED;
-			}
-		} else {
-			// call_user_function_custom_frame(init_method, self, NULL, true);
-			Value result; /* We discard this */
-			if (vm_call_function_directly(init_method, self, args, &result) != INTERPRET_SUCCESS) {
-				return CALL_RESULT_CODE_EXECUTION_FAILED;
-			}
+		Value throwaway;
+		CallResult call_result = call_bound_method(init_bound_method, args, &throwaway);
+		if (call_result != CALL_RESULT_SUCCESS) {
+			return call_result;
 		}
 	} else if (args.count != 0) {
-		// RUNTIME_ERROR("@init function of class %.*s doesn't take parameters.", klass->name_length, klass->name);
-		// break;
 		return CALL_RESULT_INVALID_ARGUMENT_COUNT;
 	}
 
 	instance->is_initialized = true;
-	// push(MAKE_VALUE_OBJECT(instance));
 	*out = MAKE_VALUE_OBJECT(instance);
 	return CALL_RESULT_SUCCESS;
 }
 
-CallResult vm_invoke_callable(Value callee, ValueArray args, Value* out) {
-	if (callee.type != VALUE_OBJECT) {
-		return CALL_RESULT_INVALID_CALLABLE;
+CallResult vm_call_object(Object* object, ValueArray args, Value* out) {
+	switch (object->type) {
+		case OBJECT_FUNCTION:
+			return call_function((ObjectFunction*) object, args, out);
+		case OBJECT_BOUND_METHOD:
+			return call_bound_method((ObjectBoundMethod*) object, args, out);
+		case OBJECT_CLASS:
+			return call_class((ObjectClass*) object, args, out);
+		default:
+			return CALL_RESULT_INVALID_CALLABLE;	
 	}
-
-	Object* object = callee.as.object;
-
-	if (object->type == OBJECT_FUNCTION) {
-		ObjectFunction* function = (ObjectFunction*) object;
-
-		if (args.count != function->num_params) {
-			return CALL_RESULT_INVALID_ARGUMENT_COUNT;
-		}
-
-		return call_function_directly(function, args, out);
-	}
-
-	else if (object->type == OBJECT_BOUND_METHOD) {
-		ObjectBoundMethod* bound_method = (ObjectBoundMethod*) object;
-		ObjectFunction* method = bound_method->method;
-
-		if (args.count != method->num_params) {
-			return CALL_RESULT_INVALID_ARGUMENT_COUNT;
-		}
-		
-		return call_bound_method_directly(bound_method, args, out);
-	}
-
-	else if (object->type == OBJECT_CLASS) {
-		ObjectClass* klass = (ObjectClass*) object;
-		return call_class_directly(klass, args, out);
-	}
-
-	return CALL_RESULT_INVALID_CALLABLE;
-}
-
-static ValueArray collect_values(int count) {
-	ValueArray values;
-	value_array_init(&values);
-	for (int i = 0; i < count; i++) {
-		Value value = pop();
-		value_array_write(&values, &value);
-	}
-	return values;
 }
 
 #define LOAD_EXTENSION_SUCCESS 0
@@ -939,8 +838,7 @@ static CellTable find_free_vars_for_new_function(ObjectCode* func_code) {
 	return free_vars;
 }
 
-/* TODO: Leave public or make private? */
-InterpretResult vm_interpret_frame(StackFrame* frame) {
+static bool vm_interpret_frame(StackFrame* frame) {
 	#define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
         Value a = pop(); \
@@ -1096,7 +994,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 					}
 
 					if (add_bound_method->method->is_native) {
-						if (!call_native_function(add_bound_method->method, add_bound_method->self)) {
+						if (!call_native_function_args_from_stack(add_bound_method->method, add_bound_method->self)) {
 							RUNTIME_ERROR("@add function failed.");
 							break;
 						}
@@ -1272,7 +1170,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 				ValueArray args;
 				value_array_init(&args);
 				Value throwaway_result;
-				call_function_directly_custom_frame(class_base_function, NULL, args, (Object*) class, &throwaway_result);
+				call_plane_function_custom_frame(class_base_function, NULL, args, (Object*) class, &throwaway_result);
 				value_array_free(&args);
 
 				push(MAKE_VALUE_OBJECT(class));
@@ -1390,11 +1288,18 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             
 			case OP_CALL: {
 				int arg_count = READ_BYTE();
-				Value callee = pop();
+				Value callee_value = pop();
+
+				if (callee_value.type != VALUE_OBJECT) {
+					RUNTIME_ERROR("Cannot call non callable.");
+					break;
+				}
+
+				Object* callee = callee_value.as.object;
 
 				ValueArray args = collect_values(arg_count);
 				Value return_value;
-				CallResult call_result = vm_invoke_callable(callee, args, &return_value);
+				CallResult call_result = vm_call_object(callee, args, &return_value);
 				value_array_free(&args);
 
 				switch (call_result) {
@@ -1410,7 +1315,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 						RUNTIME_ERROR("Native function failed.");
 						break;
 					}
-					case CALL_RESULT_CODE_EXECUTION_FAILED: {
+					case CALL_RESULT_PLANE_CODE_EXECUTION_FAILED: {
 						RUNTIME_ERROR("Function failed.");
 						break;
 					}
@@ -1426,101 +1331,6 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 
 				break;
 			}
-
-            // case OP_CALL: {
-            // 	int arg_count = READ_BYTE();
-
-			// 	if (peek().type != VALUE_OBJECT) {
-			// 		RUNTIME_ERROR("Cannot call non-object.");
-			// 		break;
-			// 	}
-
-			// 	if (peek().as.object->type == OBJECT_FUNCTION) {
-			// 		ObjectFunction* function = OBJECT_AS_FUNCTION(pop().as.object);
-
-			// 		if (arg_count != function->num_params) {
-			// 			RUNTIME_ERROR("Function called with %d arguments, needs %d.", arg_count, function->num_params);
-			// 			break;
-			// 		}
-
-			// 		if (function->is_native) {
-			// 			if (!call_native_function(function, NULL)) {
-			// 				RUNTIME_ERROR("Native function failed.");
-			// 				break;
-			// 			}
-			// 		} else {
-			// 			call_user_function(function, NULL);
-			// 		}
-			// 	}
-
-			// 	else if (peek().as.object->type == OBJECT_BOUND_METHOD) {
-			// 		ObjectBoundMethod* bound_method = (ObjectBoundMethod*) pop().as.object;
-			// 		ObjectFunction* method = bound_method->method;
-
-			// 		if (arg_count != method->num_params) {
-			// 			RUNTIME_ERROR("Function called with %d arguments, needs %d.", arg_count, method->num_params);
-			// 			break;
-			// 		}
-					
-			// 		if (method->is_native) {
-			// 			if (!call_native_function(method, (Object*) bound_method->self)) {
-			// 				RUNTIME_ERROR("Native function failed.");
-			// 				break;
-			// 			}
-			// 		} else {
-			// 			call_user_function(method, bound_method->self);
-			// 		}
-			// 	}
-
-			// 	else if (peek().as.object->type == OBJECT_CLASS) {
-			// 		ObjectClass* klass = (ObjectClass*) pop().as.object;
-			// 		ObjectInstance* instance = object_instance_new(klass);
-
-			// 		Value init_method_value;
-			// 		if (object_load_attribute_cstring_key((Object*) instance, "@init", &init_method_value)) {
-			// 			ObjectBoundMethod* init_bound_method = NULL;
-			// 			if ((init_bound_method = VALUE_AS_OBJECT(init_method_value, OBJECT_BOUND_METHOD, ObjectBoundMethod)) == NULL) {
-			// 				RUNTIME_ERROR("@init attribute of class is not a method.");
-			// 				break;
-			// 			}
-
-			// 			Object* self = init_bound_method->self;
-			// 			if (self != (Object*) instance) {
-			// 				FAIL("When instantiating class, bound method's self and subject instance are different.");
-			// 			}
-
-			// 			ObjectFunction* init_method = init_bound_method->method;
-
-			// 			if (arg_count != init_method->num_params) {
-			// 				RUNTIME_ERROR("@init called with %d arguments, needs %d.", arg_count, init_method->num_params);
-			// 				break;
-			// 			}
-						
-			// 			if (init_method->is_native) {
-			// 				// if (!call_native_function(init_method, self)) {
-			// 				if (!call_native_function_discard_return_value(init_method, self)) {
-			// 					RUNTIME_ERROR("Native @init method failed.");
-			// 					break;
-			// 				}
-			// 			} else {
-			// 				call_user_function_custom_frame(init_method, self, NULL, true);
-			// 			}
-			// 		} else if (arg_count != 0) {
-			// 			RUNTIME_ERROR("@init function of class %.*s doesn't take parameters.", klass->name_length, klass->name);
-			// 			break;
-			// 		}
-
-			// 		instance->is_initialized = true;
-			// 		push(MAKE_VALUE_OBJECT(instance));
-			// 	}
-
-			// 	else {
-			// 		RUNTIME_ERROR("Cannot call non function or class.");
-			// 		break;
-			// 	}
-
-            //     break;
-            // }
 
             case OP_GET_ATTRIBUTE: {
                 int constant_index = READ_BYTE();
@@ -1593,7 +1403,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 
 				Value result;
 				if (bound_method->method->is_native) {
-					if (!call_native_function(bound_method->method, self)) {
+					if (!call_native_function_args_from_stack(bound_method->method, self)) {
 						RUNTIME_ERROR("@get_key function failed.");
 						break;
 					}
@@ -1858,26 +1668,49 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 		StackFrame finished_frame = pop_frame();
 		stack_frame_free(&finished_frame);
 	}
-
-	// if (vm.threads != NULL) {
-	// 	ObjectThread* thread = current_thread();
-	// 	while (thread->call_stack_top > thread->call_stack && !peek_current_frame()->is_native) {
-	// 		StackFrame frame = pop_frame();
-	// 		bool is_native = frame.is_native;
-
-	// 		stack_frame_free(&frame);
-	// 	}
-	// }
-
+	
     DEBUG_TRACE("\n--------------------------\n");
 	DEBUG_TRACE("Ended interpreter loop.");
 
     #undef BINARY_MATH_OP
 
-    return runtime_error_occured ? INTERPRET_RUNTIME_ERROR : INTERPRET_SUCCESS;
+    return !runtime_error_occured;
 }
 
-InterpretResult vm_interpret_program(Bytecode* bytecode, char* main_module_path) {
+static bool call_plane_function_custom_frame(
+		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity, Value* out) {
+	ObjectThread* thread = current_thread();
+	bool is_entity_base = base_entity != NULL;
+	StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false, false);
+
+	if (args.count != function->num_params) {
+		FAIL("User function called with unmatching params number."); /* TODO: Legit error? */
+	}
+
+	for (int i = 0; i < function->num_params; i++) {
+		const char* param_name = function->parameters[i];
+		Value argument = args.values[i];
+		cell_table_set_value_cstring_key(&frame.local_variables, param_name, argument);
+	}
+
+	if (self != NULL) {
+		cell_table_set_value_cstring_key(&frame.local_variables, "self", MAKE_VALUE_OBJECT(self));
+	}
+
+	if (vm_interpret_frame(&frame)) {
+		Value return_value = pop();
+		*out = return_value;
+		return true;
+	}
+	
+	return false;
+}
+
+static bool call_plane_function(ObjectFunction* function, Object* self, ValueArray args, Value* out) {
+	return call_plane_function_custom_frame(function, self, args, NULL, out);
+}
+
+bool vm_interpret_program(Bytecode* bytecode, char* main_module_path) {
 	vm.main_module_path = main_module_path;
 
 	ObjectCode* code = object_code_new(*bytecode);
