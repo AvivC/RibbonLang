@@ -798,7 +798,7 @@ static CallResult call_class_directly(ObjectClass* klass, ValueArray args, Value
 	return CALL_RESULT_SUCCESS;
 }
 
-CallResult vm_call_object_directly(Value callee, ValueArray args, Value* out) {
+CallResult vm_invoke_callable(Value callee, ValueArray args, Value* out) {
 	if (callee.type != VALUE_OBJECT) {
 		return CALL_RESULT_INVALID_CALLABLE;
 	}
@@ -1394,7 +1394,7 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 
 				ValueArray args = collect_values(arg_count);
 				Value return_value;
-				CallResult call_result = vm_call_object_directly(callee, args, &return_value);
+				CallResult call_result = vm_invoke_callable(callee, args, &return_value);
 				value_array_free(&args);
 
 				switch (call_result) {

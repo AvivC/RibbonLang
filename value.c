@@ -50,7 +50,8 @@ void value_print(Value value) {
 
 bool value_compare(Value a, Value b, int* output) {
 	if (a.type != b.type) {
-		return false;
+		*output = -1;
+		return true;
 	}
 
 	switch (a.type) {

@@ -91,6 +91,92 @@ expect
     Second kitten is Cattul and likes pasta
 end
 
+test more constructors
+    Kangaroo = class {
+        @init = {takes name to
+            self.name = name
+            self.color = "brown"
+        }
+
+        greet = { takes who to
+            print("Hello, " + who + "! My name is " + self.name + " and I'm " + self.color + " :D")
+        }
+    }
+
+    oscar = Kangaroo("Oscar")
+    jonblow = Kangaroo("Jonblow")
+
+    oscar.greet("Sonny")
+    jonblow.greet("Elisa")
+    oscar.greet("Elisa")
+    jonblow.greet("Sonny")
+expect
+    Hello, Sonny! My name is Oscar and I'm brown :D
+    Hello, Elisa! My name is Jonblow and I'm brown :D
+    Hello, Elisa! My name is Oscar and I'm brown :D
+    Hello, Sonny! My name is Jonblow and I'm brown :D
+end
+
+test tribe of proud happy kangaroos living together in peace and harmony jumpin around
+    Kangaroo = class {
+        @init = {takes name to
+            self.name = name
+            self.color = "brown"
+        }
+
+        greet = { takes who to
+            print("Hello, " + who + "! My name is " + self.name + " and I'm " + self.color + " :D")
+        }
+
+        make_baby_kanga = { takes name to
+            baby = Kangaroo("Little " + name)
+            baby.greet(self.name)
+            self.greet(baby.name)
+            return baby
+        }
+    }
+
+    KangarooTribe = class {
+        @init = { takes kangaroos to
+            self._kangaroos = kangaroos
+            self._index = 0
+        }
+
+        next_kanga = {
+            if self._index >= self._kangaroos.length() {
+                return false
+            }
+
+            kanga = self._kangaroos[self._index]
+            self._index = self._index + 1
+            return kanga
+        }
+    }
+
+    kangaroos = [ Kangaroo("Sonny"), Kangaroo("Melissa"), Kangaroo("Mr. Anthrex") ]
+    tribe = KangarooTribe(kangaroos)
+
+    more_kangas = true
+    while more_kangas {
+        kanga = tribe.next_kanga()
+        if kanga == false {
+            more_kangas = false
+        } else {
+            kanga.greet("Aviv")
+        }
+    }
+
+    baby = kangaroos[0].make_baby_kanga("Richard")
+    print(baby.name)
+expect
+    Hello, Aviv! My name is Sonny and I'm brown :D
+    Hello, Aviv! My name is Melissa and I'm brown :D
+    Hello, Aviv! My name is Mr. Anthrex and I'm brown :D
+    Hello, Sonny! My name is Little Richard and I'm brown :D
+    Hello, Little Richard! My name is Sonny and I'm brown :D
+    Little Richard
+end
+
 test self is captured by closures in methods
     also_just_some_variable = 100
 
