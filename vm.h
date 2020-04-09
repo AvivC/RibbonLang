@@ -49,6 +49,9 @@ typedef struct {
 extern VM vm;
 
 CallResult vm_call_object(Object* object, ValueArray args, Value* out);
+CallResult vm_call_function(ObjectFunction* function, ValueArray args, Value* out);
+CallResult vm_call_bound_method(ObjectBoundMethod* bound_method, ValueArray args, Value* out);
+CallResult vm_instantiate_class(ObjectClass* klass, ValueArray args, Value* out);
 
 ImportResult vm_import_module(ObjectString* module_name);
 ImportResult vm_import_module_cstring(char* name);

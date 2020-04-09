@@ -127,3 +127,34 @@ expect
     Hello world :D
     Hello world :DHello world :DHello world :D
 end
+
+test extension imports and uses other extension
+    import myuserextension
+    import my_second_user_extension
+
+    sqr_6 = my_second_user_extension.square(6)
+    print(sqr_6)
+expect
+    Getting other extension.
+    Getting the multiply() method from the extension.
+    Calling multiply().
+    Returned from multiply(). Returning the value.
+    36
+end
+
+test extension causes the import of another extension
+    import my_second_user_extension
+
+    sqr_7 = my_second_user_extension.square(7)
+    print(sqr_7)
+expect
+    Getting other extension.
+    Other extension not imported yet. Importing it.
+    Imported successfully.
+    Now getting the extension.
+    Got the extension successfully.
+    Getting the multiply() method from the extension.
+    Calling multiply().
+    Returned from multiply(). Returning the value.
+    49
+end

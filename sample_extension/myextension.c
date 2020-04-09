@@ -3,6 +3,7 @@
 #include "myextension.h"
 
 static PlaneApi plane;
+static ObjectModule* this;
 
 typedef struct {
     ObjectInstance base;
@@ -102,22 +103,58 @@ static bool my_thing_b_get_text_multiplied(Object* self, ValueArray args, Value*
 static bool square(Object* self, ValueArray args, Value* out) {
     Value number = args.values[0];
 
-    plane.vm_import_module_cstring("myuserextension");
-    ObjectModule* other_extension = plane.vm_get_module_cstring("myuserextension");
-
-    Value multiply_method_val;
-    if (!plane.object_load_attribute_cstring_key((Object*) other_extension, "multiply", &multiply_method_val)) {
+    /* First just validating that we don't also have a "multiply" attribute or something,
+    to make sure that we actually reach into another extension and nothing funky actually happens here.  */
+    Value throwaway;
+    bool we_have_multiply_also = plane.object_load_attribute_cstring_key((Object*) this, "multiply", &throwaway);
+    if (we_have_multiply_also) {
+        printf("We also have the multiply() function, that shouldn't happen.\n");
         *out = MAKE_VALUE_NIL();
         return false;
     }
 
+    printf("Getting other extension.\n");
+    ObjectModule* other_extension = plane.vm_get_module_cstring("myuserextension");
+    if (other_extension == NULL) {
+        printf("Other extension not imported yet. Importing it.\n");
+        if (plane.vm_import_module_cstring("myuserextension") == IMPORT_RESULT_SUCCESS) {
+            printf("Imported successfully.\n");
+        } else {
+            printf("Import failed.\n");
+            *out = MAKE_VALUE_NIL();
+            return false;
+        }
+        
+        printf("Now getting the extension.\n");
+        other_extension = plane.vm_get_module_cstring("myuserextension");
+
+        if (other_extension == NULL) {
+            printf("The extension is still NULL, and that's really weird and shouldn't happen.\n");
+            *out = MAKE_VALUE_NIL();
+            return false;
+        } else {
+            printf("Got the extension successfully.\n");
+        }
+    }
+
+    printf("Getting the multiply() method from the extension.\n");
+    Value multiply_method_val;
+    if (!plane.object_load_attribute_cstring_key((Object*) other_extension, "multiply", &multiply_method_val)) {
+        printf("Couldn'd get the method. Weird.\n");
+        *out = MAKE_VALUE_NIL();
+        return false;
+    }
+
+    printf("Calling multiply().\n");
     ValueArray multiply_args;
     plane.value_array_init(&multiply_args);
     plane.value_array_write(&multiply_args, &number);
     plane.value_array_write(&multiply_args, &number);
     Value sqr_result;
-    plane.vm_call_object(multiply_method_val.as.object, multiply_args, &sqr_result);
+    plane.vm_call_function((ObjectFunction*) multiply_method_val.as.object, multiply_args, &sqr_result);
     plane.value_array_free(&multiply_args);
+
+    printf("Returned from multiply(). Returning the value.\n");
 
     *out = sqr_result;
     return true;
@@ -126,6 +163,7 @@ static bool square(Object* self, ValueArray args, Value* out) {
 
 MYEXTENSIONAPI bool plane_module_init(PlaneApi api, ObjectModule* module) {
     plane = api;
+    this = module;
 
     #ifdef EXTENSION_1
     char** multiply_params = api.allocate(sizeof(char*) * 2, "Parameters list cstrings");

@@ -148,7 +148,6 @@ static Value load_variable(ObjectString* name) {
 			cell_table_get_value_cstring_key(locals, name->chars, &value)
 			|| cell_table_get_value_cstring_key(free_vars, name->chars, &value)
 			|| (current_frame()->is_entity_base && object_load_attribute_cstring_key(current_frame()->base_entity, name->chars, &value))
-			// || (current_frame()->is_entity_base && cell_table_get_value_cstring_key(&current_frame()->base_entity->attributes, name->chars, &value))
 			|| cell_table_get_value_cstring_key(globals, name->chars, &value);
 
 	if (variable_found) {
@@ -481,8 +480,12 @@ static bool call_native_function(ObjectFunction* function, Object* self, ValueAr
 		*out = MAKE_VALUE_NIL();
 	}
 
-	pop_frame(); /* Pop the native frame */
-	current_thread()->ip = ip_before_call; /* restore ip position */
+	/* Pop and free the native frame */
+	StackFrame used_frame = pop_frame();
+	stack_frame_free(&used_frame);
+
+	/* restore ip position */
+	current_thread()->ip = ip_before_call;
 
 	return func_success;
 }
@@ -671,7 +674,7 @@ static ImportResult load_text_module(ObjectString* module_name, const char* file
 
 static bool call_plane_function(ObjectFunction* function, Object* self, ValueArray args, Value* out);
 
-static CallResult call_function(ObjectFunction* function, ValueArray args, Value* out) {
+CallResult vm_call_function(ObjectFunction* function, ValueArray args, Value* out) {
 	if (args.count != function->num_params) {
 		return CALL_RESULT_INVALID_ARGUMENT_COUNT;
 	}
@@ -689,7 +692,7 @@ static CallResult call_function(ObjectFunction* function, ValueArray args, Value
 	return CALL_RESULT_PLANE_CODE_EXECUTION_FAILED;
 }
 
-static CallResult call_bound_method(ObjectBoundMethod* bound_method, ValueArray args, Value* out) {
+CallResult vm_call_bound_method(ObjectBoundMethod* bound_method, ValueArray args, Value* out) {
 	ObjectFunction* method = bound_method->method;
 
 	if (method->num_params != args.count) {
@@ -709,7 +712,7 @@ static CallResult call_bound_method(ObjectBoundMethod* bound_method, ValueArray 
 	return CALL_RESULT_PLANE_CODE_EXECUTION_FAILED;
 }
 
-static CallResult call_class(ObjectClass* klass, ValueArray args, Value* out) {
+CallResult vm_instantiate_class(ObjectClass* klass, ValueArray args, Value* out) {
 	ObjectInstance* instance = object_instance_new(klass);
 
 	Value init_method_value;
@@ -725,7 +728,7 @@ static CallResult call_class(ObjectClass* klass, ValueArray args, Value* out) {
 		}
 
 		Value throwaway;
-		CallResult call_result = call_bound_method(init_bound_method, args, &throwaway);
+		CallResult call_result = vm_call_bound_method(init_bound_method, args, &throwaway);
 		if (call_result != CALL_RESULT_SUCCESS) {
 			return call_result;
 		}
@@ -741,25 +744,20 @@ static CallResult call_class(ObjectClass* klass, ValueArray args, Value* out) {
 CallResult vm_call_object(Object* object, ValueArray args, Value* out) {
 	switch (object->type) {
 		case OBJECT_FUNCTION:
-			return call_function((ObjectFunction*) object, args, out);
+			return vm_call_function((ObjectFunction*) object, args, out);
 		case OBJECT_BOUND_METHOD:
-			return call_bound_method((ObjectBoundMethod*) object, args, out);
+			return vm_call_bound_method((ObjectBoundMethod*) object, args, out);
 		case OBJECT_CLASS:
-			return call_class((ObjectClass*) object, args, out);
+			return vm_instantiate_class((ObjectClass*) object, args, out);
 		default:
 			return CALL_RESULT_INVALID_CALLABLE;	
 	}
 }
 
-// #define LOAD_EXTENSION_SUCCESS 0
-// #define LOAD_EXTENSION_OPEN_FAILURE 1
-// #define LOAD_EXTENSION_NO_INIT_FUNCTION 2
-
 static ImportResult load_extension_module(ObjectString* module_name, char* path) {
 	HMODULE handle = LoadLibraryExA(path, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR);
 
 	if (handle == NULL) {
-		// return LOAD_EXTENSION_OPEN_FAILURE;
 		return IMPORT_RESULT_OPEN_FAILED;
 	}
 
@@ -767,7 +765,6 @@ static ImportResult load_extension_module(ObjectString* module_name, char* path)
 
 	if (init_function == NULL) {
 		FreeLibrary(handle);
-		// return LOAD_EXTENSION_NO_INIT_FUNCTION;
 		return IMPORT_RESULT_EXTENSION_NO_INIT_FUNCTION;
 	}
 
@@ -778,15 +775,18 @@ static ImportResult load_extension_module(ObjectString* module_name, char* path)
 
 	cell_table_set_value(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(extension_module));
 
-	// push(MAKE_VALUE_OBJECT(extension_module));
-	// push(MAKE_VALUE_NIL()); /* Temporary patch, see related notes above */
-
-	// cell_table_set_value_cstring_key(&vm.imported_modules, module_name->chars, MAKE_VALUE_OBJECT(extension_module));
-
 	return IMPORT_RESULT_SUCCESS;
 }
 
 ImportResult vm_import_module(ObjectString* module_name) {
+	/*
+	Note: this function attempts to do two things: load a module to the global module cache (unless it's there already),
+	and also store it in the locals table.
+	As we can see, it's also a public function as part of the extension API. So when it's called from a C function,
+	the former side effect is meaningless, but (I *think*) harmless - the module gets placed in the native StackFrame locals
+	table and that has no effect. 
+	*/
+
 	char* user_module_file_suffix = ".pln";
 	char* extension_module_file_suffix = ".dll";
 
@@ -810,7 +810,6 @@ ImportResult vm_import_module(ObjectString* module_name) {
 		}
 		
 		cell_table_set_value(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), module_value);
-		cell_table_set_value(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), module_value);
 
 		return IMPORT_RESULT_SUCCESS;
 	}
@@ -1155,6 +1154,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
 						RUNTIME_ERROR("Objects @add isn't a method.");
 						break;
 					}
+
+					/* TODO: Switch to new cleaner function-calling functions */
 
 					ObjectBoundMethod* add_bound_method = (ObjectBoundMethod*) add_method.as.object;
 					Object* self = add_bound_method->self;
