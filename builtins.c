@@ -83,16 +83,3 @@ bool builtin_read_file(Object* self, ValueArray args, Value* out) {
 	FAIL("Should be unreachable.");
 	return false;
 }
-
-bool builtin_spawn(Object* self, ValueArray args, Value* out) {
-	ObjectFunction* function = VALUE_AS_OBJECT(args.values[0], OBJECT_FUNCTION, ObjectFunction);
-	if (function == NULL) {
-		*out = MAKE_VALUE_NIL();
-		return false;
-	}
-
-	vm_spawn_thread(function);
-	*out = MAKE_VALUE_NIL();
-	return true;
-}
-

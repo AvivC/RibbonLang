@@ -163,20 +163,6 @@ static void switch_to_new_thread(ObjectThread* thread) {
 	set_current_thread(thread);
 }
 
-void vm_spawn_thread(ObjectFunction* function) {
-	int name_length = snprintf(NULL, 0, "%" PRI_SIZET, vm.thread_creation_counter);
-	char* temp_name_buffer = allocate(name_length + 1, "Temp thread name buffer");
-	snprintf(temp_name_buffer, name_length + 1, "%" PRI_SIZET, vm.thread_creation_counter++);
-
-	ObjectThread* thread = object_thread_new(function, temp_name_buffer);
-	deallocate(temp_name_buffer, name_length + 1, "Temp thread name buffer");
-
-	*thread->call_stack_top = new_stack_frame(NULL, function, NULL, false, false, false);
-	thread->call_stack_top++;
-
-	add_thread(thread);
-}
-
 static void push_frame(StackFrame frame) {
 	/* TODO: Why do we take a StackFrame and not StackFrame*? */
 	object_thread_push_frame(current_thread(), frame);
@@ -480,7 +466,6 @@ static void set_builtin_globals(void) {
 	register_builtin_function("print", 1, (char*[]) {"text"}, builtin_print);
 	register_builtin_function("input", 0, NULL, builtin_input);
 	register_builtin_function("read_file", 1, (char*[]) {"path"}, builtin_read_file);
-	register_builtin_function("spawn", 1, (char*[]) {"function"}, builtin_spawn);
 }
 
 static void register_builtin_modules(void) {
@@ -1344,57 +1329,17 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
             }
 
 			case OP_RETURN: {
-
-				/* Order of peek_previous_frame and pop_frame matters, because behavior of the former
-				depends on the state of the call stack */
-				StackFrame* previous_frame = peek_previous_frame();
-                // StackFrame frame = pop_frame();
-                StackFrame* frame = peek_current_frame(); /* Staying on the stack because is popped and freed at end of this function */
-
-				if (frame->discard_return_value) {
-					pop();
-				}
-
-				if (previous_frame != NULL && previous_frame->is_native) {
-					is_executing = false;
-					goto op_return_cleanup;
-				}
+                StackFrame* frame = peek_current_frame(); /* Staying on the stack because is popped and freed after interpreter loop */
 
                 bool is_base_frame = frame->return_address == NULL;
                 if (is_base_frame) {
-
-					ObjectThread* running_thread = current_thread();
-					ObjectThread* previous_thread = running_thread->previous_thread;
-					ObjectThread* next_thread = running_thread->next_thread;
-
-					bool all_threads_finished = previous_thread == NULL && next_thread == NULL;
-					if (all_threads_finished) {
-						is_executing = false;
-						vm.threads = NULL;
-						vm.current_thread = NULL;
-						goto op_return_cleanup;
-					}
-
-					if (previous_thread != NULL) {
-						previous_thread->next_thread = next_thread;
-					} else {
-						vm.threads = next_thread;
-					}
-
-					if (next_thread != NULL) {
-						next_thread->previous_thread = previous_thread;
-						set_current_thread(next_thread);
-					} else {
-						set_current_thread(vm.threads);
-					}
-
+					vm.threads = NULL;
+					vm.current_thread = NULL;
                 } else {
-					is_executing = false;
                 	current_thread()->ip = frame->return_address;
                 }
 
-				op_return_cleanup:
-                // stack_frame_free(&frame);
+				is_executing = false;
                 break;
             }
             
@@ -1757,12 +1702,12 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 				Value module_value;
             	bool module_already_imported = cell_table_get_value_cstring_key(&vm.imported_modules, module_name->chars, &module_value);
             	if (module_already_imported) {
-            		push(module_value);
-            		push(MAKE_VALUE_NIL()); /* This is a patch because currently the compiler puts a OP_NIL OP_RETURN
-            								 at the end of the module, just the same as with functions.
-            								 And so after we import something, the bytecode does OP_POP to get rid of the NIL.
-            								 So if we don't import the module because it's already cached, we should push the NIL ourselves.
-            								 Remove this ugly patch after we fixed the compiler regarding this stuff. */
+					if (!object_value_is(module_value, OBJECT_MODULE)) {
+						FAIL("Non ObjectModule found in global module cache.");
+					}
+					
+					cell_table_set_value_directly(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), module_value);
+					cell_table_set_value_directly(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), module_value);
             		break;
             	}
 
@@ -1805,11 +1750,6 @@ InterpretResult vm_interpret_frame(StackFrame* frame) {
 					if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
 						FAIL("Found non ObjectModule* in builtin modules table.");
 					}
-
-					// push(MAKE_VALUE_OBJECT(module));
-
- 					// /* Ugly hack to handle current situation in the compiler, see note earlier in OP_IMPORT case */
-					// push(MAKE_VALUE_NIL());
 
 					cell_table_set_value_directly(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
 					cell_table_set_value_directly(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
