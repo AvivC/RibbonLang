@@ -49,6 +49,24 @@ static Value pop(void) {
 	return object_thread_pop_eval_stack(current_thread());
 }
 
+/* TODO: Consider having vm_push_object and vm_pop_object work against
+   a different stack. This way in the memory diagnostics stage at the end, we can validate
+   that the stack has nothing on it, i.e. that extensions didn't forget nothing on it and leaked memory. 
+   For now, they work against the regular value stack and it should be fine for now.
+   */
+
+void vm_push_object(Object* object) {
+	push(MAKE_VALUE_OBJECT(object));
+}
+
+Object* vm_pop_object() {
+	Value value = pop();
+	if (value.type != VALUE_OBJECT) {
+		FAIL("vm_pop_object popped non-object. Actual type: %d", value.type);
+	}
+	return value.as.object;
+}
+
 static Value peek_at(int offset) {
 	return *(current_thread()->eval_stack_top - offset);
 }
@@ -752,6 +770,25 @@ CallResult vm_call_object(Object* object, ValueArray args, Value* out) {
 		default:
 			return CALL_RESULT_INVALID_CALLABLE;	
 	}
+}
+
+CallResult vm_call_attribute(Object* object, ObjectString* name, ValueArray args, Value* out) {
+	Value attrval;
+	if (!object_load_attribute(object, name, &attrval)) {
+		return CALL_RESULT_NO_SUCH_ATTRIBUTE;
+	}
+
+	if (attrval.type != VALUE_OBJECT) {
+		return CALL_RESULT_INVALID_CALLABLE;
+	}
+
+	Object* callee = attrval.as.object;
+
+	return vm_call_object(callee, args, out);
+}
+
+CallResult vm_call_attribute_cstring(Object* object, char* name, ValueArray args, Value* out) {
+	return vm_call_attribute(object, object_string_copy_from_null_terminated(name), args, out);
 }
 
 static ImportResult load_extension_module(ObjectString* module_name, char* path) {
@@ -1496,6 +1533,10 @@ static bool vm_interpret_frame(StackFrame* frame) {
 					}
 					case CALL_RESULT_INVALID_CALLABLE: {
 						RUNTIME_ERROR("Cannot invoke non-callable.");
+						break;
+					}
+					case CALL_RESULT_NO_SUCH_ATTRIBUTE: {
+						FAIL("Pretty sure CALL_RESULT_NO_SUCH_ATTRIBUTE should never happen from OP_CALL.");
 						break;
 					}
 				}

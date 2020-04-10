@@ -49,15 +49,24 @@ typedef struct {
     void (*value_array_write) (ValueArray*, Value*);
     void (*value_array_free) (ValueArray*);
 
+    bool (*object_value_is) (Value value, ObjectType type);
+
     CallResult (*vm_call_object) (Object* object, ValueArray args, Value* out);
     CallResult (*vm_call_function) (ObjectFunction* function, ValueArray args, Value* out);
     CallResult (*vm_call_bound_method) (ObjectBoundMethod* bound_method, ValueArray args, Value* out);
     CallResult (*vm_instantiate_class) (ObjectClass* klass, ValueArray args, Value* out);
+    CallResult (*vm_call_attribute) (Object* object, ObjectString* name, ValueArray args, Value* out);
+    CallResult (*vm_call_attribute_cstring) (Object* object, char* name, ValueArray args, Value* out);
 
     ImportResult (*vm_import_module) (ObjectString* module_name);
     ImportResult (*vm_import_module_cstring) (char* module_name);
     ObjectModule* (*vm_get_module) (ObjectString* name);
     ObjectModule* (*vm_get_module_cstring) (char* name);
+
+    /* The push and pop functions are exposed to extensions only for one purpose: 
+       to mark an object as reachable during GC. Don't use them for any other purpose externally. And don't forget to pop(). */
+    void (*vm_push_object) (Object* value);
+    Object* (*vm_pop_object) (void);
 } PlaneApi;
 
 extern PlaneApi API;
