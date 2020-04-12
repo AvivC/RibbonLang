@@ -27,6 +27,7 @@ PlaneApi API = {
     .value_array_init = value_array_init,
     .value_array_write = value_array_write,
     .value_array_free = value_array_free,
+    .value_array_make = value_array_make,
     .object_value_is = object_value_is,
     .vm_call_object = vm_call_object,
     .vm_call_function = vm_call_function,

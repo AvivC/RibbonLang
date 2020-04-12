@@ -5,4 +5,6 @@
 
 DECLARE_DYNAMIC_ARRAY(struct Value, ValueArray, value_array)
 
+ValueArray value_array_make(int count, struct Value* values);
+
 #endif

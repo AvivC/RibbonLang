@@ -10,6 +10,7 @@
 #include "plane_object.h"
 #include "value.h"
 #include "table.h"
+#include "value_array.h"
 
 typedef struct {
     const char* EXTENSION_ALLOC_STRING_CSTRING;
@@ -48,6 +49,7 @@ typedef struct {
     void (*value_array_init) (ValueArray*);
     void (*value_array_write) (ValueArray*, Value*);
     void (*value_array_free) (ValueArray*);
+    ValueArray (*value_array_make) (int count, struct Value* values);
 
     bool (*object_value_is) (Value value, ObjectType type);
 

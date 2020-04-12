@@ -44,30 +44,79 @@ typedef struct ObjectInstanceEvent {
     SDL_Event event; /* Not a pointer - inline in struct */
 } ObjectInstanceEvent;
 
-static ObjectInstanceTexture* new_texture(SDL_Texture* texture) {
-    ObjectInstanceTexture* instance = (ObjectInstanceTexture*) plane.object_instance_new(texture_class);
-    instance->texture = texture;
-    return instance;
+static bool is_instance_of_class(Object* object, char* klass_name) {
+    if (object->type != OBJECT_INSTANCE) {
+        return false;
+    }
+
+    ObjectInstance* instance = (ObjectInstance*) object;
+
+    ObjectClass* klass = instance->klass;
+    return (strlen(klass_name) == klass->name_length) && (strncmp(klass_name, klass->name, klass->name_length) == 0);;
 }
 
-static ObjectInstanceWindow* new_window(SDL_Window* window, char* title) {
-    ObjectInstanceWindow* instance = (ObjectInstanceWindow*) plane.object_instance_new(window_class);
+static bool is_value_instance_of_class(Value value, char* klass_name) {
+    if (!plane.object_value_is(value, OBJECT_INSTANCE)) {
+        return false;
+    }
+
+    return is_instance_of_class(value.as.object, klass_name);
+}
+
+static bool window_init(Object* self, ValueArray args, Value* out) {
+    if (!is_instance_of_class(self, "Window")) {
+        FAIL("Window self is not a Window instance.");
+    }
+
+    ObjectInstanceWindow* instance = (ObjectInstanceWindow*) self;
+
+    ObjectString* title_arg = (ObjectString*) (args.values[0].as.object);
+    double x_arg = args.values[1].as.number;
+    double y_arg = args.values[2].as.number;
+    double w_arg = args.values[3].as.number;
+    double h_arg = args.values[4].as.number;
+    double flags_arg = args.values[5].as.number;
+
+    char* title = plane.copy_cstring(title_arg->chars, title_arg->length, plane.EXTENSION_ALLOC_STRING_CSTRING);
+    SDL_Window* window = SDL_CreateWindow(title, x_arg, y_arg, w_arg, h_arg, flags_arg);
+
+    if (window == NULL) {
+        plane.deallocate(title, strlen(title) + 1, plane.EXTENSION_ALLOC_STRING_CSTRING);
+        *out = MAKE_VALUE_NIL();
+        return false;
+    }
+
     instance->window = window;
     instance->title = title;
-    return instance;
+
+    *out = MAKE_VALUE_NIL();
+    return true;
 }
 
-static ObjectInstanceRenderer* new_renderer(SDL_Renderer* renderer, ObjectInstanceWindow* window) {
-    ObjectInstanceRenderer* instance = (ObjectInstanceRenderer*) plane.object_instance_new(renderer_class);
-    instance->renderer = renderer;
+static bool renderer_init(Object* self, ValueArray args, Value* out) {
+    if (!is_instance_of_class(self, "Renderer")) {
+        FAIL("Renderer self is not a Renderer instance.");
+    }
+
+    ObjectInstanceRenderer* instance = (ObjectInstanceRenderer*) self;
+
+    ObjectInstanceWindow* window = (ObjectInstanceWindow*) args.values[0].as.object;
+    int index = args.values[1].as.number;
+    Uint32 flags = args.values[2].as.number;
+
+    /* Hopefully passing window->window is safe and makes sense? I think it is */
+    SDL_Renderer* renderer = SDL_CreateRenderer(window->window, index, flags);
+
+    if (renderer == NULL) {
+        *out = MAKE_VALUE_NIL();
+        return false;
+    }
+
     instance->window = window;
-    return instance;
-}
+    instance->renderer = renderer;
 
-static ObjectInstanceRect* new_rect(SDL_Rect rect) {
-    ObjectInstanceRect* instance = (ObjectInstanceRect*) plane.object_instance_new(rect_class);
-    instance->rect = rect;
-    return instance;
+    *out = MAKE_VALUE_NIL();
+    return true;
 }
 
 static bool rect_init(Object* self, ValueArray args, Value* out) {
@@ -85,10 +134,50 @@ static bool rect_init(Object* self, ValueArray args, Value* out) {
     return true;
 }
 
+static bool texture_init(Object* self, ValueArray args, Value* out) {
+    if (!is_instance_of_class(self, "Texture")) {
+        FAIL("texture_init called with none Texture");
+    }
+
+    ObjectInstanceTexture* texture_instance = (ObjectInstanceTexture*) self;
+
+    ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
+    ObjectString* filename = (ObjectString*) args.values[1].as.object;
+
+    /* Cloning makes sure it's null delimited */
+    ObjectString* file_null_delimited = plane.object_string_clone(filename);
+    plane.table_set(&owned_strings->table, MAKE_VALUE_NUMBER(owned_string_counter++), MAKE_VALUE_OBJECT(file_null_delimited));
+
+    SDL_Texture* texture = IMG_LoadTexture(renderer->renderer, file_null_delimited->chars);
+    
+    if (texture == NULL) {
+        *out = MAKE_VALUE_NIL();
+        return false;
+    }
+
+    texture_instance->texture = texture;
+
+    *out = MAKE_VALUE_NIL();
+    return true;
+}
+
 static ObjectInstanceEvent* new_event(SDL_Event event) {
-    ObjectInstanceEvent* instance = (ObjectInstanceEvent*) plane.object_instance_new(event_class);
+    ValueArray args = plane.value_array_make(0, NULL);
+    Value val;
+    plane.vm_instantiate_class(event_class, args, &val);
+
+    if (!is_value_instance_of_class(val, "Event")) {
+        FAIL("val is not a Event instance.");
+    }
+
+    ObjectInstanceEvent* instance = (ObjectInstanceEvent*) val.as.object;
+
     instance->event = event;
     return instance;
+
+    // ObjectInstanceEvent* instance = (ObjectInstanceEvent*) plane.object_instance_new(event_class);
+    // instance->event = event;
+    // return instance;
 }
 
 static bool init(Object* self, ValueArray args, Value* out) {
@@ -99,32 +188,11 @@ static bool init(Object* self, ValueArray args, Value* out) {
 }
 
 static bool create_window(Object* self, ValueArray args, Value* out) {
-    ObjectString* title_arg = (ObjectString*) (args.values[0].as.object);
-    double x_arg = args.values[1].as.number;
-    double y_arg = args.values[2].as.number;
-    double w_arg = args.values[3].as.number;
-    double h_arg = args.values[4].as.number;
-    double flags_arg = args.values[5].as.number;
-
-    /* TODO: Is this really safe? We assume that copying the string and giving ownership
-    to the ObjectInstanceWindow is safe - as long as it's alive, the string will be alive.
-    However, who says internally SDL doesn't distribute this string to more things, assuming
-    it's a literal?
-    Anyway it seems unlikely, so for now leave it like this. Later should consider a different approach. */
-
-    // char* title = plane.copy_cstring(title_arg->chars, title_arg->length, "SDL_Window title");
-    char* title = plane.copy_cstring(title_arg->chars, title_arg->length, plane.EXTENSION_ALLOC_STRING_CSTRING);
-    SDL_Window* window = SDL_CreateWindow(title, x_arg, y_arg, w_arg, h_arg, flags_arg);
-
-    if (window == NULL) {
-        // plane.deallocate(title, strlen(title) + 1, "SDL_Window title");
-        plane.deallocate(title, strlen(title) + 1, plane.EXTENSION_ALLOC_STRING_CSTRING);
+    if (plane.vm_instantiate_class(window_class, args, out) != CALL_RESULT_SUCCESS) {
         *out = MAKE_VALUE_NIL();
-        return true; /* Right now we don't consider it a fatal failure. We're just a very thin wrapper. */
+        return true;
     }
 
-    ObjectInstanceWindow* instance = new_window(window, title);
-    *out = MAKE_VALUE_OBJECT(instance);
     return true;
 }
 
@@ -145,19 +213,11 @@ static bool set_hint(Object* self, ValueArray args, Value* out) {
 }
 
 static bool create_renderer(Object* self, ValueArray args, Value* out) {
-    ObjectInstanceWindow* window = (ObjectInstanceWindow*) args.values[0].as.object;
-    int index = args.values[1].as.number;
-    Uint32 flags = args.values[2].as.number;
-
-    /* Hopefully passing window->window is safe and makes sense? I think it is */
-    SDL_Renderer* renderer = SDL_CreateRenderer(window->window, index, flags);
-
-    if (renderer == NULL) {
+    if (plane.vm_instantiate_class(renderer_class, args, out) != CALL_RESULT_SUCCESS) {
         *out = MAKE_VALUE_NIL();
-        return true; /* Like we said, true on purpose because right now we're just an unopinionated thin layer */
+        return true;
     }
 
-    *out = MAKE_VALUE_OBJECT(new_renderer(renderer, window));
     return true;
 }
 
@@ -332,21 +392,10 @@ static bool render_copy(Object* self, ValueArray args, Value* out) {
 }
 
 static bool img_load_texture(Object* self, ValueArray args, Value* out) {
-    ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
-    ObjectString* filename = (ObjectString*) args.values[1].as.object;
-
-    /* Cloning makes sure it's null delimited */
-    ObjectString* file_null_delimited = plane.object_string_clone(filename);
-    plane.table_set(&owned_strings->table, MAKE_VALUE_NUMBER(owned_string_counter++), MAKE_VALUE_OBJECT(file_null_delimited));
-
-    SDL_Texture* texture = IMG_LoadTexture(renderer->renderer, file_null_delimited->chars);
-    
-    if (texture == NULL) {
-        *out = MAKE_VALUE_NIL();
-        return true;
+    if (plane.vm_instantiate_class(texture_class, args, out) != CALL_RESULT_SUCCESS) {
+        FAIL("Temp fail: couldn't instantiate texture class");
     }
 
-    *out = MAKE_VALUE_OBJECT(new_texture(texture));
     return true;
 }
 
@@ -438,6 +487,10 @@ static ObjectClass* expose_class(
     return klass;
 }
 
+static ObjectFunction* make_constructor(int num_params, char** params, NativeFunction function) {
+    return plane.make_native_function_with_params("@init", num_params, params, function);
+}
+
 __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module) {
     plane = api;
     this = module;
@@ -454,11 +507,14 @@ __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module)
 
     /* Init and expose classes */
 
-    texture_class = expose_class("Texture", sizeof(ObjectInstanceTexture), texture_class_deallocate, NULL, NULL);
-    window_class = expose_class("Window", sizeof(ObjectInstanceWindow), window_class_deallocate, NULL, NULL);
-    renderer_class = expose_class("Renderer", sizeof(ObjectInstanceRenderer), renderer_class_deallocate, renderer_class_gc_mark, NULL);
+    texture_class = expose_class("Texture", sizeof(ObjectInstanceTexture), texture_class_deallocate, NULL,
+                make_constructor(2, (char*[]) {"renderer", "filename"}, texture_init));
+    window_class = expose_class("Window", sizeof(ObjectInstanceWindow), window_class_deallocate, NULL, 
+                make_constructor(6, (char*[]) {"title", "x", "y", "w", "h", "flags"}, window_init));
+    renderer_class = expose_class("Renderer", sizeof(ObjectInstanceRenderer), renderer_class_deallocate, renderer_class_gc_mark,
+                make_constructor(3, (char*[]) {"window", "index", "flags"}, renderer_init));
     rect_class = expose_class("Rect", sizeof(ObjectInstanceRect), rect_class_deallocate, NULL, 
-                plane.make_native_function_with_params("@init", 4, (char*[]) {"x", "y", "w", "h"}, rect_init));
+                make_constructor(4, (char*[]) {"x", "y", "w", "h"}, rect_init));
     event_class = expose_class("Event", sizeof(ObjectInstanceEvent), event_class_deallocate, NULL, NULL);
 
     /* Init and explose function */
