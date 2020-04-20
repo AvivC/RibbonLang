@@ -158,7 +158,8 @@ ObjectCell* object_cell_new_empty(void);
 
 ObjectClass* object_class_new(ObjectFunction* base_function, char* name);
 ObjectClass* object_class_native_new(
-		char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_func, ObjectFunction* constructor);
+		char* name, size_t instance_size, DeallocationFunction dealloc_func,
+		GcMarkFunction gc_mark_func, ObjectFunction* constructor, void* descriptors[][2]);
 void object_class_set_name(ObjectClass* klass, char* name, int length);
 
 ObjectInstance* object_instance_new(ObjectClass* klass);
@@ -203,6 +204,15 @@ void object_set_attribute_cstring_key(Object* object, const char* key, Value val
 
 bool object_load_attribute(Object* object, ObjectString* name, Value* out);
 bool object_load_attribute_cstring_key(Object* object, const char* name, Value* out);
+bool load_attribute_bypass_descriptors(Object* object, ObjectString* name, Value* out); /* Internal: only external to be used by some tests */
+
+ObjectInstance* object_descriptor_new(ObjectFunction* get, ObjectFunction* set);
+ObjectInstance* object_descriptor_new_native(NativeFunction get, NativeFunction set);
+
+bool is_instance_of_class(Object* object, char* klass_name);
+bool is_value_instance_of_class(Value value, char* klass_name);
+
+ObjectFunction* object_make_constructor(int num_params, char** params, NativeFunction function);
 
 #define VALUE_AS_OBJECT(value, object_type, cast) object_value_is(value, object_type) ? (cast*) value.as.object : NULL
 

@@ -125,3 +125,44 @@ expect
     User function 2
     170
 end
+
+test descriptors
+    import _testing
+    import myuserextension
+
+    MyThingA = myuserextension.MyThingA
+    thing = MyThingA("Some text :D")
+    
+    thing.a = 20
+    print(_testing.get_value_directly_from_object_attributes(thing, "a")) # Expected to print 20
+
+    _testing.get_value_directly_from_object_attributes(thing, "x") # Expected to print "Attribute not found"
+
+    thing.x = 10
+
+    _testing.get_value_directly_from_object_attributes(thing, "x") # Expected to print "Attribute not found"
+
+    print(thing.x)
+
+    _testing.get_value_directly_from_object_attributes(thing, "x") # Expected to print "Attribute not found"
+
+    thing.x = 30
+    print(thing.x)
+
+    print(_testing.get_value_directly_from_object_attributes(thing, "a")) # Expected to print 20
+
+    _testing.get_value_directly_from_object_attributes(thing, "x") # Expected to print "Attribute not found"
+expect
+    20
+    Attribute not found
+    Running MyThingA descriptor @set for attribute x. Current value: 0. New value: 10
+    Attribute not found
+    Running MyThingA descriptor @get for attribute x. Value: 10
+    10
+    Attribute not found
+    Running MyThingA descriptor @set for attribute x. Current value: 10. New value: 30
+    Running MyThingA descriptor @get for attribute x. Value: 30
+    30
+    20
+    Attribute not found
+end

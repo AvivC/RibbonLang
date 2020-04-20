@@ -24,8 +24,8 @@ typedef struct {
     ObjectFunction* (*object_native_function_new) (NativeFunction nativeFunction, char** parameters, int numParams);
     ObjectFunction* (*make_native_function_with_params) (char* name, int num_params, char** params, NativeFunction function);
 
-    ObjectClass* (*object_class_native_new) (
-		char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_func, ObjectFunction* constructor);
+    ObjectClass* (*object_class_native_new) (char* name, size_t instance_size, DeallocationFunction dealloc_func,
+                   GcMarkFunction gc_mark_func, ObjectFunction* constructor, void* descriptors[][2]);
     ObjectInstance* (*object_instance_new) (ObjectClass* klass);
 
     void (*object_set_attribute_cstring_key) (Object* object, const char* key, Value value);
@@ -33,6 +33,8 @@ typedef struct {
     ObjectString* (*object_string_take) (char* chars, int length);
     ObjectString* (*object_string_copy_from_null_terminated) (const char* string);
     ObjectString* (*object_string_clone) (ObjectString* original);
+    bool (*object_strings_equal) (ObjectString* a, ObjectString* b);
+    bool (*cstrings_equal) (char* s1, int length1, char* s2, int length2);
 
     char* (*copy_null_terminated_cstring) (const char* string, const char* what);
     char* (*copy_cstring) (const char* string, int length, const char* what);
@@ -57,6 +59,7 @@ typedef struct {
     CallResult (*vm_call_function) (ObjectFunction* function, ValueArray args, Value* out);
     CallResult (*vm_call_bound_method) (ObjectBoundMethod* bound_method, ValueArray args, Value* out);
     CallResult (*vm_instantiate_class) (ObjectClass* klass, ValueArray args, Value* out);
+    CallResult (*vm_instantiate_class_no_args) (ObjectClass* klass, Value* out);
     CallResult (*vm_call_attribute) (Object* object, ObjectString* name, ValueArray args, Value* out);
     CallResult (*vm_call_attribute_cstring) (Object* object, char* name, ValueArray args, Value* out);
 
@@ -69,6 +72,14 @@ typedef struct {
        to mark an object as reachable during GC. Don't use them for any other purpose externally. And don't forget to pop(). */
     void (*vm_push_object) (Object* value);
     Object* (*vm_pop_object) (void);
+
+    bool (*is_instance_of_class) (Object* object, char* klass_name);
+    bool (*is_value_instance_of_class) (Value value, char* klass_name);
+
+    ObjectFunction* (*object_make_constructor) (int num_params, char** params, NativeFunction function);
+
+    ObjectInstance* (*object_descriptor_new) (ObjectFunction* get, ObjectFunction* set);
+    ObjectInstance* (*object_descriptor_new_native) (NativeFunction get, NativeFunction set);
 } PlaneApi;
 
 extern PlaneApi API;

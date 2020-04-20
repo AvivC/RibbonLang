@@ -36,35 +36,16 @@ typedef struct ObjectInstanceRenderer {
 
 typedef struct ObjectInstanceRect {
     ObjectInstance base;
-    SDL_Rect rect; /* Not a pointer - inline in struct */
+    SDL_Rect rect;
 } ObjectInstanceRect;
 
 typedef struct ObjectInstanceEvent {
     ObjectInstance base;
-    SDL_Event event; /* Not a pointer - inline in struct */
+    SDL_Event event;
 } ObjectInstanceEvent;
 
-static bool is_instance_of_class(Object* object, char* klass_name) {
-    if (object->type != OBJECT_INSTANCE) {
-        return false;
-    }
-
-    ObjectInstance* instance = (ObjectInstance*) object;
-
-    ObjectClass* klass = instance->klass;
-    return (strlen(klass_name) == klass->name_length) && (strncmp(klass_name, klass->name, klass->name_length) == 0);;
-}
-
-static bool is_value_instance_of_class(Value value, char* klass_name) {
-    if (!plane.object_value_is(value, OBJECT_INSTANCE)) {
-        return false;
-    }
-
-    return is_instance_of_class(value.as.object, klass_name);
-}
-
 static bool window_init(Object* self, ValueArray args, Value* out) {
-    if (!is_instance_of_class(self, "Window")) {
+    if (!plane.is_instance_of_class(self, "Window")) {
         FAIL("Window self is not a Window instance.");
     }
 
@@ -94,7 +75,7 @@ static bool window_init(Object* self, ValueArray args, Value* out) {
 }
 
 static bool renderer_init(Object* self, ValueArray args, Value* out) {
-    if (!is_instance_of_class(self, "Renderer")) {
+    if (!plane.is_instance_of_class(self, "Renderer")) {
         FAIL("Renderer self is not a Renderer instance.");
     }
 
@@ -134,8 +115,81 @@ static bool rect_init(Object* self, ValueArray args, Value* out) {
     return true;
 }
 
+static bool rect_descriptor_get(Object* self, ValueArray args, Value* out) {
+    Object* object = args.values[0].as.object;
+
+    if (!plane.is_instance_of_class(object, "Rect")) {
+        FAIL("Non Rect passed as first argument to Rect descriptor get");
+    }
+
+    ObjectInstanceRect* rect = (ObjectInstanceRect*) object;
+
+    if (!plane.object_value_is(args.values[1], OBJECT_STRING)) {
+        FAIL("Non string passed as second argument to Rect descriptor get");
+    }
+
+    ObjectString* attr_name = (ObjectString*) args.values[1].as.object;
+
+    char* attr_name_cstring = attr_name->chars;
+    int attr_name_length = attr_name->length;
+
+    if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "x", 1)) {
+        *out = MAKE_VALUE_NUMBER(rect->rect.x);
+    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "y", 1)) {
+        *out = MAKE_VALUE_NUMBER(rect->rect.y);
+    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "w", 1)) {
+        *out = MAKE_VALUE_NUMBER(rect->rect.w);
+    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "h", 1)) {
+        *out = MAKE_VALUE_NUMBER(rect->rect.h);
+    } else {
+        FAIL("Rect descriptor get method received attr name other than x, y, w, h");
+    }
+
+    return true;
+}
+
+static bool rect_descriptor_set(Object* self, ValueArray args, Value* out) {
+    Object* object = args.values[0].as.object;
+
+    if (!plane.is_instance_of_class(object, "Rect")) {
+        FAIL("Non Rect passed as first argument to Rect descriptor get");
+    }
+
+    ObjectInstanceRect* rect = (ObjectInstanceRect*) object;
+
+    if (!plane.object_value_is(args.values[1], OBJECT_STRING)) {
+        FAIL("Non string passed as second argument to Rect descriptor get");
+    }
+
+    if (args.values[2].type != VALUE_NUMBER) {
+        /* Temp fail */
+        FAIL("Non number passed as third argument to Rect descriptor get");
+    }
+
+    ObjectString* attr_name = (ObjectString*) args.values[1].as.object;
+    double value = args.values[2].as.number;
+
+    char* attr_name_cstring = attr_name->chars;
+    int attr_name_length = attr_name->length;
+
+    if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "x", 1)) {
+        rect->rect.x = value;
+    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "y", 1)) {
+        rect->rect.y = value;
+    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "w", 1)) {
+        rect->rect.w = value;
+    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "h", 1)) {
+        rect->rect.h = value;
+    } else {
+        FAIL("Rect descriptor set method received attr name other than x, y, w, h");
+    }
+
+    *out = MAKE_VALUE_NIL();
+    return true;
+}
+
 static bool texture_init(Object* self, ValueArray args, Value* out) {
-    if (!is_instance_of_class(self, "Texture")) {
+    if (!plane.is_instance_of_class(self, "Texture")) {
         FAIL("texture_init called with none Texture");
     }
 
@@ -166,7 +220,7 @@ static ObjectInstanceEvent* new_event(SDL_Event event) {
     Value val;
     plane.vm_instantiate_class(event_class, args, &val);
 
-    if (!is_value_instance_of_class(val, "Event")) {
+    if (!plane.is_value_instance_of_class(val, "Event")) {
         FAIL("val is not a Event instance.");
     }
 
@@ -174,10 +228,6 @@ static ObjectInstanceEvent* new_event(SDL_Event event) {
 
     instance->event = event;
     return instance;
-
-    // ObjectInstanceEvent* instance = (ObjectInstanceEvent*) plane.object_instance_new(event_class);
-    // instance->event = event;
-    // return instance;
 }
 
 static bool init(Object* self, ValueArray args, Value* out) {
@@ -479,16 +529,14 @@ static void expose_function(char* name, int num_params, char** params, NativeFun
     plane.object_set_attribute_cstring_key((Object*) this, name, value);
 }
 
-static ObjectClass* expose_class(
-    char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_func, ObjectFunction* init_func) {
 
-    ObjectClass* klass = plane.object_class_native_new(name, instance_size, dealloc_func, gc_mark_func, init_func);
+static ObjectClass* expose_class(
+    char* name, size_t instance_size, DeallocationFunction dealloc_func,
+    GcMarkFunction gc_mark_func, ObjectFunction* init_func, void* descriptors[][2]) {
+
+    ObjectClass* klass = plane.object_class_native_new(name, instance_size, dealloc_func, gc_mark_func, init_func, descriptors);
     plane.object_set_attribute_cstring_key((Object*) this, name, MAKE_VALUE_OBJECT(klass));
     return klass;
-}
-
-static ObjectFunction* make_constructor(int num_params, char** params, NativeFunction function) {
-    return plane.make_native_function_with_params("@init", num_params, params, function);
 }
 
 __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module) {
@@ -508,14 +556,21 @@ __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module)
     /* Init and expose classes */
 
     texture_class = expose_class("Texture", sizeof(ObjectInstanceTexture), texture_class_deallocate, NULL,
-                make_constructor(2, (char*[]) {"renderer", "filename"}, texture_init));
+                plane.object_make_constructor(2, (char*[]) {"renderer", "filename"}, texture_init), NULL);
     window_class = expose_class("Window", sizeof(ObjectInstanceWindow), window_class_deallocate, NULL, 
-                make_constructor(6, (char*[]) {"title", "x", "y", "w", "h", "flags"}, window_init));
+                plane.object_make_constructor(6, (char*[]) {"title", "x", "y", "w", "h", "flags"}, window_init), NULL);
     renderer_class = expose_class("Renderer", sizeof(ObjectInstanceRenderer), renderer_class_deallocate, renderer_class_gc_mark,
-                make_constructor(3, (char*[]) {"window", "index", "flags"}, renderer_init));
+                plane.object_make_constructor(3, (char*[]) {"window", "index", "flags"}, renderer_init), NULL);
+
+    ObjectInstance* rect_descriptor = plane.object_descriptor_new_native(rect_descriptor_get, rect_descriptor_set);
+    void* rect_descriptors[][2] = {
+        {"x", rect_descriptor}, {"y", rect_descriptor}, {"w", rect_descriptor}, {"h", rect_descriptor}, {NULL, NULL}
+    };
+
     rect_class = expose_class("Rect", sizeof(ObjectInstanceRect), rect_class_deallocate, NULL, 
-                make_constructor(4, (char*[]) {"x", "y", "w", "h"}, rect_init));
-    event_class = expose_class("Event", sizeof(ObjectInstanceEvent), event_class_deallocate, NULL, NULL);
+                plane.object_make_constructor(4, (char*[]) {"x", "y", "w", "h"}, rect_init), rect_descriptors);
+
+    event_class = expose_class("Event", sizeof(ObjectInstanceEvent), event_class_deallocate, NULL, NULL, NULL);
 
     /* Init and explose function */
 

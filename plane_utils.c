@@ -106,6 +106,10 @@ char* concat_multi_cstrings(int count, char** strings, int lengths[], char* allo
 	return result;
 }
 
+bool cstrings_equal(char* s1, int length1, char* s2, int length2) {
+	return length1 == length2 && (strncmp(s1, s2, length1) == 0);
+}
+
 char* find_interpreter_directory(void) {
 	char* dir_path = NULL;
 

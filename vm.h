@@ -53,6 +53,7 @@ CallResult vm_call_object(Object* object, ValueArray args, Value* out);
 CallResult vm_call_function(ObjectFunction* function, ValueArray args, Value* out);
 CallResult vm_call_bound_method(ObjectBoundMethod* bound_method, ValueArray args, Value* out);
 CallResult vm_instantiate_class(ObjectClass* klass, ValueArray args, Value* out);
+CallResult vm_instantiate_class_no_args(ObjectClass* klass, Value* out);
 CallResult vm_call_attribute(Object* object, ObjectString* name, ValueArray args, Value* out);
 CallResult vm_call_attribute_cstring(Object* object, char* name, ValueArray args, Value* out);
 

@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <inttypes.h>
+#include <assert.h>
 
 /* Generally keep these OFF unless you need them specifically */
 #define DISABLE_GC 0 // Only set to 1 for debugging purposes when you need the GC to not run

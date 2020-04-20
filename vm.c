@@ -438,6 +438,9 @@ static void set_builtin_globals(void) {
 }
 
 static void register_builtin_modules(void) {
+	/* Now that we have stdlib extension modules, genernally we should have too many (if any) builtin modules.
+	   Nonetheless, this stays here at least for now. */
+
 	const char* test_module_name = "_testing";
 	ObjectModule* test_module = object_module_native_new(object_string_copy_from_null_terminated(test_module_name), NULL);
 
@@ -447,6 +450,11 @@ static void register_builtin_modules(void) {
 	ObjectFunction* call_callback_with_args_func = make_native_function_with_params(
 							"call_callback_with_args", 3, (char*[]) {"callback", "arg1", "arg2"}, builtin_test_call_callback_with_args);
 	object_set_attribute_cstring_key((Object*) test_module, "call_callback_with_args", MAKE_VALUE_OBJECT(call_callback_with_args_func));
+
+	ObjectFunction* get_value_directly_from_object_attributes = make_native_function_with_params(
+			"get_value_directly_from_object_attributes", 2, (char*[]) {"object", "attribute"}, builtin_test_get_value_directly_from_object_attributes);
+	object_set_attribute_cstring_key(
+		(Object*) test_module, "get_value_directly_from_object_attributes", MAKE_VALUE_OBJECT(get_value_directly_from_object_attributes));
 
 	cell_table_set_value_cstring_key(&vm.builtin_modules, test_module_name, MAKE_VALUE_OBJECT(test_module));
 }
@@ -757,6 +765,13 @@ CallResult vm_instantiate_class(ObjectClass* klass, ValueArray args, Value* out)
 	instance->is_initialized = true;
 	*out = MAKE_VALUE_OBJECT(instance);
 	return CALL_RESULT_SUCCESS;
+}
+
+CallResult vm_instantiate_class_no_args(ObjectClass* klass, Value* out) {
+	ValueArray args = value_array_make(0, NULL);
+	CallResult result = vm_instantiate_class(klass, args, out);
+	value_array_free(&args);
+	return result;
 }
 
 CallResult vm_call_object(Object* object, ValueArray args, Value* out) {
@@ -1580,7 +1595,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
 
                 Object* object = obj_value.as.object;
                 Value attribute_value = pop();
-                cell_table_set_value_cstring_key(&object->attributes, name->chars, attribute_value);
+                // cell_table_set_value_cstring_key(&object->attributes, name->chars, attribute_value);
+                object_set_attribute_cstring_key(object, name->chars, attribute_value);
 
                 break;
             }

@@ -10,4 +10,5 @@ if %errorlevel%==0 (
 	popd
 ) else (
 	echo Build failed
+	exit /b -1
 )

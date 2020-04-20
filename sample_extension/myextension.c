@@ -1,6 +1,10 @@
 #include <stdio.h>
+#include <assert.h>
 
 #include "myextension.h"
+
+// // temp
+// #define EXTENSION_1
 
 static PlaneApi plane;
 static ObjectModule* this;
@@ -8,6 +12,7 @@ static ObjectModule* this;
 typedef struct {
     ObjectInstance base;
     char* dynamic_memory;
+    int x;
 } ObjectInstanceMyThingA;
 
 typedef struct {
@@ -47,6 +52,7 @@ static bool my_thing_a_init(Object* self, ValueArray args, Value* out) {
     ObjectInstanceMyThingA* a = (ObjectInstanceMyThingA*) self;
     ObjectString* text = (ObjectString*) args.values[0].as.object;
     a->dynamic_memory = plane.copy_cstring(text->chars, text->length, plane.EXTENSION_ALLOC_STRING_CSTRING);
+    a->x = 0;
     *out = MAKE_VALUE_NIL();
     return true;
 }
@@ -96,6 +102,43 @@ static bool my_thing_b_get_text_multiplied(Object* self, ValueArray args, Value*
 
     ObjectString* twice = plane.object_string_take(buffer, strlen(buffer));
     *out = MAKE_VALUE_OBJECT(twice);
+    return true;
+}
+
+static bool my_thing_a_descriptor_get(Object* self, ValueArray args, Value* out) {
+    assert(self == NULL); /* In this case, @get isn't a bound method, just a function tied to an object */
+    assert(args.count == 2);
+    assert(plane.is_value_instance_of_class(args.values[0], "MyThingA"));
+    assert(plane.object_value_is(args.values[1], OBJECT_STRING));
+
+    ObjectInstanceMyThingA* thing = (ObjectInstanceMyThingA*) args.values[0].as.object;
+    ObjectString* attr_name = (ObjectString*) args.values[1].as.object;
+
+    assert(plane.cstrings_equal(attr_name->chars, attr_name->length, "x", 1));
+
+    printf("Running MyThingA descriptor @get for attribute x. Value: %d\n", thing->x);
+    *out = MAKE_VALUE_NUMBER(thing->x);
+    return true;
+}
+
+static bool my_thing_a_descriptor_set(Object* self, ValueArray args, Value* out) {
+    assert(self == NULL);
+    assert(args.count == 3);
+    assert(plane.is_value_instance_of_class(args.values[0], "MyThingA"));
+    assert(plane.object_value_is(args.values[1], OBJECT_STRING));
+    assert(args.values[2].type == VALUE_NUMBER); /* Not the way to do this in real code, but good for testing right now at least */
+
+
+    ObjectInstanceMyThingA* thing = (ObjectInstanceMyThingA*) args.values[0].as.object;
+    ObjectString* attr_name = (ObjectString*) args.values[1].as.object;
+    double value = args.values[2].as.number;
+
+    assert(plane.cstrings_equal(attr_name->chars, attr_name->length, "x", 1));
+
+    printf("Running MyThingA descriptor @set for attribute x. Current value: %d. New value: %g\n", thing->x, value);
+    thing->x = value;
+
+    *out = MAKE_VALUE_NIL();
     return true;
 }
 
@@ -159,7 +202,7 @@ static bool square(Object* self, ValueArray args, Value* out) {
     *out = sqr_result;
     return true;
 }
-#endif
+
 static bool more_talk_with_other_extension(Object* self, ValueArray args, Value* out) {
     plane.vm_import_module_cstring("myuserextension");
     ObjectModule* other_extension = plane.vm_get_module_cstring("myuserextension");
@@ -271,8 +314,7 @@ static bool more_talk_with_other_extension(Object* self, ValueArray args, Value*
 
     return true;
 }
-
-
+#endif
 
 MYEXTENSIONAPI bool plane_module_init(PlaneApi api, ObjectModule* module) {
     plane = api;
@@ -289,8 +331,10 @@ MYEXTENSIONAPI bool plane_module_init(PlaneApi api, ObjectModule* module) {
 
     ObjectFunction* constructor_a = plane.make_native_function_with_params("@init", 1, (char*[]) {"text"}, my_thing_a_init);
 
-    ObjectClass* my_thing_a_class 
-            = plane.object_class_native_new("MyThingA", sizeof(ObjectInstanceMyThingA), my_thing_a_dealloc, NULL, constructor_a);
+    ObjectInstance* my_thing_a_descriptor = plane.object_descriptor_new_native(my_thing_a_descriptor_get, my_thing_a_descriptor_set);
+    ObjectClass* my_thing_a_class = plane.object_class_native_new(
+            "MyThingA", sizeof(ObjectInstanceMyThingA), my_thing_a_dealloc, NULL, constructor_a,
+            (void*[][2]) {{"x", my_thing_a_descriptor}, {NULL, NULL}});
 
     plane.object_set_attribute_cstring_key((Object*) my_thing_a_class, "get_text", MAKE_VALUE_OBJECT(
         plane.make_native_function_with_params("get_text", 0, NULL, my_thing_a_get_text)
@@ -313,7 +357,7 @@ MYEXTENSIONAPI bool plane_module_init(PlaneApi api, ObjectModule* module) {
 
     ObjectFunction* constructor_b = plane.make_native_function_with_params("@init", 1, (char*[]) {"a"}, my_thing_b_init);
     ObjectClass* my_thing_b_class 
-            = plane.object_class_native_new("MyThingB", sizeof(ObjectInstanceMyThingB), my_thing_b_dealloc, my_thing_b_gc_mark, constructor_b);
+            = plane.object_class_native_new("MyThingB", sizeof(ObjectInstanceMyThingB), my_thing_b_dealloc, my_thing_b_gc_mark, constructor_b, NULL);
 
     plane.object_set_attribute_cstring_key((Object*) my_thing_b_class, "get_text_multiplied", MAKE_VALUE_OBJECT(
         plane.make_native_function_with_params("get_text_multiplied", 1, (char*[]) {"times"}, my_thing_b_get_text_multiplied)
@@ -322,5 +366,6 @@ MYEXTENSIONAPI bool plane_module_init(PlaneApi api, ObjectModule* module) {
     plane.object_set_attribute_cstring_key((Object*) module, "MyThingB", MAKE_VALUE_OBJECT(my_thing_b_class));
     #endif
 
+    
     return true;
 }

@@ -56,3 +56,24 @@ bool builtin_test_call_callback_with_args(Object* self, ValueArray args, Value* 
     *out = MAKE_VALUE_NIL();
     return false;
 }
+
+bool builtin_test_get_value_directly_from_object_attributes(Object* self, ValueArray args, Value* out) {
+    /* Bypass the attribute lookup mechanism (mainly classes and descriptors), and get
+       a value directly from an object's attribute table. Used to test some internals of the system. */
+
+    assert(args.count == 2);
+    assert(args.values[0].type == VALUE_OBJECT);
+    assert(object_value_is(args.values[1], OBJECT_STRING));
+
+    Object* object = args.values[0].as.object;
+    ObjectString* attr_name = (ObjectString*) args.values[1].as.object;
+
+    if (!load_attribute_bypass_descriptors(object, attr_name, out) || is_value_instance_of_class(*out, "Descriptor")) {
+        /* Not super elegant, but fine for now. The tests are based on stdout reading anyway. They look for this when appropriate. */
+        printf("Attribute not found\n"); 
+        *out = MAKE_VALUE_NIL();
+        return true;
+    }
+
+    return true;
+}

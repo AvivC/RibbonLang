@@ -9,6 +9,8 @@
 #include "memory.h"
 #include "table.h"
 
+static ObjectClass* descriptor_class = NULL;
+
 static Object* allocate_object(size_t size, const char* what, ObjectType type) {
 	DEBUG_OBJECTS_PRINT("Allocating object '%s' of size %d and type %d.", what, size, type);
 
@@ -38,7 +40,7 @@ static void set_object_native_method(Object* object, const char* method_name, ch
 
 	ObjectFunction* method = object_native_function_new(function, copied_params, num_params);
 	ObjectBoundMethod* bound_method = object_bound_method_new(method, object);
-	cell_table_set_value_cstring_key(&object->attributes, method_name, MAKE_VALUE_OBJECT(bound_method));
+	object_set_attribute_cstring_key(object, method_name, MAKE_VALUE_OBJECT(bound_method));
 }
 
 static bool object_string_add(Object* self, ValueArray args, Value* result) {
@@ -196,24 +198,9 @@ static ObjectString* object_string_new(char* chars, int length) {
 	ObjectFunction* string_length_method = make_native_function_with_params("length", 0, NULL, object_string_length);
 	ObjectBoundMethod* string_length_bound_method = object_bound_method_new(string_length_method, (Object*) string);
 
-	// ObjectFunction* string_length_method = NULL;
-
-	// if (string_length_method == NULL) {
-	// 	char* params[] =  {};
-	// 	int num_params = 0;
-	// 	int num_params_including_self = num_params + 1;
-	// 	char** copied_params = allocate(sizeof(char*) * num_params_including_self, "Parameters list cstrings");
-
-	// 	copied_params[0] = copy_null_terminated_cstring("self", "ObjectFunction param cstring");
-	// 	for (int i = 0; i < num_params; i++) {
-	// 		copied_params[i + 1] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
-	// 	}
-
-	// 	string_length_method = object_native_function_new(object_string_length, copied_params, num_params_including_self, (Object*) string);
-	// }
+	/* TODO: Consider if setting the objects attributes should go through the object_set_attribute function */
 
 	ObjectString* add_attr_key = object_string_new_partial("@add", strlen("@add"));
-	// cell_table_set_value_directly(&string->base.attributes, MAKE_VALUE_OBJECT(add_attr_key), MAKE_VALUE_OBJECT(string_add_method));
 	cell_table_set_value(&string->base.attributes, MAKE_VALUE_OBJECT(add_attr_key), MAKE_VALUE_OBJECT(string_add_bound_method));
 
 	ObjectString* get_key_attr_key = object_string_new_partial("@get_key", strlen("@get_key"));
@@ -321,6 +308,66 @@ ObjectBoundMethod* object_bound_method_new(ObjectFunction* method, Object* self)
 	return bound_method;
 }
 
+static bool descriptor_init(Object* self, ValueArray args, Value* out) {
+	/* TODO: One convenient argument-types-validator thing, to be used also here. */
+
+	if (!is_instance_of_class(self, "Descriptor")) {
+		FAIL("Descriptor passed as self to @init isn't an instance of the Descriptor class.");
+	}
+
+	Value get_arg = args.values[0];
+	Value set_arg = args.values[1];
+
+	/* Assertions are fine as long as this is internal.
+	   TODO to figure out better mechanism if later this is exposed to user code. */
+
+	if (get_arg.type != VALUE_NIL) {
+		if (!object_value_is(get_arg, OBJECT_FUNCTION)) {
+			FAIL("get argument passed to descriptor @init is not a function.");
+		}
+		object_set_attribute_cstring_key((Object*) self, "@get", get_arg);
+	}
+
+	if (set_arg.type != VALUE_NIL) {
+		if (!object_value_is(set_arg, OBJECT_FUNCTION)) {
+			FAIL("set argument passed to descriptor @init is not a function.");
+		}
+		object_set_attribute_cstring_key((Object*) self, "@set", set_arg);
+	}
+
+	*out = MAKE_VALUE_NIL();
+	return true;
+}
+
+ObjectInstance* object_descriptor_new(ObjectFunction* get, ObjectFunction* set) {
+	if (descriptor_class == NULL) {
+		ObjectFunction* init_func = object_make_constructor(2, (char*[]) {"get", "set"}, descriptor_init);
+		descriptor_class = object_class_native_new("Descriptor", sizeof(ObjectInstance), NULL, NULL, init_func, NULL);
+	}
+
+	Value get_val = get == NULL ? MAKE_VALUE_NIL() : MAKE_VALUE_OBJECT(get);
+	Value set_val = set == NULL ? MAKE_VALUE_NIL() : MAKE_VALUE_OBJECT(set);
+
+	Value descriptor_val;
+	ValueArray args = value_array_make(2, (Value[]) {get_val, set_val});
+	if (vm_instantiate_class(descriptor_class, args, &descriptor_val) != CALL_RESULT_SUCCESS) {
+		return NULL;
+	}
+	value_array_free(&args);
+
+	if (!is_value_instance_of_class(descriptor_val, "Descriptor")) {
+		FAIL("Descriptor instantiated isn't an instance of the Descriptor class.");
+	}
+
+	return (ObjectInstance*) descriptor_val.as.object;
+}
+
+ObjectInstance* object_descriptor_new_native(NativeFunction get, NativeFunction set) {
+	ObjectFunction* get_object = make_native_function_with_params("@get", 2, (char*[]) {"object", "attribute"}, get);
+	ObjectFunction* set_object = make_native_function_with_params("@set", 3, (char*[]) {"object", "attribute", "value"}, set);
+	return object_descriptor_new(get_object, set_object);
+}
+
 ObjectCode* object_code_new(Bytecode chunk) {
 	ObjectCode* obj_code = (ObjectCode*) allocate_object(sizeof(ObjectCode), "ObjectCode", OBJECT_CODE);
 	obj_code->bytecode = chunk;
@@ -378,10 +425,8 @@ ObjectClass* object_class_new(ObjectFunction* base_function, char* name) {
 }
 
 ObjectClass* object_class_native_new(
-		char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_func, ObjectFunction* constructor) {
-	if (dealloc_func == NULL) {
-		FAIL("NULL dealloc_func passed for native class.");
-	}
+		char* name, size_t instance_size, DeallocationFunction dealloc_func, 
+		GcMarkFunction gc_mark_func, ObjectFunction* constructor, void* descriptors[][2]) {
 	if (instance_size <= 0) {
 		FAIL("instance_size <= passed for native class.");
 	}
@@ -390,6 +435,15 @@ ObjectClass* object_class_native_new(
 
 	if (constructor != NULL) {
 		object_set_attribute_cstring_key((Object*) klass, "@init", MAKE_VALUE_OBJECT(constructor));
+	}
+
+	if (descriptors != NULL) {
+		for (int i = 0; descriptors[i][0] != NULL; i++) {
+			void** descriptor = descriptors[i];
+			char* attribute = (char*) descriptor[0];
+			ObjectInstance* instance = descriptor[1];
+			object_set_attribute_cstring_key((Object*) klass, attribute, MAKE_VALUE_OBJECT(instance));
+		}
 	}
 
 	return klass;
@@ -518,7 +572,7 @@ void object_free(Object* o) {
 			ObjectClass* klass = instance->klass;
 			if (klass->instance_size > 0) {
 				/* Native class */
-				if (instance->is_initialized) {
+				if (instance->is_initialized && klass->dealloc_func != NULL) {
 					klass->dealloc_func(instance);
 				}
 				deallocate(instance, klass->instance_size, "ObjectInstance");
@@ -769,7 +823,66 @@ bool object_hash(Object* object, unsigned long* result) {
 	return false;
 }
 
+/* This function should generally only be called by the attribute accessor external functions of this module.
+   It should almost never be called directly. It's only external here for use in the builtin_test module,
+   to test internals of the system. */
+bool load_attribute_bypass_descriptors(Object* object, ObjectString* name, Value* out) {
+	if (cell_table_get_value(&object->attributes, name, out)) {
+		return true;
+	}
+
+	if (object->type == OBJECT_INSTANCE) {
+		ObjectInstance* instance = (ObjectInstance*) object;
+		ObjectClass* klass = instance->klass;
+
+		if (cell_table_get_value(&instance->klass->base.attributes, name, out)) {
+			if (object_value_is(*out, OBJECT_FUNCTION)) {
+				ObjectFunction* method = (ObjectFunction*) out->as.object;
+				ObjectBoundMethod* bound_method = object_bound_method_new(method, object);
+				*out = MAKE_VALUE_OBJECT(bound_method);
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void object_set_attribute_cstring_key(Object* object, const char* key, Value value) {
+	Value descriptor_value;
+	if (load_attribute_bypass_descriptors(object, object_string_copy_from_null_terminated(key), &descriptor_value)) {
+		if (is_value_instance_of_class(descriptor_value, "Descriptor")) {
+			ObjectInstance* descriptor = (ObjectInstance*) descriptor_value.as.object;
+			
+			Value set_method_val;
+			if (!object_load_attribute_cstring_key((Object*) descriptor, "@set", &set_method_val)) {
+				FAIL("Descriptor found with no @set method."); /* Descriptors without one of @get or @set currently unsupported */
+			}
+			assert(object_value_is(set_method_val, OBJECT_FUNCTION) || object_value_is(set_method_val, OBJECT_BOUND_METHOD));
+
+			ValueArray descriptor_args = value_array_make(3, (Value[]) {
+								MAKE_VALUE_OBJECT(object),
+								MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key)),
+								value});
+			
+			Value descriptor_return_val;
+			if (vm_call_object(set_method_val.as.object, descriptor_args, &descriptor_return_val) != CALL_RESULT_SUCCESS) {
+				/* Currently an assertion might be fine, because right now descriptors aren't exposed to user code, it's an internal thing that should work.
+				   Except for extensions. If you're an extension developer, and your descriptor fails, yes right now it will crash everything.
+				   Maybe fix later if and when we make a better error handling system */
+
+				FAIL("Calling descriptor failed.");
+			}
+
+			assert(descriptor_return_val.type == VALUE_NIL);
+
+			value_array_free(&descriptor_args);
+
+			return;
+		}
+	}
+
 	cell_table_set_value_cstring_key(&object->attributes, key, value);
 }
 
@@ -784,30 +897,58 @@ static Value function_value_to_bound_method(Value func_value, Object* self) {
 }
 
 bool object_load_attribute(Object* object, ObjectString* name, Value* out) {
-	Value attr_value;
-	if (cell_table_get_value_cstring_key(&object->attributes, name->chars, &attr_value)) {
-		*out = attr_value;
-		return true;
+	if (!load_attribute_bypass_descriptors(object, name, out)) {
+		return false;
 	}
 
-	if (object->type == OBJECT_INSTANCE) {
-		ObjectInstance* instance = (ObjectInstance*) object;
-		ObjectClass* klass = instance->klass;
-		if (cell_table_get_value_cstring_key(&instance->klass->base.attributes, name->chars, &attr_value)) {
-			if (object_value_is(attr_value, OBJECT_FUNCTION)) {
-				ObjectFunction* method = (ObjectFunction*) attr_value.as.object;
-				ObjectBoundMethod* bound_method = object_bound_method_new(method, object);
-				attr_value = MAKE_VALUE_OBJECT(bound_method);
-			}
+	if (is_value_instance_of_class(*out, "Descriptor")) {
+		assert(object_value_is(*out, OBJECT_INSTANCE));
 
-			*out = attr_value;
-			return true;
+		ObjectInstance* descriptor = (ObjectInstance*) out->as.object;
+		Value get_method_val;
+		if (!object_load_attribute_cstring_key((Object*) descriptor, "@get", &get_method_val)) {
+			FAIL("Found a descriptor without a @get method - currently shouldn't be possible.");
 		}
+
+		assert(object_value_is(get_method_val, OBJECT_FUNCTION) || object_value_is(get_method_val, OBJECT_BOUND_METHOD));
+
+		ValueArray get_args = value_array_make(2, (Value[]) {MAKE_VALUE_OBJECT(object), MAKE_VALUE_OBJECT(name)});
+		if (vm_call_object(get_method_val.as.object, get_args, out) != CALL_RESULT_SUCCESS) {
+			/* Currently failing for this. Later possibly find a better solution. Possibly not,
+			   if we don't expose descriptors as a user feature */
+			FAIL("Descriptor @get failed.");
+		}
+		value_array_free(&get_args);
 	}
 
-	return false;
+	return true;
 }
 
 bool object_load_attribute_cstring_key(Object* object, const char* name, Value* out) {
 	return object_load_attribute(object, object_string_copy_from_null_terminated(name), out);
+}
+
+/* TODO: Rename is_instance functions to object_* namespace */
+
+bool is_instance_of_class(Object* object, char* klass_name) {
+    if (object->type != OBJECT_INSTANCE) {
+        return false;
+    }
+
+    ObjectInstance* instance = (ObjectInstance*) object;
+
+    ObjectClass* klass = instance->klass;
+    return (strlen(klass_name) == klass->name_length) && (strncmp(klass_name, klass->name, klass->name_length) == 0);;
+}
+
+bool is_value_instance_of_class(Value value, char* klass_name) {
+    if (!object_value_is(value, OBJECT_INSTANCE)) {
+        return false;
+    }
+
+    return is_instance_of_class(value.as.object, klass_name);
+}
+
+ObjectFunction* object_make_constructor(int num_params, char** params, NativeFunction function) {
+    return make_native_function_with_params("@init", num_params, params, function);
 }
