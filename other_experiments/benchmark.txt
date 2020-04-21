@@ -1,0 +1,26 @@
+Fib 28
+
+plane w/o diagnostics = 23 seconds
+python = 0.09 seconds
+
+
+Fib 23
+plane w/o diagnostics and w/o GC = 1.43 seconds
+plane w/o diagnostics and w/o GC = 2.15 seconds
+
+
+Fib 15
+plane w/o diagnostics and w/o GC = 0.059 seconds
+
+
+Fib 23
+plane w/o diagnostics and WITH GC = 2.1 seconds
+plane w/o diagnostics and w/0 GC = 1.7 seconds
+
+Fib 25
+plane w/o diagnostics and WITH GC = 5.8 seconds
+plane w/o diagnostics and w/0 GC = 4.28 secondscalc
+
+
+
+GC is responsible for about 20-25% of runtime

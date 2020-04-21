@@ -41,7 +41,10 @@ typedef struct ObjectInstanceRect {
 
 typedef struct ObjectInstanceEvent {
     ObjectInstance base;
-    SDL_Event event;
+    // SDL_Event event;
+    int type;
+    int scancode;
+    int repeat;
 } ObjectInstanceEvent;
 
 static bool window_init(Object* self, ValueArray args, Value* out) {
@@ -188,6 +191,62 @@ static bool rect_descriptor_set(Object* self, ValueArray args, Value* out) {
     return true;
 }
 
+static bool event_descriptor_get(Object* self, ValueArray args, Value* out) {
+    assert(args.count == 2);
+
+    Object* object = args.values[0].as.object;
+
+    assert(plane.is_instance_of_class(object, "Event"));
+
+    ObjectInstanceEvent* event = (ObjectInstanceEvent*) object;
+
+    ObjectString* attr_name = (ObjectString*) args.values[1].as.object;
+
+    char* attr_name_cstring = attr_name->chars;
+    int attr_name_length = attr_name->length;
+
+    if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "type", 4)) {
+        *out = MAKE_VALUE_NUMBER(event->type);
+    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "scancode", 8)) {
+        *out = MAKE_VALUE_NUMBER(event->scancode);
+    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "repeat", 6)) {
+        *out = MAKE_VALUE_NUMBER(event->repeat);
+    } else {
+        FAIL("Event descriptor @get method received attr name other than type or scancode");
+    }
+
+    return true;
+}
+
+static bool event_descriptor_set(Object* self, ValueArray args, Value* out) {
+    assert(args.count == 3);
+
+    Object* object = args.values[0].as.object;
+
+    assert(plane.is_instance_of_class(object, "Event"));
+
+    ObjectInstanceEvent* event = (ObjectInstanceEvent*) object;
+
+    ObjectString* attr_name = (ObjectString*) args.values[1].as.object;
+    double value = args.values[2].as.number;
+
+    char* attr_name_cstring = attr_name->chars;
+    int attr_name_length = attr_name->length;
+
+    if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "type", 4)) {
+        event->type = value;
+    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "scancode", 8)) {
+        event->scancode = value;
+    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "repeat", 6)) {
+        *out = MAKE_VALUE_NUMBER(event->repeat);
+    } else {
+        FAIL("Event descriptor @set method received attr name other than type or scancode");
+    }
+
+    *out = MAKE_VALUE_NIL();
+    return true;
+}
+
 static bool texture_init(Object* self, ValueArray args, Value* out) {
     if (!plane.is_instance_of_class(self, "Texture")) {
         FAIL("texture_init called with none Texture");
@@ -215,19 +274,26 @@ static bool texture_init(Object* self, ValueArray args, Value* out) {
     return true;
 }
 
-static ObjectInstanceEvent* new_event(SDL_Event event) {
-    ValueArray args = plane.value_array_make(0, NULL);
-    Value val;
-    plane.vm_instantiate_class(event_class, args, &val);
+static bool event_init(Object* self, ValueArray args, Value* out) {
+    // if (plane.vm_instantiate_class(event_class, args, out) != CALL_RESULT_SUCCESS) {
+    //     *out = MAKE_VALUE_NIL();
+    //     return true;
+    // }
 
-    if (!plane.is_value_instance_of_class(val, "Event")) {
-        FAIL("val is not a Event instance.");
-    }
+    assert(plane.is_instance_of_class(self, "Event"));
 
-    ObjectInstanceEvent* instance = (ObjectInstanceEvent*) val.as.object;
+    ObjectInstanceEvent* instance = (ObjectInstanceEvent*) self;
 
-    instance->event = event;
-    return instance;
+    int type = args.values[0].as.number;
+    int scancode = args.values[1].as.number;
+    int repeat = args.values[2].as.number; /* Non-zero if it's a key repeat */
+
+    instance->type = type;
+    instance->scancode = scancode;
+    instance->repeat = repeat;
+
+    *out = MAKE_VALUE_NIL();
+    return true;
 }
 
 static bool init(Object* self, ValueArray args, Value* out) {
@@ -386,8 +452,8 @@ static bool query_texture(Object* self, ValueArray args, Value* out) {
 
     plane.table_set_cstring_key(&out_table->table, "format", MAKE_VALUE_NUMBER(format));
     plane.table_set_cstring_key(&out_table->table, "access", MAKE_VALUE_NUMBER(access));
-    plane.table_set_cstring_key(&out_table->table, "width", MAKE_VALUE_NUMBER(width));
-    plane.table_set_cstring_key(&out_table->table, "height", MAKE_VALUE_NUMBER(height));
+    plane.table_set_cstring_key(&out_table->table, "w", MAKE_VALUE_NUMBER(width));
+    plane.table_set_cstring_key(&out_table->table, "h", MAKE_VALUE_NUMBER(height));
 
     *out = MAKE_VALUE_NUMBER(result);
     return true;   
@@ -433,7 +499,7 @@ static bool render_copy(Object* self, ValueArray args, Value* out) {
     if (args.values[3].type == VALUE_NIL) {
         dst_rect = NULL;
     } else {
-        ObjectInstanceRect* dst_rect_instance = (ObjectInstanceRect*) args.values[2].as.object;
+        ObjectInstanceRect* dst_rect_instance = (ObjectInstanceRect*) args.values[3].as.object;
         dst_rect = &dst_rect_instance->rect;
     }
 
@@ -458,8 +524,20 @@ static bool poll_event(Object* self, ValueArray args, Value* out) {
         FAIL("SDL_PollEvent returned a non 1 or 0 value: %d", result);
     }
 
+    int scancode = -1;
+    int repeat = -1;
+    if (event.type == SDL_KEYUP || event.type == SDL_KEYDOWN) {
+        scancode = event.key.keysym.scancode;
+        repeat = event.key.repeat;
+    }
+
     if (result == 1) {
-        *out = MAKE_VALUE_OBJECT(new_event(event));
+        ValueArray event_args = 
+            plane.value_array_make(3, (Value[]) {MAKE_VALUE_NUMBER(event.type), MAKE_VALUE_NUMBER(scancode), MAKE_VALUE_NUMBER(repeat)});
+        if (plane.vm_instantiate_class(event_class, event_args, out) != CALL_RESULT_SUCCESS) {
+            FAIL("Failed to instantiate event class for some reason.");
+        }
+        plane.value_array_free(&event_args);
     } else {
         *out = MAKE_VALUE_NIL();
     }
@@ -570,7 +648,13 @@ __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module)
     rect_class = expose_class("Rect", sizeof(ObjectInstanceRect), rect_class_deallocate, NULL, 
                 plane.object_make_constructor(4, (char*[]) {"x", "y", "w", "h"}, rect_init), rect_descriptors);
 
-    event_class = expose_class("Event", sizeof(ObjectInstanceEvent), event_class_deallocate, NULL, NULL, NULL);
+    ObjectInstance* event_descriptor = plane.object_descriptor_new_native(event_descriptor_get, event_descriptor_set);
+    void* event_descriptors[][2] = {
+        {"type", event_descriptor}, {"scancode", event_descriptor}, {"repeat", event_descriptor}, {NULL, NULL}
+    };
+
+    event_class = expose_class("Event", sizeof(ObjectInstanceEvent), event_class_deallocate,
+        NULL, plane.object_make_constructor(3, (char*[]) {"type", "scancode", "repeat"}, event_init), event_descriptors);
 
     /* Init and explose function */
 
@@ -611,6 +695,15 @@ __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module)
     plane.object_set_attribute_cstring_key((Object*) this, "IMG_INIT_JPG", MAKE_VALUE_NUMBER(IMG_INIT_JPG));
     plane.object_set_attribute_cstring_key((Object*) this, "SDL_LOG_CATEGORY_APPLICATION", MAKE_VALUE_NUMBER(SDL_LOG_CATEGORY_APPLICATION));
     plane.object_set_attribute_cstring_key((Object*) this, "SDL_LOG_PRIORITY_INFO", MAKE_VALUE_NUMBER(SDL_LOG_PRIORITY_INFO));
+
+    plane.object_set_attribute_cstring_key((Object*) this, "SDL_QUIT", MAKE_VALUE_NUMBER(SDL_QUIT));
+    plane.object_set_attribute_cstring_key((Object*) this, "SDL_KEYUP", MAKE_VALUE_NUMBER(SDL_KEYUP));
+    plane.object_set_attribute_cstring_key((Object*) this, "SDL_KEYDOWN", MAKE_VALUE_NUMBER(SDL_KEYDOWN));
+    plane.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_UP", MAKE_VALUE_NUMBER(SDL_SCANCODE_UP));
+    plane.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_DOWN", MAKE_VALUE_NUMBER(SDL_SCANCODE_DOWN));
+    plane.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_LEFT", MAKE_VALUE_NUMBER(SDL_SCANCODE_LEFT));
+    plane.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_RIGHT", MAKE_VALUE_NUMBER(SDL_SCANCODE_RIGHT));
+    plane.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_SPACE", MAKE_VALUE_NUMBER(SDL_SCANCODE_SPACE));
 
     return true;
 }

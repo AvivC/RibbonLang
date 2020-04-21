@@ -1,49 +1,185 @@
 import graphics
+import math
+sdl = graphics
 
-graphics.init(graphics.SDL_INIT_VIDEO)
+keyboard = [sdl.SDL_SCANCODE_UP: false, sdl.SDL_SCANCODE_DOWN: false, sdl.SDL_SCANCODE_SPACE: false]
 
-window = graphics.create_window("My window!", graphics.SDL_WINDOWPOS_UNDEFINED, graphics.SDL_WINDOWPOS_UNDEFINED, 500, 350, 0)
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 800
 
-print("Window:")
-print(window)
+Ball = class {
+    @init = { takes x, y, texture to
+        self.x = x
+        self.y = y
+        self.dx = 0
+        self.dy = 0
+        self.texture = texture
+        
+        details = []
+        sdl.query_texture(texture, details)
+        self.width = details["w"] / 10
+        self.height = details["h"] / 10
+    }
+    
+    apply_force = { takes fx, fy to
+        self.dx = self.dx + fx
+        self.dy = self.dy + fy
+    }
+    
+    update = {
+        self.apply_force(0, 0.1)
+        
+        self.x = self.x + self.dx
+        self.y = self.y + self.dy
+        
+        if self.y + self.height >= SCREEN_HEIGHT {
+            self.dy = self.dy * -1
+        }
+        
+        # if self.y + self.height >= SCREEN_HEIGHT {
+            # if(self.dy <= 1) {
+                # self.dx = 0
+                # self.dy = 0
+            # } else {
+                # self.negate_force()
+                # self.dy = self.dy + 5
+            # }
+        # }
+        
+        # self.x = self.x + self.dx
+        # self.y = self.y + self.dy
+        
+    }
+}
 
-graphics.set_hint(graphics.SDL_HINT_RENDER_SCALE_QUALITY, "linear")
+VeryPsuedoRandomGenerator = class {
+    @init = {
+        self._numbers = [53, 34536, 867, 92444, -4, 25672, 87531, 30, 1996, 458736, 77, -2, 095617, 242, 10, 593845, 32652, 097865, 561230, 468, 05, 73, 967, 723, 7, 1145329, -42]
+        self._i = 0
+    }
+    
+    next_number = {
+        self._i = self._i + 1
+        if self._i >= self._numbers.length() {
+            self._i = 0
+        }
+        return math.abs(self._numbers[self._i])
+    }
+}
 
-renderer = graphics.create_renderer(window, -1, graphics.SDL_RENDERER_ACCELERATED)
+random = VeryPsuedoRandomGenerator()
 
-print("Renderer:")
-print(renderer)
+Game = class {
+    @init = { takes title to
+        sdl.init(sdl.SDL_INIT_VIDEO)
+        
+        self.window = sdl.create_window(title, sdl.SDL_WINDOWPOS_UNDEFINED, sdl.SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0)
+        
+        sdl.set_hint(sdl.SDL_HINT_RENDER_SCALE_QUALITY, "linear")
+        self.renderer = sdl.create_renderer(self.window, -1, sdl.SDL_RENDERER_ACCELERATED)
+        
+        sdl.img_init(sdl.IMG_INIT_PNG)
+        sdl.show_cursor(1)
 
-graphics.img_init(graphics.IMG_INIT_PNG)
+        self.balls = []
+        self.spawn_ball()
 
-graphics.show_cursor(0)
+        self.running = true
 
-graphics.log_message(graphics.SDL_LOG_CATEGORY_APPLICATION, graphics.SDL_LOG_PRIORITY_INFO, "Some logging :D :D")
+        self.prepare_scene()
+        
+        self.draw()
 
-texture = graphics.img_load_texture(renderer, "others\player.png")  # relative to CWD
+        self.present_scene()
+    }
+    
+    spawn_ball = {
+        randnum = random.next_number()
+        random_x = (math.min(SCREEN_WIDTH, randnum) / math.max(SCREEN_WIDTH, randnum)) * SCREEN_WIDTH
+        texture = sdl.img_load_texture(self.renderer, "sdl_extension\pictures\ball.png")
+        self.balls[self.balls.length()] = Ball(random_x, 0, texture)
+    }
+    
+    prepare_scene = {
+        sdl.set_render_draw_color(self.renderer, 128, 230, 5, 255)
+        sdl.render_clear(self.renderer)
+    }
+    
+    present_scene = {
+        sdl.render_present(self.renderer)
+    }
+    
+    logic = {
+        if keyboard[sdl.SDL_SCANCODE_SPACE] {
+            self.spawn_ball()
+        }
+        
+        i = 0
+        while i < self.balls.length() {
+            ball = self.balls[i]
+            
+            ball.update()
+            
+            i = i + 1
+        }
+    }
+    
+    draw = {
+        i = 0
+        while i < self.balls.length() {
+            ball = self.balls[i]
+            ball_details = []
+            dest_rect = sdl.Rect(ball.x, ball.y, ball.width, ball.height)
+            sdl.render_copy(self.renderer, ball.texture, nil, dest_rect)
+            
+            i = i + 1
+        }
+    }
+    
+    input = {
+        event = sdl.poll_event()
+        while (event != nil) {
+            if event.type == sdl.SDL_QUIT {
+                self.running = false
+            } elsif event.type == sdl.SDL_KEYUP and event.repeat == 0 {
+                keyboard[event.scancode] = false
+            } elsif event.type == sdl.SDL_KEYDOWN and event.repeat == 0 {
+                keyboard[event.scancode] = true
+            }
+            
+            event = sdl.poll_event()
+        }
+    }
+}
 
-print("Texture:")
-print(texture)
+main = {
+    game = Game("My Plane Game! :D")
+    
+    frame_start_ticks = sdl.get_ticks()
+    
+    frames_count = 0
+    ticks_sum = 0
+    
+    while game.running {
+        game.prepare_scene()
+        game.input()
+        game.logic()
+        game.draw()
+        game.present_scene()
+        
+        ticks_since_frame_start = sdl.get_ticks() - frame_start_ticks
+        frame_start_ticks = sdl.get_ticks()
+        
+        if (ticks_since_frame_start < 16) {
+            sdl.delay(16 - ticks_since_frame_start)
+        }
+        
+        frames_count = frames_count + 1
+        ticks_sum = ticks_sum + ticks_since_frame_start
+    }
+    
+    print("Avg frame length in ticks")
+    print(ticks_sum / frames_count)
+}
 
-texture_details = []
-query_result = graphics.query_texture(texture, texture_details)
-print("Texture details:")
-print(texture_details)
-print("Query result:")
-print(query_result)
-
-r = graphics.Rect(100, 200, 50, 50)
-print("Rect:")
-print(r)
-
-r.y = 20
-print("rect.y:")
-print(r.y)
-
-input()
-
-graphics.destroy_renderer(renderer)
-
-graphics.destroy_window(window)
-
-graphics.quit()
+main()

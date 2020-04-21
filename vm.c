@@ -435,6 +435,7 @@ static void set_builtin_globals(void) {
 	register_builtin_function("print", 1, (char*[]) {"text"}, builtin_print);
 	register_builtin_function("input", 0, NULL, builtin_input);
 	register_builtin_function("read_file", 1, (char*[]) {"path"}, builtin_read_file);
+	register_builtin_function("time", 0, NULL, builtin_time);
 }
 
 static void register_builtin_modules(void) {
@@ -739,6 +740,8 @@ CallResult vm_call_bound_method(ObjectBoundMethod* bound_method, ValueArray args
 }
 
 CallResult vm_instantiate_class(ObjectClass* klass, ValueArray args, Value* out) {
+	/* TODO: Somehow out argument as Object**, not Value*? */
+
 	ObjectInstance* instance = object_instance_new(klass);
 
 	Value init_method_value;
@@ -1944,8 +1947,9 @@ static bool call_plane_function_custom_frame(
 	bool is_entity_base = base_entity != NULL;
 	StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false, false);
 
+	/* TODO: Remove this? */
 	if (args.count != function->num_params) {
-		FAIL("User function called with unmatching params number."); /* TODO: Legit error? */
+		FAIL("User function called with unmatching params number.");
 	}
 
 	for (int i = 0; i < function->num_params; i++) {

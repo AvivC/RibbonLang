@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 
 #include "vm.h"
 #include "builtins.h"
@@ -82,4 +83,12 @@ bool builtin_read_file(Object* self, ValueArray args, Value* out) {
 
 	FAIL("Should be unreachable.");
 	return false;
+}
+
+bool builtin_time(Object* self, ValueArray args, Value* out) {
+	/* Get the number of millisecond since the program was launched.
+	   Might be inexact and possibly have some odd issues.  */
+	   
+	*out = MAKE_VALUE_NUMBER(clock() / (CLOCKS_PER_SEC / 1000));
+	return true;
 }
