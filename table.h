@@ -25,7 +25,6 @@ typedef struct {
     int capacity;
     int bucket_count;
     Node** entries;
-    // int collisions_counter; // for debugging
     bool is_memory_infrastructure;
     bool is_growing; // for debugging
     size_t num_entries;

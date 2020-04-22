@@ -60,13 +60,11 @@ static void grow_table(Table* table) {
             table_set_value_directly(table, old_entry->key, old_entry->value);
             Node* current = old_entry;
             old_entry = old_entry->next;
-            // deallocate(current, sizeof(Node), "Table linked list node");
             deallocate_suitably(table, current, sizeof(Node), "Table linked list node");
         }
     }
     
     DEBUG_MEMORY("Deallocating old table array.");
-    // deallocate(old_entries, sizeof(Node*) * old_capacity, "Hash table array");
     deallocate_suitably(table, old_entries, sizeof(Node*) * old_capacity, "Hash table array");
 
     table->is_growing = false;
@@ -77,7 +75,6 @@ void table_init(Table* table) {
     table->capacity = 0;
     table->is_memory_infrastructure = false;
     table->is_growing = false;
-    // table->collisions_counter = 0;
     table->entries = NULL;
     table->num_entries = 0;
 }
@@ -110,15 +107,6 @@ void table_set_value_directly(Table* table, struct Value key, Value value) {
     int slot = hash % table->capacity;
     Node* root_node = table->entries[slot];
     Node* node = root_node;
-
-    // // Remove all this
-    // if (value.type == VALUE_ALLOCATION && (strcmp(value.as.allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0)) {
-    //     if (!table->is_memory_infrastructure) {
-    //         FAIL("WTF");
-    //     }
-
-    //     printf("Bucket selected for table iterate allocations buffer is: %d", slot);
-    // }
 
     if (root_node == NULL) {
         table->bucket_count++;
@@ -199,11 +187,9 @@ bool table_delete(Table* table, Value key) {
         if (keys_equal(node->key, key)) {
             if (previous != NULL) { 
                 previous->next = node->next;
-                // deallocate(node, sizeof(Node), "Table linked list node");
                 deallocate_suitably(table, node, sizeof(Node), "Table linked list node");
             } else {
                 table->entries[slot] = node->next;
-                // deallocate(node, sizeof(Node), "Table linked list node");
                 deallocate_suitably(table, node, sizeof(Node), "Table linked list node");
             }
 
@@ -226,23 +212,11 @@ PointerArray table_iterate(Table* table, const char* alloc_string) {
 	PointerArray array;
 	pointer_array_init(&array, alloc_string);
 
-    for (size_t i = 0; i < table->capacity; i++) { // TODO: Is it correct that we're iterating on table->capacity instead of table->count?
+     // TODO: Is it correct that we're iterating on table->capacity instead of table->count?
+    for (size_t i = 0; i < table->capacity; i++) {
         Node* node = table->entries[i];
 
         while (node != NULL) {
-
-            // Remove all of this
-            //
-            // if (strcmp(alloc_string, "memory_print_allocated_entries() table_iterate buffer") == 0) {
-            //     printf("\nWriting alloc '%s' to pointer array. Current bucket index %d\n",
-            //                              node->value.as.allocation.name, i); // Remove
-
-            //     if (strcmp(node->value.as.allocation.name, "memory_print_allocated_entries() table_iterate buffer") == 0) {
-            //         printf("\nFound: ");
-            //         printf("Index: %d, node pointer: %p, node key: %p \n", i, node, (void*) node->key.as.address);
-            //     }
-            // }
-
             pointer_array_write(&array, node);
             node = node->next;
         }
@@ -323,12 +297,10 @@ void table_free(Table* table) {
     PointerArray entries = table_iterate(table, "table free table_iterate buffer");
     for (size_t i = 0; i < entries.count; i++) {
         Node* node = entries.values[i];
-        // deallocate(node, sizeof(Node), "Table linked list node");        
         deallocate_suitably(table, node, sizeof(Node), "Table linked list node");        
     }
     pointer_array_free(&entries);
 
-    // deallocate(table->entries, sizeof(Node*) * table->capacity, "Hash table array");
     deallocate_suitably(table, table->entries, sizeof(Node*) * table->capacity, "Hash table array");
     table_init(table);
 }

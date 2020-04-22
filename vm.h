@@ -42,6 +42,8 @@ typedef struct {
     int max_objects;
     bool allow_gc;
 
+    Table string_cache;
+
     /* Used as roots for locating different modules during imports, etc. */
     char* main_module_path;
     char* interpreter_dir_path;

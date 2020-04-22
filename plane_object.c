@@ -187,11 +187,9 @@ static ObjectString* object_string_new(char* chars, int length) {
     string->chars = chars;
 	string->length = length;
 
-	// ObjectFunction* string_add_method = make_native_function_with_params("@add", 2, (char*[]) {"self", "other"}, object_string_add);
 	ObjectFunction* string_add_method = make_native_function_with_params("@add", 1, (char*[]) {"other"}, object_string_add);
 	ObjectBoundMethod* string_add_bound_method = object_bound_method_new(string_add_method, (Object*) string);
 
-	// ObjectFunction* string_get_key_method = make_native_function_with_params("@get_key", 2, (char*[]) {"self", "other"}, object_string_get_key);
 	ObjectFunction* string_get_key_method = make_native_function_with_params("@get_key", 1, (char*[]) {"other"}, object_string_get_key);
 	ObjectBoundMethod* string_get_key_bound_method = object_bound_method_new(string_get_key_method, (Object*) string);
 
@@ -209,10 +207,18 @@ static ObjectString* object_string_new(char* chars, int length) {
 	ObjectString* length_attr_key = object_string_new_partial("length", strlen("length"));
 	cell_table_set_value(&string->base.attributes, MAKE_VALUE_OBJECT(length_attr_key), MAKE_VALUE_OBJECT(string_length_bound_method));
 
+	table_set(&vm.string_cache, MAKE_VALUE_RAW_STRING(string->chars, string->length), MAKE_VALUE_OBJECT(string));
+
     return string;
 }
 
 ObjectString* object_string_copy(const char* string, int length) {
+	// Value cached_string;
+	// if (table_get(&vm.string_cache, MAKE_VALUE_RAW_STRING(string, length), &cached_string)) {
+	// 	assert(object_value_is(cached_string, OBJECT_STRING));
+	// 	return (ObjectString*) cached_string.as.object;
+	// }
+
 	// argument length should not include the null-terminator
     char* chars = copy_cstring(string, length, "Object string buffer");
     return object_string_new(chars, length);

@@ -23,7 +23,7 @@ char* concat_null_terminated_cstrings(const char* str1, const char* str2, const 
 char* concat_multi_null_terminated_cstrings(int count, char** strings, const char* alloc_string);
 char* concat_multi_cstrings(int count, char** strings, int lengths[], char* alloc_string);
 
-bool cstrings_equal(char* s1, int length1, char* s2, int length2);
+bool cstrings_equal(const char* s1, int length1, const char* s2, int length2);
 
 char* concat_null_terminated_paths(char* p1, char* p2, char* alloc_string);
 

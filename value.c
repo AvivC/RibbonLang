@@ -114,14 +114,24 @@ bool value_compare(Value a, Value b, int* output) {
 			Allocation alloc1 = a.as.allocation;
 			Allocation alloc2 = b.as.allocation;
 
-			*output = (alloc1.size == alloc2.size) && (strcmp(alloc1.name, alloc2.name) == 0);
+			*output = (alloc1.size == alloc2.size) && (strcmp(alloc1.name, alloc2.name) == 0); /* BUG ??? */
 			return true;
 		}
 
-		case VALUE_CHUNK:
-		case VALUE_RAW_STRING: {
-			FAIL("Attempting to compare chunks or raw_strings, shouldn't happen.");
+		case VALUE_CHUNK: {
+			FAIL("Attempting to compare chunks. Shouldn't happen.");
 			return false;
+		}
+
+		case VALUE_RAW_STRING: {
+			RawString s1 = a.as.raw_string;
+			RawString s2 = b.as.raw_string;
+			if (cstrings_equal(s1.data, s1.length, s2.data, s2.length)) {
+				*output = 0;
+			} else {
+				*output = -1;
+			}
+			return true;	
 		}
 	}
 
@@ -156,8 +166,10 @@ bool value_hash(Value* value, unsigned long* result) {
 			return true;
 		}
 		case VALUE_RAW_STRING: {
-			FAIL("Hashing a RAW_STRING shouldn't really happen ever.");
-			return false;
+			// FAIL("Hashing a RAW_STRING shouldn't really happen ever.");
+			RawString string = value->as.raw_string;
+			*result = hash_string_bounded(string.data, string.length);
+			return true;
 		}
 		case VALUE_ADDRESS: {
 			*result = hash_int(value->as.address); // Not good at all, but should logically work

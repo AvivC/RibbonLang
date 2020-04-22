@@ -34,7 +34,7 @@ typedef struct {
     ObjectString* (*object_string_copy_from_null_terminated) (const char* string);
     ObjectString* (*object_string_clone) (ObjectString* original);
     bool (*object_strings_equal) (ObjectString* a, ObjectString* b);
-    bool (*cstrings_equal) (char* s1, int length1, char* s2, int length2);
+    bool (*cstrings_equal) (const char* s1, int length1, const char* s2, int length2);
 
     char* (*copy_null_terminated_cstring) (const char* string, const char* what);
     char* (*copy_cstring) (const char* string, int length, const char* what);

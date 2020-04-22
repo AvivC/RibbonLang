@@ -545,6 +545,8 @@ void vm_init(void) {
     vm.allow_gc = false;
     vm.imported_modules = cell_table_new_empty();
     vm.builtin_modules = cell_table_new_empty();
+	table_init(&vm.string_cache); /* Must appear before the rest of the function - because other functions
+	                                 may create strings, and then table_init would lose hold of and leak them */
     cell_table_init(&vm.globals);
     set_builtin_globals();
 	register_builtin_modules();
@@ -557,10 +559,13 @@ void vm_free(void) {
 	cell_table_free(&vm.globals);
 	cell_table_free(&vm.imported_modules);
 	cell_table_free(&vm.builtin_modules);
+	// table_set(&vm.string_cache, MAKE_VALUE_RAW_STRING("abc", 3), MAKE_VALUE_NUMBER(2));
+	table_free(&vm.string_cache);	
+
 	vm.threads = NULL;
 	vm.current_thread = NULL;
 
-	gc(); // TODO: probably move upper
+	gc();
 
     vm.num_objects = 0;
     vm.max_objects = INITIAL_GC_THRESHOLD;
