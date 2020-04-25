@@ -79,10 +79,80 @@ bool builtin_read_file(Object* self, ValueArray args, Value* out) {
 			*out = MAKE_VALUE_NIL();
 			return false;
 		}
+		case IO_WRITE_FILE_FAILURE: {
+			FAIL("IO_WRITE_FILE_FAILURE returned from io_read_file - shouldn't happen.");
+			return false;
+		}
+		case IO_DELETE_FILE_FAILURE: {
+			FAIL("IO_DELETE_FILE_FAILURE returned from io_read_file - shouldn't happen.");
+			return false;
+		}
 	}
 
 	FAIL("Should be unreachable.");
 	return false;
+}
+
+bool builtin_write_file(Object* self, ValueArray args, Value* out) {
+	bool success = true;
+
+	assert(args.count == 2); /* Assertion because the function calling system should have raised a runtime error if incorrect
+	                            number of arguments */
+	if (!object_value_is(args.values[0], OBJECT_STRING) || !object_value_is(args.values[1], OBJECT_STRING)) {
+		*out = MAKE_VALUE_NIL();
+		return false;
+	}
+
+	ObjectString* file_name = (ObjectString*) args.values[0].as.object;
+	ObjectString* text = (ObjectString*) args.values[1].as.object;
+
+	char* file_name_bounded = copy_cstring(file_name->chars, file_name->length, "File name bounded");
+	char* text_bounded = copy_cstring(text->chars, text->length, "File text bounded");
+	if (io_write_file(file_name_bounded, text_bounded) != IO_SUCCESS) {
+		success = false;
+		goto cleanup;
+	}
+
+	cleanup:
+	deallocate(file_name_bounded, strlen(file_name_bounded) + 1, "File name bounded");
+	deallocate(text_bounded, strlen(text_bounded) + 1, "File text bounded");
+	
+	*out = MAKE_VALUE_NIL();
+	return success;
+}
+
+bool builtin_file_exists(Object* self, ValueArray args, Value* out) {
+	if (!object_value_is(args.values[0], OBJECT_STRING)) {
+		*out = MAKE_VALUE_NIL();
+		return false;
+	}
+
+	ObjectString* file_name = (ObjectString*) args.values[0].as.object;
+	char* file_name_bounded = copy_cstring(file_name->chars, file_name->length, "File name bounded");
+	bool exists = io_file_exists(file_name_bounded);
+	deallocate(file_name_bounded, strlen(file_name_bounded) + 1, "File name bounded");
+
+	*out = MAKE_VALUE_BOOLEAN(exists);
+	return true;
+}
+
+bool builtin_delete_file(Object* self, ValueArray args, Value* out) {
+	if (!object_value_is(args.values[0], OBJECT_STRING)) {
+		*out = MAKE_VALUE_NIL();
+		return false;
+	}
+
+	bool success = true;
+
+	ObjectString* file_name = (ObjectString*) args.values[0].as.object;
+	char* file_name_bounded = copy_cstring(file_name->chars, file_name->length, "File name bounded");
+	if (io_delete_file(file_name_bounded) != IO_SUCCESS) {
+		success = false;
+	}
+
+	deallocate(file_name_bounded, strlen(file_name_bounded) + 1, "File name bounded");
+	*out = MAKE_VALUE_NIL();
+	return success;
 }
 
 bool builtin_time(Object* self, ValueArray args, Value* out) {

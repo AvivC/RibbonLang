@@ -44,6 +44,34 @@ IOResult io_read_file(const char* file_name, const char* alloc_string, char** te
     return result;
 }
 
+
+IOResult io_write_file(const char* file_name, const char* string) {
+    IOResult result = IO_SUCCESS;
+
+    FILE* file = fopen(file_name, "w");
+
+    if (file == NULL) {
+        result = IO_OPEN_FILE_FAILURE;
+        goto cleanup;
+    }
+
+    int write_result = fputs(string, file);
+    if (write_result < 0 || write_result == EOF) {
+        result = IO_WRITE_FILE_FAILURE;
+    }
+
+    cleanup:
+    fclose(file);
+    return result;
+}
+
+IOResult io_delete_file(const char* file_name) {
+    if (remove(file_name) == 0) {
+        return IO_SUCCESS;
+    }
+    return IO_DELETE_FILE_FAILURE;
+}
+
 BOOL io_file_exists(LPCTSTR path) {
 	DWORD file_attributes = GetFileAttributes(path);
 	return (file_attributes != INVALID_FILE_ATTRIBUTES && !(file_attributes & FILE_ATTRIBUTE_DIRECTORY));

@@ -81,9 +81,19 @@ def _run_test_file(absolute_path):
         while line.isspace():
             line = next(lines)
 
-        test_prefix, test_name = [s.strip() for s in line.split('test ')]
+        if not 'test ' in line:
+            raise RuntimeError('Text outside test bounds')
 
-        if test_prefix == 'skip':
+        test_prefix, test_name = [s.strip() for s in line.split('test ')]
+        
+        test_annotations = [s.strip() for s in test_prefix.split()]
+        
+        for annotation in test_annotations:
+            if annotation not in ['repeat', 'skip']:
+                raise RuntimeError('Unknown test annotation: {}'.format(annotation))
+
+        #if test_prefix == 'skip':
+        if 'skip' in test_annotations:
             while line.strip() != 'end':
                 line = next(lines)
             try:
@@ -93,9 +103,8 @@ def _run_test_file(absolute_path):
                 pass
             print('Test %-60s [SKIPPED]' % test_name)
             continue
-
-        if not line.startswith('test '):
-            raise RuntimeError('Text outside test bounds')
+        
+        repeat = 'repeat' in test_annotations
 
         print('Test %-62s' % test_name, end='')
 
@@ -167,8 +176,21 @@ def _run_test_file(absolute_path):
             break
 
         interpreter_path = _relative_path_to_abs(os.path.join('..', '..', INTERPRETER_NAME))
-        output = _run_on_interpreter(interpreter_path, test_code, additional_files)
-        if output == expect_output:
+        
+        if repeat:
+            success = True
+            for i in range(1000):
+                output = _run_on_interpreter(interpreter_path, test_code, additional_files)
+                if output != expect_output:
+                    success = False
+                    break
+                    
+        else:
+            output = _run_on_interpreter(interpreter_path, test_code, additional_files)
+            success = output == expect_output
+            
+        #if output == expect_output:
+        if success:
             print(f'SUCCESS')
         else:
             all_success = False

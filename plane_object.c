@@ -212,12 +212,20 @@ static ObjectString* object_string_new(char* chars, int length) {
     return string;
 }
 
+static ObjectString* get_string_from_cache(const char* string, int length) {
+	Value cached_string;
+	if (table_get(&vm.string_cache, MAKE_VALUE_RAW_STRING(string, length), &cached_string)) {
+		assert(object_value_is(cached_string, OBJECT_STRING));
+		return (ObjectString*) cached_string.as.object;
+	}
+	return NULL;
+}
+
 ObjectString* object_string_copy(const char* string, int length) {
-	// Value cached_string;
-	// if (table_get(&vm.string_cache, MAKE_VALUE_RAW_STRING(string, length), &cached_string)) {
-	// 	assert(object_value_is(cached_string, OBJECT_STRING));
-	// 	return (ObjectString*) cached_string.as.object;
-	// }
+	ObjectString* cached = get_string_from_cache(string, length);
+	if (cached != NULL) {
+		return cached;
+	}
 
 	// argument length should not include the null-terminator
     char* chars = copy_cstring(string, length, "Object string buffer");
@@ -229,6 +237,12 @@ ObjectString* object_string_copy_from_null_terminated(const char* string) {
 }
 
 ObjectString* object_string_take(char* chars, int length) {
+	ObjectString* cached = get_string_from_cache(chars, length);
+	if (cached != NULL) {
+		deallocate(chars, length + 1, "Object string buffer");
+		return cached;
+	}
+
     // Assume chars is already null-terminated
     return object_string_new(chars, length);
 }
@@ -505,6 +519,7 @@ void object_free(Object* o) {
         case OBJECT_STRING: {
             ObjectString* string = (ObjectString*) o;
             DEBUG_OBJECTS_PRINT("Freeing ObjectString '%s'", string->chars);
+			table_delete(&vm.string_cache, MAKE_VALUE_RAW_STRING(string->chars, string->length));
             deallocate(string->chars, string->length + 1, "Object string buffer");
             deallocate(string, sizeof(ObjectString), "ObjectString");
             break;

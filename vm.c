@@ -435,6 +435,9 @@ static void set_builtin_globals(void) {
 	register_builtin_function("print", 1, (char*[]) {"text"}, builtin_print);
 	register_builtin_function("input", 0, NULL, builtin_input);
 	register_builtin_function("read_file", 1, (char*[]) {"path"}, builtin_read_file);
+	register_builtin_function("write_file", 2, (char*[]) {"path", "text"}, builtin_write_file);
+	register_builtin_function("delete_file", 1, (char*[]) {"path"}, builtin_delete_file);
+	register_builtin_function("file_exists", 1, (char*[]) {"path"}, builtin_file_exists);
 	register_builtin_function("time", 0, NULL, builtin_time);
 }
 
@@ -451,6 +454,14 @@ static void register_builtin_modules(void) {
 	ObjectFunction* call_callback_with_args_func = make_native_function_with_params(
 							"call_callback_with_args", 3, (char*[]) {"callback", "arg1", "arg2"}, builtin_test_call_callback_with_args);
 	object_set_attribute_cstring_key((Object*) test_module, "call_callback_with_args", MAKE_VALUE_OBJECT(call_callback_with_args_func));
+
+	ObjectFunction* same_object_func = make_native_function_with_params(
+							"same_object", 2, (char*[]) {"object1", "object2"}, builtin_test_same_object);
+	object_set_attribute_cstring_key((Object*) test_module, "same_object", MAKE_VALUE_OBJECT(same_object_func));
+
+	ObjectFunction* get_object_address_func = make_native_function_with_params(
+							"get_object_address", 1, (char*[]) {"object"}, builtin_test_get_object_address);
+	object_set_attribute_cstring_key((Object*) test_module, "get_object_address", MAKE_VALUE_OBJECT(get_object_address_func));
 
 	ObjectFunction* get_value_directly_from_object_attributes = make_native_function_with_params(
 			"get_value_directly_from_object_attributes", 2, (char*[]) {"object", "attribute"}, builtin_test_get_value_directly_from_object_attributes);
@@ -697,6 +708,14 @@ static ImportResult load_text_module(ObjectString* module_name, const char* file
 			// *error_out = "Failed to open file while loading module.";
 			// return false;
 			return IMPORT_RESULT_OPEN_FAILED;
+		}
+		case IO_WRITE_FILE_FAILURE: {
+			FAIL("During module import, IO_WRITE_FILE_FAILURE returned. Should never happen.");
+			return IMPORT_RESULT_READ_FAILED;
+		}
+		case IO_DELETE_FILE_FAILURE: {
+			FAIL("During module import, IO_DELETE_FILE_FAILURE returned. Should never happen.");
+			return IMPORT_RESULT_READ_FAILED;
 		}
 	}
 
@@ -1603,7 +1622,13 @@ static bool vm_interpret_frame(StackFrame* frame) {
 
                 Object* object = obj_value.as.object;
                 Value attribute_value = pop();
-                // cell_table_set_value_cstring_key(&object->attributes, name->chars, attribute_value);
+
+				if (object->type == OBJECT_STRING) {
+					/* We have to treat strings specially because of string caching */
+					RUNTIME_ERROR("Cannot set attributes on strings.");
+					break;
+				}
+
                 object_set_attribute_cstring_key(object, name->chars, attribute_value);
 
                 break;

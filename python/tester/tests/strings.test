@@ -32,67 +32,17 @@ expect
     0123
 end
 
-test string literals create objects
+test illegal to set attribute on string
+    # this is a fragile test because we rely on the very specific error output, which is very likely to change.
+    # this is why at the time of writing this, we usually don't have tests for specific error conditions (which isn't a great thing).
+    # this case is an exception, and we might have to update this test if and when the error output changes.
+
     text = "hello world"
-    a = text
-    b = text
-
-    print(a)
-    print(b)
-
-    a.attr = "thing"
-    print(b.attr)
+    a.x = 10
 expect
-    hello world
-    hello world
-    thing
-end
-
-test strings are independent objects
-    string_maker = {
-        return "hello world"
-    }
-
-    s1 = string_maker()
-    s2 = string_maker()
-
-    print(s1 == s2)  # logical equality
-
-    s1.attr = "thing"
-    print(s2.attr)  # should be nil, because it's a different object
-    print(s1.attr)
-    s2.attr = "other thing"
-    print(s1.attr)
-    print(s2.attr)
-
-    shared_thing = {
-        print("I'm some object which happens to be a function")
-    }
-
-    s1.shared_attr = shared_thing
-    s2.shared_attr = shared_thing
-
-    print(s1.shared_attr == s2.shared_attr)
-    s2.shared_attr.nested_attr = "I'm nested"
-    print(s1.shared_attr.nested_attr)
-    print(s2.shared_attr.nested_attr)
-
-    s1.shared_attr = "Something not shared"
-    print(s1.shared_attr)
-    print(s2.shared_attr.nested_attr)
-    print(s1.shared_attr.nested_attr)
-expect
-    true
-    nil
-    thing
-    thing
-    other thing
-    true
-    I'm nested
-    I'm nested
-    Something not shared
-    I'm nested
-    nil
+    An error has occured. Stack trace (most recent call on top):
+        -> <Anonymous function>
+    Runtime error: Cannot set attribute on non-object.
 end
 
 test string length method
@@ -101,6 +51,27 @@ test string length method
     print(n)
 expect
     9
+end
+
+skip test string interning
+    import _testing
+
+    a = "one string"
+    b = "different string"
+    
+    print(_testing.same_object(a, b))
+
+    print(_testing.same_object("another string", "yet another one"))
+
+    print(_testing.same_object(a, "one string"))
+
+    print(a + b)
+    print(_testing.same_object("one stringdifferent string", "one string" + "different string"))
+expect
+    false
+    false
+    true
+    true
 end
 
 test string key accessor
@@ -127,4 +98,10 @@ test string operations
     print(reversed)
 expect
     !dlrow olleh
+end
+
+skip repeat test xxx
+    print(time())
+expect
+    4
 end

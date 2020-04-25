@@ -77,3 +77,25 @@ bool builtin_test_get_value_directly_from_object_attributes(Object* self, ValueA
 
     return true;
 }
+
+bool builtin_test_same_object(Object* self, ValueArray args, Value* out) {
+    if (args.count != 2) {
+        return false;
+    }
+    if (args.values[0].type != VALUE_OBJECT || args.values[1].type != VALUE_OBJECT) {
+        return false;
+    }
+    *out = MAKE_VALUE_BOOLEAN(args.values[0].as.object == args.values[1].as.object);
+    return true;
+}
+
+bool builtin_test_get_object_address(Object* self, ValueArray args, Value* out) {
+    if (args.count != 1) {
+        return false;
+    }
+    if (args.values[0].type != VALUE_OBJECT) {
+        return false;
+    }
+    *out = MAKE_VALUE_NUMBER((uintptr_t) args.values[0].as.object);
+    return true;
+}

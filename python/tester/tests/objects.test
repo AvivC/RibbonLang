@@ -1,5 +1,5 @@
 test attribute assignment
-    obj = "a"
+    obj = [] # just an object that happens to be a table.
     obj.x = 10
     print(obj.x)
     obj.x = 20
@@ -7,7 +7,7 @@ test attribute assignment
     obj.x = obj.x + 1
     print(obj.x)
 
-    b = "b"
+    b = [] # also just an object that happens to be a table
     b.y = 10 + obj.x
     print(b.y)
 expect
@@ -15,4 +15,51 @@ expect
     20
     21
     31
+end
+
+test objects of the same type are independent
+    maker = {
+        return [] # just an object which happens to be a table
+    }
+
+    s1 = maker()
+    s2 = maker()
+
+    print(s1 == s2)  # identity equality, should be false
+
+    s1.attr = "thing"
+    print(s2.attr)  # should be nil, because it's a different object
+    print(s1.attr)
+    s2.attr = "other thing"
+    print(s1.attr)
+    print(s2.attr)
+
+    shared_thing = {
+        print("I'm some object which happens to be a function")
+    }
+
+    s1.shared_attr = shared_thing
+    s2.shared_attr = shared_thing
+
+    print(s1.shared_attr == s2.shared_attr)
+    s2.shared_attr.nested_attr = "I'm nested"
+    print(s1.shared_attr.nested_attr)
+    print(s2.shared_attr.nested_attr)
+
+    s1.shared_attr = "Something not shared"
+    print(s1.shared_attr)
+    print(s2.shared_attr.nested_attr)
+    print(s1.shared_attr.nested_attr)
+expect
+    false
+    nil
+    thing
+    thing
+    other thing
+    true
+    I'm nested
+    I'm nested
+    Something not shared
+    I'm nested
+    nil
 end

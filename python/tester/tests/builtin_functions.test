@@ -27,3 +27,25 @@ expect
     this is
     some file text
 end
+
+test file io cycle
+    print(file_exists("a1.txt")) # prints false
+
+    write_file("a1.txt", "Haaands!")
+
+    print(file_exists("a1.txt")) # prints true
+
+    print(read_file("a1.txt")) # prints Haaands!
+
+    print(file_exists("a1.txt")) # prints true
+
+    delete_file("a1.txt")
+
+    print(file_exists("a1.txt"))
+expect
+    false
+    true
+    Haaands!
+    true
+    false
+end
