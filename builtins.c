@@ -162,3 +162,45 @@ bool builtin_time(Object* self, ValueArray args, Value* out) {
 	*out = MAKE_VALUE_NUMBER(clock() / (CLOCKS_PER_SEC / 1000));
 	return true;
 }
+
+bool builtin_to_number(Object* self, ValueArray args, Value* out) {
+	bool success = true;
+
+	Value arg = args.values[0];
+	double number;
+
+	if (object_value_is(arg, OBJECT_STRING)) {
+		ObjectString* string = (ObjectString*) arg.as.object;
+		char* file_name_bounded = copy_cstring(string->chars, string->length, "File name bounded");
+		if (sscanf(file_name_bounded, "%lf", &number) == EOF) {
+			success = false;
+		} 
+		deallocate(file_name_bounded, strlen(file_name_bounded) + 1, "File name bounded");
+	} else {
+		success = false;
+	}
+
+	*out = success ? MAKE_VALUE_NUMBER(number) : MAKE_VALUE_NIL();
+	return success;
+}
+
+/* Ugly and temporary solution */
+bool builtin_to_string(Object* self, ValueArray args, Value* out) {
+	bool success = true;
+
+	char* buffer = NULL;
+
+	Value arg = args.values[0];
+	if (arg.type == VALUE_NUMBER) {
+		double number = arg.as.number;
+		size_t string_length = snprintf(NULL, 0, "%g", number);
+		buffer = allocate(string_length + 1, "to_string buffer");
+		int ret = snprintf(buffer, string_length + 1, "%g", number);
+		success = ret >= 0 && ret < string_length + 1;
+	} else {
+		success = false;
+	}
+
+	*out = success ? MAKE_VALUE_OBJECT(object_string_take(buffer, strlen(buffer))) : MAKE_VALUE_NIL();
+	return success;
+}

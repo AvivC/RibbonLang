@@ -438,6 +438,8 @@ static void set_builtin_globals(void) {
 	register_builtin_function("write_file", 2, (char*[]) {"path", "text"}, builtin_write_file);
 	register_builtin_function("delete_file", 1, (char*[]) {"path"}, builtin_delete_file);
 	register_builtin_function("file_exists", 1, (char*[]) {"path"}, builtin_file_exists);
+	register_builtin_function("to_number", 1, (char*[]) {"value"}, builtin_to_number);
+	register_builtin_function("to_string", 1, (char*[]) {"value"}, builtin_to_string);
 	register_builtin_function("time", 0, NULL, builtin_time);
 }
 
@@ -539,11 +541,11 @@ static bool call_native_function_args_from_stack(ObjectFunction* function, Objec
 	return success;
 }
 
-static bool call_native_function_discard_return_value(ObjectFunction* function, Object* self) {
-	bool result = call_native_function_args_from_stack(function, self);
-	pop();
-	return result;
-}
+// static bool call_native_function_discard_return_value(ObjectFunction* function, Object* self) {
+// 	bool result = call_native_function_args_from_stack(function, self);
+// 	pop();
+// 	return result;
+// }
 
 void vm_init(void) {
 	vm.threads = NULL;
@@ -1219,8 +1221,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
             
             case OP_ADD: {
             	if (peek_at(2).type == VALUE_OBJECT) {
-            		Value other = peek_at(1);
-            		Value subject_val = peek_at(2);
+            		Value other = peek_at(1); /* This will be popped later by that function we call (idk I'm tired right now) */
+            		Value subject_val = peek_at(2); /* Leave subject on stack for it to not be GC'd */
 
             		Object* subject = subject_val.as.object;
             		Value add_method;
@@ -1246,11 +1248,17 @@ static bool vm_interpret_frame(StackFrame* frame) {
 					if (add_bound_method->method->is_native) {
 						if (!call_native_function_args_from_stack(add_bound_method->method, add_bound_method->self)) {
 							RUNTIME_ERROR("@add function failed.");
-							break;
+							goto op_add_cleanup;
 						}
 					} else {
 						// TODO: user function
 					}
+
+					 /* Pop subject from stack - TODO: very ugly hack, change later */
+					op_add_cleanup: ;
+					Value result = pop();
+					pop(); /* The subject */
+					push(result);
             	} else {
             		BINARY_MATH_OP(+);
             	}

@@ -101,18 +101,18 @@ def _run_test_file(absolute_path):
             except StopIteration:
                 # This was the last test
                 pass
-            print('Test %-60s [SKIPPED]' % test_name)
+            print('Test %-75s [SKIPPED]' % test_name)
             continue
         
         repeat = 'repeat' in test_annotations
 
-        print('Test %-62s' % test_name, end='')
+        print('Test %-77s' % test_name, end='')
 
         num_tests += 1
 
         test_lines = []
         line = next(lines)
-        while line.strip() != 'expect' and not line.strip().startswith('file'):
+        while line.strip() != 'expect' and not line.strip().startswith('file '):
             if line == '\n':  # allow a special case of bare empty lines, for convenience
                 indent = 0
             elif line.startswith('\t'):
@@ -142,7 +142,7 @@ def _run_test_file(absolute_path):
 
             additional_file_lines = []
             line = next(lines)
-            while line.strip() != 'expect' and not line.strip().startswith('file'):
+            while line.strip() != 'expect' and not line.strip().startswith('file '):
                 if line == '\n':  # allow a special case of bare empty lines, for convenience
                     indent = 0
                 elif line.startswith('\t'):
@@ -183,18 +183,21 @@ def _run_test_file(absolute_path):
                 output = _run_on_interpreter(interpreter_path, test_code, additional_files)
                 if output != expect_output:
                     success = False
+                    failure_repeat = i
                     break
                     
         else:
             output = _run_on_interpreter(interpreter_path, test_code, additional_files)
             success = output == expect_output
             
-        #if output == expect_output:
         if success:
             print(f'SUCCESS')
         else:
             all_success = False
-            print(f'FAILURE')
+            if repeat:
+                print('FAILURE [repeat #{}]'.format(failure_repeat))
+            else:
+                print(f'FAILURE')
             print()
             print('Ln. %-14s  | Actual' % 'Expected')
             print()

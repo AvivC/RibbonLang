@@ -99,9 +99,3 @@ test string operations
 expect
     !dlrow olleh
 end
-
-skip repeat test xxx
-    print(time())
-expect
-    4
-end

@@ -512,7 +512,7 @@ ObjectThread* object_thread_new(ObjectFunction* function, char* name) {
 
 void object_free(Object* o) {
 	cell_table_free(&o->attributes);
-
+\
 	ObjectType type = o->type;
 
     switch (type) {

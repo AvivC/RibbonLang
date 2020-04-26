@@ -1,0 +1,57 @@
+skip repeat test surface memory corruptions by validating consistent stdout output
+    print("Some text")
+
+    i = 0
+    while i < 12 {
+        print("More text: " + to_string(i))
+    }
+expect
+    Some text
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+    11
+    12
+end
+
+test string concat does not overflow stack
+    # We had a bug where string concating would fail to pop the original
+    # string, resulting in an overflow in long loops. This test makes sure that bug doesn't come back
+
+    i = 0
+    while i < 2500 {
+        "s1" + "s2"
+        i = i + 1
+    }
+    print("Success")
+expect
+    Success
+end
+
+test table access does not overflow stack
+    t = ["a": 1]
+
+    i = 0
+    while i < 2500 {
+	    t["a"]
+        i = i + 1
+    }
+
+    print("Success")
+expect
+    Success
+end
+
+test printing koala prints koala
+    # This is important to me
+    print("koala")
+expect
+    koala
+end
