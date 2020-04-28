@@ -19,6 +19,7 @@ typedef enum {
 typedef struct {
 	const char* data;
 	int length;
+    unsigned long hash;
 } RawString;
 
 typedef struct Value {
@@ -37,8 +38,8 @@ typedef struct Value {
 #define MAKE_VALUE_NUMBER(n) (Value){.type = VALUE_NUMBER, .as.number = (n)}
 #define MAKE_VALUE_BOOLEAN(val) (Value){.type = VALUE_BOOLEAN, .as.boolean = (val)}
 #define MAKE_VALUE_NIL() (Value){.type = VALUE_NIL, .as.number = -1}
-#define MAKE_VALUE_RAW_STRING(cstring, the_length) (Value){.type = VALUE_RAW_STRING, \
-														.as.raw_string = (RawString) {.data = (cstring), .length = (the_length)}}
+#define MAKE_VALUE_RAW_STRING(cstring, the_length, the_hash) (Value){.type = VALUE_RAW_STRING, .as.raw_string \
+                                = (RawString) {.data = (cstring), .length = (the_length), .hash = (the_hash)}}
 #define MAKE_VALUE_OBJECT(o) (Value){.type = VALUE_OBJECT, .as.object = (struct Object*)(o)}
 #define MAKE_VALUE_CHUNK(the_chunk) (Value){.type = VALUE_CHUNK, .as.chunk = (the_chunk)}
 #define MAKE_VALUE_ALLOCATION(the_name, the_size) (Value) {.type = VALUE_ALLOCATION, \

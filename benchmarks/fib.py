@@ -14,6 +14,6 @@ def Fibonacci(n):
         
 
 start = time()
-print("Result: " + str(Fibonacci(26)))
+print("Result: " + str(Fibonacci(35)))
 duration = time() - start
 print("Duration: " + str(duration))

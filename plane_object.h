@@ -39,6 +39,7 @@ typedef struct ObjectString {
     Object base;
     char* chars;
     int length;
+	unsigned long hash;
 } ObjectString;
 
 typedef struct ObjectTable {

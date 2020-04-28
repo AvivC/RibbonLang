@@ -179,7 +179,8 @@ def _run_test_file(absolute_path):
         
         if repeat:
             success = True
-            for i in range(1000):
+            REPEAT_TIMES = 100
+            for i in range(REPEAT_TIMES):
                 output = _run_on_interpreter(interpreter_path, test_code, additional_files)
                 if output != expect_output:
                     success = False

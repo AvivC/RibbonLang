@@ -41,21 +41,13 @@ unsigned long hash_string(const char* string) {
 }
 
 unsigned long hash_string_bounded(const char* string, int length) {
-	// // Inefficient approach, but fine for now.
-	// char* alloc_string = "Bounded string for hashing";
-	// char* null_terminated = copy_cstring(string, length, alloc_string);
-	// unsigned long hash = hash_string(null_terminated);
-	// deallocate(null_terminated, sizeof(char) * strlen(null_terminated) + 1, alloc_string);
-	// return hash;
-
 	/* TODO: This wasn't tested throughly after converting it from the regular hash_string.
-	   General tests of course pass, but possibly this doesn't really hash correclty etc.
+	   General tests of course pass, but possibly this doesn't really hash correctly etc.
 	   Possibly look into this in the future. */
 
 	unsigned long hash = 5381;
 	int c;
 
-	// while ((c = *string++)) {
 	for (const char* p = string; p - string < length; p++) {
 		c = *p;
 		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */

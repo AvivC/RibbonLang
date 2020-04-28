@@ -53,25 +53,43 @@ expect
     9
 end
 
-skip test string interning
+test string interning
     import _testing
 
-    a = "one string"
-    b = "different string"
-    
-    print(_testing.same_object(a, b))
+    same = _testing.same_object
 
-    print(_testing.same_object("another string", "yet another one"))
+    a = "s1"
+    b = "s2"
+    c = "s1"
+    d = a + b
+    e = "s1" + "s2"
+    f = "" + d
 
-    print(_testing.same_object(a, "one string"))
+    print(same(a, c))
+    print(same(d, e))
+    print(same(f, d))
+    print(same(f, e))
 
-    print(a + b)
-    print(_testing.same_object("one stringdifferent string", "one string" + "different string"))
+    print(same(a, b))
+
+    a = "s2"
+    print(same(a, b))
 expect
-    false
-    false
     true
     true
+    true
+    true
+    false
+    true
+end
+
+test advanced string interning
+    # This test uses _testing.gc() in order to try and validate correct string interning and string cleanup behavior.
+    # The GC doesn't only run when invoking _testing.gc(), for this matter it may run at any given time. We use
+    # _testing.gc() to make sure it runs at a particular moment. 
+
+    # TODO: Write this test
+expect
 end
 
 test string key accessor

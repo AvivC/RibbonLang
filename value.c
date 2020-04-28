@@ -166,9 +166,8 @@ bool value_hash(Value* value, unsigned long* result) {
 			return true;
 		}
 		case VALUE_RAW_STRING: {
-			// FAIL("Hashing a RAW_STRING shouldn't really happen ever.");
 			RawString string = value->as.raw_string;
-			*result = hash_string_bounded(string.data, string.length);
+			*result = string.hash;
 			return true;
 		}
 		case VALUE_ADDRESS: {

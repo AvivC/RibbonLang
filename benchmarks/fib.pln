@@ -11,8 +11,12 @@ fib = { takes n to
 }
 
 start = time()
+
 print("Result:")
-fib(26)
+
+print(fib(35))
+
 duration = (time() - start) / 1000
+
 print("Duration:")
 print(duration)

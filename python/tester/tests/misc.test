@@ -1,24 +1,28 @@
-skip repeat test surface memory corruptions by validating consistent stdout output
+repeat test surface memory corruptions by validating consistent stdout output
+    # By specifying "repeat" on the test, it will not run once, but hundreds of times.
+    # Trying to help inconsistent undefined behavior etc surface.
+
     print("Some text")
 
-    i = 0
-    while i < 12 {
+    i = 1
+    while i <= 12 {
         print("More text: " + to_string(i))
+        i = i + 1
     }
 expect
     Some text
-    1
-    2
-    3
-    4
-    5
-    6
-    7
-    8
-    9
-    10
-    11
-    12
+    More text: 1
+    More text: 2
+    More text: 3
+    More text: 4
+    More text: 5
+    More text: 6
+    More text: 7
+    More text: 8
+    More text: 9
+    More text: 10
+    More text: 11
+    More text: 12
 end
 
 test string concat does not overflow stack
@@ -47,11 +51,4 @@ test table access does not overflow stack
     print("Success")
 expect
     Success
-end
-
-test printing koala prints koala
-    # This is important to me
-    print("koala")
-expect
-    koala
 end

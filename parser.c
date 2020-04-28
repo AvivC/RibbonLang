@@ -213,7 +213,8 @@ static AstNode* function(int expression_level) {
 	if (match(TOKEN_TAKES)) {
 		do {
 			consume(TOKEN_IDENTIFIER, "Expected parameter name.");
-			Value param = MAKE_VALUE_RAW_STRING(parser.previous.start, parser.previous.length);
+            unsigned long hash = hash_string_bounded(parser.previous.start, parser.previous.length);
+			Value param = MAKE_VALUE_RAW_STRING(parser.previous.start, parser.previous.length, hash);
 			value_array_write(&parameters, &param);
 		} while (match(TOKEN_COMMA));
 

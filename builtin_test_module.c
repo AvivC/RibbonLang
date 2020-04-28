@@ -3,6 +3,8 @@
 #include "plane_object.h"
 #include "vm.h"
 
+/* Functions for the _testing module, only for use in tests. Consider not creating _testing module in release build. */
+
 bool builtin_test_demo_print(Object* self, ValueArray args, Value* out) {
     ObjectFunction* function = NULL;
     if ((function = VALUE_AS_OBJECT(args.values[0], OBJECT_FUNCTION, ObjectFunction)) == NULL) {
@@ -97,5 +99,12 @@ bool builtin_test_get_object_address(Object* self, ValueArray args, Value* out) 
         return false;
     }
     *out = MAKE_VALUE_NUMBER((uintptr_t) args.values[0].as.object);
+    return true;
+}
+
+/* Used to invoke the gc in very specific tests using the _testing module - use for nothing else. */
+bool builtin_test_gc(Object* self, ValueArray args, Value* out) {
+    vm_gc();
+    *out = MAKE_VALUE_NIL();
     return true;
 }

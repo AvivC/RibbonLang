@@ -172,20 +172,43 @@ static bool table_set_key_function(Object* self, ValueArray args, Value* result)
     return true;
 }
 
-static ObjectString* object_string_new_partial(char* chars, int length) {
-	ObjectString* string = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
-	string->chars = copy_null_terminated_cstring(chars, "Object string buffer");
+static ObjectString* get_string_from_cache(const char* string, int length) {
+	Value cached_string;
+	unsigned long hash = hash_string_bounded(string, length);
+	if (table_get(&vm.string_cache, MAKE_VALUE_RAW_STRING(string, length, hash), &cached_string)) {
+		assert(object_value_is(cached_string, OBJECT_STRING));
+		return (ObjectString*) cached_string.as.object;
+	}
+	return NULL;
+}
+
+static ObjectString* new_bare_string(char* chars, int length) {
+    ObjectString* string = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
+
+	assert(strlen(chars) == length);
+
+    string->chars = chars;
 	string->length = length;
+	string->hash = hash_string_bounded(chars, length);
+
+	return string;
+}
+
+static ObjectString* object_string_new_partial(char* chars, int length) {
+	ObjectString* cached = get_string_from_cache(chars, length);
+	if (cached != NULL) {
+		return cached;
+	}
+
+	ObjectString* string = new_bare_string(copy_null_terminated_cstring(chars, "Object string buffer"), length);
+
+	table_set(&vm.string_cache, MAKE_VALUE_RAW_STRING(string->chars, string->length, string->hash), MAKE_VALUE_OBJECT(string));
+
 	return string;
 }
 
 static ObjectString* object_string_new(char* chars, int length) {
-    DEBUG_OBJECTS_PRINT("Allocating string object '%s' of length %d.", chars, length);
-
-    ObjectString* string = (ObjectString*) allocate_object(sizeof(ObjectString), "ObjectString", OBJECT_STRING);
-
-    string->chars = chars;
-	string->length = length;
+    ObjectString* string = new_bare_string(chars, length);
 
 	ObjectFunction* string_add_method = make_native_function_with_params("@add", 1, (char*[]) {"other"}, object_string_add);
 	ObjectBoundMethod* string_add_bound_method = object_bound_method_new(string_add_method, (Object*) string);
@@ -199,26 +222,17 @@ static ObjectString* object_string_new(char* chars, int length) {
 	/* TODO: Consider if setting the objects attributes should go through the object_set_attribute function */
 
 	ObjectString* add_attr_key = object_string_new_partial("@add", strlen("@add"));
-	cell_table_set_value(&string->base.attributes, MAKE_VALUE_OBJECT(add_attr_key), MAKE_VALUE_OBJECT(string_add_bound_method));
+	cell_table_set_value(&string->base.attributes, add_attr_key, MAKE_VALUE_OBJECT(string_add_bound_method));
 
 	ObjectString* get_key_attr_key = object_string_new_partial("@get_key", strlen("@get_key"));
-	cell_table_set_value(&string->base.attributes, MAKE_VALUE_OBJECT(get_key_attr_key), MAKE_VALUE_OBJECT(string_get_key_bound_method));
+	cell_table_set_value(&string->base.attributes, get_key_attr_key, MAKE_VALUE_OBJECT(string_get_key_bound_method));
 
 	ObjectString* length_attr_key = object_string_new_partial("length", strlen("length"));
-	cell_table_set_value(&string->base.attributes, MAKE_VALUE_OBJECT(length_attr_key), MAKE_VALUE_OBJECT(string_length_bound_method));
+	cell_table_set_value(&string->base.attributes, length_attr_key, MAKE_VALUE_OBJECT(string_length_bound_method));
 
-	table_set(&vm.string_cache, MAKE_VALUE_RAW_STRING(string->chars, string->length), MAKE_VALUE_OBJECT(string));
+	table_set(&vm.string_cache, MAKE_VALUE_RAW_STRING(string->chars, string->length, string->hash), MAKE_VALUE_OBJECT(string));
 
     return string;
-}
-
-static ObjectString* get_string_from_cache(const char* string, int length) {
-	Value cached_string;
-	if (table_get(&vm.string_cache, MAKE_VALUE_RAW_STRING(string, length), &cached_string)) {
-		assert(object_value_is(cached_string, OBJECT_STRING));
-		return (ObjectString*) cached_string.as.object;
-	}
-	return NULL;
 }
 
 ObjectString* object_string_copy(const char* string, int length) {
@@ -519,7 +533,7 @@ void object_free(Object* o) {
         case OBJECT_STRING: {
             ObjectString* string = (ObjectString*) o;
             DEBUG_OBJECTS_PRINT("Freeing ObjectString '%s'", string->chars);
-			table_delete(&vm.string_cache, MAKE_VALUE_RAW_STRING(string->chars, string->length));
+			table_delete(&vm.string_cache, MAKE_VALUE_RAW_STRING(string->chars, string->length, string->hash));
             deallocate(string->chars, string->length + 1, "Object string buffer");
             deallocate(string, sizeof(ObjectString), "ObjectString");
             break;
@@ -749,11 +763,7 @@ bool object_compare(Object* a, Object* b) {
 		return false;
 	}
 
-	if (a->type == OBJECT_STRING) {
-		return object_strings_equal(OBJECT_AS_STRING(a), OBJECT_AS_STRING(b));
-	} else {
-		return a == b; // TODO: Not good enough
-	}
+	return a == b; /* Strings are interned */
 }
 
 ObjectFunction* object_as_function(Object* o) {
@@ -806,7 +816,7 @@ bool object_hash(Object* object, unsigned long* result) {
 	switch (object->type) {
 		case OBJECT_STRING: {
 			ObjectString* string = (ObjectString*) object;
-			*result = hash_string_bounded(string->chars, string->length);
+			*result = string->hash;
 			return true;
 		}
 		case OBJECT_CELL: {

@@ -6,6 +6,32 @@
 #include "common.h"
 #include "value.h"
 
+#if DEBUG_TABLE_STATS
+
+/* For debugging */
+static size_t times_called = 0;
+static size_t capacity_sum = 0;
+static size_t max_capacity = 0;
+static size_t bucket_sum = 0;
+static size_t avg_bucket_count = 0;
+static size_t entries_sum = 0;
+static size_t avg_entries_sum = 0;
+static double avg_capacity = 0;
+/* ..... */
+
+void table_debug_print_general_stats(void) {
+    printf("Times called: %" PRI_SIZET "\n", times_called);
+    printf("Sum capacity: %" PRI_SIZET "\n", capacity_sum);
+    printf("Avg capacity: %g\n", avg_capacity);
+    printf("Max capacity: %" PRI_SIZET "\n", max_capacity);
+    printf("Sum buckets: %" PRI_SIZET "\n", bucket_sum);
+    printf("Avg bucket count: %" PRI_SIZET "\n", avg_bucket_count);
+    printf("Entries sum: %" PRI_SIZET "\n", entries_sum);
+    printf("Avg entries: %" PRI_SIZET "\n", avg_entries_sum);
+}
+
+#endif
+
 #define MAX_LOAD_FACTOR 0.75
 
 static void* allocate_suitably(Table* table, size_t size, const char* what) {
@@ -57,7 +83,7 @@ static void grow_table(Table* table) {
         Node* old_entry = old_entries[i];
         
         while (old_entry != NULL) {
-            table_set_value_directly(table, old_entry->key, old_entry->value);
+            table_set(table, old_entry->key, old_entry->value);
             Node* current = old_entry;
             old_entry = old_entry->next;
             deallocate_suitably(table, current, sizeof(Node), "Table linked list node");
@@ -86,14 +112,10 @@ void table_init_memory_infrastructure(Table* table) {
 
 void table_set_cstring_key(Table* table, const char* key, Value value) {
     Value copied_key = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key)); // Yeah, not really efficient this stuff...
-    table_set_value_directly(table, copied_key, value);
+    table_set(table, copied_key, value);
 }
 
 void table_set(Table* table, struct Value key, Value value) {
-    table_set_value_directly(table, key, value);
-}
-
-void table_set_value_directly(Table* table, struct Value key, Value value) {
     if (table->bucket_count + 1 > table->capacity * MAX_LOAD_FACTOR) {
         grow_table(table);
     }
@@ -135,14 +157,10 @@ void table_set_value_directly(Table* table, struct Value key, Value value) {
 
 bool table_get_cstring_key(Table* table, const char* key, Value* out) {
     Value value_key = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(key));
-    return table_get_value_directly(table, value_key, out);
+    return table_get(table, value_key, out);
 }
 
-bool table_get(Table* table, struct Value key, Value* out) {
-	return table_get_value_directly(table, key, out);
-}
-
-bool table_get_value_directly(Table* table, Value key, Value* out) {
+bool table_get(Table* table, Value key, Value* out) {
     if (table->capacity == 0) {
         return false;
     }
@@ -164,6 +182,21 @@ bool table_get_value_directly(Table* table, Value key, Value* out) {
 
         node = node->next;
     }
+
+    #if DEBUG_TABLE_STATS
+
+    times_called++;
+    capacity_sum += table->capacity;
+    avg_capacity = capacity_sum / times_called;
+    if (table->capacity > max_capacity) {
+        max_capacity = table->capacity;
+    }
+    bucket_sum += table->bucket_count;
+    avg_bucket_count = bucket_sum / times_called;
+    entries_sum += table->num_entries;
+    avg_entries_sum = entries_sum / times_called;
+
+    #endif
 
     return false;
 }

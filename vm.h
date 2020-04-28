@@ -68,6 +68,8 @@ ObjectModule* vm_get_module_cstring(char* name);
 void vm_push_object(Object* value);
 Object* vm_pop_object(void);
 
+void vm_gc(void);
+
 void vm_init(void);
 void vm_free(void);
 bool vm_interpret_program(Bytecode* bytecode, char* main_module_path);

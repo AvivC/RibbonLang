@@ -163,10 +163,10 @@ static Value load_variable(ObjectString* name) {
 	CellTable* globals = &vm.globals;
 
 	bool variable_found =
-			cell_table_get_value_cstring_key(locals, name->chars, &value)
-			|| cell_table_get_value_cstring_key(free_vars, name->chars, &value)
-			|| (current_frame()->is_entity_base && object_load_attribute_cstring_key(current_frame()->base_entity, name->chars, &value))
-			|| cell_table_get_value_cstring_key(globals, name->chars, &value);
+			cell_table_get_value(locals, name, &value)
+			|| cell_table_get_value(free_vars, name, &value)
+			|| (current_frame()->is_entity_base && object_load_attribute(current_frame()->base_entity, name, &value))
+			|| cell_table_get_value(globals, name, &value);
 
 	if (variable_found) {
 		return value;
@@ -385,7 +385,9 @@ static void gc_sweep(void) {
 	}
 }
 
-void gc(void) {
+/* vm_gc is only exposed outside for use in the _testing module. Apart from that, never invoke
+   directly without a good reason. */
+void vm_gc(void) {
 	#if DISABLE_GC
 
 	DEBUG_GC_PRINT("GC would run, but is disabled");
@@ -443,32 +445,29 @@ static void set_builtin_globals(void) {
 	register_builtin_function("time", 0, NULL, builtin_time);
 }
 
+static void register_function_on_module(ObjectModule* module, char* name, int num_params, char* params[], NativeFunction func) {
+	ObjectFunction* func_object = make_native_function_with_params(name, num_params, params, func);
+	object_set_attribute_cstring_key((Object*) module, name, MAKE_VALUE_OBJECT(func_object));
+}
+
 static void register_builtin_modules(void) {
-	/* Now that we have stdlib extension modules, genernally we should have too many (if any) builtin modules.
+	/* Now that we have stdlib extension modules, genernally we shouldn't have too many (if any) builtin modules.
 	   Nonetheless, this stays here at least for now. */
 
 	const char* test_module_name = "_testing";
 	ObjectModule* test_module = object_module_native_new(object_string_copy_from_null_terminated(test_module_name), NULL);
 
-	ObjectFunction* demo_print_func = make_native_function_with_params("demo_print", 1, (char*[]) {"function"}, builtin_test_demo_print);
-	object_set_attribute_cstring_key((Object*) test_module, "demo_print", MAKE_VALUE_OBJECT(demo_print_func));
+	register_function_on_module(test_module, "demo_print", 1, (char*[]) {"function"}, builtin_test_demo_print);
 
-	ObjectFunction* call_callback_with_args_func = make_native_function_with_params(
-							"call_callback_with_args", 3, (char*[]) {"callback", "arg1", "arg2"}, builtin_test_call_callback_with_args);
-	object_set_attribute_cstring_key((Object*) test_module, "call_callback_with_args", MAKE_VALUE_OBJECT(call_callback_with_args_func));
+	register_function_on_module(test_module, "call_callback_with_args", 3, (char*[]) {"callback", "arg1", "arg2"}, builtin_test_call_callback_with_args);
 
-	ObjectFunction* same_object_func = make_native_function_with_params(
-							"same_object", 2, (char*[]) {"object1", "object2"}, builtin_test_same_object);
-	object_set_attribute_cstring_key((Object*) test_module, "same_object", MAKE_VALUE_OBJECT(same_object_func));
+	register_function_on_module(test_module, "same_object", 2, (char*[]) {"object1", "object2"}, builtin_test_same_object);
 
-	ObjectFunction* get_object_address_func = make_native_function_with_params(
-							"get_object_address", 1, (char*[]) {"object"}, builtin_test_get_object_address);
-	object_set_attribute_cstring_key((Object*) test_module, "get_object_address", MAKE_VALUE_OBJECT(get_object_address_func));
+	register_function_on_module(test_module, "get_object_address", 1, (char*[]) {"object"}, builtin_test_get_object_address);
 
-	ObjectFunction* get_value_directly_from_object_attributes = make_native_function_with_params(
-			"get_value_directly_from_object_attributes", 2, (char*[]) {"object", "attribute"}, builtin_test_get_value_directly_from_object_attributes);
-	object_set_attribute_cstring_key(
-		(Object*) test_module, "get_value_directly_from_object_attributes", MAKE_VALUE_OBJECT(get_value_directly_from_object_attributes));
+	register_function_on_module(test_module, "get_value_directly_from_object_attributes", 2, (char*[]) {"object", "attribute"}, builtin_test_get_value_directly_from_object_attributes);
+
+	register_function_on_module(test_module, "gc", 0, NULL, builtin_test_gc);
 
 	cell_table_set_value_cstring_key(&vm.builtin_modules, test_module_name, MAKE_VALUE_OBJECT(test_module));
 }
@@ -569,16 +568,19 @@ void vm_init(void) {
 }
 
 void vm_free(void) {
+	#if DEBUG_TABLE_STATS
+	table_debug_print_general_stats();
+	#endif
+
 	cell_table_free(&vm.globals);
 	cell_table_free(&vm.imported_modules);
 	cell_table_free(&vm.builtin_modules);
-	// table_set(&vm.string_cache, MAKE_VALUE_RAW_STRING("abc", 3), MAKE_VALUE_NUMBER(2));
 	table_free(&vm.string_cache);	
 
 	vm.threads = NULL;
 	vm.current_thread = NULL;
 
-	gc();
+	vm_gc();
 
     vm.num_objects = 0;
     vm.max_objects = INITIAL_GC_THRESHOLD;
@@ -605,20 +607,20 @@ static void print_stack_trace(void) {
 	print_call_stack();
 }
 
-#define READ_BYTE() (*current_thread()->ip++)
-#define READ_CONSTANT() (current_bytecode()->constants.values[READ_BYTE()])
+// #define READ_BYTE() (*current_thread()->ip++)
+// #define READ_CONSTANT() (current_bytecode()->constants.values[READ_BYTE()])
 
-static Object* read_constant_as_object(ObjectType type) {
-	Value constant = READ_CONSTANT();
-	ASSERT_VALUE_TYPE(constant, VALUE_OBJECT);
-	Object* object = constant.as.object;
-	if (object->type != type) {
-		FAIL("Object at '%p' is of type %d, expected %d", object, object->type, type);
-	}
-	return object;
-}
+// static Object* read_constant_as_object(ObjectType type) {
+// 	Value constant = READ_CONSTANT();
+// 	ASSERT_VALUE_TYPE(constant, VALUE_OBJECT);
+// 	Object* object = constant.as.object;
+// 	if (object->type != type) {
+// 		FAIL("Object at '%p' is of type %d, expected %d", object, object->type, type);
+// 	}
+// 	return object;
+// }
 
-#define READ_CONSTANT_AS_OBJECT(type, cast) (cast*) read_constant_as_object(type)
+// #define READ_CONSTANT_AS_OBJECT(type, cast) (cast*) read_constant_as_object(type)
 
 static void set_function_name(const Value* function_value, ObjectString* name) {
 	ObjectFunction* function = (ObjectFunction*) function_value->as.object;
@@ -676,23 +678,17 @@ static ImportResult load_text_module(ObjectString* module_name, const char* file
 			/* Wrap the ObjectFunction in an ObjectModule */
 			ObjectModule* module = object_module_new(module_name, module_base_function);
 
-			// /* ObjectModule has to be on the stack at the end of the import */
-			// push(MAKE_VALUE_OBJECT(module));
-
-			/* "Call" the new module to start executing it in the next iteration */
-			// call_user_function_custom_frame(module_base_function, NULL, (Object*) module, false);
+			/* Call the new module to initialize it */
 			ValueArray args;
 			value_array_init(&args);
 			Value throwaway_result;
 			call_plane_function_custom_frame(module_base_function, NULL, args, (Object*) module, &throwaway_result);
 			value_array_free(&args);
 
-			// cell_table_set_value_cstring_key(locals_or_module_table(), name->chars, value);
-			cell_table_set_value(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
+			cell_table_set_value(locals_or_module_table(), module_name, MAKE_VALUE_OBJECT(module));
 
 			/* Cache the new module in the global module cache */
-			// cell_table_set_value_cstring_key(&vm.imported_modules, module_name->chars, MAKE_VALUE_OBJECT(module));
-			cell_table_set_value(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
+			cell_table_set_value(&vm.imported_modules, module_name, MAKE_VALUE_OBJECT(module));
 
 			return IMPORT_RESULT_SUCCESS;
 		}
@@ -852,9 +848,9 @@ static ImportResult load_extension_module(ObjectString* module_name, char* path)
 	ObjectModule* extension_module = object_module_native_new(module_name, handle);
 	init_function(API, extension_module);
 
-	cell_table_set_value(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(extension_module));
+	cell_table_set_value(locals_or_module_table(), module_name, MAKE_VALUE_OBJECT(extension_module));
 
-	cell_table_set_value(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(extension_module));
+	cell_table_set_value(&vm.imported_modules, module_name, MAKE_VALUE_OBJECT(extension_module));
 
 	return IMPORT_RESULT_SUCCESS;
 }
@@ -884,13 +880,13 @@ ImportResult vm_import_module(ObjectString* module_name) {
 	ImportResult import_result = IMPORT_RESULT_SUCCESS;
 
 	Value module_value;
-	bool module_already_imported = cell_table_get_value_cstring_key(&vm.imported_modules, module_name->chars, &module_value);
+	bool module_already_imported = cell_table_get_value(&vm.imported_modules, module_name, &module_value);
 	if (module_already_imported) {
 		if (!object_value_is(module_value, OBJECT_MODULE)) {
 			FAIL("Non ObjectModule found in global module cache.");
 		}
 		
-		cell_table_set_value(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), module_value);
+		cell_table_set_value(locals_or_module_table(), module_name, module_value);
 
 		return IMPORT_RESULT_SUCCESS;
 	}
@@ -913,27 +909,18 @@ ImportResult vm_import_module(ObjectString* module_name) {
 
 	if (io_file_exists(user_extension_module_path)) {
 		import_result = load_extension_module(module_name, user_extension_module_path);
-		// if (result == LOAD_EXTENSION_OPEN_FAILURE) {
-		// 	DWORD error = GetLastError();
-		// 	RUNTIME_ERROR("Unable to open extension module %s. Error code: %ld", user_extension_module_file_name, error);
-		// 	goto op_import_cleanup;
-		// }
-		// if (result == LOAD_EXTENSION_NO_INIT_FUNCTION) {
-		// 	RUNTIME_ERROR("Unable to get plane_module_init function from extension module %s", user_extension_module_file_name);
-		// 	goto op_import_cleanup;
-		// }
 		goto import_module_cleanup;
 	}
 
 	Value builtin_module_value;
-	if (cell_table_get_value_cstring_key(&vm.builtin_modules, module_name->chars, &builtin_module_value)) {
+	if (cell_table_get_value(&vm.builtin_modules, module_name, &builtin_module_value)) {
 		ObjectModule* module = NULL;
 		if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
 			FAIL("Found non ObjectModule* in builtin modules table.");
 		}
 
-		cell_table_set_value(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
-		cell_table_set_value(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
+		cell_table_set_value(locals_or_module_table(), module_name, MAKE_VALUE_OBJECT(module));
+		cell_table_set_value(&vm.imported_modules, module_name, MAKE_VALUE_OBJECT(module));
 
 		goto import_module_cleanup;
 	}
@@ -943,10 +930,6 @@ ImportResult vm_import_module(ObjectString* module_name) {
 
 	if (io_file_exists(stdlib_module_path)) {
 		import_result = load_text_module(module_name, stdlib_module_path);
-		// char* load_module_error = NULL;
-		// if (!load_text_module(module_name, stdlib_module_path, &load_module_error)) {
-		// 	RUNTIME_ERROR("%s", load_module_error);
-		// }
 		goto import_module_cleanup;
 	}
 
@@ -957,20 +940,9 @@ ImportResult vm_import_module(ObjectString* module_name) {
 
 	if (io_file_exists(stdlib_extension_path)) {
 		import_result = load_extension_module(module_name, stdlib_extension_path);
-		// int result = load_extension_module(module_name, stdlib_extension_path);
-		// if (result == LOAD_EXTENSION_OPEN_FAILURE) {
-		// 	DWORD error = GetLastError();
-		// 	RUNTIME_ERROR("Unable to open extension module %s. Error code: %ld", extension_module_file_name, error);
-		// 	goto op_import_cleanup;
-		// }
-		// if (result == LOAD_EXTENSION_NO_INIT_FUNCTION) {
-		// 	RUNTIME_ERROR("Unable to get plane_module_init function from extension module %s", extension_module_file_name);
-		// 	goto op_import_cleanup;
-		// }
 		goto import_module_cleanup;
 	}
 
-	// RUNTIME_ERROR("Couldn't find module %s", module_name->chars);
 	import_result = IMPORT_RESULT_MODULE_NOT_FOUND;
 
 	import_module_cleanup:
@@ -1144,6 +1116,12 @@ static bool vm_interpret_frame(StackFrame* frame) {
 	bool is_executing = true;
 	bool runtime_error_occured = false;
 
+	uint8_t* ip = current_thread()->ip;
+
+	#define READ_BYTE() (*current_thread()->ip++)
+	// #define READ_BYTE() (*ip++)
+	#define READ_CONSTANT() (current_bytecode()->constants.values[READ_BYTE()])
+
 	DEBUG_TRACE("Starting interpreter loop.");
 
     while (is_executing) {
@@ -1204,11 +1182,11 @@ static bool vm_interpret_frame(StackFrame* frame) {
 
 		// Possible that vm.num_objects > vm.max_objects if many objects were created during the compiling stage, where GC is disallowed
 		if (vm.num_objects >= vm.max_objects) {
-			gc();
+			vm_gc();
 		}
 
 		#if GC_STRESS_TEST
-		gc();
+		vm_gc();
 		#endif
 
         switch (opcode) {
@@ -1416,7 +1394,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
             }
 
 			case OP_MAKE_CLASS: {
-				ObjectCode* class_body_code = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
+				// ObjectCode* class_body_code = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
+				ObjectCode* class_body_code = (ObjectCode*) READ_CONSTANT().as.object;
 				CellTable base_func_free_vars = find_free_vars_for_new_function(class_body_code);
 
 				ObjectFunction* class_base_function = object_user_function_new(class_body_code, NULL, 0, base_func_free_vars);
@@ -1438,7 +1417,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
 			}
 
             case OP_MAKE_FUNCTION: {
-				ObjectCode* object_code = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
+				// ObjectCode* object_code = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
+				ObjectCode* object_code = (ObjectCode*) READ_CONSTANT().as.object;
 
 				uint8_t num_params_byte1 = READ_BYTE();
 				uint8_t num_params_byte2 = READ_BYTE();
@@ -1540,7 +1520,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
 					set_class_name(&value, name);
 				}
 
-                cell_table_set_value_cstring_key(locals_or_module_table(), name->chars, value);
+                cell_table_set_value(locals_or_module_table(), name, value);
                 break;
             }
             
@@ -1760,7 +1740,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
             }
 
 			case OP_IMPORT: {
-				ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
+				// ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
+				ObjectString* module_name = (ObjectString*) READ_CONSTANT().as.object;
 				ImportResult import_result = vm_import_module(module_name);
 
 				switch (import_result) {
@@ -1792,178 +1773,15 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				break;
 			}
 
-		// 	case OP_IMPORT: {
-		// 		/* TODO: Precise automated tests for import resolution order. It's one thing which isn't totally
-		// 		tested because of lack of functionality in the test runner right now */
-
-		// 		ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
-
-		// 		char* user_module_file_suffix = ".pln";
-		// 		char* extension_module_file_suffix = ".dll";
-
-		// 		char* main_module_dir = NULL;
-		// 		char* user_module_file_name = NULL;
-		// 		char* user_module_path = NULL;
-		// 		char* user_extension_module_path = NULL;
-		// 		char* stdlib_path = NULL;
-		// 		char* stdlib_module_path = NULL;
-		// 		char* user_extension_module_file_name = NULL;
-		// 		char* extension_module_file_name = NULL;
-		// 		char* stdlib_extension_path = NULL;
-
-		// 		Value module_value;
-        //     	bool module_already_imported = cell_table_get_value_cstring_key(&vm.imported_modules, module_name->chars, &module_value);
-        //     	if (module_already_imported) {
-		// 			if (!object_value_is(module_value, OBJECT_MODULE)) {
-		// 				FAIL("Non ObjectModule found in global module cache.");
-		// 			}
-					
-		// 			cell_table_set_value_directly(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), module_value);
-		// 			cell_table_set_value_directly(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), module_value);
-        //     		break;
-        //     	}
-
-		// 		main_module_dir = directory_from_path(vm.main_module_path);
-		// 		user_module_file_name = concat_cstrings(
-		// 			module_name->chars, module_name->length, user_module_file_suffix, strlen(user_module_file_suffix), "user module file name");
-		// 		user_module_path = concat_null_terminated_paths(main_module_dir, user_module_file_name, "user module path");
-
-		// 		if (io_file_exists(user_module_path)) {
-		// 			char* load_module_error = NULL;
-		// 			if (!load_text_module(module_name, user_module_path, &load_module_error)) {
-		// 				RUNTIME_ERROR("%s", load_module_error);
-		// 			}
-		// 			goto op_import_cleanup;
-		// 		}
-
-		// 		user_extension_module_file_name = concat_cstrings(
-		// 			module_name->chars, module_name->length, 
-		// 			extension_module_file_suffix, strlen(extension_module_file_suffix), "user extension module file name");
-		// 		user_extension_module_path = concat_null_terminated_paths(
-		// 			main_module_dir, user_extension_module_file_name, "user extension module path");
-
-		// 		if (io_file_exists(user_extension_module_path)) {
-		// 			int result = load_extension_module(module_name, user_extension_module_path);
-		// 			if (result == LOAD_EXTENSION_OPEN_FAILURE) {
-		// 				DWORD error = GetLastError();
-		// 				RUNTIME_ERROR("Unable to open extension module %s. Error code: %ld", user_extension_module_file_name, error);
-		// 				goto op_import_cleanup;
-		// 			}
-		// 			if (result == LOAD_EXTENSION_NO_INIT_FUNCTION) {
-		// 				RUNTIME_ERROR("Unable to get plane_module_init function from extension module %s", user_extension_module_file_name);
-		// 				goto op_import_cleanup;
-		// 			}
-		// 			goto op_import_cleanup;
-		// 		}
-
-		// 		Value builtin_module_value;
-		// 		if (cell_table_get_value_cstring_key(&vm.builtin_modules, module_name->chars, &builtin_module_value)) {
-		// 			ObjectModule* module = NULL;
-		// 			if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
-		// 				FAIL("Found non ObjectModule* in builtin modules table.");
-		// 			}
-
-		// 			cell_table_set_value_directly(locals_or_module_table(), MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
-		// 			cell_table_set_value_directly(&vm.imported_modules, MAKE_VALUE_OBJECT(module_name), MAKE_VALUE_OBJECT(module));
-
-		// 			goto op_import_cleanup;
-		// 		}
-
-		// 		stdlib_path = concat_null_terminated_paths(vm.interpreter_dir_path, VM_STDLIB_RELATIVE_PATH, "stdlib path");
-		// 		stdlib_module_path = concat_null_terminated_paths(stdlib_path, user_module_file_name, "stdlib module path");
-
-		// 		if (io_file_exists(stdlib_module_path)) {
-		// 			char* load_module_error = NULL;
-		// 			if (!load_text_module(module_name, stdlib_module_path, &load_module_error)) {
-		// 				RUNTIME_ERROR("%s", load_module_error);
-		// 			}
-		// 			goto op_import_cleanup;
-		// 		}
-
-		// 		extension_module_file_name = concat_cstrings(
-		// 			module_name->chars, module_name->length, extension_module_file_suffix, strlen(extension_module_file_suffix),
-		// 			"extension module file name");
-		// 		stdlib_extension_path = concat_null_terminated_paths(stdlib_path, extension_module_file_name, "stdlib extension path");
-
-		// 		if (io_file_exists(stdlib_extension_path)) {
-		// 			int result = load_extension_module(module_name, stdlib_extension_path);
-		// 			if (result == LOAD_EXTENSION_OPEN_FAILURE) {
-		// 				DWORD error = GetLastError();
-		// 				RUNTIME_ERROR("Unable to open extension module %s. Error code: %ld", extension_module_file_name, error);
-		// 				goto op_import_cleanup;
-		// 			}
-		// 			if (result == LOAD_EXTENSION_NO_INIT_FUNCTION) {
-		// 				RUNTIME_ERROR("Unable to get plane_module_init function from extension module %s", extension_module_file_name);
-		// 				goto op_import_cleanup;
-		// 			}
-		// 			goto op_import_cleanup;
-		// 		}
-
-		// 		RUNTIME_ERROR("Couldn't find module %s", module_name->chars);
-
-		// 		op_import_cleanup:
-		// 		if (main_module_dir != NULL) {
-		// 			deallocate(main_module_dir, strlen(main_module_dir) + 1, "directory path");
-		// 		}
-		// 		if (user_module_file_name != NULL) {
-		// 			deallocate(user_module_file_name, strlen(user_module_file_name) + 1, "user module file name");
-		// 		}
-		// 		if (user_module_path != NULL) {
-		// 			deallocate(user_module_path, strlen(user_module_path) + 1, "user module path");
-		// 		}
-		// 		if (user_extension_module_path != NULL) {
-		// 			deallocate(user_extension_module_path, strlen(user_extension_module_path) + 1, "user extension module path");
-		// 		}
-		// 		if (stdlib_path != NULL) {
-		// 			deallocate(stdlib_path, strlen(stdlib_path) + 1, "stdlib path");
-		// 		}
-		// 		if (stdlib_module_path != NULL) {
-		// 			deallocate(stdlib_module_path, strlen(stdlib_module_path) + 1, "stdlib module path");
-		// 		}
-		// 		if (user_extension_module_file_name != NULL) {
-		// 			deallocate(user_extension_module_file_name, strlen(user_extension_module_file_name) + 1, "user extension module file name");
-		// 		}
-		// 		if (extension_module_file_name != NULL) {
-		// 			deallocate(extension_module_file_name, strlen(extension_module_file_name) + 1, "extension module file name");
-		// 		}
-		// 		if (stdlib_extension_path != NULL) {
-		// 			deallocate(stdlib_extension_path, strlen(stdlib_extension_path) + 1, "stdlib extension path");
-		// 		}
-
-		// 		break;
-		// 	}
-
             default: {
             	FAIL("Unknown opcode: %d. At ip: %p", opcode, current_thread()->ip - 1);
             }
         }
 
-		vm.thread_opcode_counter = (vm.thread_opcode_counter + 1) % THREAD_SWITCH_INTERVAL;
-		DEBUG_THREADING_PRINT("thread_opcode_counter: %d\n", thread_opcode_counter);
-
-		/* TODO: Potential bug here? is_executing now means "is running current eval loop",
-		but in this case it's assumed to mean "is VM executing". This can kinda screw up thread scheduling, address this. */
-
-		if (is_executing && vm.thread_opcode_counter == 0) {
-			ObjectThread* old_thread = vm.current_thread;
-			ObjectThread* new_thread = vm.current_thread->next_thread != NULL ? vm.current_thread->next_thread : vm.threads;
-			
-			vm.current_thread = new_thread;
-
-			DEBUG_THREADING_PRINT("Switching threads: \n");
-			if (DEBUG_THREADING) {
-				printf("From: ");
-				object_thread_print(old_thread);
-				printf("\nTo: ");
-				object_thread_print(new_thread);
-				printf("\n");
-			}
-		}
-
-		if (DEBUG_PAUSE_AFTER_OPCODES) {
+		#if DEBUG_PAUSE_AFTER_OPCODES
 			printf("\nPress ENTER to continue.\n");
 			getchar();
-		}
+		#endif
     }
 
 	if (vm.threads != NULL) {
@@ -2024,7 +1842,7 @@ bool vm_interpret_program(Bytecode* bytecode, char* main_module_path) {
 	/* Cleanup unused objects created during compilation */
 	DEBUG_OBJECTS_PRINT("Setting vm.allow_gc = true.");
 	vm.allow_gc = true;
-	gc();
+	vm_gc();
 
 	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
 	ObjectModule* module = object_module_new(base_module_name, base_function);
