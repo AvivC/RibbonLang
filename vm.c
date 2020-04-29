@@ -472,30 +472,6 @@ static void register_builtin_modules(void) {
 	cell_table_set_value_cstring_key(&vm.builtin_modules, test_module_name, MAKE_VALUE_OBJECT(test_module));
 }
 
-static void call_user_function_custom_frame(ObjectFunction* function, Object* self, Object* base_entity, bool discard_return_value) {
-	ObjectThread* thread = current_thread();
-
-	bool is_entity_base = base_entity != NULL;
-	StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false, discard_return_value);
-
-	for (int i = 0; i < function->num_params; i++) {
-		const char* param_name = function->parameters[i];
-		Value argument = pop();
-		cell_table_set_value_cstring_key(&frame.local_variables, param_name, argument);
-	}
-
-	if (self != NULL) {
-		cell_table_set_value_cstring_key(&frame.local_variables, "self", MAKE_VALUE_OBJECT(self));
-	}
-
-	push_frame(frame);
-	thread->ip = function->code->bytecode.code;
-}
-
-static void call_user_function(ObjectFunction* function, Object* self) {
-	call_user_function_custom_frame(function, self, NULL, false);
-}
-
 static bool call_native_function(ObjectFunction* function, Object* self, ValueArray arguments, Value* out) {
 	/* Push a native frame to keep the call stack in order.
 	Specifically, for the use case where a native function calls a user function.
@@ -1394,7 +1370,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
             }
 
 			case OP_MAKE_CLASS: {
-				// ObjectCode* class_body_code = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
 				ObjectCode* class_body_code = (ObjectCode*) READ_CONSTANT().as.object;
 				CellTable base_func_free_vars = find_free_vars_for_new_function(class_body_code);
 
@@ -1403,7 +1378,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
 
 				ObjectClass* class = object_class_new(class_base_function, NULL);
 
-				// call_user_function_custom_frame(class_base_function, NULL, (Object*) class, false);
 				ValueArray args;
 				value_array_init(&args);
 				Value throwaway_result;
@@ -1411,7 +1385,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				value_array_free(&args);
 
 				push(MAKE_VALUE_OBJECT(class));
-				// push(MAKE_VALUE_NIL()); // very temp
 
 				break;
 			}
