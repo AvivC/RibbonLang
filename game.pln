@@ -81,8 +81,15 @@ Game = class {
         sdl.img_init(sdl.IMG_INIT_PNG)
         sdl.show_cursor(1)
 
+        self.ball_texture = sdl.img_load_texture(self.renderer, "sdl_extension\pictures\ball.png")
+
         self.balls = []
-        self.spawn_ball()
+        
+        i = 0
+        while i < 300 {
+            self.spawn_ball()
+            i = i + 1
+        }
 
         self.running = true
 
@@ -96,7 +103,7 @@ Game = class {
     spawn_ball = {
         randnum = random.next_number()
         random_x = (math.min(SCREEN_WIDTH, randnum) / math.max(SCREEN_WIDTH, randnum)) * SCREEN_WIDTH
-        texture = sdl.img_load_texture(self.renderer, "sdl_extension\pictures\ball.png")
+        texture = self.ball_texture
         self.balls[self.balls.length()] = Ball(random_x, 0, texture)
     }
     
@@ -155,12 +162,12 @@ Game = class {
 main = {
     game = Game("My Plane Game! :D")
     
-    frame_start_ticks = sdl.get_ticks()
-    
     frames_count = 0
     ticks_sum = 0
     
     while game.running {
+        frame_start_ticks = sdl.get_ticks()
+    
         game.prepare_scene()
         game.input()
         game.logic()
@@ -168,18 +175,18 @@ main = {
         game.present_scene()
         
         ticks_since_frame_start = sdl.get_ticks() - frame_start_ticks
-        frame_start_ticks = sdl.get_ticks()
         
         if (ticks_since_frame_start < 16) {
             sdl.delay(16 - ticks_since_frame_start)
         }
         
         frames_count = frames_count + 1
-        ticks_sum = ticks_sum + ticks_since_frame_start
+        ticks_sum = ticks_sum + (sdl.get_ticks() - frame_start_ticks)
     }
     
     print("Avg frame length in ticks")
     print(ticks_sum / frames_count)
+    print("Balls: " + to_string(game.balls.length()))
 }
 
 main()

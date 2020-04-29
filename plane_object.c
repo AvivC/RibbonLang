@@ -759,10 +759,6 @@ void object_thread_print_diagnostic(ObjectThread* thread) {
 }
 
 bool object_compare(Object* a, Object* b) {
-	if (a->type != b->type) {
-		return false;
-	}
-
 	return a == b; /* Strings are interned */
 }
 

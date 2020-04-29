@@ -126,7 +126,7 @@ bool value_compare(Value a, Value b, int* output) {
 		case VALUE_RAW_STRING: {
 			RawString s1 = a.as.raw_string;
 			RawString s2 = b.as.raw_string;
-			if (cstrings_equal(s1.data, s1.length, s2.data, s2.length)) {
+			if (s1.hash == s2.hash && cstrings_equal(s1.data, s1.length, s2.data, s2.length)) {
 				*output = 0;
 			} else {
 				*output = -1;
