@@ -182,7 +182,8 @@ static void gc_mark_table(Table* table) {
 	PointerArray entries = table_iterate(table, "gc mark table_iterate buffer");
 
 	for (int i = 0; i < entries.count; i++) {
-		Node* entry = entries.values[i];
+		// Node* entry = entries.values[i];
+		Entry* entry = entries.values[i];
 
 		if (entry->value.type == VALUE_OBJECT) {
 			gc_mark_object(entry->value.as.object);
@@ -468,6 +469,10 @@ static void register_builtin_modules(void) {
 	register_function_on_module(test_module, "get_value_directly_from_object_attributes", 2, (char*[]) {"object", "attribute"}, builtin_test_get_value_directly_from_object_attributes);
 
 	register_function_on_module(test_module, "gc", 0, NULL, builtin_test_gc);
+
+	register_function_on_module(test_module, "table_details", 1, (char*[]) {"table"}, builtin_test_table_details);
+	
+	register_function_on_module(test_module, "table_delete", 2, (char*[]) {"table", "key"}, builtin_test_table_delete);
 
 	cell_table_set_value_cstring_key(&vm.builtin_modules, test_module_name, MAKE_VALUE_OBJECT(test_module));
 }

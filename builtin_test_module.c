@@ -108,3 +108,36 @@ bool builtin_test_gc(Object* self, ValueArray args, Value* out) {
     *out = MAKE_VALUE_NIL();
     return true;
 }
+
+bool builtin_test_table_details(Object* self, ValueArray args, Value* out) {
+    if (!object_value_is(args.values[0], OBJECT_TABLE)) {
+        return false;
+    }
+
+    Table table = ((ObjectTable*) args.values[0].as.object)->table;
+
+    Table result = table_new_empty();
+    table_set(&result, MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated("num_entries")),
+        MAKE_VALUE_NUMBER(table.num_entries));
+    table_set(&result, MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated("count")),
+        MAKE_VALUE_NUMBER(table.count));
+    table_set(&result, MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated("capacity")),
+        MAKE_VALUE_NUMBER(table.capacity));
+
+    *out = MAKE_VALUE_OBJECT(object_table_new(result));
+    return true;
+}
+
+bool builtin_test_table_delete(Object* self, ValueArray args, Value* out) {
+    if (!object_value_is(args.values[0], OBJECT_TABLE)) {
+        return false;
+    }
+
+    ObjectTable* table = (ObjectTable*) args.values[0].as.object;
+    Value key = args.values[1];
+
+    table_delete(&table->table, key);
+
+    *out = MAKE_VALUE_NIL();
+    return true;
+}

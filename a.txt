@@ -1,1 +1,1214 @@
-2
+
+C:\Users\owner\programming\myvm>plane.exe code.pln -asm -tree 
+==== AST ====
+
+
+STATEMENTS
+
+. . IMPORT: _testing
+
+. . ASSIGNMENT: details
+
+. . . . ATTRIBUTE: table_details
+
+. . . . Of object:
+
+. . . . . . VARIABLE: _testing
+
+. . ASSIGNMENT: delete
+
+. . . . ATTRIBUTE: table_delete
+
+. . . . Of object:
+
+. . . . . . VARIABLE: _testing
+
+. . ASSIGNMENT: t
+
+. . . . TABLE
+
+. . ASSIGNMENT: f
+
+. . . . FUNCTION
+
+. . . . Parameters: k, v
+
+. . . . Statements:
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: 
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . BINARY: +
+
+. . . . . . . . . . Left:
+
+. . . . . . . . . . . . BINARY: +
+
+. . . . . . . . . . . . Left:
+
+. . . . . . . . . . . . . . STRING: Adding key 
+
+. . . . . . . . . . . . Right:
+
+. . . . . . . . . . . . . . VARIABLE: k
+
+. . . . . . . . . . Right:
+
+. . . . . . . . . . . . STRING:  to table.
+
+. . . . . . KEY_ASSIGNMENT
+
+. . . . . . Of object:
+
+. . . . . . . . VARIABLE: t
+
+. . . . . . Key:
+
+. . . . . . . . VARIABLE: k
+
+. . . . . . Value:
+
+. . . . . . . . VARIABLE: v
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: Table:
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . VARIABLE: t
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: Details:
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . CALL
+
+. . . . . . . . . . . . VARIABLE: details
+
+. . . . . . . . . . Arguments:
+
+. . . . . . . . . . . . VARIABLE: t
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: 
+
+. . ASSIGNMENT: del
+
+. . . . FUNCTION
+
+. . . . Parameters: k
+
+. . . . Statements:
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: 
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . BINARY: +
+
+. . . . . . . . . . Left:
+
+. . . . . . . . . . . . BINARY: +
+
+. . . . . . . . . . . . Left:
+
+. . . . . . . . . . . . . . STRING: Removing entry 
+
+. . . . . . . . . . . . Right:
+
+. . . . . . . . . . . . . . VARIABLE: k
+
+. . . . . . . . . . Right:
+
+. . . . . . . . . . . . STRING:  from table.
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: delete
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . VARIABLE: t
+
+. . . . . . . . . . VARIABLE: k
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: Table:
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . VARIABLE: t
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: Details:
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . CALL
+
+. . . . . . . . . . . . VARIABLE: details
+
+. . . . . . . . . . Arguments:
+
+. . . . . . . . . . . . VARIABLE: t
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: print
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . STRING: 
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: f
+
+. . . . Arguments:
+
+. . . . . . STRING: a
+
+. . . . . . CONSTANT: 10
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: f
+
+. . . . Arguments:
+
+. . . . . . STRING: b
+
+. . . . . . CONSTANT: 20
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: f
+
+. . . . Arguments:
+
+. . . . . . STRING: c
+
+. . . . . . CONSTANT: 30
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: f
+
+. . . . Arguments:
+
+. . . . . . STRING: d
+
+. . . . . . CONSTANT: 40
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: f
+
+. . . . Arguments:
+
+. . . . . . STRING: e
+
+. . . . . . CONSTANT: 50
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: f
+
+. . . . Arguments:
+
+. . . . . . STRING: f
+
+. . . . . . CONSTANT: 60
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: f
+
+. . . . Arguments:
+
+. . . . . . STRING: g
+
+. . . . . . CONSTANT: 70
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: f
+
+. . . . Arguments:
+
+. . . . . . STRING: h
+
+. . . . . . CONSTANT: 80
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: del
+
+. . . . Arguments:
+
+. . . . . . STRING: e
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: del
+
+. . . . Arguments:
+
+. . . . . . STRING: a
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: print
+
+. . . . Arguments:
+
+. . . . . . KEY_ACCESS
+
+. . . . . . On object:
+
+. . . . . . . . VARIABLE: t
+
+. . . . . . Key:
+
+. . . . . . . . STRING: a
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: f
+
+. . . . Arguments:
+
+. . . . . . STRING: i
+
+. . . . . . CONSTANT: 80
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: f
+
+. . . . Arguments:
+
+. . . . . . STRING: j
+
+. . . . . . CONSTANT: 80
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: f
+
+. . . . Arguments:
+
+. . . . . . STRING: k
+
+. . . . . . CONSTANT: 80
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: f
+
+. . . . Arguments:
+
+. . . . . . STRING: l
+
+. . . . . . CONSTANT: 80
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: del
+
+. . . . Arguments:
+
+. . . . . . STRING: b
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: del
+
+. . . . Arguments:
+
+. . . . . . STRING: c
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: del
+
+. . . . Arguments:
+
+. . . . . . STRING: d
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: del
+
+. . . . Arguments:
+
+. . . . . . STRING: f
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: del
+
+. . . . Arguments:
+
+. . . . . . STRING: l
+
+. . ASSIGNMENT: i
+
+. . . . CONSTANT: 0
+
+. . WHILE
+
+. . Condition:
+
+. . . . BINARY: <
+
+. . . . Left:
+
+. . . . . . VARIABLE: i
+
+. . . . Right:
+
+. . . . . . CONSTANT: 15
+
+. . Body:
+
+. . . . STATEMENTS
+
+. . . . . . EXPR_STATEMENT
+
+. . . . . . . . CALL
+
+. . . . . . . . . . VARIABLE: f
+
+. . . . . . . . Arguments:
+
+. . . . . . . . . . CALL
+
+. . . . . . . . . . . . VARIABLE: to_string
+
+. . . . . . . . . . Arguments:
+
+. . . . . . . . . . . . VARIABLE: i
+
+. . . . . . . . . . CONSTANT: 22
+
+. . . . . . ASSIGNMENT: i
+
+. . . . . . . . BINARY: +
+
+. . . . . . . . Left:
+
+. . . . . . . . . . VARIABLE: i
+
+. . . . . . . . Right:
+
+. . . . . . . . . . CONSTANT: 1
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: print
+
+. . . . Arguments:
+
+. . . . . . KEY_ACCESS
+
+. . . . . . On object:
+
+. . . . . . . . VARIABLE: t
+
+. . . . . . Key:
+
+. . . . . . . . STRING: 9
+
+. . EXPR_STATEMENT
+
+. . . . CALL
+
+. . . . . . VARIABLE: print
+
+. . . . Arguments:
+
+. . . . . . KEY_ACCESS
+
+. . . . . . On object:
+
+. . . . . . . . VARIABLE: t
+
+. . . . . . Key:
+
+. . . . . . . . STRING: d
+
+==== Bytecode ====
+
+0   0000000000678FD0 OP_IMPORT                    _testing
+2   0000000000678FD2 OP_LOAD_VARIABLE             _testing
+4   0000000000678FD4 OP_GET_ATTRIBUTE             table_details
+6   0000000000678FD6 OP_SET_VARIABLE              details
+8   0000000000678FD8 OP_LOAD_VARIABLE             _testing
+10  0000000000678FDA OP_GET_ATTRIBUTE             table_delete
+12  0000000000678FDC OP_SET_VARIABLE              delete
+14  0000000000678FDE OP_MAKE_TABLE                0
+16  0000000000678FE0 OP_SET_VARIABLE              t
+18  0000000000678FE2 OP_MAKE_FUNCTION             <Code object at 000000000068C7A0>, k, v
+24  0000000000678FE8 OP_SET_VARIABLE              f
+26  0000000000678FEA OP_MAKE_FUNCTION             <Code object at 000000000068C710>, k
+31  0000000000678FEF OP_SET_VARIABLE              del
+33  0000000000678FF1 OP_CONSTANT                  10
+35  0000000000678FF3 OP_MAKE_STRING               a
+37  0000000000678FF5 OP_LOAD_VARIABLE             f
+39  0000000000678FF7 OP_CALL                      2
+41  0000000000678FF9 OP_POP
+42  0000000000678FFA OP_CONSTANT                  20
+44  0000000000678FFC OP_MAKE_STRING               b
+46  0000000000678FFE OP_LOAD_VARIABLE             f
+48  0000000000679000 OP_CALL                      2
+50  0000000000679002 OP_POP
+51  0000000000679003 OP_CONSTANT                  30
+53  0000000000679005 OP_MAKE_STRING               c
+55  0000000000679007 OP_LOAD_VARIABLE             f
+57  0000000000679009 OP_CALL                      2
+59  000000000067900B OP_POP
+60  000000000067900C OP_CONSTANT                  40
+62  000000000067900E OP_MAKE_STRING               d
+64  0000000000679010 OP_LOAD_VARIABLE             f
+66  0000000000679012 OP_CALL                      2
+68  0000000000679014 OP_POP
+69  0000000000679015 OP_CONSTANT                  50
+71  0000000000679017 OP_MAKE_STRING               e
+73  0000000000679019 OP_LOAD_VARIABLE             f
+75  000000000067901B OP_CALL                      2
+77  000000000067901D OP_POP
+78  000000000067901E OP_CONSTANT                  60
+80  0000000000679020 OP_MAKE_STRING               f
+82  0000000000679022 OP_LOAD_VARIABLE             f
+84  0000000000679024 OP_CALL                      2
+86  0000000000679026 OP_POP
+87  0000000000679027 OP_CONSTANT                  70
+89  0000000000679029 OP_MAKE_STRING               g
+91  000000000067902B OP_LOAD_VARIABLE             f
+93  000000000067902D OP_CALL                      2
+95  000000000067902F OP_POP
+96  0000000000679030 OP_CONSTANT                  80
+98  0000000000679032 OP_MAKE_STRING               h
+100 0000000000679034 OP_LOAD_VARIABLE             f
+102 0000000000679036 OP_CALL                      2
+104 0000000000679038 OP_POP
+105 0000000000679039 OP_MAKE_STRING               e
+107 000000000067903B OP_LOAD_VARIABLE             del
+109 000000000067903D OP_CALL                      1
+111 000000000067903F OP_POP
+112 0000000000679040 OP_MAKE_STRING               a
+114 0000000000679042 OP_LOAD_VARIABLE             del
+116 0000000000679044 OP_CALL                      1
+118 0000000000679046 OP_POP
+119 0000000000679047 OP_MAKE_STRING               a
+121 0000000000679049 OP_LOAD_VARIABLE             t
+123 000000000067904B OP_ACCESS_KEY
+124 000000000067904C OP_LOAD_VARIABLE             print
+126 000000000067904E OP_CALL                      1
+128 0000000000679050 OP_POP
+129 0000000000679051 OP_CONSTANT                  80
+131 0000000000679053 OP_MAKE_STRING               i
+133 0000000000679055 OP_LOAD_VARIABLE             f
+135 0000000000679057 OP_CALL                      2
+137 0000000000679059 OP_POP
+138 000000000067905A OP_CONSTANT                  80
+140 000000000067905C OP_MAKE_STRING               j
+142 000000000067905E OP_LOAD_VARIABLE             f
+144 0000000000679060 OP_CALL                      2
+146 0000000000679062 OP_POP
+147 0000000000679063 OP_CONSTANT                  80
+149 0000000000679065 OP_MAKE_STRING               k
+151 0000000000679067 OP_LOAD_VARIABLE             f
+153 0000000000679069 OP_CALL                      2
+155 000000000067906B OP_POP
+156 000000000067906C OP_CONSTANT                  80
+158 000000000067906E OP_MAKE_STRING               l
+160 0000000000679070 OP_LOAD_VARIABLE             f
+162 0000000000679072 OP_CALL                      2
+164 0000000000679074 OP_POP
+165 0000000000679075 OP_MAKE_STRING               b
+167 0000000000679077 OP_LOAD_VARIABLE             del
+169 0000000000679079 OP_CALL                      1
+171 000000000067907B OP_POP
+172 000000000067907C OP_MAKE_STRING               c
+174 000000000067907E OP_LOAD_VARIABLE             del
+176 0000000000679080 OP_CALL                      1
+178 0000000000679082 OP_POP
+179 0000000000679083 OP_MAKE_STRING               d
+181 0000000000679085 OP_LOAD_VARIABLE             del
+183 0000000000679087 OP_CALL                      1
+185 0000000000679089 OP_POP
+186 000000000067908A OP_MAKE_STRING               f
+188 000000000067908C OP_LOAD_VARIABLE             del
+190 000000000067908E OP_CALL                      1
+192 0000000000679090 OP_POP
+193 0000000000679091 OP_MAKE_STRING               l
+195 0000000000679093 OP_LOAD_VARIABLE             del
+197 0000000000679095 OP_CALL                      1
+199 0000000000679097 OP_POP
+200 0000000000679098 OP_CONSTANT                  0
+202 000000000067909A OP_SET_VARIABLE              i
+204 000000000067909C OP_LOAD_VARIABLE             i
+206 000000000067909E OP_CONSTANT                  15
+208 00000000006790A0 OP_LESS_THAN
+209 00000000006790A1 OP_JUMP_IF_FALSE             235
+212 00000000006790A4 OP_CONSTANT                  22
+214 00000000006790A6 OP_LOAD_VARIABLE             i
+216 00000000006790A8 OP_LOAD_VARIABLE             to_string
+218 00000000006790AA OP_CALL                      1
+220 00000000006790AC OP_LOAD_VARIABLE             f
+222 00000000006790AE OP_CALL                      2
+224 00000000006790B0 OP_POP
+225 00000000006790B1 OP_LOAD_VARIABLE             i
+227 00000000006790B3 OP_CONSTANT                  1
+229 00000000006790B5 OP_ADD
+230 00000000006790B6 OP_SET_VARIABLE              i
+232 00000000006790B8 OP_JUMP                      204
+235 00000000006790BB OP_MAKE_STRING               9
+237 00000000006790BD OP_LOAD_VARIABLE             t
+239 00000000006790BF OP_ACCESS_KEY
+240 00000000006790C0 OP_LOAD_VARIABLE             print
+242 00000000006790C2 OP_CALL                      1
+244 00000000006790C4 OP_POP
+245 00000000006790C5 OP_MAKE_STRING               d
+247 00000000006790C7 OP_LOAD_VARIABLE             t
+249 00000000006790C9 OP_ACCESS_KEY
+250 00000000006790CA OP_LOAD_VARIABLE             print
+252 00000000006790CC OP_CALL                      1
+254 00000000006790CE OP_POP
+255 00000000006790CF OP_NIL
+256 00000000006790D0 OP_RETURN
+
+Inner chunk [index 22]:
+0   000000000068C680 OP_MAKE_STRING               
+2   000000000068C682 OP_LOAD_VARIABLE             print
+4   000000000068C684 OP_CALL                      1
+6   000000000068C686 OP_POP
+7   000000000068C687 OP_MAKE_STRING               Adding key 
+9   000000000068C689 OP_LOAD_VARIABLE             k
+11  000000000068C68B OP_ADD
+12  000000000068C68C OP_MAKE_STRING                to table.
+14  000000000068C68E OP_ADD
+15  000000000068C68F OP_LOAD_VARIABLE             print
+17  000000000068C691 OP_CALL                      1
+19  000000000068C693 OP_POP
+20  000000000068C694 OP_LOAD_VARIABLE             v
+22  000000000068C696 OP_LOAD_VARIABLE             k
+24  000000000068C698 OP_LOAD_VARIABLE             t
+26  000000000068C69A OP_SET_KEY
+27  000000000068C69B OP_MAKE_STRING               Table:
+29  000000000068C69D OP_LOAD_VARIABLE             print
+31  000000000068C69F OP_CALL                      1
+33  000000000068C6A1 OP_POP
+34  000000000068C6A2 OP_LOAD_VARIABLE             t
+36  000000000068C6A4 OP_LOAD_VARIABLE             print
+38  000000000068C6A6 OP_CALL                      1
+40  000000000068C6A8 OP_POP
+41  000000000068C6A9 OP_MAKE_STRING               Details:
+43  000000000068C6AB OP_LOAD_VARIABLE             print
+45  000000000068C6AD OP_CALL                      1
+47  000000000068C6AF OP_POP
+48  000000000068C6B0 OP_LOAD_VARIABLE             t
+50  000000000068C6B2 OP_LOAD_VARIABLE             details
+52  000000000068C6B4 OP_CALL                      1
+54  000000000068C6B6 OP_LOAD_VARIABLE             print
+56  000000000068C6B8 OP_CALL                      1
+58  000000000068C6BA OP_POP
+59  000000000068C6BB OP_MAKE_STRING               
+61  000000000068C6BD OP_LOAD_VARIABLE             print
+63  000000000068C6BF OP_CALL                      1
+65  000000000068C6C1 OP_POP
+66  000000000068C6C2 OP_NIL
+67  000000000068C6C3 OP_RETURN
+
+Constant table of chunk pointing at '000000000068C680':
+0:  [ type 5 ]
+1: print [ type 5 ]
+2: Adding key  [ type 5 ]
+3: k [ type 5 ]
+4:  to table. [ type 5 ]
+5: print [ type 5 ]
+6: v [ type 5 ]
+7: k [ type 5 ]
+8: t [ type 5 ]
+9: Table: [ type 5 ]
+10: print [ type 5 ]
+11: t [ type 5 ]
+12: print [ type 5 ]
+13: Details: [ type 5 ]
+14: print [ type 5 ]
+15: t [ type 5 ]
+16: details [ type 5 ]
+17: print [ type 5 ]
+18:  [ type 5 ]
+19: print [ type 5 ]
+
+Inner chunk [index 40]:
+0   000000000068CDD0 OP_MAKE_STRING               
+2   000000000068CDD2 OP_LOAD_VARIABLE             print
+4   000000000068CDD4 OP_CALL                      1
+6   000000000068CDD6 OP_POP
+7   000000000068CDD7 OP_MAKE_STRING               Removing entry 
+9   000000000068CDD9 OP_LOAD_VARIABLE             k
+11  000000000068CDDB OP_ADD
+12  000000000068CDDC OP_MAKE_STRING                from table.
+14  000000000068CDDE OP_ADD
+15  000000000068CDDF OP_LOAD_VARIABLE             print
+17  000000000068CDE1 OP_CALL                      1
+19  000000000068CDE3 OP_POP
+20  000000000068CDE4 OP_LOAD_VARIABLE             k
+22  000000000068CDE6 OP_LOAD_VARIABLE             t
+24  000000000068CDE8 OP_LOAD_VARIABLE             delete
+26  000000000068CDEA OP_CALL                      2
+28  000000000068CDEC OP_POP
+29  000000000068CDED OP_MAKE_STRING               Table:
+31  000000000068CDEF OP_LOAD_VARIABLE             print
+33  000000000068CDF1 OP_CALL                      1
+35  000000000068CDF3 OP_POP
+36  000000000068CDF4 OP_LOAD_VARIABLE             t
+38  000000000068CDF6 OP_LOAD_VARIABLE             print
+40  000000000068CDF8 OP_CALL                      1
+42  000000000068CDFA OP_POP
+43  000000000068CDFB OP_MAKE_STRING               Details:
+45  000000000068CDFD OP_LOAD_VARIABLE             print
+47  000000000068CDFF OP_CALL                      1
+49  000000000068CE01 OP_POP
+50  000000000068CE02 OP_LOAD_VARIABLE             t
+52  000000000068CE04 OP_LOAD_VARIABLE             details
+54  000000000068CE06 OP_CALL                      1
+56  000000000068CE08 OP_LOAD_VARIABLE             print
+58  000000000068CE0A OP_CALL                      1
+60  000000000068CE0C OP_POP
+61  000000000068CE0D OP_MAKE_STRING               
+63  000000000068CE0F OP_LOAD_VARIABLE             print
+65  000000000068CE11 OP_CALL                      1
+67  000000000068CE13 OP_POP
+68  000000000068CE14 OP_NIL
+69  000000000068CE15 OP_RETURN
+
+Constant table of chunk pointing at '000000000068CDD0':
+0:  [ type 5 ]
+1: print [ type 5 ]
+2: Removing entry  [ type 5 ]
+3: k [ type 5 ]
+4:  from table. [ type 5 ]
+5: print [ type 5 ]
+6: k [ type 5 ]
+7: t [ type 5 ]
+8: delete [ type 5 ]
+9: Table: [ type 5 ]
+10: print [ type 5 ]
+11: t [ type 5 ]
+12: print [ type 5 ]
+13: Details: [ type 5 ]
+14: print [ type 5 ]
+15: t [ type 5 ]
+16: details [ type 5 ]
+17: print [ type 5 ]
+18:  [ type 5 ]
+19: print [ type 5 ]
+
+Constant table of chunk pointing at '0000000000678FD0':
+0: _testing [ type 5 ]
+1: _testing [ type 5 ]
+2: table_details [ type 5 ]
+3: details [ type 5 ]
+4: _testing [ type 5 ]
+5: table_delete [ type 5 ]
+6: delete [ type 5 ]
+7: t [ type 5 ]
+8: print [ type 5 ]
+9: k [ type 5 ]
+10: print [ type 5 ]
+11: v [ type 5 ]
+12: k [ type 5 ]
+13: t [ type 5 ]
+14: print [ type 5 ]
+15: t [ type 5 ]
+16: print [ type 5 ]
+17: print [ type 5 ]
+18: t [ type 5 ]
+19: details [ type 5 ]
+20: print [ type 5 ]
+21: print [ type 5 ]
+22: <Code object at 000000000068C7A0> [ type 5 ]
+23: k [ type 5 ]
+24: v [ type 5 ]
+25: f [ type 5 ]
+26: print [ type 5 ]
+27: k [ type 5 ]
+28: print [ type 5 ]
+29: k [ type 5 ]
+30: t [ type 5 ]
+31: delete [ type 5 ]
+32: print [ type 5 ]
+33: t [ type 5 ]
+34: print [ type 5 ]
+35: print [ type 5 ]
+36: t [ type 5 ]
+37: details [ type 5 ]
+38: print [ type 5 ]
+39: print [ type 5 ]
+40: <Code object at 000000000068C710> [ type 5 ]
+41: k [ type 5 ]
+42: del [ type 5 ]
+43: 10 [ type 0 ]
+44: a [ type 5 ]
+45: f [ type 5 ]
+46: 20 [ type 0 ]
+47: b [ type 5 ]
+48: f [ type 5 ]
+49: 30 [ type 0 ]
+50: c [ type 5 ]
+51: f [ type 5 ]
+52: 40 [ type 0 ]
+53: d [ type 5 ]
+54: f [ type 5 ]
+55: 50 [ type 0 ]
+56: e [ type 5 ]
+57: f [ type 5 ]
+58: 60 [ type 0 ]
+59: f [ type 5 ]
+60: f [ type 5 ]
+61: 70 [ type 0 ]
+62: g [ type 5 ]
+63: f [ type 5 ]
+64: 80 [ type 0 ]
+65: h [ type 5 ]
+66: f [ type 5 ]
+67: e [ type 5 ]
+68: del [ type 5 ]
+69: a [ type 5 ]
+70: del [ type 5 ]
+71: a [ type 5 ]
+72: t [ type 5 ]
+73: print [ type 5 ]
+74: 80 [ type 0 ]
+75: i [ type 5 ]
+76: f [ type 5 ]
+77: 80 [ type 0 ]
+78: j [ type 5 ]
+79: f [ type 5 ]
+80: 80 [ type 0 ]
+81: k [ type 5 ]
+82: f [ type 5 ]
+83: 80 [ type 0 ]
+84: l [ type 5 ]
+85: f [ type 5 ]
+86: b [ type 5 ]
+87: del [ type 5 ]
+88: c [ type 5 ]
+89: del [ type 5 ]
+90: d [ type 5 ]
+91: del [ type 5 ]
+92: f [ type 5 ]
+93: del [ type 5 ]
+94: l [ type 5 ]
+95: del [ type 5 ]
+96: 0 [ type 0 ]
+97: i [ type 5 ]
+98: i [ type 5 ]
+99: 15 [ type 0 ]
+100: 22 [ type 0 ]
+101: i [ type 5 ]
+102: to_string [ type 5 ]
+103: f [ type 5 ]
+104: i [ type 5 ]
+105: 1 [ type 0 ]
+106: i [ type 5 ]
+107: 9 [ type 5 ]
+108: t [ type 5 ]
+109: print [ type 5 ]
+110: d [ type 5 ]
+111: t [ type 5 ]
+112: print [ type 5 ]
+
+================
+
+Adding key a to table.
+Table:
+[a: 10]
+Details:
+[capacity: 8, num_entries: 1, count: 1]
+
+
+Adding key b to table.
+Table:
+[a: 10, b: 20]
+Details:
+[capacity: 8, num_entries: 2, count: 2]
+
+
+Adding key c to table.
+Table:
+[c: 30, a: 10, b: 20]
+Details:
+[capacity: 8, num_entries: 3, count: 3]
+
+
+Adding key d to table.
+Table:
+[c: 30, d: 40, a: 10, b: 20]
+Details:
+[capacity: 8, num_entries: 4, count: 4]
+
+
+Adding key e to table.
+Table:
+[c: 30, d: 40, e: 50, a: 10, b: 20]
+Details:
+[capacity: 8, num_entries: 5, count: 5]
+
+
+Adding key f to table.
+Table:
+[a: 10, b: 20, c: 30, d: 40, e: 50, f: 60]
+Details:
+[capacity: 16, num_entries: 6, count: 6]
+
+
+Adding key g to table.
+Table:
+[a: 10, b: 20, c: 30, d: 40, e: 50, f: 60, g: 70]
+Details:
+[capacity: 16, num_entries: 7, count: 7]
+
+
+Adding key h to table.
+Table:
+[a: 10, b: 20, c: 30, d: 40, e: 50, f: 60, g: 70, h: 80]
+Details:
+[capacity: 16, num_entries: 8, count: 8]
+
+
+Removing entry e from table.
+Table:
+[a: 10, b: 20, c: 30, d: 40, f: 60, g: 70, h: 80]
+Details:
+[capacity: 16, num_entries: 7, count: 8]
+
+
+Removing entry a from table.
+Table:
+[b: 20, c: 30, d: 40, f: 60, g: 70, h: 80]
+Details:
+[capacity: 16, num_entries: 6, count: 8]
+
+nil
+
+Adding key i to table.
+Table:
+[b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80]
+Details:
+[capacity: 16, num_entries: 7, count: 9]
+
+
+Adding key j to table.
+Table:
+[b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80]
+Details:
+[capacity: 16, num_entries: 8, count: 10]
+
+
+Adding key k to table.
+Table:
+[k: 80, b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80]
+Details:
+[capacity: 16, num_entries: 9, count: 11]
+
+
+Adding key l to table.
+Table:
+[b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+Details:
+[capacity: 32, num_entries: 10, count: 10]
+
+
+Removing entry b from table.
+Table:
+[c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+Details:
+[capacity: 32, num_entries: 9, count: 10]
+
+
+Removing entry c from table.
+Table:
+[d: 40, f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+Details:
+[capacity: 32, num_entries: 8, count: 10]
+
+
+Removing entry d from table.
+Table:
+[f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+Details:
+[capacity: 32, num_entries: 7, count: 10]
+
+
+Removing entry f from table.
+Table:
+[g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+Details:
+[capacity: 32, num_entries: 6, count: 10]
+
+
+Removing entry l from table.
+Table:
+[g: 70, h: 80, i: 80, j: 80, k: 80]
+Details:
+[capacity: 32, num_entries: 5, count: 10]
+
+
+Adding key 0 to table.
+Table:
+[g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22]
+Details:
+[capacity: 32, num_entries: 6, count: 11]
+
+
+Adding key 1 to table.
+Table:
+[g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22]
+Details:
+[capacity: 32, num_entries: 7, count: 12]
+
+
+Adding key 2 to table.
+Table:
+[g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22]
+Details:
+[capacity: 32, num_entries: 8, count: 13]
+
+
+Adding key 3 to table.
+Table:
+[g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22]
+Details:
+[capacity: 32, num_entries: 9, count: 14]
+
+
+Adding key 4 to table.
+Table:
+[g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22]
+Details:
+[capacity: 32, num_entries: 10, count: 15]
+
+
+Adding key 5 to table.
+Table:
+[g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22]
+Details:
+[capacity: 32, num_entries: 11, count: 16]
+
+
+Adding key 6 to table.
+Table:
+[g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22]
+Details:
+[capacity: 32, num_entries: 12, count: 17]
+
+
+Adding key 7 to table.
+Table:
+[g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22]
+Details:
+[capacity: 32, num_entries: 13, count: 18]
+
+
+Adding key 8 to table.
+Table:
+[g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22]
+Details:
+[capacity: 32, num_entries: 14, count: 19]
+
+
+Adding key 9 to table.
+Table:
+[g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+Details:
+[capacity: 32, num_entries: 15, count: 20]
+
+
+Adding key 10 to table.
+Table:
+[10: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+Details:
+[capacity: 32, num_entries: 16, count: 21]
+
+
+Adding key 11 to table.
+Table:
+[10: 22, 11: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+Details:
+[capacity: 32, num_entries: 17, count: 22]
+
+
+Adding key 12 to table.
+Table:
+[10: 22, 11: 22, 12: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+Details:
+[capacity: 32, num_entries: 18, count: 23]
+
+
+Adding key 13 to table.
+Table:
+[10: 22, 11: 22, 12: 22, 13: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+Details:
+[capacity: 64, num_entries: 19, count: 19]
+
+
+Adding key 14 to table.
+Table:
+[10: 22, 11: 22, 12: 22, 13: 22, 14: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+Details:
+[capacity: 64, num_entries: 20, count: 20]
+
+22
+nil
+======== Memory diagnostics ========
+*******
+All memory freed.
+*******
+*******
+All allocations freed.
+*******
+*******
+No live objects.
+*******
+======== End memory diagnostics ========

@@ -153,6 +153,7 @@ void memory_print_allocated_entries() {  // for debugging
     DEBUG_IMPORTANT_PRINT("Allocated memory entries:\n");
 
     printf("\n");
-    table_print_debug_as_buckets(&allocations, false);
+    // table_print_debug_as_buckets(&allocations, false);
+    table_print_debug(&allocations);
     printf("\n");
 }

@@ -193,3 +193,310 @@ expect
     830
     840
 end
+
+test big ass table internals
+    import _testing
+    details = _testing.table_details
+    delete = _testing.table_delete
+
+    t = []
+
+    f = { takes k, v to
+        print("")
+        print("Adding key " + k + " to table.")
+        t[k] = v
+        print("Table:")
+        print(t)
+        print("Details:")
+        print(details(t))
+        print("")
+    }
+
+    del = { takes k to
+        print("")
+        print("Removing entry " + k + " from table.")
+        delete(t, k)
+        print("Table:")
+        print(t)
+        print("Details:")
+        print(details(t))
+        print("")
+    }
+
+    f("a", 10)
+    f("b", 20)
+    f("c", 30)
+    f("d", 40)
+    f("e", 50)
+    f("f", 60)
+    f("g", 70)
+    f("h", 80)
+
+    del("e")
+    del("a")
+
+    print(t["a"])
+
+    f("i", 80)
+    f("j", 80)
+    f("k", 80)
+    f("l", 80)
+
+    del("b")
+    del("c")
+    del("d")
+    del("f")
+    del("l")
+
+    i = 0
+    while i < 15 {
+        # add another key in order to make table grow again
+        f(to_string(i), 22)
+        i = i + 1
+    }
+
+    print(t["9"])
+    print(t["d"])
+expect
+
+    Adding key a to table.
+    Table:
+    [a: 10]
+    Details:
+    [capacity: 8, num_entries: 1, count: 1]
+
+
+    Adding key b to table.
+    Table:
+    [a: 10, b: 20]
+    Details:
+    [capacity: 8, num_entries: 2, count: 2]
+
+
+    Adding key c to table.
+    Table:
+    [c: 30, a: 10, b: 20]
+    Details:
+    [capacity: 8, num_entries: 3, count: 3]
+
+
+    Adding key d to table.
+    Table:
+    [c: 30, d: 40, a: 10, b: 20]
+    Details:
+    [capacity: 8, num_entries: 4, count: 4]
+
+
+    Adding key e to table.
+    Table:
+    [c: 30, d: 40, e: 50, a: 10, b: 20]
+    Details:
+    [capacity: 8, num_entries: 5, count: 5]
+
+
+    Adding key f to table.
+    Table:
+    [a: 10, b: 20, c: 30, d: 40, e: 50, f: 60]
+    Details:
+    [capacity: 16, num_entries: 6, count: 6]
+
+
+    Adding key g to table.
+    Table:
+    [a: 10, b: 20, c: 30, d: 40, e: 50, f: 60, g: 70]
+    Details:
+    [capacity: 16, num_entries: 7, count: 7]
+
+
+    Adding key h to table.
+    Table:
+    [a: 10, b: 20, c: 30, d: 40, e: 50, f: 60, g: 70, h: 80]
+    Details:
+    [capacity: 16, num_entries: 8, count: 8]
+
+
+    Removing entry e from table.
+    Table:
+    [a: 10, b: 20, c: 30, d: 40, f: 60, g: 70, h: 80]
+    Details:
+    [capacity: 16, num_entries: 7, count: 8]
+
+
+    Removing entry a from table.
+    Table:
+    [b: 20, c: 30, d: 40, f: 60, g: 70, h: 80]
+    Details:
+    [capacity: 16, num_entries: 6, count: 8]
+
+    nil
+
+    Adding key i to table.
+    Table:
+    [b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80]
+    Details:
+    [capacity: 16, num_entries: 7, count: 9]
+
+
+    Adding key j to table.
+    Table:
+    [b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80]
+    Details:
+    [capacity: 16, num_entries: 8, count: 10]
+
+
+    Adding key k to table.
+    Table:
+    [k: 80, b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80]
+    Details:
+    [capacity: 16, num_entries: 9, count: 11]
+
+
+    Adding key l to table.
+    Table:
+    [b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+    Details:
+    [capacity: 32, num_entries: 10, count: 10]
+
+
+    Removing entry b from table.
+    Table:
+    [c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+    Details:
+    [capacity: 32, num_entries: 9, count: 10]
+
+
+    Removing entry c from table.
+    Table:
+    [d: 40, f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+    Details:
+    [capacity: 32, num_entries: 8, count: 10]
+
+
+    Removing entry d from table.
+    Table:
+    [f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+    Details:
+    [capacity: 32, num_entries: 7, count: 10]
+
+
+    Removing entry f from table.
+    Table:
+    [g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+    Details:
+    [capacity: 32, num_entries: 6, count: 10]
+
+
+    Removing entry l from table.
+    Table:
+    [g: 70, h: 80, i: 80, j: 80, k: 80]
+    Details:
+    [capacity: 32, num_entries: 5, count: 10]
+
+
+    Adding key 0 to table.
+    Table:
+    [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22]
+    Details:
+    [capacity: 32, num_entries: 6, count: 11]
+
+
+    Adding key 1 to table.
+    Table:
+    [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22]
+    Details:
+    [capacity: 32, num_entries: 7, count: 12]
+
+
+    Adding key 2 to table.
+    Table:
+    [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22]
+    Details:
+    [capacity: 32, num_entries: 8, count: 13]
+
+
+    Adding key 3 to table.
+    Table:
+    [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22]
+    Details:
+    [capacity: 32, num_entries: 9, count: 14]
+
+
+    Adding key 4 to table.
+    Table:
+    [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22]
+    Details:
+    [capacity: 32, num_entries: 10, count: 15]
+
+
+    Adding key 5 to table.
+    Table:
+    [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22]
+    Details:
+    [capacity: 32, num_entries: 11, count: 16]
+
+
+    Adding key 6 to table.
+    Table:
+    [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22]
+    Details:
+    [capacity: 32, num_entries: 12, count: 17]
+
+
+    Adding key 7 to table.
+    Table:
+    [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22]
+    Details:
+    [capacity: 32, num_entries: 13, count: 18]
+
+
+    Adding key 8 to table.
+    Table:
+    [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22]
+    Details:
+    [capacity: 32, num_entries: 14, count: 19]
+
+
+    Adding key 9 to table.
+    Table:
+    [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+    Details:
+    [capacity: 32, num_entries: 15, count: 20]
+
+
+    Adding key 10 to table.
+    Table:
+    [10: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+    Details:
+    [capacity: 32, num_entries: 16, count: 21]
+
+
+    Adding key 11 to table.
+    Table:
+    [10: 22, 11: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+    Details:
+    [capacity: 32, num_entries: 17, count: 22]
+
+
+    Adding key 12 to table.
+    Table:
+    [10: 22, 11: 22, 12: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+    Details:
+    [capacity: 32, num_entries: 18, count: 23]
+
+
+    Adding key 13 to table.
+    Table:
+    [10: 22, 11: 22, 12: 22, 13: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+    Details:
+    [capacity: 64, num_entries: 19, count: 19]
+
+
+    Adding key 14 to table.
+    Table:
+    [10: 22, 11: 22, 12: 22, 13: 22, 14: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+    Details:
+    [capacity: 64, num_entries: 20, count: 20]
+
+    22
+    nil
+end
