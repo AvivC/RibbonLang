@@ -123,6 +123,8 @@ bool builtin_test_table_details(Object* self, ValueArray args, Value* out) {
         MAKE_VALUE_NUMBER(table.count));
     table_set(&result, MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated("capacity")),
         MAKE_VALUE_NUMBER(table.capacity));
+    table_set(&result, MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated("collision_count")),
+        MAKE_VALUE_NUMBER(table.collision_count));
 
     *out = MAKE_VALUE_OBJECT(object_table_new(result));
     return true;
