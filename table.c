@@ -81,7 +81,8 @@ static Entry* find_entry(Table* table, Value key) {
         FAIL("Couldn't hash in table::find_entry.");
     }
 
-    size_t slot = hash % table->capacity;
+    // size_t slot = hash % table->capacity;
+    size_t slot = hash & (table->capacity - 1);
     Entry* entry = &table->entries[slot];
 
     Entry* tombstone = NULL;

@@ -1,0 +1,22 @@
+fib = { takes n to 
+    if n < 0 { 
+        print("Incorrect input") 
+    } elsif n == 1 {
+        return 0
+    } elsif n == 2 {
+        return 1
+    } else {
+        return fib(n - 1) + fib(n - 2)
+    }
+}
+
+start = time()
+
+print("Result:")
+
+print(fib(40))
+
+duration = (time() - start) / 1000
+
+print("Duration:")
+print(duration)
