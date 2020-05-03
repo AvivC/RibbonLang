@@ -23,9 +23,11 @@ void bytecode_write(Bytecode* chunk, uint8_t byte) {
 }
 
 void bytecode_set(Bytecode* chunk, int position, uint8_t byte) {
-	if (position >= chunk->count || position < 0) {
-		FAIL("Position out of bounds for chunk writing.");
-	}
+    assert(position < chunk->count && position >= 0);
+
+	// if (position >= chunk->count || position < 0) {
+	// 	FAIL("Position out of bounds for chunk writing.");
+	// }
 
 	chunk->code[position] = byte;
 }

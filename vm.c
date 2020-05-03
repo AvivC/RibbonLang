@@ -31,6 +31,8 @@ static ObjectThread* current_thread(void) {
 
 static void set_current_thread(ObjectThread* thread) {
 	vm.current_thread = thread;
+	vm.stack = thread->eval_stack;
+	vm.stack_top = vm.stack;
 }
 
 static StackFrame* current_frame(void) {
@@ -42,11 +44,15 @@ static Bytecode* current_bytecode(void) {
 }
 
 static void push(Value value) {
-	object_thread_push_eval_stack(current_thread(), value);
+	// object_thread_push_eval_stack(current_thread(), value);
+	*vm.stack_top = value;
+    vm.stack_top++;
 }
 
 static Value pop(void) {
-	return object_thread_pop_eval_stack(current_thread());
+	// return object_thread_pop_eval_stack(current_thread());
+	vm.stack_top--;
+    return *vm.stack_top;
 }
 
 /* TODO: Consider having vm_push_object and vm_pop_object work against
@@ -61,14 +67,16 @@ void vm_push_object(Object* object) {
 
 Object* vm_pop_object() {
 	Value value = pop();
-	if (value.type != VALUE_OBJECT) {
-		FAIL("vm_pop_object popped non-object. Actual type: %d", value.type);
-	}
+	assert(value.type == VALUE_OBJECT);
+	// if (value.type != VALUE_OBJECT) {
+	// 	FAIL("vm_pop_object popped non-object. Actual type: %d", value.type);
+	// }
 	return value.as.object;
 }
 
 static Value peek_at(int offset) {
-	return *(current_thread()->eval_stack_top - offset);
+	// return *(current_thread()->eval_stack_top - offset);
+	return *(vm.stack_top - offset);
 }
 
 static Value peek(void) {
@@ -212,10 +220,11 @@ static void gc_mark_object_attributes(Object* object) {
 }
 
 static void assert_is_probably_valid_object(Object* object) {
-	bool is_probably_valid_object = (object->is_reachable == true) || (object->is_reachable == false);
-	if (!is_probably_valid_object) {
-		FAIL("Illegal object passed to gc_mark_object.");
-	}
+	assert((object->is_reachable == true) || (object->is_reachable == false));
+	// bool is_probably_valid_object = (object->is_reachable == true) || (object->is_reachable == false);
+	// if (!is_probably_valid_object) {
+	// 	FAIL("Illegal object passed to gc_mark_object.");
+	// }
 }
 
 static void gc_mark_function_free_vars(ObjectFunction* function) {
@@ -370,6 +379,12 @@ static void gc_mark(void) {
 	gc_mark_table(&vm.globals.table);
 	gc_mark_table(&vm.imported_modules.table);
 	gc_mark_table(&vm.builtin_modules.table);
+
+	for (Value* value = vm.stack; value != vm.stack_top; value++) {
+		if (value->type == VALUE_OBJECT) {
+			gc_mark_object(value->as.object);
+		}
+	}
 }
 
 static void gc_sweep(void) {
@@ -755,9 +770,10 @@ CallResult vm_instantiate_class(ObjectClass* klass, ValueArray args, Value* out)
 		}
 
 		Object* self = init_bound_method->self;
-		if (self != (Object*) instance) {
-			FAIL("When instantiating class, bound method's self and subject instance are different.");
-		}
+		assert(self == (Object*) instance);
+		// if (self != (Object*) instance) {
+		// 	FAIL("When instantiating class, bound method's self and subject instance are different.");
+		// }
 
 		Value throwaway;
 		CallResult call_result = vm_call_bound_method(init_bound_method, args, &throwaway);
@@ -863,9 +879,10 @@ ImportResult vm_import_module(ObjectString* module_name) {
 	Value module_value;
 	bool module_already_imported = cell_table_get_value(&vm.imported_modules, module_name, &module_value);
 	if (module_already_imported) {
-		if (!object_value_is(module_value, OBJECT_MODULE)) {
-			FAIL("Non ObjectModule found in global module cache.");
-		}
+		assert(object_value_is(module_value, OBJECT_MODULE));
+		// if (!object_value_is(module_value, OBJECT_MODULE)) {
+		// 	FAIL("Non ObjectModule found in global module cache.");
+		// }
 		
 		cell_table_set_value(locals_or_module_table(), module_name, module_value);
 
@@ -895,10 +912,8 @@ ImportResult vm_import_module(ObjectString* module_name) {
 
 	Value builtin_module_value;
 	if (cell_table_get_value(&vm.builtin_modules, module_name, &builtin_module_value)) {
-		ObjectModule* module = NULL;
-		if ((module = VALUE_AS_OBJECT(builtin_module_value, OBJECT_MODULE, ObjectModule)) == NULL) {
-			FAIL("Found non ObjectModule* in builtin modules table.");
-		}
+		assert(object_value_is(builtin_module_value, OBJECT_MODULE));
+		ObjectModule* module = (ObjectModule*) builtin_module_value.as.object;
 
 		cell_table_set_value(locals_or_module_table(), module_name, MAKE_VALUE_OBJECT(module));
 		cell_table_set_value(&vm.imported_modules, module_name, MAKE_VALUE_OBJECT(module));
@@ -965,9 +980,10 @@ ImportResult vm_import_module_cstring(char* name) {
 ObjectModule* vm_get_module(ObjectString* name) {
 	Value module_value;
 	if (cell_table_get_value(&vm.imported_modules, name, &module_value)) {
-		if (!object_value_is(module_value, OBJECT_MODULE)) {
-			FAIL("In vm_get_module, found non ObjectModule in vm.imported_modules.");
-		}
+		assert(object_value_is(module_value, OBJECT_MODULE));
+		// if (!object_value_is(module_value, OBJECT_MODULE)) {
+		// 	FAIL("In vm_get_module, found non ObjectModule in vm.imported_modules.");
+		// }
 
 		return (ObjectModule*) module_value.as.object;
 	}
@@ -989,9 +1005,10 @@ static CellTable find_free_vars_for_new_function(ObjectCode* func_code) {
 		/* Get the name of the variable referenced inside the created function */
 		size_t refd_name_index = names_refd_in_created_func.values[i];
 		Value refd_name_value = func_code->bytecode.constants.values[refd_name_index];
-		if (!object_value_is(refd_name_value, OBJECT_STRING)) {
-			FAIL("Referenced name constant must be an ObjectString*");
-		}
+		assert(object_value_is(refd_name_value, OBJECT_STRING));
+		// if (!object_value_is(refd_name_value, OBJECT_STRING)) {
+		// 	FAIL("Referenced name constant must be an ObjectString*");
+		// }
 		ObjectString* refd_name = (ObjectString*) refd_name_value.as.object;
 
 		/* If the cell for the refd_name exists in our current local scope, we take that cell
@@ -1020,8 +1037,8 @@ static CellTable find_free_vars_for_new_function(ObjectCode* func_code) {
 			for (int i = 0; i < assigned_names_indices->count; i++) {
 				size_t assigned_name_index = assigned_names_indices->values[i];
 				Value assigned_name_constant = current_bytecode->constants.values[assigned_name_index];
-				ObjectString* assigned_name = NULL;
-				ASSERT_VALUE_AS_OBJECT(assigned_name, assigned_name_constant, OBJECT_STRING, ObjectString, "Expected ObjectString* as assigned name.")
+				assert(object_value_is(assigned_name_constant, OBJECT_STRING));
+				ObjectString* assigned_name = (ObjectString*) assigned_name_constant.as.object;
 
 				if (object_strings_equal(refd_name, assigned_name)) {
 					cell = object_cell_new_empty();
@@ -1114,12 +1131,17 @@ static bool vm_interpret_frame(StackFrame* frame) {
 		#if DEBUG_TRACE_EXECUTION
 			disassembler_do_single_instruction(opcode, current_bytecode(), current_thread()->ip - 1 - current_bytecode()->code);
 
+			Value* eval_stack = vm.stack;
+			Value* stack_top = vm.stack_top;
+
 			printf("\n");
-			bool stackEmpty = current_thread()->eval_stack == current_thread()->eval_stack_top;
+			// bool stackEmpty = current_thread()->eval_stack == current_thread()->eval_stack_top;
+			bool stackEmpty = eval_stack == stack_top;
 			if (stackEmpty) {
 				printf("[ -- Empty Stack -- ]");
 			} else {
-				for (Value* value = current_thread()->eval_stack; value < current_thread()->eval_stack_top; value++) {
+				// for (Value* value = current_thread()->eval_stack; value < current_thread()->eval_stack_top; value++) {
+				for (Value* value = eval_stack; value < stack_top; value++) {
 					printf("[ ");
 					value_print(*value);
 					printf(" ]");
@@ -1200,9 +1222,10 @@ static bool vm_interpret_frame(StackFrame* frame) {
 					ObjectBoundMethod* add_bound_method = (ObjectBoundMethod*) add_method.as.object;
 					Object* self = add_bound_method->self;
 
-					if (subject != self) {
-						FAIL("Before calling @add, subject is different than the bound method's self attribute.");
-					}
+					assert(subject == self);
+					// if (subject != self) {
+					// 	FAIL("Before calling @add, subject is different than the bound method's self attribute.");
+					// }
 
 					if (add_bound_method->method->is_native) {
 						if (!call_native_function_args_from_stack(add_bound_method->method, add_bound_method->self)) {
@@ -1364,11 +1387,9 @@ static bool vm_interpret_frame(StackFrame* frame) {
             }
 
             case OP_MAKE_STRING: {
-            	ObjectString* prototype = NULL;
             	Value constant = READ_CONSTANT();
-            	if ((prototype = VALUE_AS_OBJECT(constant, OBJECT_STRING, ObjectString)) == NULL) {
-            		FAIL("Expected operand for OP_MAKE_STRING to be an ObjectString* for cloning.");
-            	}
+				assert(object_value_is(constant, OBJECT_STRING));
+            	ObjectString* prototype = (ObjectString*) constant.as.object;
             	ObjectString* new_string = object_string_clone(prototype);
             	push(MAKE_VALUE_OBJECT(new_string));
             	break;
@@ -1406,10 +1427,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 				for (int i = 0; i < num_params; i++) {
 					Value param_value = READ_CONSTANT();
-					ObjectString* param_object_string = NULL;
-					if ((param_object_string = VALUE_AS_OBJECT(param_value, OBJECT_STRING, ObjectString)) == NULL) {
-						FAIL("Param constant expected to be ObjectString*, actual value type: '%d'", param_value.type);
-					}
+					assert(object_value_is(param_value, OBJECT_STRING));
+					ObjectString* param_object_string = (ObjectString*) param_value.as.object;
 					params[i] = copy_cstring(param_object_string->chars, param_object_string->length, "ObjectFunction param cstring");
 				}
 
@@ -1624,9 +1643,10 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				ObjectBoundMethod* bound_method = (ObjectBoundMethod*) key_access_method_value.as.object;
 				Object* self = bound_method->self;
 
-				if (subject != self) {
-					FAIL("Before calling @get_key, subject was different than bound method's self attribute.");
-				}
+				assert(subject == self);
+				// if (subject != self) {
+				// 	FAIL("Before calling @get_key, subject was different than bound method's self attribute.");
+				// }
 
 				Value result;
 				if (bound_method->method->is_native) {
@@ -1658,9 +1678,10 @@ static bool vm_interpret_frame(StackFrame* frame) {
             	if ((access_result = object_get_method(subject, "@set_key", &set_method)) == METHOD_ACCESS_SUCCESS) {
 					Object* self = set_method->self;
 
-					if (self != subject) {
-						FAIL("Before calling @set_key, subject was different from bound method's self attribute.");
-					}
+					assert(subject == self);
+					// if (self != subject) {
+					// 	FAIL("Before calling @set_key, subject was different from bound method's self attribute.");
+					// }
 
     				ValueArray arguments;
     				value_array_init(&arguments);
@@ -1781,10 +1802,7 @@ static bool call_plane_function_custom_frame(
 	bool is_entity_base = base_entity != NULL;
 	StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false, false);
 
-	/* TODO: Remove this? */
-	if (args.count != function->num_params) {
-		FAIL("User function called with unmatching params number.");
-	}
+	assert(args.count == function->num_params);
 
 	for (int i = 0; i < function->num_params; i++) {
 		const char* param_name = function->parameters[i];

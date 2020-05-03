@@ -48,9 +48,10 @@ typedef struct ObjectInstanceEvent {
 } ObjectInstanceEvent;
 
 static bool window_init(Object* self, ValueArray args, Value* out) {
-    if (!plane.is_instance_of_class(self, "Window")) {
-        FAIL("Window self is not a Window instance.");
-    }
+    assert(plane.is_instance_of_class(self, "Window"));
+    // if (!plane.is_instance_of_class(self, "Window")) {
+    //     FAIL("Window self is not a Window instance.");
+    // }
 
     ObjectInstanceWindow* instance = (ObjectInstanceWindow*) self;
 
@@ -78,9 +79,10 @@ static bool window_init(Object* self, ValueArray args, Value* out) {
 }
 
 static bool renderer_init(Object* self, ValueArray args, Value* out) {
-    if (!plane.is_instance_of_class(self, "Renderer")) {
-        FAIL("Renderer self is not a Renderer instance.");
-    }
+    assert(plane.is_instance_of_class(self, "Renderer"));
+    // if (!plane.is_instance_of_class(self, "Renderer")) {
+    //     FAIL("Renderer self is not a Renderer instance.");
+    // }
 
     ObjectInstanceRenderer* instance = (ObjectInstanceRenderer*) self;
 
@@ -121,15 +123,17 @@ static bool rect_init(Object* self, ValueArray args, Value* out) {
 static bool rect_descriptor_get(Object* self, ValueArray args, Value* out) {
     Object* object = args.values[0].as.object;
 
-    if (!plane.is_instance_of_class(object, "Rect")) {
-        FAIL("Non Rect passed as first argument to Rect descriptor get");
-    }
+    assert(plane.is_instance_of_class(object, "Rect"));
+    // if (!plane.is_instance_of_class(object, "Rect")) {
+    //     FAIL("Non Rect passed as first argument to Rect descriptor get");
+    // }
 
     ObjectInstanceRect* rect = (ObjectInstanceRect*) object;
 
-    if (!plane.object_value_is(args.values[1], OBJECT_STRING)) {
-        FAIL("Non string passed as second argument to Rect descriptor get");
-    }
+    assert(plane.object_value_is(args.values[1], OBJECT_STRING));
+    // if (!plane.object_value_is(args.values[1], OBJECT_STRING)) {
+    //     FAIL("Non string passed as second argument to Rect descriptor get");
+    // }
 
     ObjectString* attr_name = (ObjectString*) args.values[1].as.object;
 
@@ -154,20 +158,23 @@ static bool rect_descriptor_get(Object* self, ValueArray args, Value* out) {
 static bool rect_descriptor_set(Object* self, ValueArray args, Value* out) {
     Object* object = args.values[0].as.object;
 
-    if (!plane.is_instance_of_class(object, "Rect")) {
-        FAIL("Non Rect passed as first argument to Rect descriptor get");
-    }
+    assert(plane.is_instance_of_class(object, "Rect"));
+    // if (!plane.is_instance_of_class(object, "Rect")) {
+    //     FAIL("Non Rect passed as first argument to Rect descriptor get");
+    // }
 
     ObjectInstanceRect* rect = (ObjectInstanceRect*) object;
 
-    if (!plane.object_value_is(args.values[1], OBJECT_STRING)) {
-        FAIL("Non string passed as second argument to Rect descriptor get");
-    }
+    assert(plane.object_value_is(args.values[1], OBJECT_STRING));
+    // if (!plane.object_value_is(args.values[1], OBJECT_STRING)) {
+    //     FAIL("Non string passed as second argument to Rect descriptor get");
+    // }
 
-    if (args.values[2].type != VALUE_NUMBER) {
-        /* Temp fail */
-        FAIL("Non number passed as third argument to Rect descriptor get");
-    }
+    assert(args.values[2].type == VALUE_NUMBER);
+    // if (args.values[2].type != VALUE_NUMBER) {
+    //     /* Temp fail */
+    //     FAIL("Non number passed as third argument to Rect descriptor get");
+    // }
 
     ObjectString* attr_name = (ObjectString*) args.values[1].as.object;
     double value = args.values[2].as.number;
@@ -248,9 +255,10 @@ static bool event_descriptor_set(Object* self, ValueArray args, Value* out) {
 }
 
 static bool texture_init(Object* self, ValueArray args, Value* out) {
-    if (!plane.is_instance_of_class(self, "Texture")) {
-        FAIL("texture_init called with none Texture");
-    }
+    assert(plane.is_instance_of_class(self, "Texture"));
+    // if (!plane.is_instance_of_class(self, "Texture")) {
+    //     FAIL("texture_init called with none Texture");
+    // }
 
     ObjectInstanceTexture* texture_instance = (ObjectInstanceTexture*) self;
 
@@ -519,10 +527,11 @@ static bool poll_event(Object* self, ValueArray args, Value* out) {
     SDL_Event event;
     int result = SDL_PollEvent(&event);
 
-    if (result != 0 && result != 1) {
-        /* Ummmm.... should we? */
-        FAIL("SDL_PollEvent returned a non 1 or 0 value: %d", result);
-    }
+    assert(result == 0 || result == 1);
+    // if (result != 0 && result != 1) {
+    //     /* Ummmm.... should we? */
+    //     FAIL("SDL_PollEvent returned a non 1 or 0 value: %d", result);
+    // }
 
     int scancode = -1;
     int repeat = -1;

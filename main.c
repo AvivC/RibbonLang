@@ -15,9 +15,6 @@
 #include "vm.h"
 #include "memory.h"
 
-// Generally this will always be false. Only set to true when experimenting during development
-#define TRYING_THINGS false
-
 static bool checkCmdArg(char** argv, int argc, int index, const char* value) {
 	return argc >= index + 1 && strncmp(argv[index], value, strlen(value)) == 0;
 }
@@ -90,8 +87,16 @@ static void print_memory_diagnostic() {
 }
 
 int main(int argc, char* argv[]) {
+    /* Generally this will always be false. Only set to true when experimenting during development */
+    #define TRYING_THINGS false
+
 	if (TRYING_THINGS) {
 		printf("--- Experimentation mode. ---\n");
+
+        printf("\n%" PRI_SIZET "\n", sizeof(Value));
+        printf("\n%" PRI_SIZET "\n", sizeof(Bytecode));
+        printf("\n%" PRI_SIZET "\n", sizeof(RawString));
+        printf("\n%" PRI_SIZET "\n", sizeof(Value) - sizeof(Bytecode));
 
 		return 0;
 	}

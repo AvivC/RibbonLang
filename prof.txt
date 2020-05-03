@@ -3,133 +3,129 @@ Flat profile:
 Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total           
  time   seconds   seconds    calls  ns/call  ns/call  name    
- 32.85     11.51    11.51                             _mcount_private
- 20.75     18.78     7.27                             __fentry__
- 15.53     24.22     5.44                             vm_interpret_frame
-  7.45     26.83     2.61                             find_entry
-  3.97     28.22     1.39 18455059    75.32    75.67  table_set
-  2.88     29.23     1.01 125660076     8.04    16.58  cell_table_get_cell
-  2.68     30.17     0.94 144115154     6.52     8.23  table_get
-  2.00     30.87     0.70 266250220     2.63     2.63  object_thread_push_eval_stack
-  1.83     31.51     0.64 266250219     2.40     2.40  object_thread_pop_eval_stack
-  1.57     32.06     0.55 266250682     2.07     2.29  value_compare
-  0.77     32.33     0.27                             new_stack_frame.constprop.0
-  0.66     32.56     0.23 18455030    12.46    88.14  cell_table_set_cell
-  0.66     32.79     0.23                             get_string_from_cache
-  0.63     33.01     0.22 144115271     1.53     2.71  value_hash
-  0.51     33.19     0.18                             gc_mark_table
-  0.49     33.36     0.17 125660127     1.35     1.35  object_hash
-  0.46     33.52     0.16 107205034     1.49    18.08  cell_table_get_value
-  0.46     33.68     0.16 92275481     1.73     1.73  table_init
-  0.43     33.83     0.15 20130042     7.45     8.59  table_iterate
-  0.37     33.96     0.13                             load_extension_module
-  0.23     34.04     0.08 88750077     0.90     0.90  object_as_string
-  0.23     34.12     0.08 18454936     4.33     4.33  object_thread_push_frame
-  0.17     34.18     0.06 18455237     3.25     7.32  object_free
-  0.17     34.24     0.06 18455028     3.25   110.14  cell_table_set_value
-  0.17     34.30     0.06 18454976     3.25     4.18  value_array_write
-  0.17     34.36     0.06                             collect_values
-  0.14     34.41     0.05 36910273     1.35     1.71  table_free
-  0.14     34.46     0.05 18454947     2.71   114.47  cell_table_set_value_cstring_key
-  0.14     34.51     0.05 18454935     2.71     2.71  vm_call_function
-  0.11     34.55     0.04 112405914     0.36     0.36  deallocate
-  0.11     34.59     0.04 88750111     0.45     0.45  object_value_is
-  0.11     34.63     0.04 36910098     1.08     1.08  cstrings_equal
-  0.11     34.67     0.04 18455027     2.17     2.17  object_cell_new
-  0.11     34.71     0.04 18454938     2.17     2.52  value_array_free
-  0.11     34.75     0.04 18454935     2.17     2.17  object_thread_pop_frame
-  0.09     34.78     0.03 55365109     0.54     0.54  cell_table_init
-  0.09     34.81     0.03 18454935     1.63     4.33  vm_call_object
-  0.09     34.84     0.03                             allocate_object
-  0.09     34.87     0.03                             gc_mark_object
-  0.06     34.89     0.02 177500201     0.11     0.11  object_compare
-  0.06     34.91     0.02 21634999     0.92     0.92  reallocate
-  0.06     34.93     0.02 18455000     1.08     1.08  object_string_copy
-  0.06     34.95     0.02                             free
-  0.03     34.96     0.01 51840210     0.19     0.19  two_bytes_to_short
-  0.03     34.97     0.01 36910272     0.27     1.98  cell_table_free
-  0.03     34.98     0.01 20130059     0.50     0.85  pointer_array_free
-  0.03     34.99     0.01 20130059     0.50     0.50  pointer_array_init
-  0.03     35.00     0.01 18455108     0.54     0.54  hash_string_bounded
-  0.03     35.01     0.01 18454966     0.54     0.54  object_string_copy_from_null_terminated
-  0.03     35.02     0.01 18454930     0.54     0.54  object_thread_peek_frame
-  0.03     35.03     0.01  6970974     1.43     1.86  pointer_array_write
-  0.03     35.04     0.01                             strlen
-  0.00     35.04     0.00 144115279     0.00     0.00  scanner_peek_next_token
-  0.00     35.04     0.00 81244311     0.00     0.00  value_array_make
-  0.00     35.04     0.00 36910668     0.00     0.00  allocate
-  0.00     35.04     0.00 36910423     0.00     0.00  parser_parse
-  0.00     35.04     0.00 36909859     0.00     0.00  vm_import_module
-  0.00     35.04     0.00 18454940     0.00     0.00  value_array_init
-  0.00     35.04     0.00  5407649     0.00     0.00  object_as_function
-  0.00     35.04     0.00    55750     0.00     0.00  get_allocated_memory
-  0.00     35.04     0.00      392     0.00     0.00  pointer_array_to_plain_array
-  0.00     35.04     0.00      328     0.00     0.02  character_array_write
-  0.00     35.04     0.00      297     0.00     0.00  copy_cstring
-  0.00     35.04     0.00      198     0.00     0.00  copy_null_terminated_cstring
-  0.00     35.04     0.00      196     0.00     0.00  memory_print_allocated_entries
-  0.00     35.04     0.00      127     0.00     0.07  bytecode_write
-  0.00     35.04     0.00      124     0.00     1.38  cell_table_new_empty
-  0.00     35.04     0.00      121     0.00     1.37  make_native_function_with_params
-  0.00     35.04     0.00      115     0.00     0.00  scanner_next_token
-  0.00     35.04     0.00       96     0.00     0.36  object_function_set_name
-  0.00     35.04     0.00       95     0.00     1.38  object_native_function_new
-  0.00     35.04     0.00       66     0.00     0.00  ast_key_value_pair_array_free
-  0.00     35.04     0.00       66     0.00     0.00  compiler_compile
-  0.00     35.04     0.00       42     0.00     4.18  bytecode_add_constant
-  0.00     35.04     0.00       31     0.00     0.18  integer_array_write
-  0.00     35.04     0.00       29     0.00     0.00  table_delete
-  0.00     35.04     0.00       19     0.00     0.00  object_strings_equal
-  0.00     35.04     0.00       17     0.00     0.00  ast_new_node_variable
-  0.00     35.04     0.00       17     0.00    18.08  load_attribute_bypass_descriptors
-  0.00     35.04     0.00       14     0.00     1.63  cell_table_get_cell_cstring_key
-  0.00     35.04     0.00       12     0.00     0.00  bytecode_set
-  0.00     35.04     0.00       10     0.00     0.00  ast_new_node_call
-  0.00     35.04     0.00        9     0.00     0.00  ast_new_node_number
-  0.00     35.04     0.00        9     0.00     0.00  integer_array_init
-  0.00     35.04     0.00        9     0.00    18.08  object_load_attribute
-  0.00     35.04     0.00        8     0.00     0.00  ast_new_node_binary
-  0.00     35.04     0.00        8     0.00   135.00  object_set_attribute_cstring_key
-  0.00     35.04     0.00        8     0.00     0.00  scanner_peek_token_at_offset
-  0.00     35.04     0.00        7     0.00     0.00  io_file_exists
-  0.00     35.04     0.00        6     0.00     0.50  ast_new_node_statements
-  0.00     35.04     0.00        5     0.00     0.00  ast_new_node_expr_statement
-  0.00     35.04     0.00        5     0.00     0.28  integer_array_free
-  0.00     35.04     0.00        4     0.00     0.00  builtin_print
-  0.00     35.04     0.00        4     0.00     0.00  bytecode_init
-  0.00     35.04     0.00        4     0.00     0.00  value_print
-  0.00     35.04     0.00        3     0.00     0.00  ast_new_node_assignment
-  0.00     35.04     0.00        3     0.00     0.00  ast_new_node_return
-  0.00     35.04     0.00        3     0.00     0.00  ast_new_node_string
-  0.00     35.04     0.00        3     0.00     1.63  cell_table_set_cell_cstring_key
-  0.00     35.04     0.00        2     0.00     0.00  builtin_time
-  0.00     35.04     0.00        2     0.00     3.45  bytecode_free
-  0.00     35.04     0.00        2     0.00     0.00  concat_cstrings
-  0.00     35.04     0.00        2     0.00     0.00  concat_null_terminated_cstrings
-  0.00     35.04     0.00        2     0.00     0.00  object_code_new
-  0.00     35.04     0.00        2     0.00     0.00  object_print
-  0.00     35.04     0.00        2     0.00     0.00  object_string_clone
-  0.00     35.04     0.00        2     0.00     0.00  object_user_function_new
-  0.00     35.04     0.00        1     0.00     0.00  ast_free_tree
-  0.00     35.04     0.00        1     0.00     0.00  ast_new_node_function
-  0.00     35.04     0.00        1     0.00     0.00  ast_new_node_if
-  0.00     35.04     0.00        1     0.00     0.36  character_array_free
-  0.00     35.04     0.00        1     0.00     0.00  character_array_init
-  0.00     35.04     0.00        1     0.00     0.71  concat_multi_null_terminated_cstrings
-  0.00     35.04     0.00        1     0.00     0.36  find_interpreter_directory
-  0.00     35.04     0.00        1     0.00     0.00  get_current_working_directory
-  0.00     35.04     0.00        1     0.00     6.83  io_read_file
-  0.00     35.04     0.00        1     0.00     0.00  memory_init
-  0.00     35.04     0.00        1     0.00     0.00  object_cell_new_empty
-  0.00     35.04     0.00        1     0.00     0.00  object_module_native_new
-  0.00     35.04     0.00        1     0.00     0.00  object_module_new
-  0.00     35.04     0.00        1     0.00     0.00  object_thread_new
-  0.00     35.04     0.00        1     0.00     0.00  scanner_init
-  0.00     35.04     0.00        1     0.00     0.00  short_to_two_bytes
-  0.00     35.04     0.00        1     0.00     0.00  table_init_memory_infrastructure
-  0.00     35.04     0.00        1     0.00    13.21  vm_free
-  0.00     35.04     0.00        1     0.00   124.60  vm_init
-  0.00     35.04     0.00        1     0.00     4.38  vm_interpret_program
+ 30.72      6.62     6.62                             _mcount_private
+ 22.09     11.38     4.76                             __fentry__
+ 18.89     15.45     4.07                             vm_interpret_frame
+  4.73     16.47     1.02                             find_entry
+  3.34     17.19     0.72 125660076     5.73     7.33  cell_table_get_cell
+  2.04     17.63     0.44 107205034     4.10    11.43  cell_table_get_value
+  2.04     18.07     0.44 18455059    23.84    25.73  table_set
+  1.58     18.41     0.34                             new_stack_frame.constprop.0
+  1.48     18.73     0.32 159045556     2.01     2.64  value_compare
+  1.30     19.01     0.28 20130042    13.91    14.63  table_iterate
+  1.11     19.25     0.24 144115271     1.67     2.64  value_hash
+  1.07     19.48     0.23 144115154     1.60     1.60  table_get
+  0.88     19.67     0.19                             collect_values
+  0.84     19.85     0.18 18455030     9.75    35.48  cell_table_set_cell
+  0.84     20.03     0.18                             gc_mark_table
+  0.84     20.21     0.18                             get_string_from_cache
+  0.65     20.35     0.14 125660127     1.11     1.11  object_hash
+  0.42     20.44     0.09 92275481     0.98     0.98  table_init
+  0.42     20.53     0.09 36910273     2.44     2.97  table_free
+  0.37     20.61     0.08                             call_native_function_args_from_stack
+  0.32     20.68     0.07 18455028     3.79    47.69  cell_table_set_value
+  0.28     20.74     0.06 112405914     0.53     0.53  deallocate
+  0.28     20.80     0.06 20130059     2.98     3.51  pointer_array_free
+  0.28     20.86     0.06 18454947     3.25    52.02  cell_table_set_value_cstring_key
+  0.23     20.91     0.05 88750124     0.56     0.56  object_compare
+  0.23     20.96     0.05 36910668     1.35     1.35  allocate
+  0.23     21.01     0.05 36910272     1.35     4.33  cell_table_free
+  0.23     21.06     0.05 18455237     2.71     8.55  object_free
+  0.23     21.11     0.05 18455049     2.71     2.71  cstrings_equal
+  0.23     21.16     0.05 18454936     2.71     2.71  object_thread_push_frame
+  0.23     21.21     0.05 18454935     2.71     3.79  vm_call_object
+  0.19     21.25     0.04 18454976     2.17     3.55  value_array_write
+  0.14     21.28     0.03 88750077     0.34     0.34  object_as_string
+  0.14     21.31     0.03 51840210     0.58     0.58  two_bytes_to_short
+  0.14     21.34     0.03 21634999     1.39     1.39  reallocate
+  0.14     21.37     0.03 18454938     1.63     2.16  value_array_free
+  0.14     21.40     0.03 18454930     1.63     1.63  object_thread_peek_frame
+  0.09     21.42     0.02 55365109     0.36     0.36  cell_table_init
+  0.09     21.44     0.02 18455027     1.08     1.08  object_cell_new
+  0.09     21.46     0.02 18454966     1.08     1.08  object_string_copy_from_null_terminated
+  0.09     21.48     0.02 18454935     1.08     1.08  object_thread_pop_frame
+  0.09     21.50     0.02 18454935     1.08     1.08  vm_call_function
+  0.09     21.52     0.02                             allocate_object
+  0.05     21.53     0.01 18455108     0.54     0.54  hash_string_bounded
+  0.05     21.54     0.01  6970974     1.43     2.07  pointer_array_write
+  0.05     21.55     0.01  5407649     1.85     1.85  object_as_function
+  0.00     21.55     0.00 144115279     0.00     0.00  scanner_peek_next_token
+  0.00     21.55     0.00 65794857     0.00     0.00  value_array_make
+  0.00     21.55     0.00 36910423     0.00     0.00  parser_parse
+  0.00     21.55     0.00 36909859     0.00     0.00  vm_import_module
+  0.00     21.55     0.00 20130059     0.00     0.00  pointer_array_init
+  0.00     21.55     0.00 18455000     0.00     0.00  object_string_copy
+  0.00     21.55     0.00 18454940     0.00     0.00  value_array_init
+  0.00     21.55     0.00    55750     0.00     0.00  get_allocated_memory
+  0.00     21.55     0.00      392     0.00     0.00  pointer_array_to_plain_array
+  0.00     21.55     0.00      328     0.00     0.03  character_array_write
+  0.00     21.55     0.00      297     0.00     1.35  copy_cstring
+  0.00     21.55     0.00      198     0.00     0.00  copy_null_terminated_cstring
+  0.00     21.55     0.00      196     0.00     0.00  memory_print_allocated_entries
+  0.00     21.55     0.00      127     0.00     0.10  bytecode_write
+  0.00     21.55     0.00      124     0.00     0.78  cell_table_new_empty
+  0.00     21.55     0.00      121     0.00     5.03  make_native_function_with_params
+  0.00     21.55     0.00      115     0.00     0.00  scanner_next_token
+  0.00     21.55     0.00       96     0.00     0.53  object_function_set_name
+  0.00     21.55     0.00       95     0.00     2.13  object_native_function_new
+  0.00     21.55     0.00       66     0.00     0.00  ast_key_value_pair_array_free
+  0.00     21.55     0.00       66     0.00     0.00  compiler_compile
+  0.00     21.55     0.00       42     0.00     3.55  bytecode_add_constant
+  0.00     21.55     0.00       31     0.00     0.27  integer_array_write
+  0.00     21.55     0.00       29     0.00     0.00  table_delete
+  0.00     21.55     0.00       19     0.00     0.00  object_strings_equal
+  0.00     21.55     0.00       17     0.00     1.35  ast_new_node_variable
+  0.00     21.55     0.00       17     0.00    11.43  load_attribute_bypass_descriptors
+  0.00     21.55     0.00       14     0.00     1.08  cell_table_get_cell_cstring_key
+  0.00     21.55     0.00       12     0.00     0.00  bytecode_set
+  0.00     21.55     0.00       10     0.00     1.35  ast_new_node_call
+  0.00     21.55     0.00        9     0.00     1.35  ast_new_node_number
+  0.00     21.55     0.00        9     0.00     0.00  integer_array_init
+  0.00     21.55     0.00        9     0.00    11.43  object_load_attribute
+  0.00     21.55     0.00        8     0.00     1.35  ast_new_node_binary
+  0.00     21.55     0.00        8     0.00    68.48  object_set_attribute_cstring_key
+  0.00     21.55     0.00        8     0.00     0.00  scanner_peek_token_at_offset
+  0.00     21.55     0.00        7     0.00     0.00  io_file_exists
+  0.00     21.55     0.00        6     0.00     1.35  ast_new_node_statements
+  0.00     21.55     0.00        5     0.00     1.35  ast_new_node_expr_statement
+  0.00     21.55     0.00        5     0.00     0.43  integer_array_free
+  0.00     21.55     0.00        5     0.00     0.00  object_value_is
+  0.00     21.55     0.00        4     0.00     0.00  builtin_print
+  0.00     21.55     0.00        4     0.00     0.00  bytecode_init
+  0.00     21.55     0.00        4     0.00     0.00  value_print
+  0.00     21.55     0.00        3     0.00     1.35  ast_new_node_assignment
+  0.00     21.55     0.00        3     0.00     1.35  ast_new_node_return
+  0.00     21.55     0.00        3     0.00     1.35  ast_new_node_string
+  0.00     21.55     0.00        3     0.00     1.08  cell_table_set_cell_cstring_key
+  0.00     21.55     0.00        3     0.00     0.00  is_value_instance_of_class
+  0.00     21.55     0.00        2     0.00     0.00  builtin_time
+  0.00     21.55     0.00        2     0.00     3.55  bytecode_free
+  0.00     21.55     0.00        2     0.00     1.35  concat_cstrings
+  0.00     21.55     0.00        2     0.00     1.35  concat_null_terminated_cstrings
+  0.00     21.55     0.00        2     0.00     0.00  object_code_new
+  0.00     21.55     0.00        2     0.00     0.00  object_print
+  0.00     21.55     0.00        2     0.00     0.00  object_string_clone
+  0.00     21.55     0.00        2     0.00     1.35  object_user_function_new
+  0.00     21.55     0.00        1     0.00     0.00  ast_free_tree
+  0.00     21.55     0.00        1     0.00     1.35  ast_new_node_function
+  0.00     21.55     0.00        1     0.00     1.35  ast_new_node_if
+  0.00     21.55     0.00        1     0.00     0.53  character_array_free
+  0.00     21.55     0.00        1     0.00     0.00  character_array_init
+  0.00     21.55     0.00        1     0.00     5.13  concat_multi_null_terminated_cstrings
+  0.00     21.55     0.00        1     0.00     3.24  find_interpreter_directory
+  0.00     21.55     0.00        1     0.00     1.35  get_current_working_directory
+  0.00     21.55     0.00        1     0.00    11.59  io_read_file
+  0.00     21.55     0.00        1     0.00     0.00  memory_init
+  0.00     21.55     0.00        1     0.00     0.00  object_cell_new_empty
+  0.00     21.55     0.00        1     0.00     0.00  object_module_native_new
+  0.00     21.55     0.00        1     0.00     0.00  object_module_new
+  0.00     21.55     0.00        1     0.00     1.35  object_thread_new
+  0.00     21.55     0.00        1     0.00     0.00  scanner_init
+  0.00     21.55     0.00        1     0.00     0.00  short_to_two_bytes
+  0.00     21.55     0.00        1     0.00     0.00  table_init_memory_infrastructure
+  0.00     21.55     0.00        1     0.00    19.41  vm_free
+  0.00     21.55     0.00        1     0.00    65.24  vm_init
+  0.00     21.55     0.00        1     0.00     9.60  vm_interpret_program
 
  %         the percentage of the total running time of the
 time       program used by this function.
@@ -167,884 +163,869 @@ notice and this notice are preserved.
 		     Call graph (explanation follows)
 
 
-granularity: each sample hit covers 4 byte(s) for 0.03% of 35.04 seconds
+granularity: each sample hit covers 4 byte(s) for 0.05% of 21.55 seconds
 
 index % time    self  children    called     name
                                                  <spontaneous>
-[1]     32.8   11.51    0.00                 _mcount_private [1]
------------------------------------------------
-                                                 <spontaneous>
-[2]     32.4    5.44    5.92                 vm_interpret_frame [2]
-                0.05    2.06 18454929/18454947     cell_table_set_value_cstring_key [5]
-                0.16    1.78 107205017/107205034     cell_table_get_value [8]
-                0.70    0.00 266250220/266250220     object_thread_push_eval_stack [12]
-                0.60    0.00 247795286/266250219     object_thread_pop_eval_stack [13]
-                0.11    0.01 51840209/266250682     value_compare [14]
-                0.08    0.00 88750077/88750077     object_as_string [25]
-                0.03    0.05 18454935/18454935     vm_call_object [27]
-                0.08    0.00 18454930/18454936     object_thread_push_frame [26]
-                0.06    0.00 36909858/92275481     table_init [22]
-                0.04    0.01 18454935/18454938     value_array_free [33]
-                0.04    0.00 18454929/18454935     object_thread_pop_frame [38]
-                0.00    0.03 18454929/36910272     cell_table_free [29]
-                0.01    0.00 51840210/51840210     two_bytes_to_short [47]
-                0.01    0.00 18454930/18454930     object_thread_peek_frame [51]
+[1]     31.5    4.07    2.71                 vm_interpret_frame [1]
+                0.44    0.79 107205017/107205034     cell_table_get_value [5]
+                0.06    0.90 18454929/18454947     cell_table_set_value_cstring_key [6]
+                0.10    0.03 51840209/159045556     value_compare [12]
+                0.02    0.05 18454929/36910272     cell_table_free [19]
+                0.05    0.02 18454935/18454935     vm_call_object [26]
+                0.05    0.00 18454930/18454936     object_thread_push_frame [33]
+                0.03    0.01 18454935/18454938     value_array_free [34]
+                0.04    0.00 36909858/92275481     table_init [24]
+                0.03    0.00 88750077/88750077     object_as_string [35]
+                0.03    0.00 51840210/51840210     two_bytes_to_short [36]
+                0.03    0.00 18454930/18454930     object_thread_peek_frame [38]
+                0.02    0.00 18454929/18454935     object_thread_pop_frame [42]
                 0.01    0.00 18454929/55365109     cell_table_init [39]
-                0.00    0.00       3/18455028     cell_table_set_value [7]
-                0.00    0.00       9/9           object_load_attribute [64]
-                0.00    0.00       8/88750111     object_value_is [35]
-                0.00    0.00       2/18455000     object_string_copy [43]
-                0.00    0.00       1/96          object_function_set_name [71]
-                0.00    0.00 36965613/81244311     value_array_make [93]
-                0.00    0.00 18454929/36909859     vm_import_module [96]
-                0.00    0.00       2/297         copy_cstring [101]
-                0.00    0.00       2/2           object_string_clone [128]
-                0.00    0.00       1/36910668     allocate [94]
-                0.00    0.00       1/2           object_user_function_new [129]
-                0.00    0.00       1/198         copy_null_terminated_cstring [102]
+                0.00    0.00       3/18455028     cell_table_set_value [8]
+                0.00    0.00       9/9           object_load_attribute [59]
+                0.00    0.00       2/297         copy_cstring [52]
+                0.00    0.00       1/36910668     allocate [31]
+                0.00    0.00       1/2           object_user_function_new [95]
+                0.00    0.00       1/96          object_function_set_name [66]
+                0.00    0.00       2/18455000     object_string_copy [69]
+                0.00    0.00 36965613/65794857     value_array_make [105]
+                0.00    0.00 18454929/36909859     vm_import_module [107]
+                0.00    0.00       5/5           object_value_is [122]
+                0.00    0.00       2/2           object_string_clone [130]
+                0.00    0.00       1/198         copy_null_terminated_cstring [112]
 -----------------------------------------------
                                                  <spontaneous>
-[3]     20.7    7.27    0.00                 __fentry__ [3]
+[2]     30.7    6.62    0.00                 _mcount_private [2]
 -----------------------------------------------
                                                  <spontaneous>
-[4]      9.3    2.61    0.64                 find_entry [4]
-                0.22    0.17 144115271/144115271     value_hash [17]
-                0.22    0.02 107205347/266250682     value_compare [14]
------------------------------------------------
-                0.00    0.00       1/18454947     vm_init [67]
-                0.00    0.00       8/18454947     object_set_attribute_cstring_key [55]
-                0.00    0.00       9/18454947     register_builtin_function [56]
-                0.05    2.06 18454929/18454947     vm_interpret_frame [2]
-[5]      6.0    0.05    2.06 18454947         cell_table_set_value_cstring_key [5]
-                0.06    1.97 18454947/18455028     cell_table_set_value [7]
-                0.02    0.00 18454947/18455000     object_string_copy [43]
-                0.01    0.00 18454947/18454966     object_string_copy_from_null_terminated [50]
-                0.00    0.00       9/121         make_native_function_with_params [63]
------------------------------------------------
-                0.00    0.00      14/125660076     find_free_vars_for_new_function [57]
-                0.15    0.16 18455028/125660076     cell_table_set_value [7]
-                0.86    0.92 107205034/125660076     cell_table_get_value [8]
-[6]      5.9    1.01    1.07 125660076         cell_table_get_cell [6]
-                0.82    0.21 125660076/144115154     table_get [11]
-                0.04    0.00 88750076/88750111     object_value_is [35]
------------------------------------------------
-                0.00    0.00       3/18455028     vm_interpret_frame [2]
-                0.00    0.00      78/18455028     object_string_new [53]
-                0.06    1.97 18454947/18455028     cell_table_set_value_cstring_key [5]
-[7]      5.8    0.06    1.97 18455028         cell_table_set_value [7]
-                0.23    1.40 18455027/18455030     cell_table_set_cell [9]
-                0.15    0.16 18455028/125660076     cell_table_get_cell [6]
-                0.04    0.00 18455027/18455027     object_cell_new [37]
------------------------------------------------
-                0.00    0.00      17/107205034     load_attribute_bypass_descriptors [58]
-                0.16    1.78 107205017/107205034     vm_interpret_frame [2]
-[8]      5.5    0.16    1.78 107205034         cell_table_get_value [8]
-                0.86    0.92 107205034/125660076     cell_table_get_cell [6]
------------------------------------------------
-                0.00    0.00       3/18455030     find_free_vars_for_new_function [57]
-                0.23    1.40 18455027/18455030     cell_table_set_value [7]
-[9]      4.6    0.23    1.40 18455030         cell_table_set_cell [9]
-                1.39    0.01 18455030/18455059     table_set [10]
------------------------------------------------
-                                  49             table_set [10]
-                0.00    0.00       3/18455059     object_string_new_partial [59]
-                0.00    0.00      26/18455059     object_string_new [53]
-                1.39    0.01 18455030/18455059     cell_table_set_cell [9]
-[10]     4.0    1.39    0.01 18455059+49      table_set [10]
-                0.01    0.00 18454966/112405914     deallocate [34]
-                0.00    0.00       1/266250682     value_compare [14]
-                0.00    0.00 18455108/144115279     scanner_peek_next_token [92]
-                0.00    0.00 18454966/36910668     allocate [94]
-                                  49             table_set [10]
------------------------------------------------
-                0.12    0.03 18455078/144115154     get_string_from_cache [16]
-                0.82    0.21 125660076/144115154     cell_table_get_cell [6]
-[11]     3.4    0.94    0.25 144115154         table_get [11]
-                0.22    0.02 107205125/266250682     value_compare [14]
-                0.00    0.00 125660163/144115279     scanner_peek_next_token [92]
------------------------------------------------
-                0.70    0.00 266250220/266250220     vm_interpret_frame [2]
-[12]     2.0    0.70    0.00 266250220         object_thread_push_eval_stack [12]
------------------------------------------------
-                0.04    0.00 18454933/266250219     collect_values [19]
-                0.60    0.00 247795286/266250219     vm_interpret_frame [2]
-[13]     1.8    0.64    0.00 266250219         object_thread_pop_eval_stack [13]
------------------------------------------------
-                0.00    0.00       1/266250682     table_set [10]
-                0.11    0.01 51840209/266250682     vm_interpret_frame [2]
-                0.22    0.02 107205125/266250682     table_get [11]
-                0.22    0.02 107205347/266250682     find_entry [4]
-[14]     1.7    0.55    0.06 266250682         value_compare [14]
-                0.04    0.00 36910098/36910098     cstrings_equal [36]
-                0.02    0.00 177500201/177500201     object_compare [41]
+[3]     22.1    4.76    0.00                 __fentry__ [3]
 -----------------------------------------------
                                                  <spontaneous>
-[15]     1.4    0.18    0.33                 gc_mark_table [15]
-                0.15    0.02 20130042/20130042     table_iterate [20]
-                0.06    0.08 18455237/18455237     object_free [23]
-                0.01    0.01 20130042/20130059     pointer_array_free [45]
-                0.00    0.00 22027835/81244311     value_array_make [93]
-                0.00    0.00   55750/55750       get_allocated_memory [99]
+[4]      7.8    1.02    0.66                 find_entry [4]
+                0.24    0.14 144115271/144115271     value_hash [13]
+                0.22    0.07 107205347/159045556     value_compare [12]
+-----------------------------------------------
+                0.00    0.00      17/107205034     load_attribute_bypass_descriptors [55]
+                0.44    0.79 107205017/107205034     vm_interpret_frame [1]
+[5]      5.7    0.44    0.79 107205034         cell_table_get_value [5]
+                0.61    0.17 107205034/125660076     cell_table_get_cell [7]
+-----------------------------------------------
+                0.00    0.00       1/18454947     vm_init [63]
+                0.00    0.00       8/18454947     object_set_attribute_cstring_key [50]
+                0.00    0.00       9/18454947     register_builtin_function [51]
+                0.06    0.90 18454929/18454947     vm_interpret_frame [1]
+[6]      4.5    0.06    0.90 18454947         cell_table_set_value_cstring_key [6]
+                0.07    0.81 18454947/18455028     cell_table_set_value [8]
+                0.02    0.00 18454947/18454966     object_string_copy_from_null_terminated [41]
+                0.00    0.00       9/121         make_native_function_with_params [48]
+                0.00    0.00 18454947/18455000     object_string_copy [69]
+-----------------------------------------------
+                0.00    0.00      14/125660076     find_free_vars_for_new_function [53]
+                0.11    0.03 18455028/125660076     cell_table_set_value [8]
+                0.61    0.17 107205034/125660076     cell_table_get_value [5]
+[7]      4.3    0.72    0.20 125660076         cell_table_get_cell [7]
+                0.20    0.00 125660076/144115154     table_get [17]
+-----------------------------------------------
+                0.00    0.00       3/18455028     vm_interpret_frame [1]
+                0.00    0.00      78/18455028     object_string_new [47]
+                0.07    0.81 18454947/18455028     cell_table_set_value_cstring_key [6]
+[8]      4.1    0.07    0.81 18455028         cell_table_set_value [8]
+                0.18    0.47 18455027/18455030     cell_table_set_cell [10]
+                0.11    0.03 18455028/125660076     cell_table_get_cell [7]
+                0.02    0.00 18455027/18455027     object_cell_new [40]
 -----------------------------------------------
                                                  <spontaneous>
-[16]     1.1    0.23    0.16                 get_string_from_cache [16]
-                0.12    0.03 18455078/144115154     table_get [11]
-                0.01    0.00 18455078/18455108     hash_string_bounded [49]
+[9]      3.3    0.18    0.52                 gc_mark_table [9]
+                0.28    0.01 20130042/20130042     table_iterate [15]
+                0.05    0.11 18455237/18455237     object_free [20]
+                0.06    0.01 20130042/20130059     pointer_array_free [25]
+                0.00    0.00 8085935/65794857     value_array_make [105]
+                0.00    0.00   55750/55750       get_allocated_memory [110]
 -----------------------------------------------
-                0.22    0.17 144115271/144115271     find_entry [4]
-[17]     1.1    0.22    0.17 144115271         value_hash [17]
-                0.17    0.00 125660127/125660127     object_hash [21]
+                0.00    0.00       3/18455030     find_free_vars_for_new_function [53]
+                0.18    0.47 18455027/18455030     cell_table_set_value [8]
+[10]     3.0    0.18    0.47 18455030         cell_table_set_cell [10]
+                0.44    0.03 18455030/18455059     table_set [11]
+-----------------------------------------------
+                                  49             table_set [11]
+                0.00    0.00       3/18455059     object_string_new_partial [62]
+                0.00    0.00      26/18455059     object_string_new [47]
+                0.44    0.03 18455030/18455059     cell_table_set_cell [10]
+[11]     2.2    0.44    0.03 18455059+49      table_set [11]
+                0.02    0.00 18454966/36910668     allocate [31]
+                0.01    0.00 18454966/112405914     deallocate [29]
+                0.00    0.00 18455108/144115279     scanner_peek_next_token [104]
+                                  49             table_set [11]
+-----------------------------------------------
+                0.10    0.03 51840209/159045556     vm_interpret_frame [1]
+                0.22    0.07 107205347/159045556     find_entry [4]
+[12]     1.9    0.32    0.10 159045556         value_compare [12]
+                0.05    0.00 88750124/88750124     object_compare [30]
+                0.05    0.00 18455049/18455049     cstrings_equal [32]
+-----------------------------------------------
+                0.24    0.14 144115271/144115271     find_entry [4]
+[13]     1.8    0.24    0.14 144115271         value_hash [13]
+                0.14    0.00 125660127/125660127     object_hash [21]
 -----------------------------------------------
                                                  <spontaneous>
-[18]     0.9    0.27    0.04                 new_stack_frame.constprop.0 [18]
-                0.03    0.00 18454936/92275481     table_init [22]
+[14]     1.7    0.34    0.02                 new_stack_frame.constprop.0 [14]
+                0.02    0.00 18454936/92275481     table_init [24]
                 0.01    0.00 18454936/55365109     cell_table_init [39]
 -----------------------------------------------
-                                                 <spontaneous>
-[19]     0.5    0.06    0.12                 collect_values [19]
-                0.06    0.02 18454933/18454976     value_array_write [28]
-                0.04    0.00 18454933/266250219     object_thread_pop_eval_stack [13]
-                0.00    0.00 18454935/18454940     value_array_init [97]
------------------------------------------------
-                0.15    0.02 20130042/20130042     gc_mark_table [15]
-[20]     0.5    0.15    0.02 20130042         table_iterate [20]
-                0.01    0.00 6970950/6970974     pointer_array_write [46]
-                0.01    0.00 20130042/20130059     pointer_array_init [48]
------------------------------------------------
-                0.17    0.00 125660127/125660127     value_hash [17]
-[21]     0.5    0.17    0.00 125660127         object_hash [21]
------------------------------------------------
-                0.00    0.00       2/92275481     vm_init [67]
-                0.00    0.00       3/92275481     vm_free [76]
-                0.00    0.00      12/92275481     call_native_function [68]
-                0.00    0.00      99/92275481     cell_table_new_empty [62]
-                0.03    0.00 18454936/92275481     new_stack_frame.constprop.0 [18]
-                0.03    0.00 18455237/92275481     allocate_object [30]
-                0.03    0.00 18455334/92275481     object_free [23]
-                0.06    0.00 36909858/92275481     vm_interpret_frame [2]
-[22]     0.5    0.16    0.00 92275481         table_init [22]
------------------------------------------------
-                0.06    0.08 18455237/18455237     gc_mark_table [15]
-[23]     0.4    0.06    0.08 18455237         object_free [23]
-                0.01    0.03 18455334/36910272     cell_table_free [29]
-                0.03    0.00 18455334/92275481     table_init [22]
-                0.01    0.00 18455504/112405914     deallocate [34]
-                0.00    0.00       2/2           bytecode_free [78]
-                0.00    0.00      29/29          table_delete [106]
-                0.00    0.00       2/9           integer_array_init [112]
-                0.00    0.00       2/4           bytecode_init [118]
+                0.28    0.01 20130042/20130042     gc_mark_table [9]
+[15]     1.4    0.28    0.01 20130042         table_iterate [15]
+                0.01    0.00 6970950/6970974     pointer_array_write [44]
+                0.00    0.00 20130042/20130059     pointer_array_init [108]
 -----------------------------------------------
                                                  <spontaneous>
-[24]     0.4    0.13    0.00                 load_extension_module [24]
-                0.00    0.00 22250831/81244311     value_array_make [93]
-                0.00    0.00 5407649/5407649     object_as_function [98]
+[16]     1.2    0.19    0.07                 collect_values [16]
+                0.04    0.03 18454933/18454976     value_array_write [28]
+                0.00    0.00 18454935/18454940     value_array_init [109]
 -----------------------------------------------
-                0.08    0.00 88750077/88750077     vm_interpret_frame [2]
-[25]     0.2    0.08    0.00 88750077         object_as_string [25]
------------------------------------------------
-                0.00    0.00       6/18454936     call_native_function [68]
-                0.08    0.00 18454930/18454936     vm_interpret_frame [2]
-[26]     0.2    0.08    0.00 18454936         object_thread_push_frame [26]
------------------------------------------------
-                0.03    0.05 18454935/18454935     vm_interpret_frame [2]
-[27]     0.2    0.03    0.05 18454935         vm_call_object [27]
-                0.05    0.00 18454935/18454935     vm_call_function [32]
------------------------------------------------
-                0.00    0.00       1/18454976     function [83]
-                0.00    0.00      42/18454976     bytecode_add_constant [61]
-                0.06    0.02 18454933/18454976     collect_values [19]
-[28]     0.2    0.06    0.02 18454976         value_array_write [28]
-                0.02    0.00 18454939/21634999     reallocate [42]
------------------------------------------------
-                0.00    0.00       3/36910272     vm_free [76]
-                0.00    0.00       6/36910272     call_native_function [68]
-                0.00    0.03 18454929/36910272     vm_interpret_frame [2]
-                0.01    0.03 18455334/36910272     object_free [23]
-[29]     0.2    0.01    0.06 36910272         cell_table_free [29]
-                0.05    0.01 36910272/36910273     table_free [31]
+                0.03    0.00 18455078/144115154     get_string_from_cache [18]
+                0.20    0.00 125660076/144115154     cell_table_get_cell [7]
+[17]     1.1    0.23    0.00 144115154         table_get [17]
+                0.00    0.00 125660163/144115279     scanner_peek_next_token [104]
 -----------------------------------------------
                                                  <spontaneous>
-[30]     0.2    0.03    0.04                 allocate_object [30]
-                0.03    0.00 18455237/92275481     table_init [22]
+[18]     1.0    0.18    0.04                 get_string_from_cache [18]
+                0.03    0.00 18455078/144115154     table_get [17]
+                0.01    0.00 18455078/18455108     hash_string_bounded [45]
+-----------------------------------------------
+                0.00    0.00       3/36910272     vm_free [72]
+                0.00    0.00       6/36910272     call_native_function [64]
+                0.02    0.05 18454929/36910272     vm_interpret_frame [1]
+                0.03    0.05 18455334/36910272     object_free [20]
+[19]     0.7    0.05    0.11 36910272         cell_table_free [19]
+                0.09    0.02 36910272/36910273     table_free [22]
+-----------------------------------------------
+                0.05    0.11 18455237/18455237     gc_mark_table [9]
+[20]     0.7    0.05    0.11 18455237         object_free [20]
+                0.03    0.05 18455334/36910272     cell_table_free [19]
+                0.02    0.00 18455334/92275481     table_init [24]
+                0.01    0.00 18455504/112405914     deallocate [29]
+                0.00    0.00       2/2           bytecode_free [84]
+                0.00    0.00      29/29          table_delete [116]
+                0.00    0.00       2/9           integer_array_init [119]
+                0.00    0.00       2/4           bytecode_init [124]
+-----------------------------------------------
+                0.14    0.00 125660127/125660127     value_hash [13]
+[21]     0.6    0.14    0.00 125660127         object_hash [21]
+-----------------------------------------------
+                0.00    0.00       1/36910273     vm_free [72]
+                0.09    0.02 36910272/36910273     cell_table_free [19]
+[22]     0.5    0.09    0.02 36910273         table_free [22]
+                0.02    0.00 36910273/112405914     deallocate [29]
+-----------------------------------------------
+                                                 <spontaneous>
+[23]     0.4    0.08    0.01                 call_native_function_args_from_stack [23]
+                0.01    0.00 5407649/5407649     object_as_function [46]
+                0.00    0.00 20743277/65794857     value_array_make [105]
+-----------------------------------------------
+                0.00    0.00       2/92275481     vm_init [63]
+                0.00    0.00       3/92275481     vm_free [72]
+                0.00    0.00      12/92275481     call_native_function [64]
+                0.00    0.00      99/92275481     cell_table_new_empty [61]
+                0.02    0.00 18454936/92275481     new_stack_frame.constprop.0 [14]
+                0.02    0.00 18455237/92275481     allocate_object [27]
+                0.02    0.00 18455334/92275481     object_free [20]
+                0.04    0.00 36909858/92275481     vm_interpret_frame [1]
+[24]     0.4    0.09    0.00 92275481         table_init [24]
+-----------------------------------------------
+                0.00    0.00      17/20130059     node_free [60]
+                0.06    0.01 20130042/20130059     gc_mark_table [9]
+[25]     0.3    0.06    0.01 20130059         pointer_array_free [25]
+                0.01    0.00 20130059/112405914     deallocate [29]
+-----------------------------------------------
+                0.05    0.02 18454935/18454935     vm_interpret_frame [1]
+[26]     0.3    0.05    0.02 18454935         vm_call_object [26]
+                0.02    0.00 18454935/18454935     vm_call_function [43]
+-----------------------------------------------
+                                                 <spontaneous>
+[27]     0.3    0.02    0.05                 allocate_object [27]
+                0.02    0.00 18455237/36910668     allocate [31]
+                0.02    0.00 18455237/92275481     table_init [24]
                 0.01    0.00 18455237/55365109     cell_table_init [39]
-                0.00    0.00 18455237/36910668     allocate [94]
 -----------------------------------------------
-                0.00    0.00       1/36910273     vm_free [76]
-                0.05    0.01 36910272/36910273     cell_table_free [29]
-[31]     0.2    0.05    0.01 36910273         table_free [31]
-                0.01    0.00 36910273/112405914     deallocate [34]
+                0.00    0.00       1/18454976     function [86]
+                0.00    0.00      42/18454976     bytecode_add_constant [57]
+                0.04    0.03 18454933/18454976     collect_values [16]
+[28]     0.3    0.04    0.03 18454976         value_array_write [28]
+                0.03    0.00 18454939/21634999     reallocate [37]
 -----------------------------------------------
-                0.05    0.00 18454935/18454935     vm_call_object [27]
-[32]     0.1    0.05    0.00 18454935         vm_call_function [32]
-                0.00    0.00 18454929/36909859     vm_import_module [96]
-                0.00    0.00       6/81244311     value_array_make [93]
+                0.00    0.00       1/112405914     find_interpreter_directory [92]
+                0.00    0.00       1/112405914     character_array_free [102]
+                0.00    0.00       1/112405914     vm_free [72]
+                0.00    0.00       2/112405914     bytecode_free [84]
+                0.00    0.00       2/112405914     concat_multi_null_terminated_cstrings [87]
+                0.00    0.00       4/112405914     integer_array_free [96]
+                0.00    0.00       4/112405914     main [58]
+                0.00    0.00      65/112405914     node_free [60]
+                0.00    0.00      96/112405914     object_function_set_name [66]
+                0.01    0.00 18454936/112405914     value_array_free [34]
+                0.01    0.00 18454966/112405914     table_set [11]
+                0.01    0.00 18455504/112405914     object_free [20]
+                0.01    0.00 20130059/112405914     pointer_array_free [25]
+                0.02    0.00 36910273/112405914     table_free [22]
+[29]     0.3    0.06    0.00 112405914         deallocate [29]
 -----------------------------------------------
-                0.00    0.00       1/18454938     node_free [70]
-                0.00    0.00       2/18454938     bytecode_free [78]
-                0.04    0.01 18454935/18454938     vm_interpret_frame [2]
-[33]     0.1    0.04    0.01 18454938         value_array_free [33]
-                0.01    0.00 18454936/112405914     deallocate [34]
+                0.05    0.00 88750124/88750124     value_compare [12]
+[30]     0.2    0.05    0.00 88750124         object_compare [30]
 -----------------------------------------------
-                0.00    0.00       1/112405914     find_interpreter_directory [90]
-                0.00    0.00       1/112405914     character_array_free [89]
-                0.00    0.00       1/112405914     vm_free [76]
-                0.00    0.00       2/112405914     bytecode_free [78]
-                0.00    0.00       2/112405914     concat_multi_null_terminated_cstrings [88]
-                0.00    0.00       4/112405914     integer_array_free [86]
-                0.00    0.00       4/112405914     main [65]
-                0.00    0.00      65/112405914     node_free [70]
-                0.00    0.00      96/112405914     object_function_set_name [71]
-                0.01    0.00 18454936/112405914     value_array_free [33]
-                0.01    0.00 18454966/112405914     table_set [10]
-                0.01    0.00 18455504/112405914     object_free [23]
-                0.01    0.00 20130059/112405914     pointer_array_free [45]
-                0.01    0.00 36910273/112405914     table_free [31]
-[34]     0.1    0.04    0.00 112405914         deallocate [34]
+                0.00    0.00       1/36910668     ast_new_node_function [98]
+                0.00    0.00       1/36910668     ast_new_node_if [99]
+                0.00    0.00       1/36910668     concat_multi_null_terminated_cstrings [87]
+                0.00    0.00       1/36910668     get_current_working_directory [100]
+                0.00    0.00       1/36910668     vm_interpret_frame [1]
+                0.00    0.00       2/36910668     concat_cstrings [93]
+                0.00    0.00       2/36910668     find_interpreter_directory [92]
+                0.00    0.00       3/36910668     ast_new_node_return [89]
+                0.00    0.00       3/36910668     ast_new_node_assignment [88]
+                0.00    0.00       3/36910668     ast_new_node_string [90]
+                0.00    0.00       5/36910668     ast_new_node_expr_statement [85]
+                0.00    0.00       6/36910668     ast_new_node_statements [83]
+                0.00    0.00       8/36910668     ast_new_node_binary [79]
+                0.00    0.00       9/36910668     ast_new_node_number [77]
+                0.00    0.00      10/36910668     ast_new_node_call [75]
+                0.00    0.00      17/36910668     ast_new_node_variable [71]
+                0.00    0.00      95/36910668     make_native_function_with_params [48]
+                0.00    0.00     297/36910668     copy_cstring [52]
+                0.02    0.00 18454966/36910668     table_set [11]
+                0.02    0.00 18455237/36910668     allocate_object [27]
+[31]     0.2    0.05    0.00 36910668         allocate [31]
 -----------------------------------------------
-                0.00    0.00       8/88750111     vm_interpret_frame [2]
-                0.00    0.00      27/88750111     find_free_vars_for_new_function [57]
-                0.04    0.00 88750076/88750111     cell_table_get_cell [6]
-[35]     0.1    0.04    0.00 88750111         object_value_is [35]
+                0.05    0.00 18455049/18455049     value_compare [12]
+[32]     0.2    0.05    0.00 18455049         cstrings_equal [32]
 -----------------------------------------------
-                0.04    0.00 36910098/36910098     value_compare [14]
-[36]     0.1    0.04    0.00 36910098         cstrings_equal [36]
+                0.00    0.00       6/18454936     call_native_function [64]
+                0.05    0.00 18454930/18454936     vm_interpret_frame [1]
+[33]     0.2    0.05    0.00 18454936         object_thread_push_frame [33]
 -----------------------------------------------
-                0.04    0.00 18455027/18455027     cell_table_set_value [7]
-[37]     0.1    0.04    0.00 18455027         object_cell_new [37]
-                0.00    0.00 18455027/36910423     parser_parse [95]
+                0.00    0.00       1/18454938     node_free [60]
+                0.00    0.00       2/18454938     bytecode_free [84]
+                0.03    0.01 18454935/18454938     vm_interpret_frame [1]
+[34]     0.2    0.03    0.01 18454938         value_array_free [34]
+                0.01    0.00 18454936/112405914     deallocate [29]
 -----------------------------------------------
-                0.00    0.00       6/18454935     call_native_function [68]
-                0.04    0.00 18454929/18454935     vm_interpret_frame [2]
-[38]     0.1    0.04    0.00 18454935         object_thread_pop_frame [38]
+                0.03    0.00 88750077/88750077     vm_interpret_frame [1]
+[35]     0.1    0.03    0.00 88750077         object_as_string [35]
 -----------------------------------------------
-                0.00    0.00       1/55365109     vm_init [67]
-                0.00    0.00       6/55365109     call_native_function [68]
-                0.01    0.00 18454929/55365109     vm_interpret_frame [2]
-                0.01    0.00 18454936/55365109     new_stack_frame.constprop.0 [18]
-                0.01    0.00 18455237/55365109     allocate_object [30]
-[39]     0.1    0.03    0.00 55365109         cell_table_init [39]
+                0.03    0.00 51840210/51840210     vm_interpret_frame [1]
+[36]     0.1    0.03    0.00 51840210         two_bytes_to_short [36]
 -----------------------------------------------
-                                                 <spontaneous>
-[40]     0.1    0.03    0.00                 gc_mark_object [40]
------------------------------------------------
-                0.02    0.00 177500201/177500201     value_compare [14]
-[41]     0.1    0.02    0.00 177500201         object_compare [41]
------------------------------------------------
-                0.00    0.00       1/21634999     main [65]
-                0.00    0.00       6/21634999     integer_array_write [81]
+                0.00    0.00       1/21634999     main [58]
+                0.00    0.00       6/21634999     integer_array_write [82]
                 0.00    0.00       7/21634999     character_array_write [80]
-                0.00    0.00       9/21634999     bytecode_write [77]
-                0.00    0.00 3180037/21634999     pointer_array_write [46]
-                0.02    0.00 18454939/21634999     value_array_write [28]
-[42]     0.1    0.02    0.00 21634999         reallocate [42]
+                0.00    0.00       9/21634999     bytecode_write [76]
+                0.00    0.00 3180037/21634999     pointer_array_write [44]
+                0.03    0.00 18454939/21634999     value_array_write [28]
+[37]     0.1    0.03    0.00 21634999         reallocate [37]
 -----------------------------------------------
-                0.00    0.00       1/18455000     vm_init [67]
-                0.00    0.00       1/18455000     vm_interpret_program [84]
-                0.00    0.00       2/18455000     vm_interpret_frame [2]
-                0.00    0.00       3/18455000     cell_table_set_cell_cstring_key [82]
-                0.00    0.00       8/18455000     object_set_attribute_cstring_key [55]
-                0.00    0.00      14/18455000     cell_table_get_cell_cstring_key [73]
-                0.00    0.00      24/18455000     compile_tree [60]
-                0.02    0.00 18454947/18455000     cell_table_set_value_cstring_key [5]
-[43]     0.1    0.02    0.00 18455000         object_string_copy [43]
-                0.00    0.00 18455000/36910423     parser_parse [95]
-                0.00    0.00      26/297         copy_cstring [101]
+                0.03    0.00 18454930/18454930     vm_interpret_frame [1]
+[38]     0.1    0.03    0.00 18454930         object_thread_peek_frame [38]
 -----------------------------------------------
-                                                 <spontaneous>
-[44]     0.1    0.02    0.00                 free [44]
+                0.00    0.00       1/55365109     vm_init [63]
+                0.00    0.00       6/55365109     call_native_function [64]
+                0.01    0.00 18454929/55365109     vm_interpret_frame [1]
+                0.01    0.00 18454936/55365109     new_stack_frame.constprop.0 [14]
+                0.01    0.00 18455237/55365109     allocate_object [27]
+[39]     0.1    0.02    0.00 55365109         cell_table_init [39]
 -----------------------------------------------
-                0.00    0.00      17/20130059     node_free [70]
-                0.01    0.01 20130042/20130059     gc_mark_table [15]
-[45]     0.0    0.01    0.01 20130059         pointer_array_free [45]
-                0.01    0.00 20130059/112405914     deallocate [34]
+                0.02    0.00 18455027/18455027     cell_table_set_value [8]
+[40]     0.1    0.02    0.00 18455027         object_cell_new [40]
+                0.00    0.00 18455027/36910423     parser_parse [106]
 -----------------------------------------------
-                0.00    0.00       8/6970974     call [74]
-                0.00    0.00      16/6970974     statements [72]
-                0.01    0.00 6970950/6970974     table_iterate [20]
-[46]     0.0    0.01    0.00 6970974         pointer_array_write [46]
-                0.00    0.00 3180037/21634999     reallocate [42]
+                0.00    0.00       1/18454966     vm_init [63]
+                0.00    0.00       1/18454966     vm_interpret_program [81]
+                0.00    0.00       3/18454966     cell_table_set_cell_cstring_key [91]
+                0.00    0.00      14/18454966     cell_table_get_cell_cstring_key [74]
+                0.02    0.00 18454947/18454966     cell_table_set_value_cstring_key [6]
+[41]     0.1    0.02    0.00 18454966         object_string_copy_from_null_terminated [41]
 -----------------------------------------------
-                0.01    0.00 51840210/51840210     vm_interpret_frame [2]
-[47]     0.0    0.01    0.00 51840210         two_bytes_to_short [47]
+                0.00    0.00       6/18454935     call_native_function [64]
+                0.02    0.00 18454929/18454935     vm_interpret_frame [1]
+[42]     0.1    0.02    0.00 18454935         object_thread_pop_frame [42]
 -----------------------------------------------
-                0.00    0.00       1/20130059     statements [72]
-                0.00    0.00       6/20130059     ast_new_node_statements [85]
-                0.00    0.00      10/20130059     call [74]
-                0.01    0.00 20130042/20130059     table_iterate [20]
-[48]     0.0    0.01    0.00 20130059         pointer_array_init [48]
+                0.02    0.00 18454935/18454935     vm_call_object [26]
+[43]     0.1    0.02    0.00 18454935         vm_call_function [43]
+                0.00    0.00 18454929/36909859     vm_import_module [107]
+                0.00    0.00       6/65794857     value_array_make [105]
 -----------------------------------------------
-                0.00    0.00       1/18455108     function [83]
-                0.00    0.00      29/18455108     new_bare_string [75]
-                0.01    0.00 18455078/18455108     get_string_from_cache [16]
-[49]     0.0    0.01    0.00 18455108         hash_string_bounded [49]
+                0.00    0.00       8/6970974     call [70]
+                0.00    0.00      16/6970974     statements [65]
+                0.01    0.00 6970950/6970974     table_iterate [15]
+[44]     0.1    0.01    0.00 6970974         pointer_array_write [44]
+                0.00    0.00 3180037/21634999     reallocate [37]
 -----------------------------------------------
-                0.00    0.00       1/18454966     vm_init [67]
-                0.00    0.00       1/18454966     vm_interpret_program [84]
-                0.00    0.00       3/18454966     cell_table_set_cell_cstring_key [82]
-                0.00    0.00      14/18454966     cell_table_get_cell_cstring_key [73]
-                0.01    0.00 18454947/18454966     cell_table_set_value_cstring_key [5]
-[50]     0.0    0.01    0.00 18454966         object_string_copy_from_null_terminated [50]
+                0.00    0.00       1/18455108     function [86]
+                0.00    0.00      29/18455108     new_bare_string [73]
+                0.01    0.00 18455078/18455108     get_string_from_cache [18]
+[45]     0.0    0.01    0.00 18455108         hash_string_bounded [45]
 -----------------------------------------------
-                0.01    0.00 18454930/18454930     vm_interpret_frame [2]
-[51]     0.0    0.01    0.00 18454930         object_thread_peek_frame [51]
+                0.01    0.00 5407649/5407649     call_native_function_args_from_stack [23]
+[46]     0.0    0.01    0.00 5407649         object_as_function [46]
 -----------------------------------------------
                                                  <spontaneous>
-[52]     0.0    0.01    0.00                 strlen [52]
+[47]     0.0    0.00    0.00                 object_string_new [47]
+                0.00    0.00      78/18455028     cell_table_set_value [8]
+                0.00    0.00      26/18455059     table_set [11]
+                0.00    0.00      78/121         make_native_function_with_params [48]
+                0.00    0.00     182/36910423     parser_parse [106]
+-----------------------------------------------
+                0.00    0.00       1/121         vm_init [63]
+                0.00    0.00       1/121         vm_interpret_program [81]
+                0.00    0.00       7/121         compile_tree [56]
+                0.00    0.00       8/121         object_set_attribute_cstring_key [50]
+                0.00    0.00       8/121         register_function_on_module [49]
+                0.00    0.00       9/121         cell_table_set_value_cstring_key [6]
+                0.00    0.00       9/121         register_builtin_function [51]
+                0.00    0.00      78/121         object_string_new [47]
+[48]     0.0    0.00    0.00     121         make_native_function_with_params [48]
+                0.00    0.00     167/297         copy_cstring [52]
+                0.00    0.00      95/95          object_native_function_new [54]
+                0.00    0.00      95/36910668     allocate [31]
+                0.00    0.00      95/96          object_function_set_name [66]
+                0.00    0.00      95/198         copy_null_terminated_cstring [112]
 -----------------------------------------------
                                                  <spontaneous>
-[53]     0.0    0.00    0.00                 object_string_new [53]
-                0.00    0.00      78/18455028     cell_table_set_value [7]
-                0.00    0.00      26/18455059     table_set [10]
-                0.00    0.00      78/121         make_native_function_with_params [63]
-                0.00    0.00     182/36910423     parser_parse [95]
+[49]     0.0    0.00    0.00                 register_function_on_module [49]
+                0.00    0.00       8/8           object_set_attribute_cstring_key [50]
+                0.00    0.00       8/121         make_native_function_with_params [48]
+-----------------------------------------------
+                0.00    0.00       8/8           register_function_on_module [49]
+[50]     0.0    0.00    0.00       8         object_set_attribute_cstring_key [50]
+                0.00    0.00       8/18454947     cell_table_set_value_cstring_key [6]
+                0.00    0.00       8/17          load_attribute_bypass_descriptors [55]
+                0.00    0.00       8/121         make_native_function_with_params [48]
+                0.00    0.00       8/18455000     object_string_copy [69]
 -----------------------------------------------
                                                  <spontaneous>
-[54]     0.0    0.00    0.00                 register_function_on_module [54]
-                0.00    0.00       8/8           object_set_attribute_cstring_key [55]
-                0.00    0.00       8/121         make_native_function_with_params [63]
+[51]     0.0    0.00    0.00                 register_builtin_function [51]
+                0.00    0.00       9/18454947     cell_table_set_value_cstring_key [6]
+                0.00    0.00       9/121         make_native_function_with_params [48]
 -----------------------------------------------
-                0.00    0.00       8/8           register_function_on_module [54]
-[55]     0.0    0.00    0.00       8         object_set_attribute_cstring_key [55]
-                0.00    0.00       8/18454947     cell_table_set_value_cstring_key [5]
-                0.00    0.00       8/17          load_attribute_bypass_descriptors [58]
-                0.00    0.00       8/121         make_native_function_with_params [63]
-                0.00    0.00       8/18455000     object_string_copy [43]
------------------------------------------------
-                                                 <spontaneous>
-[56]     0.0    0.00    0.00                 register_builtin_function [56]
-                0.00    0.00       9/18454947     cell_table_set_value_cstring_key [5]
-                0.00    0.00       9/121         make_native_function_with_params [63]
------------------------------------------------
-                                                 <spontaneous>
-[57]     0.0    0.00    0.00                 find_free_vars_for_new_function [57]
-                0.00    0.00       3/18455030     cell_table_set_cell [9]
-                0.00    0.00      14/125660076     cell_table_get_cell [6]
-                0.00    0.00      14/14          cell_table_get_cell_cstring_key [73]
-                0.00    0.00      27/88750111     object_value_is [35]
-                0.00    0.00       3/3           cell_table_set_cell_cstring_key [82]
-                0.00    0.00       1/124         cell_table_new_empty [62]
-                0.00    0.00      19/19          object_strings_equal [107]
-                0.00    0.00       1/1           object_cell_new_empty [136]
------------------------------------------------
-                0.00    0.00       8/17          object_set_attribute_cstring_key [55]
-                0.00    0.00       9/17          object_load_attribute [64]
-[58]     0.0    0.00    0.00      17         load_attribute_bypass_descriptors [58]
-                0.00    0.00      17/107205034     cell_table_get_value [8]
+                0.00    0.00       1/297         io_read_file [78]
+                0.00    0.00       1/297         object_thread_new [101]
+                0.00    0.00       2/297         object_user_function_new [95]
+                0.00    0.00       2/297         vm_interpret_frame [1]
+                0.00    0.00       3/297         object_string_new_partial [62]
+                0.00    0.00      26/297         object_string_copy [69]
+                0.00    0.00      95/297         object_native_function_new [54]
+                0.00    0.00     167/297         make_native_function_with_params [48]
+[52]     0.0    0.00    0.00     297         copy_cstring [52]
+                0.00    0.00     297/36910668     allocate [31]
 -----------------------------------------------
                                                  <spontaneous>
-[59]     0.0    0.00    0.00                 object_string_new_partial [59]
-                0.00    0.00       3/18455059     table_set [10]
-                0.00    0.00      81/36910423     parser_parse [95]
-                0.00    0.00       3/297         copy_cstring [101]
-                0.00    0.00       3/198         copy_null_terminated_cstring [102]
+[53]     0.0    0.00    0.00                 find_free_vars_for_new_function [53]
+                0.00    0.00       3/18455030     cell_table_set_cell [10]
+                0.00    0.00      14/125660076     cell_table_get_cell [7]
+                0.00    0.00      14/14          cell_table_get_cell_cstring_key [74]
+                0.00    0.00       3/3           cell_table_set_cell_cstring_key [91]
+                0.00    0.00       1/124         cell_table_new_empty [61]
+                0.00    0.00      19/19          object_strings_equal [117]
+                0.00    0.00       1/1           object_cell_new_empty [134]
+-----------------------------------------------
+                0.00    0.00      95/95          make_native_function_with_params [48]
+[54]     0.0    0.00    0.00      95         object_native_function_new [54]
+                0.00    0.00      95/297         copy_cstring [52]
+                0.00    0.00      95/124         cell_table_new_empty [61]
+                0.00    0.00      95/36910423     parser_parse [106]
+                0.00    0.00      95/198         copy_null_terminated_cstring [112]
+-----------------------------------------------
+                0.00    0.00       8/17          object_set_attribute_cstring_key [50]
+                0.00    0.00       9/17          object_load_attribute [59]
+[55]     0.0    0.00    0.00      17         load_attribute_bypass_descriptors [55]
+                0.00    0.00      17/107205034     cell_table_get_value [5]
 -----------------------------------------------
                                                  <spontaneous>
-[60]     0.0    0.00    0.00                 compile_tree [60]
-                0.00    0.00      29/42          bytecode_add_constant [61]
-                0.00    0.00      25/124         cell_table_new_empty [62]
-                0.00    0.00      24/18455000     object_string_copy [43]
-                0.00    0.00       7/121         make_native_function_with_params [63]
-                0.00    0.00      31/31          integer_array_write [81]
-                0.00    0.00      80/127         bytecode_write [77]
-                0.00    0.00       1/5           integer_array_free [86]
-                0.00    0.00      65/66          compiler_compile [91]
-                0.00    0.00       6/12          bytecode_set [109]
-                0.00    0.00       2/9           integer_array_init [112]
-                0.00    0.00       1/4           bytecode_init [118]
-                0.00    0.00       1/2           object_code_new [126]
-                0.00    0.00       1/1           short_to_two_bytes [141]
+[56]     0.0    0.00    0.00                 compile_tree [56]
+                0.00    0.00      29/42          bytecode_add_constant [57]
+                0.00    0.00       7/121         make_native_function_with_params [48]
+                0.00    0.00      25/124         cell_table_new_empty [61]
+                0.00    0.00      31/31          integer_array_write [82]
+                0.00    0.00      80/127         bytecode_write [76]
+                0.00    0.00       1/5           integer_array_free [96]
+                0.00    0.00      65/66          compiler_compile [103]
+                0.00    0.00      24/18455000     object_string_copy [69]
+                0.00    0.00       6/12          bytecode_set [118]
+                0.00    0.00       2/9           integer_array_init [119]
+                0.00    0.00       1/4           bytecode_init [124]
+                0.00    0.00       1/2           object_code_new [128]
+                0.00    0.00       1/1           short_to_two_bytes [138]
 -----------------------------------------------
-                0.00    0.00      13/42          emit_opcode_with_constant_operand [69]
-                0.00    0.00      29/42          compile_tree [60]
-[61]     0.0    0.00    0.00      42         bytecode_add_constant [61]
+                0.00    0.00      13/42          emit_opcode_with_constant_operand [68]
+                0.00    0.00      29/42          compile_tree [56]
+[57]     0.0    0.00    0.00      42         bytecode_add_constant [57]
                 0.00    0.00      42/18454976     value_array_write [28]
 -----------------------------------------------
-                0.00    0.00       1/124         find_free_vars_for_new_function [57]
-                0.00    0.00       1/124         vm_interpret_program [84]
-                0.00    0.00       2/124         vm_init [67]
-                0.00    0.00      25/124         compile_tree [60]
-                0.00    0.00      95/124         object_native_function_new [66]
-[62]     0.0    0.00    0.00     124         cell_table_new_empty [62]
-                0.00    0.00      99/92275481     table_init [22]
+                                                 <spontaneous>
+[58]     0.0    0.00    0.00                 main [58]
+                0.00    0.00       1/1           vm_init [63]
+                0.00    0.00       1/1           vm_free [72]
+                0.00    0.00       1/1           io_read_file [78]
+                0.00    0.00       1/1           vm_interpret_program [81]
+                0.00    0.00       1/1           concat_multi_null_terminated_cstrings [87]
+                0.00    0.00       4/112405914     deallocate [29]
+                0.00    0.00       1/21634999     reallocate [37]
+                0.00    0.00       1/1           get_current_working_directory [100]
+                0.00    0.00       1/127         bytecode_write [76]
+                0.00    0.00       1/66          compiler_compile [103]
+                0.00    0.00       7/7           io_file_exists [121]
+                0.00    0.00       1/1           memory_init [133]
+                0.00    0.00       1/9           integer_array_init [119]
+                0.00    0.00       1/4           bytecode_init [124]
+                0.00    0.00       1/196         memory_print_allocated_entries [113]
+                0.00    0.00       1/36910423     parser_parse [106]
+                0.00    0.00       1/66          ast_key_value_pair_array_free [115]
+                0.00    0.00       1/1           ast_free_tree [131]
 -----------------------------------------------
-                0.00    0.00       1/121         vm_init [67]
-                0.00    0.00       1/121         vm_interpret_program [84]
-                0.00    0.00       7/121         compile_tree [60]
-                0.00    0.00       8/121         object_set_attribute_cstring_key [55]
-                0.00    0.00       8/121         register_function_on_module [54]
-                0.00    0.00       9/121         cell_table_set_value_cstring_key [5]
-                0.00    0.00       9/121         register_builtin_function [56]
-                0.00    0.00      78/121         object_string_new [53]
-[63]     0.0    0.00    0.00     121         make_native_function_with_params [63]
-                0.00    0.00      95/95          object_native_function_new [66]
-                0.00    0.00      95/96          object_function_set_name [71]
-                0.00    0.00     167/297         copy_cstring [101]
-                0.00    0.00      95/36910668     allocate [94]
-                0.00    0.00      95/198         copy_null_terminated_cstring [102]
------------------------------------------------
-                0.00    0.00       9/9           vm_interpret_frame [2]
-[64]     0.0    0.00    0.00       9         object_load_attribute [64]
-                0.00    0.00       9/17          load_attribute_bypass_descriptors [58]
+                0.00    0.00       9/9           vm_interpret_frame [1]
+[59]     0.0    0.00    0.00       9         object_load_attribute [59]
+                0.00    0.00       9/17          load_attribute_bypass_descriptors [55]
+                0.00    0.00       3/3           is_value_instance_of_class [126]
 -----------------------------------------------
                                                  <spontaneous>
-[65]     0.0    0.00    0.00                 main [65]
-                0.00    0.00       1/1           vm_init [67]
-                0.00    0.00       1/1           vm_free [76]
-                0.00    0.00       1/1           io_read_file [79]
-                0.00    0.00       1/1           vm_interpret_program [84]
-                0.00    0.00       4/112405914     deallocate [34]
-                0.00    0.00       1/21634999     reallocate [42]
-                0.00    0.00       1/1           concat_multi_null_terminated_cstrings [88]
-                0.00    0.00       1/127         bytecode_write [77]
-                0.00    0.00       1/66          compiler_compile [91]
-                0.00    0.00       7/7           io_file_exists [115]
-                0.00    0.00       1/1           memory_init [135]
-                0.00    0.00       1/9           integer_array_init [112]
-                0.00    0.00       1/4           bytecode_init [118]
-                0.00    0.00       1/196         memory_print_allocated_entries [103]
-                0.00    0.00       1/36910423     parser_parse [95]
-                0.00    0.00       1/66          ast_key_value_pair_array_free [105]
-                0.00    0.00       1/1           ast_free_tree [130]
-                0.00    0.00       1/1           get_current_working_directory [134]
+[60]     0.0    0.00    0.00                 node_free [60]
+                0.00    0.00      17/20130059     pointer_array_free [25]
+                0.00    0.00      65/112405914     deallocate [29]
+                0.00    0.00       1/18454938     value_array_free [34]
+                0.00    0.00      65/66          ast_key_value_pair_array_free [115]
 -----------------------------------------------
-                0.00    0.00      95/95          make_native_function_with_params [63]
-[66]     0.0    0.00    0.00      95         object_native_function_new [66]
-                0.00    0.00      95/124         cell_table_new_empty [62]
-                0.00    0.00      95/36910423     parser_parse [95]
-                0.00    0.00      95/297         copy_cstring [101]
-                0.00    0.00      95/198         copy_null_terminated_cstring [102]
+                0.00    0.00       1/124         find_free_vars_for_new_function [53]
+                0.00    0.00       1/124         vm_interpret_program [81]
+                0.00    0.00       2/124         vm_init [63]
+                0.00    0.00      25/124         compile_tree [56]
+                0.00    0.00      95/124         object_native_function_new [54]
+[61]     0.0    0.00    0.00     124         cell_table_new_empty [61]
+                0.00    0.00      99/92275481     table_init [24]
 -----------------------------------------------
-                0.00    0.00       1/1           main [65]
-[67]     0.0    0.00    0.00       1         vm_init [67]
-                0.00    0.00       1/18454947     cell_table_set_value_cstring_key [5]
-                0.00    0.00       2/92275481     table_init [22]
-                0.00    0.00       2/124         cell_table_new_empty [62]
-                0.00    0.00       1/121         make_native_function_with_params [63]
-                0.00    0.00       1/18455000     object_string_copy [43]
-                0.00    0.00       1/18454966     object_string_copy_from_null_terminated [50]
+                                                 <spontaneous>
+[62]     0.0    0.00    0.00                 object_string_new_partial [62]
+                0.00    0.00       3/18455059     table_set [11]
+                0.00    0.00       3/297         copy_cstring [52]
+                0.00    0.00      81/36910423     parser_parse [106]
+                0.00    0.00       3/198         copy_null_terminated_cstring [112]
+-----------------------------------------------
+                0.00    0.00       1/1           main [58]
+[63]     0.0    0.00    0.00       1         vm_init [63]
+                0.00    0.00       1/18454947     cell_table_set_value_cstring_key [6]
+                0.00    0.00       1/121         make_native_function_with_params [48]
+                0.00    0.00       1/1           find_interpreter_directory [92]
+                0.00    0.00       2/92275481     table_init [24]
+                0.00    0.00       2/124         cell_table_new_empty [61]
+                0.00    0.00       1/18454966     object_string_copy_from_null_terminated [41]
                 0.00    0.00       1/55365109     cell_table_init [39]
-                0.00    0.00       1/1           find_interpreter_directory [90]
-                0.00    0.00      17/81244311     value_array_make [93]
-                0.00    0.00       1/1           object_module_native_new [137]
+                0.00    0.00       1/18455000     object_string_copy [69]
+                0.00    0.00      17/65794857     value_array_make [105]
+                0.00    0.00       1/1           object_module_native_new [135]
 -----------------------------------------------
                                                  <spontaneous>
-[68]     0.0    0.00    0.00                 call_native_function [68]
-                0.00    0.00       6/18454936     object_thread_push_frame [26]
-                0.00    0.00      12/92275481     table_init [22]
-                0.00    0.00       6/18454935     object_thread_pop_frame [38]
-                0.00    0.00       6/36910272     cell_table_free [29]
+[64]     0.0    0.00    0.00                 call_native_function [64]
+                0.00    0.00       6/36910272     cell_table_free [19]
+                0.00    0.00       6/18454936     object_thread_push_frame [33]
+                0.00    0.00      12/92275481     table_init [24]
+                0.00    0.00       6/18454935     object_thread_pop_frame [42]
                 0.00    0.00       6/55365109     cell_table_init [39]
-                0.00    0.00       6/81244311     value_array_make [93]
-                0.00    0.00       4/4           builtin_print [117]
-                0.00    0.00       2/2           builtin_time [123]
+                0.00    0.00       6/65794857     value_array_make [105]
+                0.00    0.00       4/4           builtin_print [123]
+                0.00    0.00       2/2           builtin_time [127]
 -----------------------------------------------
                                                  <spontaneous>
-[69]     0.0    0.00    0.00                 emit_opcode_with_constant_operand [69]
-                0.00    0.00      13/42          bytecode_add_constant [61]
-                0.00    0.00      26/127         bytecode_write [77]
+[65]     0.0    0.00    0.00                 statements [65]
+                0.00    0.00      16/6970974     pointer_array_write [44]
+                0.00    0.00       6/6           ast_new_node_statements [83]
+                0.00    0.00       5/5           ast_new_node_expr_statement [85]
+                0.00    0.00       3/3           ast_new_node_assignment [88]
+                0.00    0.00       3/3           ast_new_node_return [89]
+                0.00    0.00       1/1           ast_new_node_if [99]
+                0.00    0.00      54/196         memory_print_allocated_entries [113]
+                0.00    0.00       8/144115279     scanner_peek_next_token [104]
+                0.00    0.00       1/20130059     pointer_array_init [108]
+-----------------------------------------------
+                0.00    0.00       1/96          vm_interpret_frame [1]
+                0.00    0.00      95/96          make_native_function_with_params [48]
+[66]     0.0    0.00    0.00      96         object_function_set_name [66]
+                0.00    0.00      96/112405914     deallocate [29]
 -----------------------------------------------
                                                  <spontaneous>
-[70]     0.0    0.00    0.00                 node_free [70]
-                0.00    0.00      65/112405914     deallocate [34]
-                0.00    0.00      17/20130059     pointer_array_free [45]
-                0.00    0.00       1/18454938     value_array_free [33]
-                0.00    0.00      65/66          ast_key_value_pair_array_free [105]
------------------------------------------------
-                0.00    0.00       1/96          vm_interpret_frame [2]
-                0.00    0.00      95/96          make_native_function_with_params [63]
-[71]     0.0    0.00    0.00      96         object_function_set_name [71]
-                0.00    0.00      96/112405914     deallocate [34]
+[67]     0.0    0.00    0.00                 parse_expression [67]
+                0.00    0.00      17/17          ast_new_node_variable [71]
+                0.00    0.00       9/9           ast_new_node_number [77]
+                0.00    0.00       8/8           ast_new_node_binary [79]
+                0.00    0.00       3/3           ast_new_node_string [90]
+                0.00    0.00      98/196         memory_print_allocated_entries [113]
 -----------------------------------------------
                                                  <spontaneous>
-[72]     0.0    0.00    0.00                 statements [72]
-                0.00    0.00      16/6970974     pointer_array_write [46]
-                0.00    0.00       6/6           ast_new_node_statements [85]
-                0.00    0.00       1/20130059     pointer_array_init [48]
-                0.00    0.00      54/196         memory_print_allocated_entries [103]
-                0.00    0.00       8/144115279     scanner_peek_next_token [92]
-                0.00    0.00       5/5           ast_new_node_expr_statement [116]
-                0.00    0.00       3/3           ast_new_node_assignment [120]
-                0.00    0.00       3/3           ast_new_node_return [121]
-                0.00    0.00       1/1           ast_new_node_if [132]
+[68]     0.0    0.00    0.00                 emit_opcode_with_constant_operand [68]
+                0.00    0.00      13/42          bytecode_add_constant [57]
+                0.00    0.00      26/127         bytecode_write [76]
 -----------------------------------------------
-                0.00    0.00      14/14          find_free_vars_for_new_function [57]
-[73]     0.0    0.00    0.00      14         cell_table_get_cell_cstring_key [73]
-                0.00    0.00      14/18455000     object_string_copy [43]
-                0.00    0.00      14/18454966     object_string_copy_from_null_terminated [50]
------------------------------------------------
-                                                 <spontaneous>
-[74]     0.0    0.00    0.00                 call [74]
-                0.00    0.00       8/6970974     pointer_array_write [46]
-                0.00    0.00      10/20130059     pointer_array_init [48]
-                0.00    0.00      18/196         memory_print_allocated_entries [103]
-                0.00    0.00      10/10          ast_new_node_call [110]
+                0.00    0.00       1/18455000     vm_init [63]
+                0.00    0.00       1/18455000     vm_interpret_program [81]
+                0.00    0.00       2/18455000     vm_interpret_frame [1]
+                0.00    0.00       3/18455000     cell_table_set_cell_cstring_key [91]
+                0.00    0.00       8/18455000     object_set_attribute_cstring_key [50]
+                0.00    0.00      14/18455000     cell_table_get_cell_cstring_key [74]
+                0.00    0.00      24/18455000     compile_tree [56]
+                0.00    0.00 18454947/18455000     cell_table_set_value_cstring_key [6]
+[69]     0.0    0.00    0.00 18455000         object_string_copy [69]
+                0.00    0.00      26/297         copy_cstring [52]
+                0.00    0.00 18455000/36910423     parser_parse [106]
 -----------------------------------------------
                                                  <spontaneous>
-[75]     0.0    0.00    0.00                 new_bare_string [75]
-                0.00    0.00      29/18455108     hash_string_bounded [49]
-                0.00    0.00      29/36910423     parser_parse [95]
+[70]     0.0    0.00    0.00                 call [70]
+                0.00    0.00       8/6970974     pointer_array_write [44]
+                0.00    0.00      10/10          ast_new_node_call [75]
+                0.00    0.00      18/196         memory_print_allocated_entries [113]
+                0.00    0.00      10/20130059     pointer_array_init [108]
 -----------------------------------------------
-                0.00    0.00       1/1           main [65]
-[76]     0.0    0.00    0.00       1         vm_free [76]
-                0.00    0.00       3/36910272     cell_table_free [29]
-                0.00    0.00       3/92275481     table_init [22]
-                0.00    0.00       1/36910273     table_free [31]
-                0.00    0.00       1/112405914     deallocate [34]
-                0.00    0.00       1/81244311     value_array_make [93]
+                0.00    0.00      17/17          parse_expression [67]
+[71]     0.0    0.00    0.00      17         ast_new_node_variable [71]
+                0.00    0.00      17/36910668     allocate [31]
 -----------------------------------------------
-                0.00    0.00       1/127         main [65]
-                0.00    0.00       2/127         compiler_compile [91]
-                0.00    0.00      18/127         emit_opcode_with_short_placeholder [87]
-                0.00    0.00      26/127         emit_opcode_with_constant_operand [69]
-                0.00    0.00      80/127         compile_tree [60]
-[77]     0.0    0.00    0.00     127         bytecode_write [77]
-                0.00    0.00       9/21634999     reallocate [42]
+                0.00    0.00       1/1           main [58]
+[72]     0.0    0.00    0.00       1         vm_free [72]
+                0.00    0.00       3/36910272     cell_table_free [19]
+                0.00    0.00       1/36910273     table_free [22]
+                0.00    0.00       3/92275481     table_init [24]
+                0.00    0.00       1/112405914     deallocate [29]
+                0.00    0.00       1/65794857     value_array_make [105]
 -----------------------------------------------
-                0.00    0.00       2/2           object_free [23]
-[78]     0.0    0.00    0.00       2         bytecode_free [78]
-                0.00    0.00       2/18454938     value_array_free [33]
-                0.00    0.00       4/5           integer_array_free [86]
-                0.00    0.00       2/112405914     deallocate [34]
+                                                 <spontaneous>
+[73]     0.0    0.00    0.00                 new_bare_string [73]
+                0.00    0.00      29/18455108     hash_string_bounded [45]
+                0.00    0.00      29/36910423     parser_parse [106]
 -----------------------------------------------
-                0.00    0.00       1/1           main [65]
-[79]     0.0    0.00    0.00       1         io_read_file [79]
+                0.00    0.00      14/14          find_free_vars_for_new_function [53]
+[74]     0.0    0.00    0.00      14         cell_table_get_cell_cstring_key [74]
+                0.00    0.00      14/18454966     object_string_copy_from_null_terminated [41]
+                0.00    0.00      14/18455000     object_string_copy [69]
+-----------------------------------------------
+                0.00    0.00      10/10          call [70]
+[75]     0.0    0.00    0.00      10         ast_new_node_call [75]
+                0.00    0.00      10/36910668     allocate [31]
+-----------------------------------------------
+                0.00    0.00       1/127         main [58]
+                0.00    0.00       2/127         compiler_compile [103]
+                0.00    0.00      18/127         emit_opcode_with_short_placeholder [97]
+                0.00    0.00      26/127         emit_opcode_with_constant_operand [68]
+                0.00    0.00      80/127         compile_tree [56]
+[76]     0.0    0.00    0.00     127         bytecode_write [76]
+                0.00    0.00       9/21634999     reallocate [37]
+-----------------------------------------------
+                0.00    0.00       9/9           parse_expression [67]
+[77]     0.0    0.00    0.00       9         ast_new_node_number [77]
+                0.00    0.00       9/36910668     allocate [31]
+-----------------------------------------------
+                0.00    0.00       1/1           main [58]
+[78]     0.0    0.00    0.00       1         io_read_file [78]
                 0.00    0.00     328/328         character_array_write [80]
-                0.00    0.00       1/1           character_array_free [89]
-                0.00    0.00       1/1           character_array_init [133]
-                0.00    0.00       1/297         copy_cstring [101]
-                0.00    0.00       1/198         copy_null_terminated_cstring [102]
+                0.00    0.00       1/297         copy_cstring [52]
+                0.00    0.00       1/1           character_array_free [102]
+                0.00    0.00       1/1           character_array_init [132]
+                0.00    0.00       1/198         copy_null_terminated_cstring [112]
 -----------------------------------------------
-                0.00    0.00     328/328         io_read_file [79]
+                0.00    0.00       8/8           parse_expression [67]
+[79]     0.0    0.00    0.00       8         ast_new_node_binary [79]
+                0.00    0.00       8/36910668     allocate [31]
+-----------------------------------------------
+                0.00    0.00     328/328         io_read_file [78]
 [80]     0.0    0.00    0.00     328         character_array_write [80]
-                0.00    0.00       7/21634999     reallocate [42]
+                0.00    0.00       7/21634999     reallocate [37]
 -----------------------------------------------
-                0.00    0.00      31/31          compile_tree [60]
-[81]     0.0    0.00    0.00      31         integer_array_write [81]
-                0.00    0.00       6/21634999     reallocate [42]
+                0.00    0.00       1/1           main [58]
+[81]     0.0    0.00    0.00       1         vm_interpret_program [81]
+                0.00    0.00       1/121         make_native_function_with_params [48]
+                0.00    0.00       1/2           object_user_function_new [95]
+                0.00    0.00       1/1           object_thread_new [101]
+                0.00    0.00       1/18454966     object_string_copy_from_null_terminated [41]
+                0.00    0.00       1/124         cell_table_new_empty [61]
+                0.00    0.00       1/18455000     object_string_copy [69]
+                0.00    0.00       2/65794857     value_array_make [105]
+                0.00    0.00       1/2           object_code_new [128]
+                0.00    0.00       1/1           object_module_new [136]
+                0.00    0.00       1/36909859     vm_import_module [107]
 -----------------------------------------------
-                0.00    0.00       3/3           find_free_vars_for_new_function [57]
-[82]     0.0    0.00    0.00       3         cell_table_set_cell_cstring_key [82]
-                0.00    0.00       3/18455000     object_string_copy [43]
-                0.00    0.00       3/18454966     object_string_copy_from_null_terminated [50]
+                0.00    0.00      31/31          compile_tree [56]
+[82]     0.0    0.00    0.00      31         integer_array_write [82]
+                0.00    0.00       6/21634999     reallocate [37]
+-----------------------------------------------
+                0.00    0.00       6/6           statements [65]
+[83]     0.0    0.00    0.00       6         ast_new_node_statements [83]
+                0.00    0.00       6/36910668     allocate [31]
+                0.00    0.00       6/20130059     pointer_array_init [108]
+-----------------------------------------------
+                0.00    0.00       2/2           object_free [20]
+[84]     0.0    0.00    0.00       2         bytecode_free [84]
+                0.00    0.00       2/18454938     value_array_free [34]
+                0.00    0.00       4/5           integer_array_free [96]
+                0.00    0.00       2/112405914     deallocate [29]
+-----------------------------------------------
+                0.00    0.00       5/5           statements [65]
+[85]     0.0    0.00    0.00       5         ast_new_node_expr_statement [85]
+                0.00    0.00       5/36910668     allocate [31]
 -----------------------------------------------
                                                  <spontaneous>
-[83]     0.0    0.00    0.00                 function [83]
+[86]     0.0    0.00    0.00                 function [86]
                 0.00    0.00       1/18454976     value_array_write [28]
-                0.00    0.00       1/18455108     hash_string_bounded [49]
-                0.00    0.00       5/196         memory_print_allocated_entries [103]
-                0.00    0.00       1/18454940     value_array_init [97]
-                0.00    0.00       1/1           ast_new_node_function [131]
+                0.00    0.00       1/1           ast_new_node_function [98]
+                0.00    0.00       1/18455108     hash_string_bounded [45]
+                0.00    0.00       5/196         memory_print_allocated_entries [113]
+                0.00    0.00       1/18454940     value_array_init [109]
 -----------------------------------------------
-                0.00    0.00       1/1           main [65]
-[84]     0.0    0.00    0.00       1         vm_interpret_program [84]
-                0.00    0.00       1/124         cell_table_new_empty [62]
-                0.00    0.00       1/121         make_native_function_with_params [63]
-                0.00    0.00       1/18455000     object_string_copy [43]
-                0.00    0.00       1/18454966     object_string_copy_from_null_terminated [50]
-                0.00    0.00       2/81244311     value_array_make [93]
-                0.00    0.00       1/2           object_code_new [126]
-                0.00    0.00       1/2           object_user_function_new [129]
-                0.00    0.00       1/1           object_thread_new [139]
-                0.00    0.00       1/1           object_module_new [138]
-                0.00    0.00       1/36909859     vm_import_module [96]
+                0.00    0.00       1/1           main [58]
+[87]     0.0    0.00    0.00       1         concat_multi_null_terminated_cstrings [87]
+                0.00    0.00       2/2           concat_null_terminated_cstrings [94]
+                0.00    0.00       1/36910668     allocate [31]
+                0.00    0.00       2/112405914     deallocate [29]
 -----------------------------------------------
-                0.00    0.00       6/6           statements [72]
-[85]     0.0    0.00    0.00       6         ast_new_node_statements [85]
-                0.00    0.00       6/20130059     pointer_array_init [48]
-                0.00    0.00       6/36910668     allocate [94]
+                0.00    0.00       3/3           statements [65]
+[88]     0.0    0.00    0.00       3         ast_new_node_assignment [88]
+                0.00    0.00       3/36910668     allocate [31]
 -----------------------------------------------
-                0.00    0.00       1/5           compile_tree [60]
-                0.00    0.00       4/5           bytecode_free [78]
-[86]     0.0    0.00    0.00       5         integer_array_free [86]
-                0.00    0.00       4/112405914     deallocate [34]
+                0.00    0.00       3/3           statements [65]
+[89]     0.0    0.00    0.00       3         ast_new_node_return [89]
+                0.00    0.00       3/36910668     allocate [31]
+-----------------------------------------------
+                0.00    0.00       3/3           parse_expression [67]
+[90]     0.0    0.00    0.00       3         ast_new_node_string [90]
+                0.00    0.00       3/36910668     allocate [31]
+-----------------------------------------------
+                0.00    0.00       3/3           find_free_vars_for_new_function [53]
+[91]     0.0    0.00    0.00       3         cell_table_set_cell_cstring_key [91]
+                0.00    0.00       3/18454966     object_string_copy_from_null_terminated [41]
+                0.00    0.00       3/18455000     object_string_copy [69]
+-----------------------------------------------
+                0.00    0.00       1/1           vm_init [63]
+[92]     0.0    0.00    0.00       1         find_interpreter_directory [92]
+                0.00    0.00       2/36910668     allocate [31]
+                0.00    0.00       1/112405914     deallocate [29]
+-----------------------------------------------
+                0.00    0.00       2/2           concat_null_terminated_cstrings [94]
+[93]     0.0    0.00    0.00       2         concat_cstrings [93]
+                0.00    0.00       2/36910668     allocate [31]
+-----------------------------------------------
+                0.00    0.00       2/2           concat_multi_null_terminated_cstrings [87]
+[94]     0.0    0.00    0.00       2         concat_null_terminated_cstrings [94]
+                0.00    0.00       2/2           concat_cstrings [93]
+-----------------------------------------------
+                0.00    0.00       1/2           vm_interpret_frame [1]
+                0.00    0.00       1/2           vm_interpret_program [81]
+[95]     0.0    0.00    0.00       2         object_user_function_new [95]
+                0.00    0.00       2/297         copy_cstring [52]
+                0.00    0.00       2/36910423     parser_parse [106]
+                0.00    0.00       2/198         copy_null_terminated_cstring [112]
+-----------------------------------------------
+                0.00    0.00       1/5           compile_tree [56]
+                0.00    0.00       4/5           bytecode_free [84]
+[96]     0.0    0.00    0.00       5         integer_array_free [96]
+                0.00    0.00       4/112405914     deallocate [29]
 -----------------------------------------------
                                                  <spontaneous>
-[87]     0.0    0.00    0.00                 emit_opcode_with_short_placeholder [87]
-                0.00    0.00      18/127         bytecode_write [77]
+[97]     0.0    0.00    0.00                 emit_opcode_with_short_placeholder [97]
+                0.00    0.00      18/127         bytecode_write [76]
 -----------------------------------------------
-                0.00    0.00       1/1           main [65]
-[88]     0.0    0.00    0.00       1         concat_multi_null_terminated_cstrings [88]
-                0.00    0.00       2/112405914     deallocate [34]
-                0.00    0.00       2/2           concat_null_terminated_cstrings [125]
-                0.00    0.00       1/36910668     allocate [94]
+                0.00    0.00       1/1           function [86]
+[98]     0.0    0.00    0.00       1         ast_new_node_function [98]
+                0.00    0.00       1/36910668     allocate [31]
 -----------------------------------------------
-                0.00    0.00       1/1           io_read_file [79]
-[89]     0.0    0.00    0.00       1         character_array_free [89]
-                0.00    0.00       1/112405914     deallocate [34]
+                0.00    0.00       1/1           statements [65]
+[99]     0.0    0.00    0.00       1         ast_new_node_if [99]
+                0.00    0.00       1/36910668     allocate [31]
 -----------------------------------------------
-                0.00    0.00       1/1           vm_init [67]
-[90]     0.0    0.00    0.00       1         find_interpreter_directory [90]
-                0.00    0.00       1/112405914     deallocate [34]
-                0.00    0.00       2/36910668     allocate [94]
+                0.00    0.00       1/1           main [58]
+[100]    0.0    0.00    0.00       1         get_current_working_directory [100]
+                0.00    0.00       1/36910668     allocate [31]
 -----------------------------------------------
-                                   2             compiler_compile [91]
-                0.00    0.00       1/66          main [65]
-                0.00    0.00      65/66          compile_tree [60]
-[91]     0.0    0.00    0.00      66+2       compiler_compile [91]
-                0.00    0.00       2/127         bytecode_write [77]
-                                   2             compiler_compile [91]
+                0.00    0.00       1/1           vm_interpret_program [81]
+[101]    0.0    0.00    0.00       1         object_thread_new [101]
+                0.00    0.00       1/297         copy_cstring [52]
+                0.00    0.00       1/36910423     parser_parse [106]
+                0.00    0.00       1/198         copy_null_terminated_cstring [112]
 -----------------------------------------------
-                0.00    0.00       8/144115279     statements [72]
-                0.00    0.00 18455108/144115279     table_set [10]
-                0.00    0.00 125660163/144115279     table_get [11]
-[92]     0.0    0.00    0.00 144115279         scanner_peek_next_token [92]
-                0.00    0.00       8/8           scanner_peek_token_at_offset [114]
+                0.00    0.00       1/1           io_read_file [78]
+[102]    0.0    0.00    0.00       1         character_array_free [102]
+                0.00    0.00       1/112405914     deallocate [29]
 -----------------------------------------------
-                0.00    0.00       1/81244311     vm_free [76]
-                0.00    0.00       2/81244311     vm_interpret_program [84]
-                0.00    0.00       6/81244311     call_native_function [68]
-                0.00    0.00       6/81244311     vm_call_function [32]
-                0.00    0.00      17/81244311     vm_init [67]
-                0.00    0.00 22027835/81244311     gc_mark_table [15]
-                0.00    0.00 22250831/81244311     load_extension_module [24]
-                0.00    0.00 36965613/81244311     vm_interpret_frame [2]
-[93]     0.0    0.00    0.00 81244311         value_array_make [93]
+                                   2             compiler_compile [103]
+                0.00    0.00       1/66          main [58]
+                0.00    0.00      65/66          compile_tree [56]
+[103]    0.0    0.00    0.00      66+2       compiler_compile [103]
+                0.00    0.00       2/127         bytecode_write [76]
+                                   2             compiler_compile [103]
 -----------------------------------------------
-                0.00    0.00       1/36910668     ast_new_node_function [131]
-                0.00    0.00       1/36910668     ast_new_node_if [132]
-                0.00    0.00       1/36910668     concat_multi_null_terminated_cstrings [88]
-                0.00    0.00       1/36910668     get_current_working_directory [134]
-                0.00    0.00       1/36910668     vm_interpret_frame [2]
-                0.00    0.00       2/36910668     concat_cstrings [124]
-                0.00    0.00       2/36910668     find_interpreter_directory [90]
-                0.00    0.00       3/36910668     ast_new_node_return [121]
-                0.00    0.00       3/36910668     ast_new_node_assignment [120]
-                0.00    0.00       3/36910668     ast_new_node_string [122]
-                0.00    0.00       5/36910668     ast_new_node_expr_statement [116]
-                0.00    0.00       6/36910668     ast_new_node_statements [85]
-                0.00    0.00       8/36910668     ast_new_node_binary [113]
-                0.00    0.00       9/36910668     ast_new_node_number [111]
-                0.00    0.00      10/36910668     ast_new_node_call [110]
-                0.00    0.00      17/36910668     ast_new_node_variable [108]
-                0.00    0.00      95/36910668     make_native_function_with_params [63]
-                0.00    0.00     297/36910668     copy_cstring [101]
-                0.00    0.00 18454966/36910668     table_set [10]
-                0.00    0.00 18455237/36910668     allocate_object [30]
-[94]     0.0    0.00    0.00 36910668         allocate [94]
+                0.00    0.00       8/144115279     statements [65]
+                0.00    0.00 18455108/144115279     table_set [11]
+                0.00    0.00 125660163/144115279     table_get [17]
+[104]    0.0    0.00    0.00 144115279         scanner_peek_next_token [104]
+                0.00    0.00       8/8           scanner_peek_token_at_offset [120]
 -----------------------------------------------
-                0.00    0.00       1/36910423     object_cell_new_empty [136]
-                0.00    0.00       1/36910423     object_module_new [138]
-                0.00    0.00       1/36910423     object_module_native_new [137]
-                0.00    0.00       1/36910423     object_thread_new [139]
-                0.00    0.00       1/36910423     main [65]
-                0.00    0.00       2/36910423     object_user_function_new [129]
-                0.00    0.00       2/36910423     object_code_new [126]
-                0.00    0.00      29/36910423     new_bare_string [75]
-                0.00    0.00      81/36910423     object_string_new_partial [59]
-                0.00    0.00      95/36910423     object_native_function_new [66]
-                0.00    0.00     182/36910423     object_string_new [53]
-                0.00    0.00 18455000/36910423     object_string_copy [43]
-                0.00    0.00 18455027/36910423     object_cell_new [37]
-[95]     0.0    0.00    0.00 36910423         parser_parse [95]
-                0.00    0.00       1/1           scanner_init [140]
-                0.00    0.00       1/196         memory_print_allocated_entries [103]
+                0.00    0.00       1/65794857     vm_free [72]
+                0.00    0.00       2/65794857     vm_interpret_program [81]
+                0.00    0.00       6/65794857     call_native_function [64]
+                0.00    0.00       6/65794857     vm_call_function [43]
+                0.00    0.00      17/65794857     vm_init [63]
+                0.00    0.00 8085935/65794857     gc_mark_table [9]
+                0.00    0.00 20743277/65794857     call_native_function_args_from_stack [23]
+                0.00    0.00 36965613/65794857     vm_interpret_frame [1]
+[105]    0.0    0.00    0.00 65794857         value_array_make [105]
 -----------------------------------------------
-                0.00    0.00       1/36909859     vm_interpret_program [84]
-                0.00    0.00 18454929/36909859     vm_interpret_frame [2]
-                0.00    0.00 18454929/36909859     vm_call_function [32]
-[96]     0.0    0.00    0.00 36909859         vm_import_module [96]
+                0.00    0.00       1/36910423     object_cell_new_empty [134]
+                0.00    0.00       1/36910423     object_module_new [136]
+                0.00    0.00       1/36910423     object_module_native_new [135]
+                0.00    0.00       1/36910423     object_thread_new [101]
+                0.00    0.00       1/36910423     main [58]
+                0.00    0.00       2/36910423     object_user_function_new [95]
+                0.00    0.00       2/36910423     object_code_new [128]
+                0.00    0.00      29/36910423     new_bare_string [73]
+                0.00    0.00      81/36910423     object_string_new_partial [62]
+                0.00    0.00      95/36910423     object_native_function_new [54]
+                0.00    0.00     182/36910423     object_string_new [47]
+                0.00    0.00 18455000/36910423     object_string_copy [69]
+                0.00    0.00 18455027/36910423     object_cell_new [40]
+[106]    0.0    0.00    0.00 36910423         parser_parse [106]
+                0.00    0.00       1/1           scanner_init [137]
+                0.00    0.00       1/196         memory_print_allocated_entries [113]
 -----------------------------------------------
-                0.00    0.00       1/18454940     function [83]
-                0.00    0.00       4/18454940     bytecode_init [118]
-                0.00    0.00 18454935/18454940     collect_values [19]
-[97]     0.0    0.00    0.00 18454940         value_array_init [97]
+                0.00    0.00       1/36909859     vm_interpret_program [81]
+                0.00    0.00 18454929/36909859     vm_interpret_frame [1]
+                0.00    0.00 18454929/36909859     vm_call_function [43]
+[107]    0.0    0.00    0.00 36909859         vm_import_module [107]
 -----------------------------------------------
-                0.00    0.00 5407649/5407649     load_extension_module [24]
-[98]     0.0    0.00    0.00 5407649         object_as_function [98]
+                0.00    0.00       1/20130059     statements [65]
+                0.00    0.00       6/20130059     ast_new_node_statements [83]
+                0.00    0.00      10/20130059     call [70]
+                0.00    0.00 20130042/20130059     table_iterate [15]
+[108]    0.0    0.00    0.00 20130059         pointer_array_init [108]
 -----------------------------------------------
-                0.00    0.00   55750/55750       gc_mark_table [15]
-[99]     0.0    0.00    0.00   55750         get_allocated_memory [99]
+                0.00    0.00       1/18454940     function [86]
+                0.00    0.00       4/18454940     bytecode_init [124]
+                0.00    0.00 18454935/18454940     collect_values [16]
+[109]    0.0    0.00    0.00 18454940         value_array_init [109]
 -----------------------------------------------
-                0.00    0.00     392/392         scanner_next_token [104]
-[100]    0.0    0.00    0.00     392         pointer_array_to_plain_array [100]
+                0.00    0.00   55750/55750       gc_mark_table [9]
+[110]    0.0    0.00    0.00   55750         get_allocated_memory [110]
 -----------------------------------------------
-                0.00    0.00       1/297         io_read_file [79]
-                0.00    0.00       1/297         object_thread_new [139]
-                0.00    0.00       2/297         object_user_function_new [129]
-                0.00    0.00       2/297         vm_interpret_frame [2]
-                0.00    0.00       3/297         object_string_new_partial [59]
-                0.00    0.00      26/297         object_string_copy [43]
-                0.00    0.00      95/297         object_native_function_new [66]
-                0.00    0.00     167/297         make_native_function_with_params [63]
-[101]    0.0    0.00    0.00     297         copy_cstring [101]
-                0.00    0.00     297/36910668     allocate [94]
+                0.00    0.00     392/392         scanner_next_token [114]
+[111]    0.0    0.00    0.00     392         pointer_array_to_plain_array [111]
 -----------------------------------------------
-                0.00    0.00       1/198         io_read_file [79]
-                0.00    0.00       1/198         object_thread_new [139]
-                0.00    0.00       1/198         vm_interpret_frame [2]
-                0.00    0.00       2/198         object_user_function_new [129]
-                0.00    0.00       3/198         object_string_new_partial [59]
-                0.00    0.00      95/198         object_native_function_new [66]
-                0.00    0.00      95/198         make_native_function_with_params [63]
-[102]    0.0    0.00    0.00     198         copy_null_terminated_cstring [102]
+                0.00    0.00       1/198         io_read_file [78]
+                0.00    0.00       1/198         object_thread_new [101]
+                0.00    0.00       1/198         vm_interpret_frame [1]
+                0.00    0.00       2/198         object_user_function_new [95]
+                0.00    0.00       3/198         object_string_new_partial [62]
+                0.00    0.00      95/198         object_native_function_new [54]
+                0.00    0.00      95/198         make_native_function_with_params [48]
+[112]    0.0    0.00    0.00     198         copy_null_terminated_cstring [112]
 -----------------------------------------------
-                0.00    0.00       1/196         parser_parse [95]
-                0.00    0.00       1/196         main [65]
-                0.00    0.00       2/196         grouping [260]
-                0.00    0.00       5/196         function [83]
-                0.00    0.00       8/196         binary [208]
-                0.00    0.00       9/196         conditioned_clause.constprop.0 [235]
-                0.00    0.00      18/196         call [74]
-                0.00    0.00      54/196         statements [72]
-                0.00    0.00      98/196         parse_expression [306]
-[103]    0.0    0.00    0.00     196         memory_print_allocated_entries [103]
+                0.00    0.00       1/196         parser_parse [106]
+                0.00    0.00       1/196         main [58]
+                0.00    0.00       2/196         grouping [257]
+                0.00    0.00       5/196         function [86]
+                0.00    0.00       8/196         binary [205]
+                0.00    0.00       9/196         conditioned_clause.constprop.0 [231]
+                0.00    0.00      18/196         call [70]
+                0.00    0.00      54/196         statements [65]
+                0.00    0.00      98/196         parse_expression [67]
+[113]    0.0    0.00    0.00     196         memory_print_allocated_entries [113]
 -----------------------------------------------
-                0.00    0.00       8/115         scanner_peek_token_at_offset [114]
-                0.00    0.00     107/115         advance [186]
-[104]    0.0    0.00    0.00     115         scanner_next_token [104]
-                0.00    0.00     392/392         pointer_array_to_plain_array [100]
+                0.00    0.00       8/115         scanner_peek_token_at_offset [120]
+                0.00    0.00     107/115         advance [183]
+[114]    0.0    0.00    0.00     115         scanner_next_token [114]
+                0.00    0.00     392/392         pointer_array_to_plain_array [111]
 -----------------------------------------------
-                0.00    0.00       1/66          main [65]
-                0.00    0.00      65/66          node_free [70]
-[105]    0.0    0.00    0.00      66         ast_key_value_pair_array_free [105]
+                0.00    0.00       1/66          main [58]
+                0.00    0.00      65/66          node_free [60]
+[115]    0.0    0.00    0.00      66         ast_key_value_pair_array_free [115]
 -----------------------------------------------
-                0.00    0.00      29/29          object_free [23]
-[106]    0.0    0.00    0.00      29         table_delete [106]
+                0.00    0.00      29/29          object_free [20]
+[116]    0.0    0.00    0.00      29         table_delete [116]
 -----------------------------------------------
-                0.00    0.00      19/19          find_free_vars_for_new_function [57]
-[107]    0.0    0.00    0.00      19         object_strings_equal [107]
+                0.00    0.00      19/19          find_free_vars_for_new_function [53]
+[117]    0.0    0.00    0.00      19         object_strings_equal [117]
 -----------------------------------------------
-                0.00    0.00      17/17          parse_expression [306]
-[108]    0.0    0.00    0.00      17         ast_new_node_variable [108]
-                0.00    0.00      17/36910668     allocate [94]
+                0.00    0.00       6/12          backpatch_placeholder [204]
+                0.00    0.00       6/12          compile_tree [56]
+[118]    0.0    0.00    0.00      12         bytecode_set [118]
 -----------------------------------------------
-                0.00    0.00       6/12          backpatch_placeholder [207]
-                0.00    0.00       6/12          compile_tree [60]
-[109]    0.0    0.00    0.00      12         bytecode_set [109]
+                0.00    0.00       1/9           main [58]
+                0.00    0.00       2/9           compile_tree [56]
+                0.00    0.00       2/9           object_free [20]
+                0.00    0.00       4/9           bytecode_init [124]
+[119]    0.0    0.00    0.00       9         integer_array_init [119]
 -----------------------------------------------
-                0.00    0.00      10/10          call [74]
-[110]    0.0    0.00    0.00      10         ast_new_node_call [110]
-                0.00    0.00      10/36910668     allocate [94]
+                0.00    0.00       8/8           scanner_peek_next_token [104]
+[120]    0.0    0.00    0.00       8         scanner_peek_token_at_offset [120]
+                0.00    0.00       8/115         scanner_next_token [114]
 -----------------------------------------------
-                0.00    0.00       9/9           parse_expression [306]
-[111]    0.0    0.00    0.00       9         ast_new_node_number [111]
-                0.00    0.00       9/36910668     allocate [94]
+                0.00    0.00       7/7           main [58]
+[121]    0.0    0.00    0.00       7         io_file_exists [121]
 -----------------------------------------------
-                0.00    0.00       1/9           main [65]
-                0.00    0.00       2/9           compile_tree [60]
-                0.00    0.00       2/9           object_free [23]
-                0.00    0.00       4/9           bytecode_init [118]
-[112]    0.0    0.00    0.00       9         integer_array_init [112]
+                0.00    0.00       5/5           vm_interpret_frame [1]
+[122]    0.0    0.00    0.00       5         object_value_is [122]
 -----------------------------------------------
-                0.00    0.00       8/8           parse_expression [306]
-[113]    0.0    0.00    0.00       8         ast_new_node_binary [113]
-                0.00    0.00       8/36910668     allocate [94]
+                0.00    0.00       4/4           call_native_function [64]
+[123]    0.0    0.00    0.00       4         builtin_print [123]
+                0.00    0.00       4/4           value_print [125]
+                0.00    0.00       2/2           object_print [129]
 -----------------------------------------------
-                0.00    0.00       8/8           scanner_peek_next_token [92]
-[114]    0.0    0.00    0.00       8         scanner_peek_token_at_offset [114]
-                0.00    0.00       8/115         scanner_next_token [104]
+                0.00    0.00       1/4           compile_tree [56]
+                0.00    0.00       1/4           main [58]
+                0.00    0.00       2/4           object_free [20]
+[124]    0.0    0.00    0.00       4         bytecode_init [124]
+                0.00    0.00       4/18454940     value_array_init [109]
+                0.00    0.00       4/9           integer_array_init [119]
 -----------------------------------------------
-                0.00    0.00       7/7           main [65]
-[115]    0.0    0.00    0.00       7         io_file_exists [115]
+                0.00    0.00       4/4           builtin_print [123]
+[125]    0.0    0.00    0.00       4         value_print [125]
 -----------------------------------------------
-                0.00    0.00       5/5           statements [72]
-[116]    0.0    0.00    0.00       5         ast_new_node_expr_statement [116]
-                0.00    0.00       5/36910668     allocate [94]
+                0.00    0.00       3/3           object_load_attribute [59]
+[126]    0.0    0.00    0.00       3         is_value_instance_of_class [126]
 -----------------------------------------------
-                0.00    0.00       4/4           call_native_function [68]
-[117]    0.0    0.00    0.00       4         builtin_print [117]
-                0.00    0.00       4/4           value_print [119]
-                0.00    0.00       2/2           object_print [127]
+                0.00    0.00       2/2           call_native_function [64]
+[127]    0.0    0.00    0.00       2         builtin_time [127]
 -----------------------------------------------
-                0.00    0.00       1/4           compile_tree [60]
-                0.00    0.00       1/4           main [65]
-                0.00    0.00       2/4           object_free [23]
-[118]    0.0    0.00    0.00       4         bytecode_init [118]
-                0.00    0.00       4/18454940     value_array_init [97]
-                0.00    0.00       4/9           integer_array_init [112]
+                0.00    0.00       1/2           compile_tree [56]
+                0.00    0.00       1/2           vm_interpret_program [81]
+[128]    0.0    0.00    0.00       2         object_code_new [128]
+                0.00    0.00       2/36910423     parser_parse [106]
 -----------------------------------------------
-                0.00    0.00       4/4           builtin_print [117]
-[119]    0.0    0.00    0.00       4         value_print [119]
+                0.00    0.00       2/2           builtin_print [123]
+[129]    0.0    0.00    0.00       2         object_print [129]
 -----------------------------------------------
-                0.00    0.00       3/3           statements [72]
-[120]    0.0    0.00    0.00       3         ast_new_node_assignment [120]
-                0.00    0.00       3/36910668     allocate [94]
+                0.00    0.00       2/2           vm_interpret_frame [1]
+[130]    0.0    0.00    0.00       2         object_string_clone [130]
 -----------------------------------------------
-                0.00    0.00       3/3           statements [72]
-[121]    0.0    0.00    0.00       3         ast_new_node_return [121]
-                0.00    0.00       3/36910668     allocate [94]
+                0.00    0.00       1/1           main [58]
+[131]    0.0    0.00    0.00       1         ast_free_tree [131]
 -----------------------------------------------
-                0.00    0.00       3/3           parse_expression [306]
-[122]    0.0    0.00    0.00       3         ast_new_node_string [122]
-                0.00    0.00       3/36910668     allocate [94]
+                0.00    0.00       1/1           io_read_file [78]
+[132]    0.0    0.00    0.00       1         character_array_init [132]
 -----------------------------------------------
-                0.00    0.00       2/2           call_native_function [68]
-[123]    0.0    0.00    0.00       2         builtin_time [123]
+                0.00    0.00       1/1           main [58]
+[133]    0.0    0.00    0.00       1         memory_init [133]
+                0.00    0.00       1/1           table_init_memory_infrastructure [139]
 -----------------------------------------------
-                0.00    0.00       2/2           concat_null_terminated_cstrings [125]
-[124]    0.0    0.00    0.00       2         concat_cstrings [124]
-                0.00    0.00       2/36910668     allocate [94]
+                0.00    0.00       1/1           find_free_vars_for_new_function [53]
+[134]    0.0    0.00    0.00       1         object_cell_new_empty [134]
+                0.00    0.00       1/36910423     parser_parse [106]
 -----------------------------------------------
-                0.00    0.00       2/2           concat_multi_null_terminated_cstrings [88]
-[125]    0.0    0.00    0.00       2         concat_null_terminated_cstrings [125]
-                0.00    0.00       2/2           concat_cstrings [124]
+                0.00    0.00       1/1           vm_init [63]
+[135]    0.0    0.00    0.00       1         object_module_native_new [135]
+                0.00    0.00       1/36910423     parser_parse [106]
 -----------------------------------------------
-                0.00    0.00       1/2           compile_tree [60]
-                0.00    0.00       1/2           vm_interpret_program [84]
-[126]    0.0    0.00    0.00       2         object_code_new [126]
-                0.00    0.00       2/36910423     parser_parse [95]
+                0.00    0.00       1/1           vm_interpret_program [81]
+[136]    0.0    0.00    0.00       1         object_module_new [136]
+                0.00    0.00       1/36910423     parser_parse [106]
 -----------------------------------------------
-                0.00    0.00       2/2           builtin_print [117]
-[127]    0.0    0.00    0.00       2         object_print [127]
+                0.00    0.00       1/1           parser_parse [106]
+[137]    0.0    0.00    0.00       1         scanner_init [137]
 -----------------------------------------------
-                0.00    0.00       2/2           vm_interpret_frame [2]
-[128]    0.0    0.00    0.00       2         object_string_clone [128]
+                0.00    0.00       1/1           compile_tree [56]
+[138]    0.0    0.00    0.00       1         short_to_two_bytes [138]
 -----------------------------------------------
-                0.00    0.00       1/2           vm_interpret_frame [2]
-                0.00    0.00       1/2           vm_interpret_program [84]
-[129]    0.0    0.00    0.00       2         object_user_function_new [129]
-                0.00    0.00       2/36910423     parser_parse [95]
-                0.00    0.00       2/297         copy_cstring [101]
-                0.00    0.00       2/198         copy_null_terminated_cstring [102]
------------------------------------------------
-                0.00    0.00       1/1           main [65]
-[130]    0.0    0.00    0.00       1         ast_free_tree [130]
------------------------------------------------
-                0.00    0.00       1/1           function [83]
-[131]    0.0    0.00    0.00       1         ast_new_node_function [131]
-                0.00    0.00       1/36910668     allocate [94]
------------------------------------------------
-                0.00    0.00       1/1           statements [72]
-[132]    0.0    0.00    0.00       1         ast_new_node_if [132]
-                0.00    0.00       1/36910668     allocate [94]
------------------------------------------------
-                0.00    0.00       1/1           io_read_file [79]
-[133]    0.0    0.00    0.00       1         character_array_init [133]
------------------------------------------------
-                0.00    0.00       1/1           main [65]
-[134]    0.0    0.00    0.00       1         get_current_working_directory [134]
-                0.00    0.00       1/36910668     allocate [94]
------------------------------------------------
-                0.00    0.00       1/1           main [65]
-[135]    0.0    0.00    0.00       1         memory_init [135]
-                0.00    0.00       1/1           table_init_memory_infrastructure [142]
------------------------------------------------
-                0.00    0.00       1/1           find_free_vars_for_new_function [57]
-[136]    0.0    0.00    0.00       1         object_cell_new_empty [136]
-                0.00    0.00       1/36910423     parser_parse [95]
------------------------------------------------
-                0.00    0.00       1/1           vm_init [67]
-[137]    0.0    0.00    0.00       1         object_module_native_new [137]
-                0.00    0.00       1/36910423     parser_parse [95]
------------------------------------------------
-                0.00    0.00       1/1           vm_interpret_program [84]
-[138]    0.0    0.00    0.00       1         object_module_new [138]
-                0.00    0.00       1/36910423     parser_parse [95]
------------------------------------------------
-                0.00    0.00       1/1           vm_interpret_program [84]
-[139]    0.0    0.00    0.00       1         object_thread_new [139]
-                0.00    0.00       1/36910423     parser_parse [95]
-                0.00    0.00       1/297         copy_cstring [101]
-                0.00    0.00       1/198         copy_null_terminated_cstring [102]
------------------------------------------------
-                0.00    0.00       1/1           parser_parse [95]
-[140]    0.0    0.00    0.00       1         scanner_init [140]
------------------------------------------------
-                0.00    0.00       1/1           compile_tree [60]
-[141]    0.0    0.00    0.00       1         short_to_two_bytes [141]
------------------------------------------------
-                0.00    0.00       1/1           memory_init [135]
-[142]    0.0    0.00    0.00       1         table_init_memory_infrastructure [142]
+                0.00    0.00       1/1           memory_init [133]
+[139]    0.0    0.00    0.00       1         table_init_memory_infrastructure [139]
 -----------------------------------------------
 
  This table describes the call tree of the program, and was sorted by
@@ -1137,46 +1118,44 @@ notice and this notice are preserved.
 
 Index by function name
 
-   [3] __fentry__            [102] copy_null_terminated_cstring [51] object_thread_peek_frame
-   [1] _mcount_private        [36] cstrings_equal         [13] object_thread_pop_eval_stack
-  [94] allocate               [34] deallocate             [38] object_thread_pop_frame
-  [30] allocate_object         [4] find_entry             [12] object_thread_push_eval_stack
- [130] ast_free_tree          [90] find_interpreter_directory [26] object_thread_push_frame
- [105] ast_key_value_pair_array_free [44] free           [129] object_user_function_new
- [120] ast_new_node_assignment [40] gc_mark_object        [35] object_value_is
- [113] ast_new_node_binary    [15] gc_mark_table          [95] parser_parse
- [110] ast_new_node_call      [99] get_allocated_memory   [45] pointer_array_free
- [116] ast_new_node_expr_statement [134] get_current_working_directory [48] pointer_array_init
- [131] ast_new_node_function  [16] get_string_from_cache [100] pointer_array_to_plain_array
- [132] ast_new_node_if        [49] hash_string_bounded    [46] pointer_array_write
- [111] ast_new_node_number    [86] integer_array_free     [42] reallocate
- [121] ast_new_node_return   [112] integer_array_init    [140] scanner_init
-  [85] ast_new_node_statements [81] integer_array_write  [104] scanner_next_token
- [122] ast_new_node_string   [115] io_file_exists         [92] scanner_peek_next_token
- [108] ast_new_node_variable  [79] io_read_file          [114] scanner_peek_token_at_offset
- [117] builtin_print          [58] load_attribute_bypass_descriptors [141] short_to_two_bytes
- [123] builtin_time           [24] load_extension_module  [52] strlen
-  [61] bytecode_add_constant  [63] make_native_function_with_params [106] table_delete
-  [78] bytecode_free         [135] memory_init            [31] table_free
- [118] bytecode_init         [103] memory_print_allocated_entries [11] table_get
- [109] bytecode_set           [18] new_stack_frame.constprop.0 [22] table_init
-  [77] bytecode_write         [98] object_as_function    [142] table_init_memory_infrastructure
-  [29] cell_table_free        [25] object_as_string       [20] table_iterate
-   [6] cell_table_get_cell    [37] object_cell_new        [10] table_set
-  [73] cell_table_get_cell_cstring_key [136] object_cell_new_empty [47] two_bytes_to_short
-   [8] cell_table_get_value  [126] object_code_new        [33] value_array_free
-  [39] cell_table_init        [41] object_compare         [97] value_array_init
-  [62] cell_table_new_empty   [23] object_free            [93] value_array_make
-   [9] cell_table_set_cell    [71] object_function_set_name [28] value_array_write
-  [82] cell_table_set_cell_cstring_key [21] object_hash   [14] value_compare
-   [7] cell_table_set_value   [64] object_load_attribute  [17] value_hash
-   [5] cell_table_set_value_cstring_key [137] object_module_native_new [119] value_print
-  [89] character_array_free  [138] object_module_new      [32] vm_call_function
- [133] character_array_init   [66] object_native_function_new [27] vm_call_object
-  [80] character_array_write [127] object_print           [76] vm_free
-  [19] collect_values         [55] object_set_attribute_cstring_key [96] vm_import_module
-  [91] compiler_compile      [128] object_string_clone    [67] vm_init
- [124] concat_cstrings        [43] object_string_copy      [2] vm_interpret_frame
-  [88] concat_multi_null_terminated_cstrings [50] object_string_copy_from_null_terminated [84] vm_interpret_program
- [125] concat_null_terminated_cstrings [107] object_strings_equal
- [101] copy_cstring          [139] object_thread_new
+   [3] __fentry__             [87] concat_multi_null_terminated_cstrings [41] object_string_copy_from_null_terminated
+   [2] _mcount_private        [94] concat_null_terminated_cstrings [117] object_strings_equal
+  [31] allocate               [52] copy_cstring          [101] object_thread_new
+  [27] allocate_object       [112] copy_null_terminated_cstring [38] object_thread_peek_frame
+ [131] ast_free_tree          [32] cstrings_equal         [42] object_thread_pop_frame
+ [115] ast_key_value_pair_array_free [29] deallocate      [33] object_thread_push_frame
+  [88] ast_new_node_assignment [4] find_entry             [95] object_user_function_new
+  [79] ast_new_node_binary    [92] find_interpreter_directory [122] object_value_is
+  [75] ast_new_node_call       [9] gc_mark_table         [106] parser_parse
+  [85] ast_new_node_expr_statement [110] get_allocated_memory [25] pointer_array_free
+  [98] ast_new_node_function [100] get_current_working_directory [108] pointer_array_init
+  [99] ast_new_node_if        [18] get_string_from_cache [111] pointer_array_to_plain_array
+  [77] ast_new_node_number    [45] hash_string_bounded    [44] pointer_array_write
+  [89] ast_new_node_return    [96] integer_array_free     [37] reallocate
+  [83] ast_new_node_statements [119] integer_array_init  [137] scanner_init
+  [90] ast_new_node_string    [82] integer_array_write   [114] scanner_next_token
+  [71] ast_new_node_variable [121] io_file_exists        [104] scanner_peek_next_token
+ [123] builtin_print          [78] io_read_file          [120] scanner_peek_token_at_offset
+ [127] builtin_time          [126] is_value_instance_of_class [138] short_to_two_bytes
+  [57] bytecode_add_constant  [55] load_attribute_bypass_descriptors [116] table_delete
+  [84] bytecode_free          [48] make_native_function_with_params [22] table_free
+ [124] bytecode_init         [133] memory_init            [17] table_get
+ [118] bytecode_set          [113] memory_print_allocated_entries [24] table_init
+  [76] bytecode_write         [14] new_stack_frame.constprop.0 [139] table_init_memory_infrastructure
+  [23] call_native_function_args_from_stack [46] object_as_function [15] table_iterate
+  [19] cell_table_free        [35] object_as_string       [11] table_set
+   [7] cell_table_get_cell    [40] object_cell_new        [36] two_bytes_to_short
+  [74] cell_table_get_cell_cstring_key [134] object_cell_new_empty [34] value_array_free
+   [5] cell_table_get_value  [128] object_code_new       [109] value_array_init
+  [39] cell_table_init        [30] object_compare        [105] value_array_make
+  [61] cell_table_new_empty   [20] object_free            [28] value_array_write
+  [10] cell_table_set_cell    [66] object_function_set_name [12] value_compare
+  [91] cell_table_set_cell_cstring_key [21] object_hash   [13] value_hash
+   [8] cell_table_set_value   [59] object_load_attribute [125] value_print
+   [6] cell_table_set_value_cstring_key [135] object_module_native_new [43] vm_call_function
+ [102] character_array_free  [136] object_module_new      [26] vm_call_object
+ [132] character_array_init   [54] object_native_function_new [72] vm_free
+  [80] character_array_write [129] object_print          [107] vm_import_module
+  [16] collect_values         [50] object_set_attribute_cstring_key [63] vm_init
+ [103] compiler_compile      [130] object_string_clone     [1] vm_interpret_frame
+  [93] concat_cstrings        [69] object_string_copy     [81] vm_interpret_program

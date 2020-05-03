@@ -34,6 +34,8 @@ bool table_get(Table* table, Value key, Value* out);
 void table_set_cstring_key(Table* table, const char* key, Value value);
 bool table_get_cstring_key(Table* table, const char* key, Value* out);
 
+void table_set_value_in_cell(Table* table, Value key, Value value);
+
 bool table_delete(Table* table, Value key);
 
 void table_free(Table* table);

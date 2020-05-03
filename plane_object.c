@@ -51,9 +51,11 @@ static bool object_string_add(Object* self, ValueArray args, Value* result) {
     	return false;
     }
 
-	if (self->type != OBJECT_STRING) {
-		FAIL("@add called on non ObjectString");
-	}
+	assert(self->type == OBJECT_STRING);
+
+	// if (self->type != OBJECT_STRING) {
+	// 	FAIL("@add called on non ObjectString");
+	// }
 
     ObjectString* self_string = OBJECT_AS_STRING(self);
     ObjectString* other_string = OBJECT_AS_STRING(other_value.as.object);
@@ -70,13 +72,16 @@ static bool object_string_add(Object* self, ValueArray args, Value* result) {
 }
 
 static bool object_string_length(Object* self, ValueArray args, Value* result) {
-	if (args.count != 0) {
-		FAIL("string length() called with arguments.");
-	}
+	assert(args.count == 0);
+	assert(self->type == OBJECT_STRING);
 
-	if (self->type != OBJECT_STRING) {
-		FAIL("string length() called on non ObjectString");
-	}
+	// if (args.count != 0) {
+	// 	FAIL("string length() called with arguments.");
+	// }
+
+	// if (self->type != OBJECT_STRING) {
+	// 	FAIL("string length() called on non ObjectString");
+	// }
 
     ObjectString* self_string = OBJECT_AS_STRING(self);
 
@@ -85,13 +90,16 @@ static bool object_string_length(Object* self, ValueArray args, Value* result) {
 }
 
 static bool object_table_length(Object* self, ValueArray args, Value* result) {
-	if (args.count != 0) {
-		FAIL("table length() called with arguments.");
-	}
+	assert(args.count == 0);
+	assert(self->type == OBJECT_TABLE);
 
-	if (self->type != OBJECT_TABLE) {
-		FAIL("table length() called on non ObjectTable");
-	}
+	// if (args.count != 0) {
+	// 	FAIL("table length() called with arguments.");
+	// }
+
+	// if (self->type != OBJECT_TABLE) {
+	// 	FAIL("table length() called on non ObjectTable");
+	// }
 
     ObjectTable* self_table = (ObjectTable*) self;
 
@@ -103,11 +111,13 @@ static bool object_table_length(Object* self, ValueArray args, Value* result) {
 }
 
 static bool object_string_get_key(Object* self, ValueArray args, Value* result) {
+	assert(self->type == OBJECT_STRING);
+
 	Value other_value = args.values[0];
 
-	if (self->type != OBJECT_STRING) {
-		FAIL("string @get_key called on non ObjectString");
-	}
+	// if (self->type != OBJECT_STRING) {
+	// 	FAIL("string @get_key called on non ObjectString");
+	// }
 
     if (other_value.type != VALUE_NUMBER) {
     	*result = MAKE_VALUE_NIL();
@@ -134,11 +144,13 @@ static bool object_string_get_key(Object* self, ValueArray args, Value* result) 
 }
 
 static bool table_get_key_function(Object* self, ValueArray args, Value* result) {
+	assert(self->type == OBJECT_TABLE);
+
 	Value key = args.values[0];
 
-	if (self->type != OBJECT_TABLE) {
-		FAIL("table @get_key called on non ObjectTable");
-	}
+	// if (self->type != OBJECT_TABLE) {
+	// 	FAIL("table @get_key called on non ObjectTable");
+	// }
 
     ObjectTable* self_table = (ObjectTable*) self;
 
@@ -153,16 +165,19 @@ static bool table_get_key_function(Object* self, ValueArray args, Value* result)
 }
 
 static bool table_set_key_function(Object* self, ValueArray args, Value* result) {
-	if (args.count != 2) {
-		FAIL("Table @set_key called with argument number other than 2: %d", args.count);
-	}
+	assert(args.count == 2);
+	assert(self->type == OBJECT_TABLE);
+
+	// if (args.count != 2) {
+	// 	FAIL("Table @set_key called with argument number other than 2: %d", args.count);
+	// }
 
 	Value key_value = args.values[0];
 	Value value_to_set = args.values[1];
 
-	if (self->type != OBJECT_TABLE) {
-		FAIL("table @set_key called on non ObjectTable");
-	}
+	// if (self->type != OBJECT_TABLE) {
+	// 	FAIL("table @set_key called on non ObjectTable");
+	// }
 
     ObjectTable* self_table = (ObjectTable*) self;
 
@@ -321,9 +336,11 @@ ObjectFunction* make_native_function_with_params(char* name, int num_params, cha
 }
 
 void object_function_set_name(ObjectFunction* function, char* name) {
-	if (function->name == NULL) {
-		FAIL("function->name == NULL in object_function_set_name");
-	}
+	assert(function->name != NULL);
+
+	// if (function->name == NULL) {
+	// 	FAIL("function->name == NULL in object_function_set_name");
+	// }
 
 	deallocate(function->name, strlen(function->name) + 1, "Function name");
 	function->name = name;
@@ -345,9 +362,11 @@ ObjectBoundMethod* object_bound_method_new(ObjectFunction* method, Object* self)
 static bool descriptor_init(Object* self, ValueArray args, Value* out) {
 	/* TODO: One convenient argument-types-validator thing, to be used also here. */
 
-	if (!is_instance_of_class(self, "Descriptor")) {
-		FAIL("Descriptor passed as self to @init isn't an instance of the Descriptor class.");
-	}
+	assert(is_instance_of_class(self, "Descriptor"));
+
+	// if (!is_instance_of_class(self, "Descriptor")) {
+	// 	FAIL("Descriptor passed as self to @init isn't an instance of the Descriptor class.");
+	// }
 
 	Value get_arg = args.values[0];
 	Value set_arg = args.values[1];
@@ -356,16 +375,18 @@ static bool descriptor_init(Object* self, ValueArray args, Value* out) {
 	   TODO to figure out better mechanism if later this is exposed to user code. */
 
 	if (get_arg.type != VALUE_NIL) {
-		if (!object_value_is(get_arg, OBJECT_FUNCTION)) {
-			FAIL("get argument passed to descriptor @init is not a function.");
-		}
+		assert(object_value_is(get_arg, OBJECT_FUNCTION));
+		// if (!object_value_is(get_arg, OBJECT_FUNCTION)) {
+		// 	FAIL("get argument passed to descriptor @init is not a function.");
+		// }
 		object_set_attribute_cstring_key((Object*) self, "@get", get_arg);
 	}
 
 	if (set_arg.type != VALUE_NIL) {
-		if (!object_value_is(set_arg, OBJECT_FUNCTION)) {
-			FAIL("set argument passed to descriptor @init is not a function.");
-		}
+		assert(object_value_is(set_arg, OBJECT_FUNCTION));
+		// if (!object_value_is(set_arg, OBJECT_FUNCTION)) {
+		// 	FAIL("set argument passed to descriptor @init is not a function.");
+		// }
 		object_set_attribute_cstring_key((Object*) self, "@set", set_arg);
 	}
 
@@ -389,9 +410,10 @@ ObjectInstance* object_descriptor_new(ObjectFunction* get, ObjectFunction* set) 
 	}
 	value_array_free(&args);
 
-	if (!is_value_instance_of_class(descriptor_val, "Descriptor")) {
-		FAIL("Descriptor instantiated isn't an instance of the Descriptor class.");
-	}
+	assert(is_value_instance_of_class(descriptor_val, "Descriptor"));
+	// if (!is_value_instance_of_class(descriptor_val, "Descriptor")) {
+	// 	FAIL("Descriptor instantiated isn't an instance of the Descriptor class.");
+	// }
 
 	return (ObjectInstance*) descriptor_val.as.object;
 }
@@ -461,9 +483,10 @@ ObjectClass* object_class_new(ObjectFunction* base_function, char* name) {
 ObjectClass* object_class_native_new(
 		char* name, size_t instance_size, DeallocationFunction dealloc_func, 
 		GcMarkFunction gc_mark_func, ObjectFunction* constructor, void* descriptors[][2]) {
-	if (instance_size <= 0) {
-		FAIL("instance_size <= passed for native class.");
-	}
+	assert(instance_size > 0);
+	// if (instance_size <= 0) {
+	// 	FAIL("instance_size <= passed for native class.");
+	// }
 
 	ObjectClass* klass = object_class_new_base(NULL, name, instance_size, dealloc_func, gc_mark_func);
 
@@ -639,14 +662,16 @@ static void print_function(ObjectFunction* function) {
 }
 
 void object_thread_push_eval_stack(ObjectThread* thread, Value value) {
-	if (thread->eval_stack_top - thread->eval_stack >= THREAD_EVAL_STACK_MAX) {
-		FAIL("Evaluation stack overflow");
-	}
+	assert(thread->eval_stack_top - thread->eval_stack < THREAD_EVAL_STACK_MAX);
+	// if (thread->eval_stack_top - thread->eval_stack >= THREAD_EVAL_STACK_MAX) {
+	// 	FAIL("Evaluation stack overflow");
+	// }
     *thread->eval_stack_top = value;
     thread->eval_stack_top++;
 }
 
 void object_thread_push_frame(ObjectThread* thread, StackFrame frame) {
+	/* TODO: Not a FAIL, but a boolean indicating success or failure or something */
 	if (thread->call_stack_top - thread->call_stack == THREAD_CALL_STACK_MAX) {
 		FAIL("Stack overflow.");
 	}
@@ -656,6 +681,7 @@ void object_thread_push_frame(ObjectThread* thread, StackFrame frame) {
 }
 
 StackFrame object_thread_pop_frame(ObjectThread* thread) {
+	/* TODO: Not a FAIL, but a boolean indicating success or failure or something */
 	if (thread->call_stack_top <= thread->call_stack) {
 		FAIL("Stack underflow.");
 	}
@@ -671,9 +697,10 @@ StackFrame* object_thread_peek_frame(ObjectThread* thread, int offset) {
 }
 
 Value object_thread_pop_eval_stack(ObjectThread* thread) {
-	if (thread->eval_stack_top <= thread->eval_stack) {
-		FAIL("Evaluation stack underflow");
-	}
+	assert(thread->eval_stack_top > thread->eval_stack);
+	// if (thread->eval_stack_top <= thread->eval_stack) {
+	// 	FAIL("Evaluation stack underflow");
+	// }
     thread->eval_stack_top--;
     return *thread->eval_stack_top;
 }
@@ -763,16 +790,18 @@ bool object_compare(Object* a, Object* b) {
 }
 
 ObjectFunction* object_as_function(Object* o) {
-	if (o->type != OBJECT_FUNCTION) {
-		FAIL("Object is not a function. Actual type: %d", o->type);
-	}
+	assert(o->type == OBJECT_FUNCTION);
+	// if (o->type != OBJECT_FUNCTION) {
+	// 	FAIL("Object is not a function. Actual type: %d", o->type);
+	// }
 	return (ObjectFunction*) o;
 }
 
 ObjectString* object_as_string(Object* o) {
-	if (o->type != OBJECT_STRING) {
-		FAIL("Object is not string. Actual type: %d", o->type);
-	}
+	assert(o->type == OBJECT_STRING);
+	// if (o->type != OBJECT_STRING) {
+	// 	FAIL("Object is not string. Actual type: %d", o->type);
+	// }
 	return (ObjectString*) o;
 }
 
@@ -914,9 +943,10 @@ void object_set_attribute_cstring_key(Object* object, const char* key, Value val
 }
 
 static Value function_value_to_bound_method(Value func_value, Object* self) {
-	if (!object_value_is(func_value, OBJECT_FUNCTION)) {
-		FAIL("Function-to-BoundMethod called with non function.");
-	}
+	assert(object_value_is(func_value, OBJECT_FUNCTION));
+	// if (!object_value_is(func_value, OBJECT_FUNCTION)) {
+	// 	FAIL("Function-to-BoundMethod called with non function.");
+	// }
 
 	ObjectFunction* function = (ObjectFunction*) func_value.as.object;
 	ObjectBoundMethod* bound_method = object_bound_method_new(function, self);

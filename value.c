@@ -25,11 +25,6 @@ void value_print(Value value) {
 			printf("\"%.*s\"", string.length, string.data);
 			return;
 		}
-        case VALUE_CHUNK: {
-        	Bytecode chunk = value.as.chunk;
-        	printf("< Chunk of size %d pointing at '%p' >", chunk.count, chunk.code);
-        	return;
-        }
         case VALUE_NIL: {
             printf("nil");
             return;
@@ -118,11 +113,6 @@ bool value_compare(Value a, Value b, int* output) {
 			return true;
 		}
 
-		case VALUE_CHUNK: {
-			FAIL("Attempting to compare chunks. Shouldn't happen.");
-			return false;
-		}
-
 		case VALUE_RAW_STRING: {
 			RawString s1 = a.as.raw_string;
 			RawString s2 = b.as.raw_string;
@@ -140,17 +130,14 @@ bool value_compare(Value a, Value b, int* output) {
 }
 
 bool value_hash(Value* value, unsigned long* result) {
-	switch (value->type) {
+	ValueType type = value->type;
+	switch (type) {
 		case VALUE_OBJECT: {
 			unsigned long hash;
 			if (object_hash(value->as.object, &hash)) {
 				*result = hash;
 				return true;
 			}
-			return false;
-		}
-		case VALUE_CHUNK: {
-			FAIL("Since Bytecode values aren't supposed to be reachable directly from user code, this should never happen.");
 			return false;
 		}
 		case VALUE_BOOLEAN: {

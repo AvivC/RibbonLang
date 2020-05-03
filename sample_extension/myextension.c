@@ -207,9 +207,10 @@ static bool more_talk_with_other_extension(Object* self, ValueArray args, Value*
     plane.vm_import_module_cstring("myuserextension");
     ObjectModule* other_extension = plane.vm_get_module_cstring("myuserextension");
 
-    if (other_extension == NULL) {
-        FAIL("Couldn't import myuserextension for some weird reason.");
-    }
+    assert(other_extension != NULL);
+    // if (other_extension == NULL) {
+    //     FAIL("Couldn't import myuserextension for some weird reason.");
+    // }
 
     Value mythinga_val;
     if (!plane.object_load_attribute_cstring_key((Object*) other_extension, "MyThingA", &mythinga_val)) {
@@ -228,22 +229,25 @@ static bool more_talk_with_other_extension(Object* self, ValueArray args, Value*
     plane.vm_instantiate_class(my_thing_a, mythinga_args, &instance_val);
     plane.value_array_free(&mythinga_args);
 
-    if (!plane.object_value_is(instance_val, OBJECT_INSTANCE)) {
-        FAIL("Instantiating MyThingA of myuserextension didn't return an instance or something.");
-    }
+    assert(plane.object_value_is(instance_val, OBJECT_INSTANCE));
+    // if (!plane.object_value_is(instance_val, OBJECT_INSTANCE)) {
+    //     FAIL("Instantiating MyThingA of myuserextension didn't return an instance or something.");
+    // }
 
     ObjectInstance* instance = (ObjectInstance*) instance_val.as.object;
 
-    if (strncmp(instance->klass->name, "MyThingA", instance->klass->name_length) != 0) {
-        FAIL("Class of instance is not MyThingA. Actual class name: %.*s", instance->klass->name_length, instance->klass->name);
-    }
+    assert(strncmp(instance->klass->name, "MyThingA", instance->klass->name_length) == 0);
+    // if (strncmp(instance->klass->name, "MyThingA", instance->klass->name_length) != 0) {
+    //     FAIL("Class of instance is not MyThingA. Actual class name: %.*s", instance->klass->name_length, instance->klass->name);
+    // }
 
     Value get_text_val;
     plane.object_load_attribute_cstring_key((Object*) instance, "get_text", &get_text_val);
 
-    if (!plane.object_value_is(get_text_val, OBJECT_BOUND_METHOD)) {
-        FAIL("get_text from MyThingA of myuserextension isn't a BoundMethod.");
-    }
+    assert(plane.object_value_is(get_text_val, OBJECT_BOUND_METHOD));
+    // if (!plane.object_value_is(get_text_val, OBJECT_BOUND_METHOD)) {
+    //     FAIL("get_text from MyThingA of myuserextension isn't a BoundMethod.");
+    // }
 
     ObjectBoundMethod* get_text = (ObjectBoundMethod*) get_text_val.as.object;
 
@@ -268,14 +272,16 @@ static bool more_talk_with_other_extension(Object* self, ValueArray args, Value*
     
     Value multiply_result;
     CallResult multiply_call_result = plane.vm_call_attribute_cstring((Object*) other_extension, "multiply", multiply_args, &multiply_result);
-    if (multiply_call_result != CALL_RESULT_SUCCESS) {
-        FAIL("Calling myuserextension::multiply failed for some reason. Failure code: %d", multiply_call_result);
-    }
+    assert(multiply_call_result == CALL_RESULT_SUCCESS);
+    // if (multiply_call_result != CALL_RESULT_SUCCESS) {
+    //     FAIL("Calling myuserextension::multiply failed for some reason. Failure code: %d", multiply_call_result);
+    // }
     plane.value_array_free(&multiply_args);
 
-    if (multiply_result.type != VALUE_NUMBER) {
-        FAIL("multiply() function of myuserextension returned something other than VALUE_NUMBER, and that's weird.");
-    }
+    assert(multiply_result.type == VALUE_NUMBER);
+    // if (multiply_result.type != VALUE_NUMBER) {
+    //     FAIL("multiply() function of myuserextension returned something other than VALUE_NUMBER, and that's weird.");
+    // }
 
     ObjectModule* math_module = plane.vm_get_module_cstring("math"); // The stdlib module written in Plane
     if (math_module == NULL) {
@@ -285,9 +291,10 @@ static bool more_talk_with_other_extension(Object* self, ValueArray args, Value*
         
         math_module = plane.vm_get_module_cstring("math");
 
-        if (math_module == NULL) {
-            FAIL("Module math is still NULL even though we imported it.");
-        }
+        assert(math_module != NULL);
+        // if (math_module == NULL) {
+        //     FAIL("Module math is still NULL even though we imported it.");
+        // }
     } else {
         FAIL("Module math isn't imported yet, should return NULL.");
     }

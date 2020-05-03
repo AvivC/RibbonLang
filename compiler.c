@@ -153,13 +153,15 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
             int num_params = node_function->parameters.count;
 
-            if (num_params > 65535) {
-            	// TODO: This should probably be a runtime error, not an assertion
-            	FAIL("Way too many function parameters: %d", num_params);
-            }
-            if (num_params < 0) {
-            	FAIL("Negative number of parameters... '%d'", num_params);
-            }
+			assert (num_params >= 0 && num_params < 65535);
+
+            // if (num_params > 65535) {
+            // 	// TODO: This should probably be a runtime error, not an assertion
+            // 	FAIL("Way too many function parameters: %d", num_params);
+            // }
+            // if (num_params < 0) {
+            // 	FAIL("Negative number of parameters... '%d'", num_params);
+            // }
 
             emit_short_as_two_bytes(bytecode, num_params);
 
@@ -236,9 +238,11 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         case AST_NODE_TABLE: {
         	AstNodeTable* node_table = (AstNodeTable*) node;
 
-        	if (node_table->pairs.count > 255) {
-        		FAIL("Currently not supporting table literals with more than 255 entries.");
-        	}
+			assert(node_table->pairs.count <= 255);
+
+        	// if (node_table->pairs.count > 255) {
+        	// 	FAIL("Currently not supporting table literals with more than 255 entries.");
+        	// }
 
 			for (int i = 0; i < node_table->pairs.count; i++) {
 				AstNodesKeyValuePair pair = node_table->pairs.values[i];

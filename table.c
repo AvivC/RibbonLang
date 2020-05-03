@@ -78,19 +78,23 @@ static bool is_empty(Entry* e) {
 static Entry* find_entry(Table* table, Value key) {
     unsigned long hash;
     if (!value_hash(&key, &hash)) {
-        FAIL("Couldn't hash in table::find_entry.");
+        FAIL("Couldn't hash in table::find_entry."); /* Temporary? */
     }
+    
+    size_t capacity = table->capacity;
+    Entry* entries = table->entries;
 
     // size_t slot = hash % table->capacity;
-    size_t slot = hash & (table->capacity - 1);
-    Entry* entry = &table->entries[slot];
+    size_t slot = hash & (capacity - 1);
+    // Entry* entry = &table->entries[slot];
+    Entry* entry = &entries[slot];
 
     Entry* tombstone = NULL;
 
     bool collision = false;
 
     while (true) {
-        assert(entry->tombstone == 1 || entry->tombstone == 0); /* Remove later */
+        assert(entry->tombstone == 1 || entry->tombstone == 0);
 
         if (is_empty(entry)) {
             if (entry->tombstone == 1) {
@@ -108,7 +112,8 @@ static Entry* find_entry(Table* table, Value key) {
         }
 
         collision = true;
-        entry = &table->entries[++slot % table->capacity];
+        // entry = &table->entries[++slot % table->capacity];
+        entry = &entries[++slot % capacity];
     }
 
     if (collision) {
@@ -139,13 +144,17 @@ static void grow_table(Table* table) {
 
     /* TODO: Grow to a prime number here? */
     table->capacity = table->capacity < 8 ? 8 : table->capacity * 2;;
+    // table->capacity = table->capacity < 4 ? 4 : table->capacity * 2;;
     table->count = 0;
     table->num_entries = 0;
     table->collision_count = 0;
     table->entries = allocate_suitably(table, table->capacity * sizeof(Entry), "Hash table array");
 
-    for (size_t i = 0; i < table->capacity; i++) {
-        table->entries[i] = (Entry) {.key = MAKE_VALUE_NIL(), .value = MAKE_VALUE_NIL(), .tombstone = 0};
+    size_t capacity = table->capacity;
+    Entry* entries = table->entries;
+
+    for (size_t i = 0; i < capacity; i++) {
+        entries[i] = (Entry) {.key = MAKE_VALUE_NIL(), .value = MAKE_VALUE_NIL(), .tombstone = 0};
     }
 
     for (size_t i = 0; i < old_capacity; i++) {
@@ -183,7 +192,7 @@ void table_set(Table* table, struct Value key, Value value) {
     }
 
     Entry* entry = find_entry(table, key);
-    assert(is_empty(entry) || keys_equal(entry->key, key)); /* Remove later */
+    assert(is_empty(entry) || keys_equal(entry->key, key));
 
     if (is_empty(entry)) {
         table->count++;
@@ -219,6 +228,29 @@ bool table_delete(Table* table, Value key) {
     table->num_entries--;
 
     return true;
+}
+
+/* A special-case route for cell_table.c solely for optimization reasons. */
+void table_set_value_in_cell(Table* table, Value key, Value value) {
+    if (table->count + 1 >= table->capacity * TABLE_LOAD_FACTOR) {
+        grow_table(table);
+    }
+
+    Entry* entry = find_entry(table, key);
+
+    assert(is_empty(entry) || keys_equal(entry->key, key));
+
+    if (is_empty(entry)) {
+        table->count++;
+        table->num_entries++;
+        entry->key = key;
+        entry->value = MAKE_VALUE_OBJECT(object_cell_new(value));
+    } else {
+        assert(object_value_is(entry->value, OBJECT_CELL));
+        ObjectCell* cell = (ObjectCell*) entry->value.as.object;
+        cell->value = value;
+        cell->is_filled = true;
+    }
 }
 
 void table_free(Table* table) {

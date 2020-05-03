@@ -165,9 +165,10 @@ Token scanner_peek_next_token() {
 }
 
 Token scanner_peek_token_at_offset(int offset) {
-	if (offset < 1) {
-		FAIL("peek_token_at_offset called with offset < 1.");
-	}
+    assert(offset >= 1);
+	// if (offset < 1) {
+	// 	FAIL("peek_token_at_offset called with offset < 1.");
+	// }
 
     // TODO: This approach is pretty awkward and can cause bugs later. Needs changing.
 

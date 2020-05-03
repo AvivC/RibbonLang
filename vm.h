@@ -34,6 +34,9 @@ typedef struct {
     size_t thread_creation_counter; /* For running-number thread names, used for debugging */
     size_t thread_opcode_counter; /* For thread scheduling */
 
+    Value* stack;
+    Value* stack_top;
+
     CellTable globals;
     CellTable imported_modules;
     CellTable builtin_modules;

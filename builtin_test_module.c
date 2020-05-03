@@ -6,10 +6,8 @@
 /* Functions for the _testing module, only for use in tests. Consider not creating _testing module in release build. */
 
 bool builtin_test_demo_print(Object* self, ValueArray args, Value* out) {
-    ObjectFunction* function = NULL;
-    if ((function = VALUE_AS_OBJECT(args.values[0], OBJECT_FUNCTION, ObjectFunction)) == NULL) {
-        FAIL("builtin_test_demo_print recieved non function as argument.");
-    }
+    assert(object_value_is(args.values[0], OBJECT_FUNCTION));
+    ObjectFunction* function = (ObjectFunction*) args.values[0].as.object;
 
     printf("I'm a native function\n");
 
@@ -26,14 +24,10 @@ bool builtin_test_demo_print(Object* self, ValueArray args, Value* out) {
 }
 
 bool builtin_test_call_callback_with_args(Object* self, ValueArray args, Value* out) {
-    if (args.count != 3) {
-        FAIL("builtin_test_call_callback_with_args didn't receive 3 arguments (callback, arg, arg).");
-    }
+    assert(args.count == 3);
 
-    ObjectFunction* callback = NULL;
-    if ((callback = VALUE_AS_OBJECT(args.values[0], OBJECT_FUNCTION, ObjectFunction)) == NULL) {
-        FAIL("builtin_test_demo_print_with_args recieved non function as first argument.");
-    }
+    assert(object_value_is(args.values[0], OBJECT_FUNCTION));
+    ObjectFunction* callback = (ObjectFunction*) args.values[0].as.object;
 
     Value arg1 = args.values[1];
     Value arg2 = args.values[2];

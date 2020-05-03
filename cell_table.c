@@ -7,15 +7,8 @@ void cell_table_init(CellTable* table) {
 }
 
 void cell_table_set_value(CellTable* table, ObjectString* key, Value value) {
-	ObjectCell* cell = NULL;
-	if (cell_table_get_cell(table, key, &cell)) {
-		cell->value = value;
-		if (!cell->is_filled) {
-			cell->is_filled = true;
-		}
-	} else {
-		cell_table_set_cell(table, key, object_cell_new(value));
-	}
+	/* Using special case route in table.c for optimization */
+	table_set_value_in_cell(&table->table, MAKE_VALUE_OBJECT(key), value);
 }
 
 bool cell_table_get_value(CellTable* table, struct ObjectString* key, Value* out) {
@@ -40,11 +33,8 @@ bool cell_table_get_cell(CellTable* table, struct ObjectString* key, struct Obje
 	Table* inner_table = &table->table;
 	Value current;
 	if (table_get(inner_table, MAKE_VALUE_OBJECT(key), &current)) {
-		struct ObjectCell* cell = NULL;
-		if ((cell = VALUE_AS_OBJECT(current, OBJECT_CELL, ObjectCell)) == NULL) {
-			FAIL("Found non ObjectCell* as a value in CellTable when getting value.");
-		}
-		*out = cell;
+		assert(object_value_is(current, OBJECT_CELL));
+		*out = (ObjectCell*) current.as.object;;
 		return true;
 	}
 
