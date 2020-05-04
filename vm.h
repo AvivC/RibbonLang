@@ -37,6 +37,8 @@ typedef struct {
     Value* stack;
     Value* stack_top;
 
+    uint8_t* ip;
+
     CellTable globals;
     CellTable imported_modules;
     CellTable builtin_modules;

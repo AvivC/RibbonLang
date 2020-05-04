@@ -33,6 +33,7 @@ static void set_current_thread(ObjectThread* thread) {
 	vm.current_thread = thread;
 	vm.stack = thread->eval_stack;
 	vm.stack_top = vm.stack;
+	vm.ip = thread->ip;
 }
 
 static StackFrame* current_frame(void) {
@@ -509,7 +510,8 @@ static bool call_native_function(ObjectFunction* function, Object* self, ValueAr
 	/* If the native function will end up calling a user function, the instruction
 	pointer will be moving forward. When we go back to this calling site, we have to
 	also remember to restore the instruction pointer. */
-	uint8_t* ip_before_call = current_thread()->ip;
+	// uint8_t* ip_before_call = current_thread()->ip;
+	uint8_t* ip_before_call = vm.ip;
 
 	Value result;
 	bool func_success = function->native_function(self, arguments, &result);
@@ -526,7 +528,8 @@ static bool call_native_function(ObjectFunction* function, Object* self, ValueAr
 	stack_frame_free(&used_frame);
 
 	/* restore ip position */
-	current_thread()->ip = ip_before_call;
+	// current_thread()->ip = ip_before_call;
+	vm.ip = ip_before_call;
 
 	return func_success;
 }
@@ -1064,6 +1067,11 @@ static CellTable find_free_vars_for_new_function(ObjectCode* func_code) {
 	return free_vars;
 }
 
+static uint8_t __attribute__ ((noinline)) read_byte(void) {
+// static uint8_t read_byte(void) {
+	return *current_thread()->ip++;
+}
+
 static bool vm_interpret_frame(StackFrame* frame) {
 	#define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
@@ -1115,14 +1123,17 @@ static bool vm_interpret_frame(StackFrame* frame) {
 
 	push_frame(*frame);
 
-	current_thread()->ip = current_frame()->function->code->bytecode.code;
+	// current_thread()->ip = current_frame()->function->code->bytecode.code;
+	vm.ip = current_frame()->function->code->bytecode.code;;
 
 	bool is_executing = true;
 	bool runtime_error_occured = false;
 
-	uint8_t* ip = current_thread()->ip;
+	// uint8_t* ip = current_thread()->ip;
 
-	#define READ_BYTE() (*current_thread()->ip++)
+	// #define READ_BYTE() (*current_thread()->ip++)
+	#define READ_BYTE() (*vm.ip++)
+	// #define READ_BYTE() (read_byte())
 	// #define READ_BYTE() (*ip++)
 	#define READ_CONSTANT() (current_bytecode()->constants.values[READ_BYTE()])
 
@@ -1135,7 +1146,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
     	OP_CODE opcode = READ_BYTE();
         
 		#if DEBUG_TRACE_EXECUTION
-			disassembler_do_single_instruction(opcode, current_bytecode(), current_thread()->ip - 1 - current_bytecode()->code);
+			// disassembler_do_single_instruction(opcode, current_bytecode(), current_thread()->ip - 1 - current_bytecode()->code);
+			disassembler_do_single_instruction(opcode, current_bytecode(), vm.ip - 1 - current_bytecode()->code);
 
 			Value* eval_stack = vm.stack;
 			Value* stack_top = vm.stack_top;
@@ -1176,7 +1188,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
 		#if DEBUG_THREADING
 			#if !DEBUG_TRACE_EXECUTION
 				printf("--------------------------\n");	
-				disassembler_do_single_instruction(opcode, current_bytecode(), current_thread()->ip - 1 - current_bytecode()->code);
+				// disassembler_do_single_instruction(opcode, current_bytecode(), current_thread()->ip - 1 - current_bytecode()->code);
+				disassembler_do_single_instruction(opcode, current_bytecode(), vm.ip - 1 - current_bytecode()->code);
 			#endif
 
 			DEBUG_THREADING_PRINT("Current thread:\n        ");
@@ -1477,7 +1490,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
 					vm.threads = NULL;
 					vm.current_thread = NULL;
                 } else {
-                	current_thread()->ip = frame->return_address;
+                	// current_thread()->ip = frame->return_address;
+                	vm.ip = frame->return_address;
                 }
 
 				is_executing = false;
@@ -1730,7 +1744,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				ERROR_IF_NON_BOOLEAN(condition, "Expected boolean as condition");
 
 				if (!condition.as.boolean) {
-					current_thread()->ip = current_bytecode()->code + address;
+					// current_thread()->ip = current_bytecode()->code + address;
+					vm.ip = current_bytecode()->code + address;
 				}
 
 				break;
@@ -1741,7 +1756,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
             	uint8_t addr_byte2 = READ_BYTE();
             	uint16_t address = two_bytes_to_short(addr_byte1, addr_byte2);
 
-            	current_thread()->ip = current_bytecode()->code + address;
+            	// current_thread()->ip = current_bytecode()->code + address;
+            	vm.ip = current_bytecode()->code + address;
 
             	break;
             }
@@ -1781,7 +1797,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
 			}
 
             default: {
-            	FAIL("Unknown opcode: %d. At ip: %p", opcode, current_thread()->ip - 1);
+            	// FAIL("Unknown opcode: %d. At ip: %p", opcode, current_thread()->ip - 1);
+            	FAIL("Unknown opcode: %d. At ip: %p", opcode, vm.ip - 1);
             }
         }
 
@@ -1808,7 +1825,8 @@ static bool call_plane_function_custom_frame(
 		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity, Value* out) {
 	ObjectThread* thread = current_thread();
 	bool is_entity_base = base_entity != NULL;
-	StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false, false);
+	// StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false, false);
+	StackFrame frame = new_stack_frame(vm.ip, function, base_entity, is_entity_base, false, false);
 
 	assert(args.count == function->num_params);
 
