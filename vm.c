@@ -31,8 +31,8 @@ static ObjectThread* current_thread(void) {
 
 static void set_current_thread(ObjectThread* thread) {
 	vm.current_thread = thread;
-	vm.stack = thread->eval_stack;
-	vm.stack_top = vm.stack;
+	// vm.stack = thread->eval_stack;
+	// vm.stack_top = vm.stack;
 	vm.ip = thread->ip;
 }
 
@@ -590,6 +590,7 @@ void vm_init(void) {
 	vm.thread_creation_counter = 0;
 	vm.thread_opcode_counter = 0;
 
+	vm.stack_top = vm.stack;
 	vm.call_stack_top = vm.call_stack;
 
     vm.num_objects = 0;
@@ -1859,7 +1860,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
 
 static bool call_plane_function_custom_frame(
 		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity, Value* out) {
-	ObjectThread* thread = current_thread();
+	// ObjectThread* thread = current_thread();
 	bool is_entity_base = base_entity != NULL;
 	// StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false, false);
 	StackFrame frame = new_stack_frame(vm.ip, function, base_entity, is_entity_base, false, false);

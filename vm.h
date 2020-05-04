@@ -27,6 +27,7 @@ typedef enum {
 } ImportResult;
 
 #define CALL_STACK_MAX 255
+#define EVAL_STACK_MAX 255
 
 typedef struct {
 	Object* objects;
@@ -36,7 +37,7 @@ typedef struct {
     size_t thread_creation_counter; /* For running-number thread names, used for debugging */
     size_t thread_opcode_counter; /* For thread scheduling */
 
-    Value* stack;
+    Value stack[EVAL_STACK_MAX];
     Value* stack_top;
     StackFrame call_stack[CALL_STACK_MAX];
     StackFrame* call_stack_top;
