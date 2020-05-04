@@ -63,7 +63,8 @@ typedef struct ObjectCell {
 typedef struct ObjectFunction {
     Object base;
     char* name;
-    char** parameters;
+    // char** parameters;
+	ObjectString** parameters;
     int num_params;
     bool is_native;
     CellTable free_vars;
@@ -143,9 +144,12 @@ ObjectString* object_string_take(char* chars, int length);
 ObjectString* object_string_clone(ObjectString* original);
 ObjectString** object_create_copied_strings_array(const char** strings, int num, const char* allocDescription);
 ObjectString* object_string_copy_from_null_terminated(const char* string);
+ObjectString* object_string_new_partial_from_null_terminated(char* chars);
 
-ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, CellTable free_vars);
-ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams);
+// ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, CellTable free_vars);
+ObjectFunction* object_user_function_new(ObjectCode* code, ObjectString** parameters, int numParams, CellTable free_vars);
+// ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams);
+ObjectFunction* object_native_function_new(NativeFunction nativeFunction, ObjectString** parameters, int numParams);
 void object_function_set_name(ObjectFunction* function, char* name);
 ObjectFunction* make_native_function_with_params(char* name, int num_params, char** params, NativeFunction function);
 

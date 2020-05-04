@@ -24,6 +24,7 @@ PlaneApi API = {
     .object_string_take = object_string_take,
     .object_string_copy_from_null_terminated = object_string_copy_from_null_terminated,
     .object_string_clone = object_string_clone,
+    .object_string_new_partial_from_null_terminated = object_string_new_partial_from_null_terminated,
     .object_strings_equal = object_strings_equal,
     .cstrings_equal = cstrings_equal,
     .value_array_init = value_array_init,

@@ -21,7 +21,8 @@ typedef struct {
     void (*deallocate) (void* pointer, size_t oldSize, const char* what);
     void* (*reallocate) (void* pointer, size_t oldSize, size_t newSize, const char* what);
 
-    ObjectFunction* (*object_native_function_new) (NativeFunction nativeFunction, char** parameters, int numParams);
+    // ObjectFunction* (*object_native_function_new) (NativeFunction nativeFunction, char** parameters, int numParams);
+    ObjectFunction* (*object_native_function_new) (NativeFunction nativeFunction, ObjectString** parameters, int numParams);
     ObjectFunction* (*make_native_function_with_params) (char* name, int num_params, char** params, NativeFunction function);
 
     ObjectClass* (*object_class_native_new) (char* name, size_t instance_size, DeallocationFunction dealloc_func,
@@ -33,6 +34,7 @@ typedef struct {
     ObjectString* (*object_string_take) (char* chars, int length);
     ObjectString* (*object_string_copy_from_null_terminated) (const char* string);
     ObjectString* (*object_string_clone) (ObjectString* original);
+    ObjectString* (*object_string_new_partial_from_null_terminated) (char* chars);
     bool (*object_strings_equal) (ObjectString* a, ObjectString* b);
     bool (*cstrings_equal) (const char* s1, int length1, const char* s2, int length2);
 

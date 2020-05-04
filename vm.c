@@ -233,6 +233,12 @@ static void gc_mark_function_free_vars(ObjectFunction* function) {
 
 static void gc_mark_object_function(Object* object) {
 	ObjectFunction* function = OBJECT_AS_FUNCTION(object);
+
+	for (int i = 0; i < function->num_params; i++) {
+		ObjectString* param = function->parameters[i];
+		gc_mark_object((Object*) param);
+	}
+
 	if (!function->is_native) {
 		ObjectCode* code_object = function->code;
 		gc_mark_object((Object*) code_object);
@@ -1424,12 +1430,14 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				uint16_t num_params = two_bytes_to_short(num_params_byte1, num_params_byte2);
 
 				/* Build the params array for the created function */
-				char** params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+				// char** params = allocate(sizeof(char*) * num_params, "Parameters list strings");
+				ObjectString** params = allocate(sizeof(ObjectString*) * num_params, "Parameters list strings");
 				for (int i = 0; i < num_params; i++) {
 					Value param_value = READ_CONSTANT();
 					assert(object_value_is(param_value, OBJECT_STRING));
 					ObjectString* param_object_string = (ObjectString*) param_value.as.object;
-					params[i] = copy_cstring(param_object_string->chars, param_object_string->length, "ObjectFunction param cstring");
+					// params[i] = copy_cstring(param_object_string->chars, param_object_string->length, "ObjectFunction param cstring");
+					params[i] = param_object_string;
 				}
 
 				CellTable new_function_free_vars = find_free_vars_for_new_function(object_code);
@@ -1805,9 +1813,11 @@ static bool call_plane_function_custom_frame(
 	assert(args.count == function->num_params);
 
 	for (int i = 0; i < function->num_params; i++) {
-		const char* param_name = function->parameters[i];
+		// const char* param_name = function->parameters[i];
+		ObjectString* param_name = function->parameters[i];
 		Value argument = args.values[i];
-		cell_table_set_value_cstring_key(&frame.local_variables, param_name, argument);
+		// cell_table_set_value_cstring_key(&frame.local_variables, param_name, argument);
+		cell_table_set_value(&frame.local_variables, param_name, argument);
 	}
 
 	if (self != NULL) {

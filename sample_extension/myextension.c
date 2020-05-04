@@ -328,9 +328,12 @@ MYEXTENSIONAPI bool plane_module_init(PlaneApi api, ObjectModule* module) {
     this = module;
 
     #ifdef EXTENSION_1
-    char** multiply_params = api.allocate(sizeof(char*) * 2, "Parameters list cstrings");
-    multiply_params[0] = api.copy_null_terminated_cstring("x", "ObjectFunction param cstring");
-    multiply_params[1] = api.copy_null_terminated_cstring("y", "ObjectFunction param cstring");
+    // char** multiply_params = api.allocate(sizeof(char*) * 2, "Parameters list strings");
+    ObjectString** multiply_params = api.allocate(sizeof(ObjectString*) * 2, "Parameters list strings");
+    // multiply_params[0] = api.copy_null_terminated_cstring("x", "ObjectFunction param cstring");
+    multiply_params[0] = api.object_string_new_partial_from_null_terminated("x");
+    // multiply_params[1] = api.copy_null_terminated_cstring("y", "ObjectFunction param cstring");
+    multiply_params[1] = api.object_string_new_partial_from_null_terminated("y");
     
     ObjectFunction* multiply_function = api.object_native_function_new(multiply, multiply_params, 2);
     Value multiply_func_value = MAKE_VALUE_OBJECT(multiply_function);
@@ -355,8 +358,10 @@ MYEXTENSIONAPI bool plane_module_init(PlaneApi api, ObjectModule* module) {
     Value more_talk_func_value = MAKE_VALUE_OBJECT(more_talk_func);
     api.object_set_attribute_cstring_key((Object*) module, "more_talk_with_other_extension", more_talk_func_value);   
 
-    char** squared_params = api.allocate(sizeof(char*) * 1, "Parameters list cstrings");
-    squared_params[0] = api.copy_null_terminated_cstring("number", "ObjectFunction param cstring");
+    // char** squared_params = api.allocate(sizeof(char*) * 1, "Parameters list strings");
+    ObjectString** squared_params = api.allocate(sizeof(char*) * 1, "Parameters list strings");
+    // squared_params[0] = api.copy_null_terminated_cstring("number", "ObjectFunction param cstring");
+    squared_params[0] = api.object_string_new_partial_from_null_terminated("number");
 
     ObjectFunction* sqr_function = api.object_native_function_new(square, squared_params, 1);
     Value sqr_func_value = MAKE_VALUE_OBJECT(sqr_function);

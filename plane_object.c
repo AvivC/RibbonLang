@@ -31,14 +31,15 @@ bool object_value_is(Value value, ObjectType type) {
 	return value.type == VALUE_OBJECT && value.as.object->type == type;
 }
 
-static void set_object_native_method(Object* object, const char* method_name, char** params, int num_params, NativeFunction function) {
-	char** copied_params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+static void set_object_native_method(Object* object, char* method_name, char** params, int num_params, NativeFunction function) {
+	// char** copied_params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 
-	for (int i = 0; i < num_params; i++) {
-		copied_params[i] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
-	}
+	// for (int i = 0; i < num_params; i++) {
+	// 	copied_params[i] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
+	// }
 
-	ObjectFunction* method = object_native_function_new(function, copied_params, num_params);
+	// ObjectFunction* method = object_native_function_new(function, copied_params, num_params);
+	ObjectFunction* method = make_native_function_with_params(method_name, num_params, params, function);
 	ObjectBoundMethod* bound_method = object_bound_method_new(method, object);
 	object_set_attribute_cstring_key(object, method_name, MAKE_VALUE_OBJECT(bound_method));
 }
@@ -222,6 +223,10 @@ static ObjectString* object_string_new_partial(char* chars, int length) {
 	return string;
 }
 
+ObjectString* object_string_new_partial_from_null_terminated(char* chars) {
+	return object_string_new_partial(chars, strlen(chars));
+}
+
 static ObjectString* object_string_new(char* chars, int length) {
     ObjectString* string = new_bare_string(chars, length);
 
@@ -297,7 +302,8 @@ bool object_strings_equal(ObjectString* a, ObjectString* b) {
     return (a->length == b->length) && (object_cstrings_equal(a->chars, b->chars, a->length));
 }
 
-static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, CellTable free_vars) {
+// static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, CellTable free_vars) {
+static ObjectFunction* object_function_base_new(bool isNative, ObjectString** parameters, int numParams, CellTable free_vars) {
     ObjectFunction* objFunc = (ObjectFunction*) allocate_object(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
     objFunc->name = copy_null_terminated_cstring("<Anonymous function>", "Function name");
     objFunc->is_native = isNative;
@@ -307,14 +313,16 @@ static ObjectFunction* object_function_base_new(bool isNative, char** parameters
     return objFunc;
 }
 
-ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, CellTable free_vars) {
+// ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, CellTable free_vars) {
+ObjectFunction* object_user_function_new(ObjectCode* code, ObjectString** parameters, int numParams, CellTable free_vars) {
     DEBUG_OBJECTS_PRINT("Creating user function object.");
     ObjectFunction* objFunc = object_function_base_new(false, parameters, numParams, free_vars);
     objFunc->code = code;
     return objFunc;
 }
 
-ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams) {
+// ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams) {
+ObjectFunction* object_native_function_new(NativeFunction nativeFunction, ObjectString** parameters, int numParams) {
     DEBUG_OBJECTS_PRINT("Creating native function object.");
     ObjectFunction* objFunc = object_function_base_new(true, parameters, numParams, cell_table_new_empty());
     objFunc->native_function = nativeFunction;
@@ -325,9 +333,12 @@ ObjectFunction* make_native_function_with_params(char* name, int num_params, cha
 	/* name must be null terminated. It is copied and ObjectFunction takes ownership over the copy.
 	Can simply be a literal. Otherwise caller must free it later. */
 
-	char** params_buffer = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+	// char** params_buffer = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
+	ObjectString** params_buffer = allocate(sizeof(ObjectString*) * num_params, "Parameters list strings");
 	for (int i = 0; i < num_params; i++) {
-		params_buffer[i] = copy_cstring(params[i], strlen(params[i]), "ObjectFunction param cstring");
+		// params_buffer[i] = copy_cstring(params[i], strlen(params[i]), "ObjectFunction param cstring");
+		// params_buffer[i] = object_string_copy_from_null_terminated(params[i]);
+		params_buffer[i] = object_string_new_partial_from_null_terminated(params[i]);
 	}
 	ObjectFunction* func = object_native_function_new(function, params_buffer, num_params);
 	name = copy_null_terminated_cstring(name, "Function name");
@@ -568,12 +579,12 @@ void object_free(Object* o) {
 			} else {
 				DEBUG_OBJECTS_PRINT("Freeing user ObjectFunction");
 			}
-            for (int i = 0; i < func->num_params; i++) {
-            	char* param = func->parameters[i];
-				deallocate(param, strlen(param) + 1, "ObjectFunction param cstring");
-			}
+            // for (int i = 0; i < func->num_params; i++) {
+            // 	char* param = func->parameters[i];
+			// 	deallocate(param, strlen(param) + 1, "ObjectFunction param cstring");
+			// }
             if (func->num_params > 0) {
-            	deallocate(func->parameters, sizeof(char*) * func->num_params, "Parameters list cstrings");
+            	deallocate(func->parameters, sizeof(ObjectString*) * func->num_params, "Parameters list strings");
             }
             cell_table_free(&func->free_vars);
             deallocate(func->name, strlen(func->name) + 1, "Function name");
