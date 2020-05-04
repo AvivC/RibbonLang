@@ -12,9 +12,9 @@ typedef struct {
 } Entry;
 
 typedef struct {
-    size_t capacity;
-    size_t count;
-    size_t num_entries;
+    size_t capacity; /* Capacity of current underlying entries array */
+    size_t count; /* Number of entries + tombstones, for determining when to grow */
+    size_t num_entries; /* Number of logical entries */
     Entry* entries;
     bool is_memory_infrastructure;
     bool is_growing; /* For debugging */

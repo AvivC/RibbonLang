@@ -7,6 +7,7 @@
 
 /* For debugging */
 static size_t times_called = 0;
+static size_t times_called_and_found = 0;
 static size_t capacity_sum = 0;
 static size_t max_capacity = 0;
 static size_t bucket_sum = 0;
@@ -14,17 +15,32 @@ static size_t avg_bucket_count = 0;
 static size_t entries_sum = 0;
 static size_t avg_entries_sum = 0;
 static double avg_capacity = 0;
+
 static size_t total_collision_count = 0;
 static double avg_collision_count = 0;
+
+static size_t table_iterate_times_called = 0;
+static size_t table_iterate_length_sum = 0;
+static double avg_table_iterate_length = 0;
+static size_t max_table_iterate_length = 0;
 /* ..... */
 
 void table_debug_print_general_stats(void) {
-    printf("Times called: %" PRI_SIZET "\n", times_called);
+    printf("find_entry times called: %" PRI_SIZET "\n", times_called);
+    printf("find_entry times called and found: %" PRI_SIZET "\n", times_called_and_found);
+
     printf("Sum capacity: %" PRI_SIZET "\n", capacity_sum);
     printf("Avg capacity: %g\n", avg_capacity);
     printf("Max capacity: %" PRI_SIZET "\n", max_capacity);
+
     printf("Total collison count: %" PRI_SIZET "\n", total_collision_count);
-    printf("Avg collison count: %lf\n", avg_collision_count);
+    printf("Avg collison count: %g\n", avg_collision_count);
+    printf("Collision count / times called and found: %g\n", (double) total_collision_count / (double) times_called_and_found);
+
+    printf("table_iterate times called: %" PRI_SIZET "\n", table_iterate_times_called);
+    printf("Sum table_iterate lengths: %" PRI_SIZET "\n", table_iterate_length_sum);
+    printf("Avg table_iterate length: %g\n", avg_table_iterate_length);
+    printf("Max table_iterate length: %" PRI_SIZET "\n", max_table_iterate_length);
 }
 
 #endif
@@ -121,14 +137,18 @@ static Entry* find_entry(Table* table, Value key) {
     }
 
     #if DEBUG_TABLE_STATS
-    total_collision_count += table->collision_count;
+    // total_collision_count += table->collision_count;
+    total_collision_count += collision ? 1 : 0;
     times_called++;
+    if (!is_empty(entry)) {
+        times_called_and_found++;
+    }
     capacity_sum += table->capacity;
-    avg_capacity = capacity_sum / times_called;
+    avg_capacity = (double) capacity_sum / (double) times_called;
     if (table->capacity > max_capacity) {
         max_capacity = table->capacity;
     }
-    avg_collision_count = total_collision_count / times_called;
+    avg_collision_count = (double) total_collision_count / (double) times_called;
     #endif
 
     return entry;
@@ -144,7 +164,6 @@ static void grow_table(Table* table) {
 
     /* TODO: Grow to a prime number here? */
     table->capacity = table->capacity < 8 ? 8 : table->capacity * 2;;
-    // table->capacity = table->capacity < 4 ? 4 : table->capacity * 2;;
     table->count = 0;
     table->num_entries = 0;
     table->collision_count = 0;
@@ -160,6 +179,7 @@ static void grow_table(Table* table) {
     for (size_t i = 0; i < old_capacity; i++) {
         Entry* old_entry = &old_entries[i];
         if (!is_empty(old_entry)) {
+            assert(old_entry->tombstone == 0);
             table_set(table, old_entry->key, old_entry->value);
         }
     }
@@ -201,6 +221,7 @@ void table_set(Table* table, struct Value key, Value value) {
     }
 
     entry->value = value;
+    entry->tombstone = 0;
 }
 
 bool table_get_cstring_key(Table* table, const char* key, Value* out) {
@@ -245,8 +266,11 @@ void table_set_value_in_cell(Table* table, Value key, Value value) {
         table->num_entries++;
         entry->key = key;
         entry->value = MAKE_VALUE_OBJECT(object_cell_new(value));
+        entry->tombstone = 0;
     } else {
+        assert(entry->tombstone == 0);
         assert(object_value_is(entry->value, OBJECT_CELL));
+
         ObjectCell* cell = (ObjectCell*) entry->value.as.object;
         cell->value = value;
         cell->is_filled = true;
@@ -264,10 +288,23 @@ PointerArray table_iterate(Table* table, const char* alloc_string) {
 
     for (size_t i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
+
         if (!is_empty(entry)) {
+            assert(entry->tombstone == 0);
             pointer_array_write(&array, entry);
         }
     }
+
+    #if DEBUG_TABLE_STATS
+
+    table_iterate_times_called++;
+    table_iterate_length_sum += array.count;
+    avg_table_iterate_length = (double) table_iterate_length_sum / (double) table_iterate_times_called;
+    if (array.count > max_table_iterate_length) {
+        max_table_iterate_length = array.count;
+    }
+
+    #endif
 
 	return array;
 }

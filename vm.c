@@ -164,21 +164,21 @@ static Value load_variable(ObjectString* name) {
 static void gc_mark_object(Object* object);
 
 static void gc_mark_table(Table* table) {
-	PointerArray entries = table_iterate(table, "gc mark table_iterate buffer");
+	/* Gross breaking of table.c encapsulation here, soley for improving proven performance problems. */
 
-	for (int i = 0; i < entries.count; i++) {
-		// Node* entry = entries.values[i];
-		Entry* entry = entries.values[i];
+	Entry* entries = table->entries;
+	size_t count = table->capacity;
 
-		if (entry->value.type == VALUE_OBJECT) {
-			gc_mark_object(entry->value.as.object);
-		}
-		if (entry->key.type == VALUE_OBJECT) {
-			gc_mark_object(entry->key.as.object);
+	for (Entry* entry = entries; entry - entries < count; entry++) {
+		if (entry->key.type != VALUE_NIL && entry->tombstone == 0) {
+			if (entry->value.type == VALUE_OBJECT) {
+				gc_mark_object(entry->value.as.object);
+			}
+			if (entry->key.type == VALUE_OBJECT) {
+				gc_mark_object(entry->key.as.object);
+			}
 		}
 	}
-
-	pointer_array_free(&entries);
 }
 
 static void gc_mark_object_code(Object* object) {
@@ -563,7 +563,7 @@ static void set_class_name(const Value* class_value, ObjectString* name) {
 	object_class_set_name(klass, new_cstring_name, strlen(new_cstring_name));
 }
 
-static bool call_plane_function_custom_frame(
+static bool call_plane_function(
 		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity, Value* out);
 
 static ImportResult load_text_module(ObjectString* module_name, const char* file_name_buffer) {
@@ -600,7 +600,7 @@ static ImportResult load_text_module(ObjectString* module_name, const char* file
 			ValueArray args;
 			value_array_init(&args);
 			Value throwaway_result;
-			call_plane_function_custom_frame(module_base_function, NULL, args, (Object*) module, &throwaway_result);
+			call_plane_function(module_base_function, NULL, args, (Object*) module, &throwaway_result);
 			value_array_free(&args);
 
 			cell_table_set_value(locals_or_module_table(), module_name, MAKE_VALUE_OBJECT(module));
@@ -611,18 +611,12 @@ static ImportResult load_text_module(ObjectString* module_name, const char* file
 			return IMPORT_RESULT_SUCCESS;
 		}
 		case IO_CLOSE_FILE_FAILURE: {
-			// *error_out = "Failed to close file while loading module.";
-			// return false;
 			return IMPORT_RESULT_CLOSE_FAILED;
 		}
 		case IO_READ_FILE_FAILURE: {
-			// *error_out = "Failed to read file while loading module.";
-			// return false;
 			return IMPORT_RESULT_READ_FAILED;
 		}
 		case IO_OPEN_FILE_FAILURE: {
-			// *error_out = "Failed to open file while loading module.";
-			// return false;
 			return IMPORT_RESULT_OPEN_FAILED;
 		}
 		case IO_WRITE_FILE_FAILURE: {
@@ -639,27 +633,39 @@ static ImportResult load_text_module(ObjectString* module_name, const char* file
 	return IMPORT_RESULT_READ_FAILED;
 }
 
-static bool call_plane_function(ObjectFunction* function, Object* self, ValueArray args, Value* out);
+static bool call_plane_function_leave_on_stack(
+		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity);
 
-CallResult vm_call_function(ObjectFunction* function, ValueArray args, Value* out) {
+static CallResult call_function_leave_on_stack(ObjectFunction* function, ValueArray args) {
 	if (args.count != function->num_params) {
 		return CALL_RESULT_INVALID_ARGUMENT_COUNT;
 	}
 
 	if (function->is_native) {
-		if (call_native_function(function, NULL, args, out)) {
+		Value out;
+		if (call_native_function(function, NULL, args, &out)) {
+			push(out);
 			return CALL_RESULT_SUCCESS;
 		}
+		/* Push nil here? We are very incosistent about it throughout the system. */
 		return CALL_RESULT_NATIVE_EXECUTION_FAILED;
 	}
 
-	if (call_plane_function(function, NULL, args, out)) {
+	if (call_plane_function_leave_on_stack(function, NULL, args, NULL)) {
 		return CALL_RESULT_SUCCESS;
 	}
 	return CALL_RESULT_PLANE_CODE_EXECUTION_FAILED;
 }
 
-CallResult vm_call_bound_method(ObjectBoundMethod* bound_method, ValueArray args, Value* out) {
+CallResult vm_call_function(ObjectFunction* function, ValueArray args, Value* out) {
+	CallResult result = call_function_leave_on_stack(function, args);
+	if (result == CALL_RESULT_SUCCESS) {
+		*out = pop();
+	}
+	return result;
+}
+
+static CallResult call_bound_method_leave_on_stack(ObjectBoundMethod* bound_method, ValueArray args) {
 	ObjectFunction* method = bound_method->method;
 
 	if (method->num_params != args.count) {
@@ -667,21 +673,30 @@ CallResult vm_call_bound_method(ObjectBoundMethod* bound_method, ValueArray args
 	}
 
 	if (method->is_native) {
-		if (call_native_function(method, bound_method->self, args, out)) {
+		Value out;
+		if (call_native_function(method, bound_method->self, args, &out)) {
+			push(out);
 			return CALL_RESULT_SUCCESS;
 		}
 		return CALL_RESULT_NATIVE_EXECUTION_FAILED;
 	}
 
-	if (call_plane_function(method, bound_method->self, args, out)) {
+	if (call_plane_function_leave_on_stack(method, bound_method->self, args, NULL)) {
 		return CALL_RESULT_SUCCESS;
 	}
 	return CALL_RESULT_PLANE_CODE_EXECUTION_FAILED;
 }
 
-CallResult vm_instantiate_class(ObjectClass* klass, ValueArray args, Value* out) {
-	/* TODO: Somehow out argument as Object**, not Value*? */
+CallResult vm_call_bound_method(ObjectBoundMethod* bound_method, ValueArray args, Value* out) {
+	CallResult result = call_bound_method_leave_on_stack(bound_method, args);
+	if (result == CALL_RESULT_SUCCESS) {
+		*out = pop();
+	}
+	return result;
+}
 
+
+static CallResult instantiate_class_leave_on_stack(ObjectClass* klass, ValueArray args) {
 	ObjectInstance* instance = object_instance_new(klass);
 
 	Value init_method_value;
@@ -693,9 +708,6 @@ CallResult vm_instantiate_class(ObjectClass* klass, ValueArray args, Value* out)
 
 		Object* self = init_bound_method->self;
 		assert(self == (Object*) instance);
-		// if (self != (Object*) instance) {
-		// 	FAIL("When instantiating class, bound method's self and subject instance are different.");
-		// }
 
 		Value throwaway;
 		CallResult call_result = vm_call_bound_method(init_bound_method, args, &throwaway);
@@ -707,8 +719,17 @@ CallResult vm_instantiate_class(ObjectClass* klass, ValueArray args, Value* out)
 	}
 
 	instance->is_initialized = true;
-	*out = MAKE_VALUE_OBJECT(instance);
+	push(MAKE_VALUE_OBJECT(instance));
 	return CALL_RESULT_SUCCESS;
+}
+
+CallResult vm_instantiate_class(ObjectClass* klass, ValueArray args, Value* out) {
+	/* TODO: Somehow out argument as Object**, not Value*? */
+	CallResult result = instantiate_class_leave_on_stack(klass, args);
+	if (result == CALL_RESULT_SUCCESS) {
+		*out = pop();
+	}
+	return result;
 }
 
 CallResult vm_instantiate_class_no_args(ObjectClass* klass, Value* out) {
@@ -726,6 +747,19 @@ CallResult vm_call_object(Object* object, ValueArray args, Value* out) {
 			return vm_call_bound_method((ObjectBoundMethod*) object, args, out);
 		case OBJECT_CLASS:
 			return vm_instantiate_class((ObjectClass*) object, args, out);
+		default:
+			return CALL_RESULT_INVALID_CALLABLE;	
+	}
+}
+
+static CallResult call_object_leave_on_stack(Object* object, ValueArray args) {
+	switch (object->type) {
+		case OBJECT_FUNCTION:
+			return call_function_leave_on_stack((ObjectFunction*) object, args);
+		case OBJECT_BOUND_METHOD:
+			return call_bound_method_leave_on_stack((ObjectBoundMethod*) object, args);
+		case OBJECT_CLASS:
+			return instantiate_class_leave_on_stack((ObjectClass*) object, args);
 		default:
 			return CALL_RESULT_INVALID_CALLABLE;	
 	}
@@ -802,9 +836,6 @@ ImportResult vm_import_module(ObjectString* module_name) {
 	bool module_already_imported = cell_table_get_value(&vm.imported_modules, module_name, &module_value);
 	if (module_already_imported) {
 		assert(object_value_is(module_value, OBJECT_MODULE));
-		// if (!object_value_is(module_value, OBJECT_MODULE)) {
-		// 	FAIL("Non ObjectModule found in global module cache.");
-		// }
 		
 		cell_table_set_value(locals_or_module_table(), module_name, module_value);
 
@@ -1302,7 +1333,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				ValueArray args;
 				value_array_init(&args);
 				Value throwaway_result;
-				call_plane_function_custom_frame(class_base_function, NULL, args, (Object*) class, &throwaway_result);
+				call_plane_function(class_base_function, NULL, args, (Object*) class, &throwaway_result);
 				value_array_free(&args);
 
 				push(MAKE_VALUE_OBJECT(class));
@@ -1424,13 +1455,12 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				Object* callee = callee_value.as.object;
 
 				ValueArray args = collect_values(arg_count);
-				Value return_value;
-				CallResult call_result = vm_call_object(callee, args, &return_value);
+				CallResult call_result = call_object_leave_on_stack(callee, args);
 				value_array_free(&args);
 
 				switch (call_result) {
 					case CALL_RESULT_SUCCESS: {
-						push(return_value);
+						/* Return value is already on the stack */
 						break;
 					}
 					case CALL_RESULT_INVALID_ARGUMENT_COUNT: {
@@ -1684,8 +1714,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
     return !runtime_error_occured;
 }
 
-static bool call_plane_function_custom_frame(
-		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity, Value* out) {
+static bool call_plane_function_leave_on_stack(
+		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity) {
 	bool is_entity_base = base_entity != NULL;
 	StackFrame frame = new_stack_frame(vm.ip, function, base_entity, is_entity_base, false, false);
 
@@ -1702,16 +1732,18 @@ static bool call_plane_function_custom_frame(
 	}
 
 	if (vm_interpret_frame(&frame)) {
-		Value return_value = pop();
-		*out = return_value;
 		return true;
 	}
-	
 	return false;
 }
 
-static bool call_plane_function(ObjectFunction* function, Object* self, ValueArray args, Value* out) {
-	return call_plane_function_custom_frame(function, self, args, NULL, out);
+static bool call_plane_function(
+		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity, Value* out) {
+	if (call_plane_function_leave_on_stack(function, self, args, base_entity)) {
+		*out = pop();
+		return true;
+	}
+	return false;
 }
 
 bool vm_interpret_program(Bytecode* bytecode, char* main_module_path) {
