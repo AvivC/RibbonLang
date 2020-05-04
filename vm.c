@@ -37,7 +37,8 @@ static void set_current_thread(ObjectThread* thread) {
 }
 
 static StackFrame* current_frame(void) {
-	return current_thread()->call_stack_top - 1;
+	// return current_thread()->call_stack_top - 1;
+	return vm.call_stack_top - 1;
 }
 
 static Bytecode* current_bytecode(void) {
@@ -134,7 +135,15 @@ static void switch_to_new_thread(ObjectThread* thread) {
 
 static void push_frame(StackFrame frame) {
 	/* TODO: Why do we take a StackFrame and not StackFrame*? */
-	object_thread_push_frame(current_thread(), frame);
+	// object_thread_push_frame(current_thread(), frame);
+
+	/* TODO: Not a FAIL, but a boolean indicating success or failure or something */
+	if (vm.call_stack_top - vm.call_stack == CALL_STACK_MAX) {
+		FAIL("Stack overflow.");
+	}
+
+	*vm.call_stack_top = frame;
+	vm.call_stack_top++;
 }
 
 static void stack_frame_free(StackFrame* frame) {
@@ -143,15 +152,30 @@ static void stack_frame_free(StackFrame* frame) {
 }
 
 static StackFrame pop_frame(void) {
-	return object_thread_pop_frame(current_thread());
+	// return object_thread_pop_frame(current_thread());
+	/* TODO: Not a FAIL, but a boolean indicating success or failure or something */
+	if (vm.call_stack_top <= vm.call_stack) {
+		FAIL("Stack underflow.");
+	}
+	vm.call_stack_top--;
+	return *vm.call_stack_top;
+}
+
+static StackFrame* peek_frame(int offset) {
+	if ((vm.call_stack_top - vm.call_stack) < offset) {
+		return NULL;
+	}
+	return vm.call_stack_top - offset;
 }
 
 static StackFrame* peek_current_frame(void) {
-	return object_thread_peek_frame(current_thread(), 1);
+	// return object_thread_peek_frame(current_thread(), 1);
+	return peek_frame(1);
 }
 
 static StackFrame* peek_previous_frame(void) {
-	return object_thread_peek_frame(current_thread(), 2);
+	// return object_thread_peek_frame(current_thread(), 2);
+	return peek_frame(2);
 }
 
 static CellTable* frame_locals_or_module_table(StackFrame* frame) {
@@ -392,6 +416,15 @@ static void gc_mark(void) {
 			gc_mark_object(value->as.object);
 		}
 	}
+	
+	for (StackFrame* frame = vm.call_stack; frame != vm.call_stack_top; frame++) {
+		gc_mark_object((Object*) frame->function);
+		if (frame->base_entity != NULL) {
+			gc_mark_object(frame->base_entity);
+		}
+
+		gc_mark_table(&frame_locals_or_module_table(frame)->table);
+	}
 }
 
 static void gc_sweep(void) {
@@ -557,6 +590,8 @@ void vm_init(void) {
 	vm.thread_creation_counter = 0;
 	vm.thread_opcode_counter = 0;
 
+	vm.call_stack_top = vm.call_stack;
+
     vm.num_objects = 0;
     vm.max_objects = INITIAL_GC_THRESHOLD;
     vm.allow_gc = false;
@@ -576,6 +611,8 @@ void vm_free(void) {
 	#if DEBUG_TABLE_STATS
 	table_debug_print_general_stats();
 	#endif
+
+	vm.call_stack_top = vm.call_stack;
 
 	cell_table_free(&vm.globals);
 	cell_table_free(&vm.imported_modules);
@@ -601,8 +638,7 @@ void vm_free(void) {
 }
 
 static void print_call_stack(void) {
-	ObjectThread* thread = current_thread();
-	for (StackFrame* frame = thread->call_stack_top - 1; frame >= thread->call_stack; frame--) {
+	for (StackFrame* frame = vm.call_stack_top - 1; frame >= vm.call_stack; frame--) {
 		printf("    -> %s\n", frame->function->name);
 	}
 }
@@ -1632,7 +1668,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
 
 				if (object->type == OBJECT_STRING) {
 					/* We have to treat strings specially because of string caching */
-					RUNTIME_ERROR("Cannot set attributes on strings.");
+					RUNTIME_ERROR("Cannot set attribute on strings.");
 					break;
 				}
 

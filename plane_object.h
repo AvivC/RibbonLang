@@ -177,9 +177,6 @@ ObjectBoundMethod* object_bound_method_new(ObjectFunction* method, Object* self)
 ObjectThread* object_thread_new(ObjectFunction* function, char* name);
 void object_thread_push_eval_stack(ObjectThread* thread, Value value);
 Value object_thread_pop_eval_stack(ObjectThread* thread);
-void object_thread_push_frame(ObjectThread* thread, StackFrame frame);
-StackFrame object_thread_pop_frame(ObjectThread* thread);
-StackFrame* object_thread_peek_frame(ObjectThread* thread, int offset);
 
 bool object_compare(Object* a, Object* b);
 

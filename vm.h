@@ -26,6 +26,8 @@ typedef enum {
     IMPORT_RESULT_MODULE_NOT_FOUND
 } ImportResult;
 
+#define CALL_STACK_MAX 255
+
 typedef struct {
 	Object* objects;
 
@@ -36,6 +38,8 @@ typedef struct {
 
     Value* stack;
     Value* stack_top;
+    StackFrame call_stack[CALL_STACK_MAX];
+    StackFrame* call_stack_top;
 
     uint8_t* ip;
 

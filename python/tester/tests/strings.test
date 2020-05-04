@@ -38,11 +38,11 @@ test illegal to set attribute on string
     # this case is an exception, and we might have to update this test if and when the error output changes.
 
     text = "hello world"
-    a.x = 10
+    text.x = 10
 expect
     An error has occured. Stack trace (most recent call on top):
         -> <Anonymous function>
-    Runtime error: Cannot set attribute on non-object.
+    Runtime error: Cannot set attribute on strings.
 end
 
 test string length method
