@@ -14,7 +14,6 @@
 
 #define DEBUG 0 // General debug printing
 #define DEBUG_TRACE_EXECUTION 0 // Show stack operations
-#define DEBUG_THREADING 0
 #define DEBUG_GC 0 // Show GC operations
 #define DEBUG_OBJECTS 0 // Show object operations
 #define DEBUG_MEMORY_EXECUTION 0 // Show low-level memory operations
@@ -52,15 +51,6 @@
 
 #else
     #define DEBUG_MEMORY(...) do {} while(false)
-#endif
-
-#if DEBUG_THREADING
-    #define DEBUG_THREADING_PRINT(...) do { \
-            fprintf (stdout, __VA_ARGS__); \
-        } while (false)
-
-#else
-    #define DEBUG_THREADING_PRINT(...) do {} while(false)
 #endif
 
 #if DEBUG_IMPORTANT

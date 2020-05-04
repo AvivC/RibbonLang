@@ -16,7 +16,6 @@ typedef enum {
 	OBJECT_TABLE,
 	OBJECT_CELL,
 	OBJECT_MODULE,
-	OBJECT_THREAD,
 	OBJECT_CLASS,
 	OBJECT_INSTANCE,
 	OBJECT_BOUND_METHOD
@@ -81,9 +80,6 @@ typedef struct ObjectModule {
 	HMODULE dll;
 } ObjectModule;
 
-#define THREAD_EVAL_STACK_MAX 255
-#define THREAD_CALL_STACK_MAX 255
-
 typedef struct {
 	uint8_t* return_address;
 	ObjectFunction* function;
@@ -93,24 +89,6 @@ typedef struct {
 	bool is_native;
 	bool discard_return_value;
 } StackFrame;
-
-typedef struct ObjectThread {
-	Object base;
-
-	char* name;
-
-	struct ObjectThread* previous_thread;
-	struct ObjectThread* next_thread;
-
-	uint8_t* ip;
-	ObjectFunction* base_function;
-
-    Value* eval_stack_top;
-    Value eval_stack[THREAD_EVAL_STACK_MAX];
-
-    StackFrame* call_stack_top;
-    StackFrame call_stack[THREAD_CALL_STACK_MAX];
-} ObjectThread;
 
 typedef struct ObjectInstance ObjectInstance;
 typedef void (*DeallocationFunction)(struct ObjectInstance *);
@@ -174,10 +152,6 @@ ObjectModule* object_module_native_new(ObjectString* name, HMODULE dll);
 
 ObjectBoundMethod* object_bound_method_new(ObjectFunction* method, Object* self);
 
-ObjectThread* object_thread_new(ObjectFunction* function, char* name);
-void object_thread_push_eval_stack(ObjectThread* thread, Value value);
-Value object_thread_pop_eval_stack(ObjectThread* thread);
-
 bool object_compare(Object* a, Object* b);
 
 bool object_strings_equal(ObjectString* a, ObjectString* b);
@@ -185,9 +159,6 @@ bool object_strings_equal(ObjectString* a, ObjectString* b);
 void object_free(Object* object);
 void object_print(Object* o);
 void object_print_all_objects(void);
-
-void object_thread_print(ObjectThread* thread);
-void object_thread_print_diagnostic(ObjectThread* thread);
 
 bool object_hash(Object* object, unsigned long* result);
 

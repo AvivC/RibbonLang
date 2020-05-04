@@ -32,11 +32,6 @@ typedef enum {
 typedef struct {
 	Object* objects;
 
-    ObjectThread* threads;  /* Doubly linked list of threads generally running in the system */
-    ObjectThread* current_thread; /* Currently executing thread */
-    size_t thread_creation_counter; /* For running-number thread names, used for debugging */
-    size_t thread_opcode_counter; /* For thread scheduling */
-
     Value stack[EVAL_STACK_MAX];
     Value* stack_top;
     StackFrame call_stack[CALL_STACK_MAX];

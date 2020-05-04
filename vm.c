@@ -25,19 +25,7 @@
 
 VM vm;
 
-static ObjectThread* current_thread(void) {
-	return vm.current_thread;
-}
-
-static void set_current_thread(ObjectThread* thread) {
-	vm.current_thread = thread;
-	// vm.stack = thread->eval_stack;
-	// vm.stack_top = vm.stack;
-	vm.ip = thread->ip;
-}
-
 static StackFrame* current_frame(void) {
-	// return current_thread()->call_stack_top - 1;
 	return vm.call_stack_top - 1;
 }
 
@@ -46,13 +34,11 @@ static Bytecode* current_bytecode(void) {
 }
 
 static void push(Value value) {
-	// object_thread_push_eval_stack(current_thread(), value);
 	*vm.stack_top = value;
     vm.stack_top++;
 }
 
 static Value pop(void) {
-	// return object_thread_pop_eval_stack(current_thread());
 	vm.stack_top--;
     return *vm.stack_top;
 }
@@ -70,14 +56,10 @@ void vm_push_object(Object* object) {
 Object* vm_pop_object() {
 	Value value = pop();
 	assert(value.type == VALUE_OBJECT);
-	// if (value.type != VALUE_OBJECT) {
-	// 	FAIL("vm_pop_object popped non-object. Actual type: %d", value.type);
-	// }
 	return value.as.object;
 }
 
 static Value peek_at(int offset) {
-	// return *(current_thread()->eval_stack_top - offset);
 	return *(vm.stack_top - offset);
 }
 
@@ -109,34 +91,7 @@ static StackFrame new_stack_frame(
 	return frame;
 }
 
-static StackFrame make_base_stack_frame(Bytecode* base_chunk) {
-	ObjectCode* code = object_code_new(*base_chunk);
-	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, cell_table_new_empty());
-	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
-	ObjectModule* module = object_module_new(base_module_name, base_function);
-	return new_stack_frame(NULL, base_function, (Object*) module, true, false, false);
-}
-
-/* Add a thread to the vm list of threads */
-static void add_thread(ObjectThread* thread) {
-	thread->previous_thread = NULL;
-	thread->next_thread = vm.threads;
-	if (vm.threads != NULL) {
-		vm.threads->previous_thread = thread;
-	}
-	vm.threads = thread;
-}
-
-static void switch_to_new_thread(ObjectThread* thread) {
-	// Maybe not the best scheduler-wise?
-	add_thread(thread);
-	set_current_thread(thread);
-}
-
 static void push_frame(StackFrame frame) {
-	/* TODO: Why do we take a StackFrame and not StackFrame*? */
-	// object_thread_push_frame(current_thread(), frame);
-
 	/* TODO: Not a FAIL, but a boolean indicating success or failure or something */
 	if (vm.call_stack_top - vm.call_stack == CALL_STACK_MAX) {
 		FAIL("Stack overflow.");
@@ -152,7 +107,6 @@ static void stack_frame_free(StackFrame* frame) {
 }
 
 static StackFrame pop_frame(void) {
-	// return object_thread_pop_frame(current_thread());
 	/* TODO: Not a FAIL, but a boolean indicating success or failure or something */
 	if (vm.call_stack_top <= vm.call_stack) {
 		FAIL("Stack underflow.");
@@ -169,12 +123,10 @@ static StackFrame* peek_frame(int offset) {
 }
 
 static StackFrame* peek_current_frame(void) {
-	// return object_thread_peek_frame(current_thread(), 1);
 	return peek_frame(1);
 }
 
 static StackFrame* peek_previous_frame(void) {
-	// return object_thread_peek_frame(current_thread(), 2);
 	return peek_frame(2);
 }
 
@@ -246,10 +198,6 @@ static void gc_mark_object_attributes(Object* object) {
 
 static void assert_is_probably_valid_object(Object* object) {
 	assert((object->is_reachable == true) || (object->is_reachable == false));
-	// bool is_probably_valid_object = (object->is_reachable == true) || (object->is_reachable == false);
-	// if (!is_probably_valid_object) {
-	// 	FAIL("Illegal object passed to gc_mark_object.");
-	// }
 }
 
 static void gc_mark_function_free_vars(ObjectFunction* function) {
@@ -288,33 +236,6 @@ static void gc_mark_object_module(Object* object) {
 	gc_mark_object((Object*) module->name);
 	if (module->function != NULL) { /* function can be NULL if module is native */
 		gc_mark_object((Object*) module->function);
-	}
-}
-
-static void gc_mark_object_thread(Object* object) {
-	ObjectThread* thread = (ObjectThread*) object;
-
-	gc_mark_object((Object*) thread->base_function);
-
-	/* Mark everything on the evaluation stack */
-	for (Value* value = thread->eval_stack; value != thread->eval_stack_top; value++) {
-		if (value->type == VALUE_OBJECT) {
-			gc_mark_object(value->as.object);
-		}
-	}
-
-	/* Mark everything on the call stack */
-	for (StackFrame* frame = thread->call_stack; frame != thread->call_stack_top; frame++) {
-		gc_mark_object((Object*) frame->function);
-		// if (frame->module != NULL) {
-		// 	gc_mark_object((Object*) frame->module);
-		// }
-		if (frame->base_entity != NULL) {
-			gc_mark_object(frame->base_entity);
-		}
-
-		/* Mark the frame locals */
-		gc_mark_table(&frame_locals_or_module_table(frame)->table);
 	}
 }
 
@@ -375,10 +296,6 @@ static void gc_mark_object(Object* object) {
 			gc_mark_object_module(object);
 			return;
 		}
-		case OBJECT_THREAD: {
-			gc_mark_object_thread(object);
-			return;
-		}
 		case OBJECT_STRING: {
 			/* Nothing. Currently strings don't link to any other object except for their attributes, which were already marked. */
 			return;
@@ -401,12 +318,6 @@ static void gc_mark_object(Object* object) {
 }
 
 static void gc_mark(void) {
-	ObjectThread* thread = vm.threads;
-	while (thread != NULL) {
-		gc_mark_object((Object*) thread);
-		thread = thread->next_thread;
-	}
-
 	gc_mark_table(&vm.globals.table);
 	gc_mark_table(&vm.imported_modules.table);
 	gc_mark_table(&vm.builtin_modules.table);
@@ -543,7 +454,6 @@ static bool call_native_function(ObjectFunction* function, Object* self, ValueAr
 	/* If the native function will end up calling a user function, the instruction
 	pointer will be moving forward. When we go back to this calling site, we have to
 	also remember to restore the instruction pointer. */
-	// uint8_t* ip_before_call = current_thread()->ip;
 	uint8_t* ip_before_call = vm.ip;
 
 	Value result;
@@ -561,7 +471,6 @@ static bool call_native_function(ObjectFunction* function, Object* self, ValueAr
 	stack_frame_free(&used_frame);
 
 	/* restore ip position */
-	// current_thread()->ip = ip_before_call;
 	vm.ip = ip_before_call;
 
 	return func_success;
@@ -585,11 +494,6 @@ static bool call_native_function_args_from_stack(ObjectFunction* function, Objec
 // }
 
 void vm_init(void) {
-	vm.threads = NULL;
-	vm.current_thread = NULL;
-	vm.thread_creation_counter = 0;
-	vm.thread_opcode_counter = 0;
-
 	vm.stack_top = vm.stack;
 	vm.call_stack_top = vm.call_stack;
 
@@ -620,9 +524,6 @@ void vm_free(void) {
 	cell_table_free(&vm.builtin_modules);
 	table_free(&vm.string_cache);	
 
-	vm.threads = NULL;
-	vm.current_thread = NULL;
-
 	vm_gc();
 
     vm.num_objects = 0;
@@ -649,21 +550,6 @@ static void print_stack_trace(void) {
 	print_call_stack();
 }
 
-// #define READ_BYTE() (*current_thread()->ip++)
-// #define READ_CONSTANT() (current_bytecode()->constants.values[READ_BYTE()])
-
-// static Object* read_constant_as_object(ObjectType type) {
-// 	Value constant = READ_CONSTANT();
-// 	ASSERT_VALUE_TYPE(constant, VALUE_OBJECT);
-// 	Object* object = constant.as.object;
-// 	if (object->type != type) {
-// 		FAIL("Object at '%p' is of type %d, expected %d", object, object->type, type);
-// 	}
-// 	return object;
-// }
-
-// #define READ_CONSTANT_AS_OBJECT(type, cast) (cast*) read_constant_as_object(type)
-
 static void set_function_name(const Value* function_value, ObjectString* name) {
 	ObjectFunction* function = (ObjectFunction*) function_value->as.object;
 	char* new_cstring_name = copy_null_terminated_cstring(name->chars, "Function name");
@@ -675,16 +561,6 @@ static void set_class_name(const Value* class_value, ObjectString* name) {
 	deallocate(klass->name, klass->name_length + 1, "Class name");
 	char* new_cstring_name = copy_null_terminated_cstring(name->chars, "Class name");
 	object_class_set_name(klass, new_cstring_name, strlen(new_cstring_name));
-}
-
-static void print_all_threads(void) {
-	ObjectThread* thread = vm.threads;
-	while (thread != NULL) {
-		object_thread_print_diagnostic(thread);		
-		printf("\n");
-
-		thread = thread->next_thread;
-	}
 }
 
 static bool call_plane_function_custom_frame(
@@ -1104,11 +980,6 @@ static CellTable find_free_vars_for_new_function(ObjectCode* func_code) {
 	return free_vars;
 }
 
-static uint8_t __attribute__ ((noinline)) read_byte(void) {
-// static uint8_t read_byte(void) {
-	return *current_thread()->ip++;
-}
-
 static bool vm_interpret_frame(StackFrame* frame) {
 	#define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
@@ -1156,22 +1027,14 @@ static bool vm_interpret_frame(StackFrame* frame) {
 		ERROR_IF_WRONG_TYPE(value, VALUE_NIL, message); \
 	} while (false)
 
-	#define THREAD_SWITCH_INTERVAL 16
-
 	push_frame(*frame);
 
-	// current_thread()->ip = current_frame()->function->code->bytecode.code;
 	vm.ip = current_frame()->function->code->bytecode.code;;
 
 	bool is_executing = true;
 	bool runtime_error_occured = false;
 
-	// uint8_t* ip = current_thread()->ip;
-
-	// #define READ_BYTE() (*current_thread()->ip++)
 	#define READ_BYTE() (*vm.ip++)
-	// #define READ_BYTE() (read_byte())
-	// #define READ_BYTE() (*ip++)
 	#define READ_CONSTANT() (current_bytecode()->constants.values[READ_BYTE()])
 
 	DEBUG_TRACE("Starting interpreter loop.");
@@ -1183,19 +1046,16 @@ static bool vm_interpret_frame(StackFrame* frame) {
     	OP_CODE opcode = READ_BYTE();
         
 		#if DEBUG_TRACE_EXECUTION
-			// disassembler_do_single_instruction(opcode, current_bytecode(), current_thread()->ip - 1 - current_bytecode()->code);
 			disassembler_do_single_instruction(opcode, current_bytecode(), vm.ip - 1 - current_bytecode()->code);
 
 			Value* eval_stack = vm.stack;
 			Value* stack_top = vm.stack_top;
 
 			printf("\n");
-			// bool stackEmpty = current_thread()->eval_stack == current_thread()->eval_stack_top;
 			bool stackEmpty = eval_stack == stack_top;
 			if (stackEmpty) {
 				printf("[ -- Empty Stack -- ]");
 			} else {
-				// for (Value* value = current_thread()->eval_stack; value < current_thread()->eval_stack_top; value++) {
 				for (Value* value = eval_stack; value < stack_top; value++) {
 					printf("[ ");
 					value_print(*value);
@@ -1213,30 +1073,9 @@ static bool vm_interpret_frame(StackFrame* frame) {
 			print_call_stack();
 			printf("\n");
 
-			// printf("Memory allocations:");
-			// print_allocated_memory_entries();
-			// printf("\n");
-
 			#if DEBUG_MEMORY_EXECUTION
 				printAllObjects();
 			#endif
-		#endif
-
-		#if DEBUG_THREADING
-			#if !DEBUG_TRACE_EXECUTION
-				printf("--------------------------\n");	
-				// disassembler_do_single_instruction(opcode, current_bytecode(), current_thread()->ip - 1 - current_bytecode()->code);
-				disassembler_do_single_instruction(opcode, current_bytecode(), vm.ip - 1 - current_bytecode()->code);
-			#endif
-
-			DEBUG_THREADING_PRINT("Current thread:\n        ");
-			object_thread_print(current_thread());
-			printf("\n");
-
-			printf("\n");
-			printf("All running threads:\n");
-			print_all_threads();
-			printf("\n");
 		#endif
 
 		// Possible that vm.num_objects > vm.max_objects if many objects were created during the compiling stage, where GC is disallowed
@@ -1522,16 +1361,9 @@ static bool vm_interpret_frame(StackFrame* frame) {
 			case OP_RETURN: {
                 StackFrame* frame = peek_current_frame(); /* Staying on the stack because is popped and freed after interpreter loop */
 
-                bool is_base_frame = frame->return_address == NULL;
-                if (is_base_frame) {
-					vm.threads = NULL;
-					vm.current_thread = NULL;
-                } else {
-                	// current_thread()->ip = frame->return_address;
-                	vm.ip = frame->return_address;
-                }
-
+				vm.ip = frame->return_address;
 				is_executing = false;
+
                 break;
             }
             
@@ -1781,7 +1613,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				ERROR_IF_NON_BOOLEAN(condition, "Expected boolean as condition");
 
 				if (!condition.as.boolean) {
-					// current_thread()->ip = current_bytecode()->code + address;
 					vm.ip = current_bytecode()->code + address;
 				}
 
@@ -1793,14 +1624,12 @@ static bool vm_interpret_frame(StackFrame* frame) {
             	uint8_t addr_byte2 = READ_BYTE();
             	uint16_t address = two_bytes_to_short(addr_byte1, addr_byte2);
 
-            	// current_thread()->ip = current_bytecode()->code + address;
             	vm.ip = current_bytecode()->code + address;
 
             	break;
             }
 
 			case OP_IMPORT: {
-				// ObjectString* module_name = READ_CONSTANT_AS_OBJECT(OBJECT_STRING, ObjectString);
 				ObjectString* module_name = (ObjectString*) READ_CONSTANT().as.object;
 				ImportResult import_result = vm_import_module(module_name);
 
@@ -1834,7 +1663,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
 			}
 
             default: {
-            	// FAIL("Unknown opcode: %d. At ip: %p", opcode, current_thread()->ip - 1);
             	FAIL("Unknown opcode: %d. At ip: %p", opcode, vm.ip - 1);
             }
         }
@@ -1845,10 +1673,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
 		#endif
     }
 
-	if (vm.threads != NULL) {
-		StackFrame finished_frame = pop_frame();
-		stack_frame_free(&finished_frame);
-	}
+	StackFrame finished_frame = pop_frame();
+	stack_frame_free(&finished_frame);
 
     DEBUG_TRACE("\n--------------------------\n");
 	DEBUG_TRACE("Ended interpreter loop.");
@@ -1860,18 +1686,14 @@ static bool vm_interpret_frame(StackFrame* frame) {
 
 static bool call_plane_function_custom_frame(
 		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity, Value* out) {
-	// ObjectThread* thread = current_thread();
 	bool is_entity_base = base_entity != NULL;
-	// StackFrame frame = new_stack_frame(thread->ip, function, base_entity, is_entity_base, false, false);
 	StackFrame frame = new_stack_frame(vm.ip, function, base_entity, is_entity_base, false, false);
 
 	assert(args.count == function->num_params);
 
 	for (int i = 0; i < function->num_params; i++) {
-		// const char* param_name = function->parameters[i];
 		ObjectString* param_name = function->parameters[i];
 		Value argument = args.values[i];
-		// cell_table_set_value_cstring_key(&frame.local_variables, param_name, argument);
 		cell_table_set_value(&frame.local_variables, param_name, argument);
 	}
 
@@ -1897,13 +1719,23 @@ bool vm_interpret_program(Bytecode* bytecode, char* main_module_path) {
 
 	ObjectCode* code = object_code_new(*bytecode);
 	ObjectFunction* base_function = object_user_function_new(code, NULL, 0, cell_table_new_empty());
-	ObjectThread* main_thread = object_thread_new(base_function, "<main thread>");
-	switch_to_new_thread(main_thread);
+
+	/* We want to run the GC before starting the program in order to clear objects created
+	   during compilation and get a fresh start.
+	   Before we do that, we have to push() the base_function, and pop it afterwards.
+	   The reason for that is because our bytecode struct already points to objects
+	   created during compilation, such as string and code object constants.
+	   If we run the GC without first pushing the Bytecode on the stack (wrapped by an ObjectCode,
+	   wrapped by an ObjectFunction), the constants will get collected. */
+	push(MAKE_VALUE_OBJECT((Object*) base_function));
 
 	/* Cleanup unused objects created during compilation */
 	DEBUG_OBJECTS_PRINT("Setting vm.allow_gc = true.");
 	vm.allow_gc = true;
 	vm_gc();
+
+	/* Pop the base_function that was pushed before */
+	pop();
 
 	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
 	ObjectModule* module = object_module_new(base_module_name, base_function);

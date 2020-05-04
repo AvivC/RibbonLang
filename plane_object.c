@@ -546,18 +546,6 @@ ObjectModule* object_module_native_new(ObjectString* name, HMODULE dll) {
 	return module;
 }
 
-ObjectThread* object_thread_new(ObjectFunction* function, char* name) {
-	ObjectThread* thread = (ObjectThread*) allocate_object(sizeof(ObjectThread), "ObjectThread", OBJECT_THREAD);
-	thread->name = copy_null_terminated_cstring(name, "Thread name");
-	thread->previous_thread = NULL;
-	thread->next_thread = NULL;
-	thread->base_function = function;
-	thread->ip = function->code->bytecode.code;
-	thread->eval_stack_top = thread->eval_stack;
-	thread->call_stack_top = thread->call_stack;
-	return thread;
-}
-
 void object_free(Object* o) {
 	cell_table_free(&o->attributes);
 \
@@ -596,13 +584,6 @@ void object_free(Object* o) {
         	DEBUG_OBJECTS_PRINT("Freeing ObjectCode at '%p'", code);
         	bytecode_free(&code->bytecode);
         	deallocate(code, sizeof(ObjectCode), "ObjectCode");
-        	break;
-        }
-		case OBJECT_THREAD: {
-        	ObjectThread* thread = (ObjectThread*) o;
-        	DEBUG_OBJECTS_PRINT("Freeing ObjectThread at '%p'", thread);
-			deallocate(thread->name, strlen(thread->name) + 1, "Thread name");
-        	deallocate(thread, sizeof(ObjectThread), "ObjectThread");
         	break;
         }
         case OBJECT_TABLE: {
@@ -672,24 +653,6 @@ static void print_function(ObjectFunction* function) {
 	}
 }
 
-void object_thread_push_eval_stack(ObjectThread* thread, Value value) {
-	assert(thread->eval_stack_top - thread->eval_stack < THREAD_EVAL_STACK_MAX);
-    *thread->eval_stack_top = value;
-    thread->eval_stack_top++;
-}
-
-Value object_thread_pop_eval_stack(ObjectThread* thread) {
-	assert(thread->eval_stack_top > thread->eval_stack);
-    thread->eval_stack_top--;
-    return *thread->eval_stack_top;
-}
-
-void object_thread_print(ObjectThread* thread) {
-	printf("<Thread %s at %p wrapping ", thread->name, thread);
-	object_print((Object*) thread->base_function);
-	printf(">");
-}
-
 void object_print(Object* o) {
     switch (o->type) {
         case OBJECT_STRING: {
@@ -704,11 +667,6 @@ void object_print(Object* o) {
         }
         case OBJECT_CODE: {
         	printf("<Code object at %p>", o);
-            return;
-        }
-		case OBJECT_THREAD: {
-			ObjectThread* thread = ((ObjectThread*) o);
-			object_thread_print(thread);
             return;
         }
         case OBJECT_TABLE: {
@@ -757,30 +715,17 @@ void object_print(Object* o) {
     FAIL("Unrecognized object type: %d", o->type);
 }
 
-/* For debugging */
-void object_thread_print_diagnostic(ObjectThread* thread) {
-	object_print((Object*) thread);
-	printf("\n        - Current ip: %p\n        - Current function: ", thread->ip);
-	print_function(thread->base_function);
-}
-
 bool object_compare(Object* a, Object* b) {
 	return a == b; /* Strings are interned */
 }
 
 ObjectFunction* object_as_function(Object* o) {
 	assert(o->type == OBJECT_FUNCTION);
-	// if (o->type != OBJECT_FUNCTION) {
-	// 	FAIL("Object is not a function. Actual type: %d", o->type);
-	// }
 	return (ObjectFunction*) o;
 }
 
 ObjectString* object_as_string(Object* o) {
 	assert(o->type == OBJECT_STRING);
-	// if (o->type != OBJECT_STRING) {
-	// 	FAIL("Object is not string. Actual type: %d", o->type);
-	// }
 	return (ObjectString*) o;
 }
 
@@ -836,9 +781,6 @@ bool object_hash(Object* object, unsigned long* result) {
 			return false;
 		}
 		case OBJECT_TABLE: {
-			return false;
-		}
-		case OBJECT_THREAD: {
 			return false;
 		}
 		case OBJECT_CLASS: {
