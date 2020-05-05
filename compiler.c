@@ -115,7 +115,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 			Value name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_assignment->name, node_assignment->length));
 			size_t constant_index = (size_t) bytecode_add_constant(bytecode, &name_constant);
 
-			// integer_array_write(&bytecode->assigned_names_indices, (size_t*) &constant_index);
 			integer_array_write(&bytecode->assigned_names_indices, &constant_index);
 			emit_two_bytes(bytecode, OP_SET_VARIABLE, constant_index);
 
@@ -155,14 +154,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
 			assert (num_params >= 0 && num_params < 65535);
 
-            // if (num_params > 65535) {
-            // 	// TODO: This should probably be a runtime error, not an assertion
-            // 	FAIL("Way too many function parameters: %d", num_params);
-            // }
-            // if (num_params < 0) {
-            // 	FAIL("Negative number of parameters... '%d'", num_params);
-            // }
-
             emit_short_as_two_bytes(bytecode, num_params);
 
             for (int i = 0; i < num_params; i++) {
@@ -193,9 +184,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
             Value obj_code_constant = MAKE_VALUE_OBJECT(object_code_new(body_bytecode));
             emit_opcode_with_constant_operand(bytecode, OP_MAKE_CLASS, obj_code_constant);
-
-			// /* Current hack necessary because of hard-coded OP_NIL OP_RETURN in compiler_compile. To fix later. */
-            // emit_byte(bytecode, OP_POP);
 
 			break;
 		}
@@ -240,10 +228,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
 			assert(node_table->pairs.count <= 255);
 
-        	// if (node_table->pairs.count > 255) {
-        	// 	FAIL("Currently not supporting table literals with more than 255 entries.");
-        	// }
-
 			for (int i = 0; i < node_table->pairs.count; i++) {
 				AstNodesKeyValuePair pair = node_table->pairs.values[i];
 				compile_tree(pair.value, bytecode);
@@ -260,15 +244,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
         	Value module_name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_import->name, node_import->name_length));
         	emit_opcode_with_constant_operand(bytecode, OP_IMPORT, module_name_constant);
-
-        	// /* Ugly hack ahead:
-        	//  * Currently, the compiler always puts a OP_NIL OP_RETURN at the end of the code object.
-        	//  * So after a code object returns we always have something left on the stack (possibly a nil).
-        	//  * This kind of makes sense for functions, but not for modules...
-        	//  * Since this is currently the case, we always need to OP_POP after 'calling' a module, until we change how the compiler works. */
-        	// emit_byte(bytecode, OP_POP);
-
-        	// emit_opcode_with_constant_operand(bytecode, OP_SET_VARIABLE, module_name_constant);
 
         	break;
         }
