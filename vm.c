@@ -365,7 +365,7 @@ void vm_gc(void) {
 		size_t memory_before_gc = get_allocated_memory();
 		DEBUG_GC_PRINT("===== GC Running =====");
 		DEBUG_GC_PRINT("num_objects: %d. max_objects: %d", vm.num_objects, vm.max_objects);
-		DEBUG_GC_PRINT("Allocated memory: %d bytes", memory_before_gc);
+		DEBUG_GC_PRINT("Allocated memory: %" PRI_SIZET " bytes", memory_before_gc);
 		DEBUG_GC_PRINT("=======================");
 
 		gc_mark();
@@ -375,8 +375,8 @@ void vm_gc(void) {
 
 		DEBUG_GC_PRINT("===== GC Finished =====");
 		DEBUG_GC_PRINT("numObjects: %d. maxObjects: %d", vm.num_objects, vm.max_objects);
-		DEBUG_GC_PRINT("Allocated memory before GC: %d bytes", memory_before_gc);
-		DEBUG_GC_PRINT("Allocated memory after GC: %d bytes", get_allocated_memory());
+		DEBUG_GC_PRINT("Allocated memory before GC: %" PRI_SIZET " bytes", memory_before_gc);
+		DEBUG_GC_PRINT("Allocated memory after GC: %" PRI_SIZET " bytes", get_allocated_memory());
 		DEBUG_GC_PRINT("=======================");
 	} else {
 		DEBUG_GC_PRINT("GC should run, but vm.allow_gc is still false.");

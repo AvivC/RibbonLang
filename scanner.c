@@ -113,6 +113,8 @@ static Token parse_identifier() {
     	return make_token(TOKEN_IMPORT);
     } else if (check_token("class")) {
         return make_token(TOKEN_CLASS);
+    } else if (check_token("ref")) {
+        return make_token(TOKEN_REF);
     }
     
     return make_token(TOKEN_IDENTIFIER);
@@ -166,9 +168,6 @@ Token scanner_peek_next_token() {
 
 Token scanner_peek_token_at_offset(int offset) {
     assert(offset >= 1);
-	// if (offset < 1) {
-	// 	FAIL("peek_token_at_offset called with offset < 1.");
-	// }
 
     // TODO: This approach is pretty awkward and can cause bugs later. Needs changing.
 

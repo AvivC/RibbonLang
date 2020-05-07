@@ -361,6 +361,7 @@ static ParseRule rules[] = {
     {boolean, NULL, PREC_NONE},     // TOKEN_FALSE
     {NULL, NULL, PREC_NONE},     // TOKEN_IMPORT
     {klass, NULL, PREC_NONE},     // TOKEN_CLASS
+    // {ref, NULL, PREC_NONE},           // TOKEN_REF
     {NULL, NULL, PREC_NONE},           // TOKEN_EOF
     {NULL, NULL, PREC_NONE}            // TOKEN_ERROR
 };

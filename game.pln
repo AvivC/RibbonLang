@@ -19,35 +19,45 @@ Ball = class {
         sdl.query_texture(texture, details)
         self.width = details["w"] / 10
         self.height = details["h"] / 10
+        
+        self._bounces = 0 # debugging
     }
     
-    apply_force = { takes fx, fy to
-        self.dx = self.dx + fx
-        self.dy = self.dy + fy
+    debug_print = {
+        print("--- Ball ---")
+        print("X: " + to_string(self.x) + ", Y: " + to_string(self.y))
+        print("DX: " + to_string(self.dx) + ", DY: " + to_string(self.dy))
+        print("W: " + to_string(self.width) + ", H: " + to_string(self.height))
+        print("Bounces: " + to_string(self._bounces))
     }
     
-    update = {
-        self.apply_force(0, 0.1)
+    apply_force = { takes fx, fy, dt to
+        self.dx = self.dx + fx * dt
+        self.dy = self.dy + fy * dt
+    }
+    
+    update = { takes dt to
+        print("")
+        print("y: " + to_string(self.y))
+        print("dt: " + to_string(dt))
+        print("dy: " + to_string(self.dy))
+        print("new y: " + to_string(self.y + (self.dy * dt)))
+        print("")
+    
+        self.x = self.x + (self.dx * dt)
+        self.y = self.y + (self.dy * dt)
         
-        self.x = self.x + self.dx
-        self.y = self.y + self.dy
+        floor = SCREEN_HEIGHT - self.height
         
-        if self.y + self.height >= SCREEN_HEIGHT {
-            self.dy = self.dy * -1
+        if self.y >= floor {
+            self.y = floor
+        
+            self._bounces = self._bounces + 1
+
+            self.dy = self.dy * (-1)       
+        } else {
+            self.apply_force(0, 300, dt)
         }
-        
-        # if self.y + self.height >= SCREEN_HEIGHT {
-            # if(self.dy <= 1) {
-                # self.dx = 0
-                # self.dy = 0
-            # } else {
-                # self.negate_force()
-                # self.dy = self.dy + 5
-            # }
-        # }
-        
-        # self.x = self.x + self.dx
-        # self.y = self.y + self.dy
         
     }
 }
@@ -86,7 +96,7 @@ Game = class {
         self.balls = []
         
         i = 0
-        while i < 300 {
+        while i < 1 {
             self.spawn_ball()
             i = i + 1
         }
@@ -101,6 +111,7 @@ Game = class {
     }
     
     spawn_ball = {
+        print("Spawning")
         randnum = random.next_number()
         random_x = (math.min(SCREEN_WIDTH, randnum) / math.max(SCREEN_WIDTH, randnum)) * SCREEN_WIDTH
         texture = self.ball_texture
@@ -116,7 +127,7 @@ Game = class {
         sdl.render_present(self.renderer)
     }
     
-    logic = {
+    logic = { takes dt to
         if keyboard[sdl.SDL_SCANCODE_SPACE] {
             self.spawn_ball()
         }
@@ -125,7 +136,7 @@ Game = class {
         while i < self.balls.length() {
             ball = self.balls[i]
             
-            ball.update()
+            ball.update(dt)
             
             i = i + 1
         }
@@ -161,32 +172,32 @@ Game = class {
 
 main = {
     game = Game("My Plane Game! :D")
+
+    dt = 0
     
-    frames_count = 0
-    ticks_sum = 0
+    prev_time = 0
+    curr_time = sdl.get_ticks() / 1000
     
     while game.running {
-        frame_start_ticks = sdl.get_ticks()
+        prev_time = curr_time
+        curr_time = sdl.get_ticks() / 1000
     
+        dt = curr_time - prev_time
+        # if dt >= 0.15 {
+            # dt = 0.15
+        # }
+        
         game.prepare_scene()
+        
         game.input()
-        game.logic()
+        
+        game.logic(dt)
+        
         game.draw()
+        
         game.present_scene()
-        
-        ticks_since_frame_start = sdl.get_ticks() - frame_start_ticks
-        
-        if (ticks_since_frame_start < 16) {
-            sdl.delay(16 - ticks_since_frame_start)
-        }
-        
-        frames_count = frames_count + 1
-        ticks_sum = ticks_sum + (sdl.get_ticks() - frame_start_ticks)
     }
-    
-    print("Avg frame length in ticks")
-    print(ticks_sum / frames_count)
-    print("Balls: " + to_string(game.balls.length()))
+
 }
 
 main()
