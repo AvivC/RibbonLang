@@ -2,6 +2,8 @@ import graphics
 import math
 sdl = graphics
 
+# print = { takes text to }
+
 keyboard = [sdl.SDL_SCANCODE_UP: false, sdl.SDL_SCANCODE_DOWN: false, sdl.SDL_SCANCODE_SPACE: false]
 
 SCREEN_WIDTH = 1000
@@ -37,13 +39,7 @@ Ball = class {
     }
     
     update = { takes dt to
-        print("")
-        print("y: " + to_string(self.y))
-        print("dt: " + to_string(dt))
-        print("dy: " + to_string(self.dy))
-        print("new y: " + to_string(self.y + (self.dy * dt)))
-        print("")
-    
+
         self.x = self.x + (self.dx * dt)
         self.y = self.y + (self.dy * dt)
         
@@ -111,7 +107,7 @@ Game = class {
     }
     
     spawn_ball = {
-        print("Spawning")
+        # print("Spawning")
         randnum = random.next_number()
         random_x = (math.min(SCREEN_WIDTH, randnum) / math.max(SCREEN_WIDTH, randnum)) * SCREEN_WIDTH
         texture = self.ball_texture
@@ -173,30 +169,49 @@ Game = class {
 main = {
     game = Game("My Plane Game! :D")
 
-    dt = 0
+    MAX_FPS = 50
+    MAX_DT = 1 / MAX_FPS
     
     prev_time = 0
     curr_time = sdl.get_ticks() / 1000
     
-    while game.running {
-        prev_time = curr_time
-        curr_time = sdl.get_ticks() / 1000
+    dbg_frame_count = 0
+    dbg_frames_divided = 0
     
-        dt = curr_time - prev_time
-        # if dt >= 0.15 {
-            # dt = 0.15
-        # }
-        
+    while game.running {
+    
         game.prepare_scene()
         
         game.input()
+    
+        prev_time = curr_time
+        curr_time = sdl.get_ticks() / 1000
+    
+        frame_time = curr_time - prev_time
         
-        game.logic(dt)
+        dbg_x = 0
+        while frame_time > 0 {
+            dt = math.min(frame_time, MAX_DT)
+            game.logic(dt)
+            frame_time = frame_time - dt
+            dbg_x = dbg_x + 1
+        }
+        if dbg_x > 0 {
+            dbg_frames_divided = dbg_frames_divided + 1
+        }
         
         game.draw()
         
         game.present_scene()
+        
+        dbg_frame_count = dbg_frame_count + 1
+        
     }
+
+    print("Balls: " + to_string(game.balls.length()))
+    print("Frames: " + to_string(dbg_frame_count))
+    print("dbg_frames_divided: " + to_string(dbg_frames_divided))
+    print("Relation: " + to_string(dbg_frames_divided / dbg_frame_count))
 
 }
 

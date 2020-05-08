@@ -11,16 +11,12 @@
 bool builtin_print(Object* self, ValueArray args, Value* out) {
 	value_print(args.values[0]);
 	printf("\n");
-	fflush(stdout);
 
 	*out = MAKE_VALUE_NIL();
 	return true;
 }
 
 bool builtin_input(Object* self, ValueArray args, Value* out) {
-	// TODO: Error handling
-	// TODO: Write dedicated tests
-
 	int character = 0;
 	int length = 0;
 	int capacity = 10;
