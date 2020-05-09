@@ -328,7 +328,7 @@ expect
     A
 end
 
-test free variable referenced before assignment returns nil
+test free variable referenced before assignment raises error
     # this test relies on the ugly, and possibly temporary, error output.
 
     outer = {
@@ -346,8 +346,5 @@ expect
     An error has occured. Stack trace (most recent call on top):
         -> inner
         -> <Anonymous function>
-    Runtime error: Variable x not found.
-    An error has occured. Stack trace (most recent call on top):
-        -> <Anonymous function>
-    Runtime error: Function failed.
+    Variable x not found.
 end

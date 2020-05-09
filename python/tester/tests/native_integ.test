@@ -25,8 +25,6 @@ expect
 end
 
 test native function calls user function that fails
-    # This is a super brittle test, for now. Look at the super specific (and certain to change) ugly error output.
-
     import _testing
     callback = { takes a, b to
         return "" + a + b
@@ -39,10 +37,7 @@ expect
         -> callback
         -> call_callback_with_args
         -> <Anonymous function>
-    Runtime error: @add function failed.
-    An error has occured. Stack trace (most recent call on top):
-        -> <Anonymous function>
-    Runtime error: Native function failed.
+    @add function failed.
 end
 
 test user code calls native code calls user code calls native code

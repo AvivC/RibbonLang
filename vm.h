@@ -52,6 +52,8 @@ typedef struct {
     /* Used as roots for locating different modules during imports, etc. */
     char* main_module_path;
     char* interpreter_dir_path;
+
+    bool currently_handling_error;
 } VM;
 
 extern VM vm;

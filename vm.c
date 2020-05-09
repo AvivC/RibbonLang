@@ -495,6 +495,8 @@ static bool call_native_function_args_from_stack(ObjectFunction* function, Objec
 // }
 
 void vm_init(void) {
+	vm.currently_handling_error = false;
+
 	vm.stack_top = vm.stack;
 	vm.call_stack_top = vm.call_stack;
 
@@ -514,10 +516,13 @@ void vm_init(void) {
 }
 
 void vm_free(void) {
+	vm.currently_handling_error = false;
+
 	#if DEBUG_TABLE_STATS
 	table_debug_print_general_stats();
 	#endif
 
+	vm.stack_top = vm.stack;
 	vm.call_stack_top = vm.call_stack;
 
 	cell_table_free(&vm.globals);
@@ -1027,22 +1032,16 @@ static bool vm_interpret_frame(StackFrame* frame) {
 	#define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
         Value a = pop(); \
-        Value result; \
-        \
-        if (a.type == VALUE_NUMBER && b.type == VALUE_NUMBER) { \
-            result = MAKE_VALUE_NUMBER(a.as.number op b.as.number); \
-            \
-        } else { \
-            result = MAKE_VALUE_NIL(); \
-        } \
-        push(result); \
+        push(MAKE_VALUE_NUMBER(a.as.number op b.as.number)); \
     } while(false)
 
-	// TODO: Implement an actual runtime error mechanism. This is a placeholder.
 	#define RUNTIME_ERROR(...) do { \
-		print_stack_trace(); \
-		fprintf(stdout, "Runtime error: " __VA_ARGS__); \
-		fprintf(stdout, "\n"); \
+		if (!vm.currently_handling_error) { \
+			print_stack_trace(); \
+			fprintf(stdout, __VA_ARGS__); \
+			fprintf(stdout, "\n"); \
+			vm.currently_handling_error = true; \
+		} \
 		runtime_error_occured = true; \
 		is_executing = false; \
 		/* Remember to break manually after using this macro! */ \
@@ -1138,7 +1137,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
             
             case OP_ADD: {
             	if (peek_at(2).type == VALUE_OBJECT) {
-            		Value other = peek_at(1); /* This will be popped later by that function we call (idk I'm tired right now) */
+            		Value other = peek_at(1); /* This will be popped later */
             		Value subject_val = peek_at(2); /* Leave subject on stack for it to not be GC'd */
 
             		Object* subject = subject_val.as.object;
@@ -1159,9 +1158,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
 					Object* self = add_bound_method->self;
 
 					assert(subject == self);
-					// if (subject != self) {
-					// 	FAIL("Before calling @add, subject is different than the bound method's self attribute.");
-					// }
 
 					if (add_bound_method->method->is_native) {
 						if (!call_native_function_args_from_stack(add_bound_method->method, add_bound_method->self)) {
@@ -1172,28 +1168,42 @@ static bool vm_interpret_frame(StackFrame* frame) {
 						// TODO: user function
 					}
 
-					 /* Pop subject from stack - TODO: very ugly hack, change later */
+					 /* Pop subject from stack - TODO: ugly hack, change later */
 					op_add_cleanup: ;
 					Value result = pop();
 					pop(); /* The subject */
 					push(result);
-            	} else {
+            	} else if (peek_at(2).type == VALUE_NUMBER && peek_at(1).type == VALUE_NUMBER) {
             		BINARY_MATH_OP(+);
-            	}
+            	} else {
+					RUNTIME_ERROR("Attempting to add types which do not support addition.");
+				}
                 break;
             }
             
             case OP_SUBTRACT: {
+				if (peek_at(2).type != VALUE_NUMBER || peek_at(1).type != VALUE_NUMBER) {
+					RUNTIME_ERROR("Attempting to subtract types which do not support subtraction.");
+					break;
+				}
                 BINARY_MATH_OP(-);
                 break;
             }
             
             case OP_MULTIPLY: {
+				if (peek_at(2).type != VALUE_NUMBER || peek_at(1).type != VALUE_NUMBER) {
+					RUNTIME_ERROR("Attempting to multiply types which do not support multiplication.");
+					break;
+				}
                 BINARY_MATH_OP(*);
                 break;
             }
             
             case OP_DIVIDE: {
+				if (peek_at(2).type != VALUE_NUMBER || peek_at(1).type != VALUE_NUMBER) {
+					RUNTIME_ERROR("Attempting to divide types which do not support division.");
+					break;
+				}
                 BINARY_MATH_OP(/);
                 break;
             }

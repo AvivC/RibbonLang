@@ -42,7 +42,7 @@ test illegal to set attribute on string
 expect
     An error has occured. Stack trace (most recent call on top):
         -> <Anonymous function>
-    Runtime error: Cannot set attribute on strings.
+    Cannot set attribute on strings.
 end
 
 test string length method
