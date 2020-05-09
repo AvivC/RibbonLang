@@ -42,7 +42,7 @@ test module attributes
     print(testmodule1.func1(2))
     print(testmodule1.func2(2))
 
-    testmodule1.func1 = { takes x to
+    testmodule1.func1 = { | x |
         return x * 10
     }
 
@@ -52,10 +52,10 @@ test module attributes
     testmodule1.nonexistent # this will crash the program with an error
 file testmodule1.pln
     attr1 = "I'm an attribute"
-    func1 = { takes x to
+    func1 = { | x |
         return x * 2
     }
-    func2 = { takes n to
+    func2 = { | n |
         return func1(n * 2)
     }
 expect

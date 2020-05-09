@@ -16,7 +16,7 @@ expect
 end
 
 test recursion
-    factorial = { takes n to
+    factorial = { | n |
         if n == 1 {
             return n
         }
@@ -29,15 +29,15 @@ expect
 end
 
 test function_calls
-    f1 = { takes x to
+    f1 = { | x |
         print("f1")
         return x * 10
     }
-    f2 = { takes x to
+    f2 = { | x |
         print("f2")
         return f1(x) * 10
     }
-    f3 = { takes x to
+    f3 = { | x |
         print("f3")
         return f2(x) * 10
     }
@@ -50,7 +50,7 @@ expect
 end
 
 test fuction_calls_multi_arg
-    divide = {takes x, y to
+    divide = {| x, y |
         print("In function divide")
         return x / y
     }
@@ -61,11 +61,11 @@ expect
 end
 
 test function_as_argument
-    f1 = {takes f2 to
+    f1 = {| f2 |
         return f2(50)
     }
 
-    q = { takes n to
+    q = { | n |
         return n * n
     }
 
@@ -75,7 +75,7 @@ expect
 end
 
 test function_call_in_expression
-    f = { takes x, y to
+    f = { | x, y |
         print("In f")
         return x + y
     }
@@ -88,7 +88,7 @@ end
 
 test function instances are independent objects
     func_creator = {
-        return { takes food to
+        return { | food |
             print("I received a " + food)
         }
     }
@@ -176,13 +176,13 @@ expect
 end
 
 test higher order closures
-    concat = { takes value, concat_fn to
+    concat = { | value, concat_fn |
         result = concat_fn(value)
         print(result)
     }
 
-    concat_factory = { takes x to
-        return { takes y to
+    concat_factory = { | x |
+        return { | y |
             return x + " " + y
         }
     }
@@ -219,7 +219,7 @@ expect
 end
 
 test closure with arguments
-    outer = {takes x to
+    outer = {| x |
         middle = {
             inner = {
                 return x
@@ -240,7 +240,7 @@ end
 
 test function reaches to base function
     x = 200
-    f = { takes n to
+    f = { | n |
         return x * n
     }
     print(f(10))

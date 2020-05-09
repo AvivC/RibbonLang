@@ -99,10 +99,6 @@ static Token parse_identifier() {
         return make_token(TOKEN_OR);
     } else if (check_token("return")) {
     	return make_token(TOKEN_RETURN);
-    } else if (check_token("takes")) {
-    	return make_token(TOKEN_TAKES);
-    } else if (check_token("to")) {
-    	return make_token(TOKEN_TO);
     } else if (check_token("true")) {
     	return make_token(TOKEN_TRUE);
     } else if (check_token("false")) {
@@ -230,6 +226,7 @@ Token scanner_next_token() {
         case ']': return make_token(TOKEN_RIGHT_SQUARE_BRACE);
         case '\n': return make_token(TOKEN_NEWLINE);
         case ':': return make_token(TOKEN_COLON);
+        case '|': return make_token(TOKEN_PIPE);
         case '!': {
 			if (match('=')) {
 				return make_token(TOKEN_BANG_EQUAL);

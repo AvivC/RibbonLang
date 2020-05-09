@@ -12,7 +12,7 @@ end
 
 test native function calls user function with arguments and return value
     import _testing
-    f = { takes a, b to
+    f = { | a, b |
         print("I'm a user callback")
         return a + b
     }
@@ -26,7 +26,7 @@ end
 
 test native function calls user function that fails
     import _testing
-    callback = { takes a, b to
+    callback = { | a, b |
         return "" + a + b
     }
     retval = _testing.call_callback_with_args(callback, 10, 20)
@@ -46,12 +46,12 @@ test user code calls native code calls user code calls native code
     outer_var1 = 10
     outer_var2 = 20
 
-    callback1 = { takes a, b to
+    callback1 = { | a, b |
         print("User function 1")
         return _testing.call_callback_with_args(callback2, a * 10, b * 10)
     }
 
-    callback2 = { takes x, y to
+    callback2 = { | x, y |
         print("User function 2")
         return x + y + outer_var1 + outer_var2
     }
@@ -71,9 +71,9 @@ end
 test with nested closures
     import _testing
 
-    callback1 = { takes a, b to
+    callback1 = { | a, b |
         print("User function 1")
-        return _testing.call_callback_with_args({ takes x, y to
+        return _testing.call_callback_with_args({ | x, y |
             print("User function 2")
             return x + y + a + b
         }, a * 10, b * 10)
@@ -102,12 +102,12 @@ file mymodule.pln
     outer_var1 = 10
     outer_var2 = 20
 
-    callback2 = { takes x, y to
+    callback2 = { | x, y |
         print("User function 2")
         return x + y + outer_var1 + outer_var2
     }
 
-    callback1 = { takes a, b to
+    callback1 = { | a, b |
         import _testing
         print("User function 1")
         return _testing.call_callback_with_args(callback2, a * 10, b * 10)

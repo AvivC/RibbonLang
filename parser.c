@@ -210,7 +210,7 @@ static AstNode* function(int expression_level) {
 	ValueArray parameters;
 	value_array_init(&parameters);
 
-	if (match(TOKEN_TAKES)) {
+	if (match(TOKEN_PIPE)) {
 		do {
 			consume(TOKEN_IDENTIFIER, "Expected parameter name.");
             unsigned long hash = hash_string_bounded(parser.previous.start, parser.previous.length);
@@ -218,7 +218,7 @@ static AstNode* function(int expression_level) {
 			value_array_write(&parameters, &param);
 		} while (match(TOKEN_COMMA));
 
-		consume(TOKEN_TO, "Expected 'to' at end of parameter list.");
+		consume(TOKEN_PIPE, "Expected '|' at end of parameter list.");
 	}
 
     AstNodeStatements* statementsNode = (AstNodeStatements*) statements();
@@ -342,6 +342,7 @@ static ParseRule rules[] = {
     {table, key_access, PREC_GROUPING},     // TOKEN_LEFT_SQUARE_BRACE
     {NULL, NULL, PREC_NONE},     // TOKEN_RIGHT_SQUARE_BRACE
     {NULL, NULL, PREC_NONE},     // TOKEN_COLON
+    {NULL, NULL, PREC_NONE},     // TOKEN_PIPE
     {NULL, binary, PREC_COMPARISON},     // TOKEN_EQUAL_EQUAL
     {NULL, binary, PREC_COMPARISON},     // TOKEN_BANG_EQUAL
     {NULL, binary, PREC_COMPARISON},     // TOKEN_GREATER_EQUAL
@@ -352,8 +353,6 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_ELSE
     {NULL, NULL, PREC_NONE},     // TOKEN_ELSIF
     {NULL, NULL, PREC_NONE},     // TOKEN_WHILE
-    {NULL, NULL, PREC_NONE},     // TOKEN_TAKES
-    {NULL, NULL, PREC_NONE},     // TOKEN_TO
     {NULL, and, PREC_AND},     // TOKEN_AND
     {NULL, or, PREC_OR},     // TOKEN_OR
     {NULL, NULL, PREC_NONE},     // TOKEN_RETURN
@@ -361,7 +360,6 @@ static ParseRule rules[] = {
     {boolean, NULL, PREC_NONE},     // TOKEN_FALSE
     {NULL, NULL, PREC_NONE},     // TOKEN_IMPORT
     {klass, NULL, PREC_NONE},     // TOKEN_CLASS
-    // {ref, NULL, PREC_NONE},           // TOKEN_REF
     {NULL, NULL, PREC_NONE},           // TOKEN_EOF
     {NULL, NULL, PREC_NONE}            // TOKEN_ERROR
 };

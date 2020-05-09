@@ -201,7 +201,7 @@ test big ass table internals
 
     t = []
 
-    f = { takes k, v to
+    f = { | k, v |
         print("")
         print("Adding key " + k + " to table.")
         t[k] = v
@@ -212,7 +212,7 @@ test big ass table internals
         print("")
     }
 
-    del = { takes k to
+    del = { | k |
         print("")
         print("Removing entry " + k + " from table.")
         delete(t, k)

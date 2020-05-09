@@ -1,6 +1,6 @@
 # Standard library module for common math uses
 
-max = { takes x, y to
+max = { | x, y |
 	if x > y {
 		return x
 	} else {
@@ -8,7 +8,7 @@ max = { takes x, y to
 	}
 }
 
-min = { takes x, y to
+min = { | x, y |
 	if max(x, y) == x {
 		return y
 	} else {
@@ -17,7 +17,7 @@ min = { takes x, y to
 }
 
 # TODO: Support fractions
-power = { takes n, exp to
+power = { | n, exp |
 	if exp < 0 {
 		return 1 / power(n, -1 * exp)
 	}
@@ -33,11 +33,11 @@ power = { takes n, exp to
 	return result
 }
 
-sqr = { takes n to
+sqr = { | n |
     return power(n, 2)
 }
 
-abs = { takes x to
+abs = { | x |
     if x >= 0 {
         return x
     }
@@ -46,7 +46,7 @@ abs = { takes x to
 
 _SQRT_RECURSION_LIMIT = 75
 
-_sqrt_estimate = { takes x, low_bound, high_bound, counter to
+_sqrt_estimate = { | x, low_bound, high_bound, counter |
     counter = counter + 1
     middle = (low_bound + high_bound) / 2
 
@@ -61,6 +61,6 @@ _sqrt_estimate = { takes x, low_bound, high_bound, counter to
     return _sqrt_estimate(x, middle, high_bound, counter)
 }
 
-sqrt = { takes x to
+sqrt = { | x |
     return _sqrt_estimate(x, 1, x, 0)
 }

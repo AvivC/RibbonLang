@@ -55,17 +55,17 @@ end
 
 test constructors
     Cat = class {
-        @init = { takes name, favorite_food to
+        @init = { | name, favorite_food |
             self.name = name
             self.favorite_food = favorite_food
         }
 
-        meow = { takes to_whom to
+        meow = { | to_whom |
             print("Meow, " + to_whom)
             print("My name is " + self.name + " and I love " + self.favorite_food + "!")
         }
 
-        breed = { takes other_cat to
+        breed = { | other_cat |
             self.meow(other_cat.name)
             print("Let's make kittens!")
             return [Cat("Catti", "pizza"), Cat("Cattul", "pasta")]
@@ -93,12 +93,12 @@ end
 
 test more constructors
     Kangaroo = class {
-        @init = {takes name to
+        @init = {| name |
             self.name = name
             self.color = "brown"
         }
 
-        greet = { takes who to
+        greet = { | who |
             print("Hello, " + who + "! My name is " + self.name + " and I'm " + self.color + " :D")
         }
     }
@@ -126,16 +126,16 @@ end
 
 test tribe of proud happy kangaroos living together in peace and harmony jumpin around
     Kangaroo = class {
-        @init = {takes name to
+        @init = {| name |
             self.name = name
             self.color = "brown"
         }
 
-        greet = { takes who to
+        greet = { | who |
             print("Hello, " + who + "! My name is " + self.name + " and I'm " + self.color + " :D")
         }
 
-        make_baby_kanga = { takes name to
+        make_baby_kanga = { | name |
             baby = Kangaroo("Little " + name)
             baby.greet(self.name)
             self.greet(baby.name)
@@ -144,7 +144,7 @@ test tribe of proud happy kangaroos living together in peace and harmony jumpin 
     }
 
     KangarooTribe = class {
-        @init = { takes kangaroos to
+        @init = { | kangaroos |
             self._kangaroos = kangaroos
             self._index = 0
         }
@@ -193,7 +193,7 @@ test self is captured by closures in methods
     also_just_some_variable = 100
 
     Guitar = class {
-        @init = { takes type to
+        @init = { | type |
             if type == "electric" {
                 self.style = "rock"
             } else {
@@ -201,7 +201,7 @@ test self is captured by closures in methods
             }
         }
 
-        make_song = { takes times to
+        make_song = { | times |
             return {
                 i = 0
                 while i < times {
@@ -234,10 +234,10 @@ end
 test more funky classes stuff
     SpeciesMaker = class {
 
-        make_animal = { takes species_name, is_carnivor, height to
+        make_animal = { | species_name, is_carnivor, height |
 
             return class {
-                @init = { takes name to
+                @init = { | name |
                     self.name = name
                     self.species_name = species_name
                     self.is_carnivor = is_carnivor
