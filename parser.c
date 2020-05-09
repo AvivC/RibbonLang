@@ -211,14 +211,28 @@ static AstNode* function(int expression_level) {
 	value_array_init(&parameters);
 
 	if (match(TOKEN_PIPE)) {
-		do {
-			consume(TOKEN_IDENTIFIER, "Expected parameter name.");
-            unsigned long hash = hash_string_bounded(parser.previous.start, parser.previous.length);
-			Value param = MAKE_VALUE_RAW_STRING(parser.previous.start, parser.previous.length, hash);
-			value_array_write(&parameters, &param);
-		} while (match(TOKEN_COMMA));
+        while (!match(TOKEN_PIPE)) {
+            if (check(TOKEN_EOF)) {
+                error("File ends in the middle of parameter list.");
+                break;
+            }
 
-		consume(TOKEN_PIPE, "Expected '|' at end of parameter list.");
+            do {
+                consume(TOKEN_IDENTIFIER, "Expected parameter name.");
+                unsigned long hash = hash_string_bounded(parser.previous.start, parser.previous.length);
+                Value param = MAKE_VALUE_RAW_STRING(parser.previous.start, parser.previous.length, hash);
+                value_array_write(&parameters, &param);
+            } while (match(TOKEN_COMMA));
+        }
+
+		// do {
+		// 	consume(TOKEN_IDENTIFIER, "Expected parameter name.");
+        //     unsigned long hash = hash_string_bounded(parser.previous.start, parser.previous.length);
+		// 	Value param = MAKE_VALUE_RAW_STRING(parser.previous.start, parser.previous.length, hash);
+		// 	value_array_write(&parameters, &param);
+		// } while (match(TOKEN_COMMA));
+
+		// consume(TOKEN_PIPE, "Expected '|' at end of parameter list.");
 	}
 
     AstNodeStatements* statementsNode = (AstNodeStatements*) statements();

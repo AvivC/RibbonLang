@@ -4,6 +4,18 @@ test empty_function_does_nothing
 expect
 end
 
+test empty pipes take no parameters
+    # The best way to take no parameters is by just leaving the pipes out.
+    # However we also support having empty pipes.
+    
+    f = { | |
+        print("Hello")
+    }
+    f()
+expect
+    Hello
+end
+
 test function_with_no_return_returns_nil
     print({}())
     f = {
