@@ -58,7 +58,7 @@ test more than 255 constants is handled correctly
     # things should still work (because in the bytecode the index of a constant is represented using two bytes, not one)
     # this test might not be the best logically, but this is good enough for now.
 
-    a
+    a = 20
     a
     a
     a

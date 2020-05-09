@@ -140,7 +140,7 @@ static CellTable* locals_or_module_table(void) {
 	return frame_locals_or_module_table(current_frame());
 }
 
-static Value load_variable(ObjectString* name) {
+static bool load_variable(ObjectString* name, Value* out) {
 	Value value;
 
 	CellTable* locals = &current_frame()->local_variables;
@@ -154,11 +154,11 @@ static Value load_variable(ObjectString* name) {
 			|| cell_table_get_value(globals, name, &value);
 
 	if (variable_found) {
-		return value;
+		*out = value;
+		return true;
 	}
 
-	// TODO: Nil when variable not found..? Should be an error
-	return MAKE_VALUE_NIL();
+	return false;
 }
 
 static void gc_mark_object(Object* object);
@@ -1429,7 +1429,13 @@ static bool vm_interpret_frame(StackFrame* frame) {
                 Value name_value = READ_CONSTANT();
                 ASSERT_VALUE_TYPE(name_value, VALUE_OBJECT);
                 ObjectString* name_string = object_as_string(name_value.as.object);
-                push(load_variable(name_string));
+				Value value;
+				if (load_variable(name_string, &value)) {
+					push(value);
+				} else {
+					RUNTIME_ERROR("Variable %.*s not found.", name_string->length, name_string->chars);
+				}
+                // push(load_variable(name_string));
 
                 break;
             }

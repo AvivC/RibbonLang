@@ -329,6 +329,8 @@ expect
 end
 
 test free variable referenced before assignment returns nil
+    # this test relies on the ugly, and possibly temporary, error output.
+
     outer = {
         inner = {
             print(x)
@@ -341,5 +343,11 @@ test free variable referenced before assignment returns nil
     inner = outer()
     inner()
 expect
-    nil
+    An error has occured. Stack trace (most recent call on top):
+        -> inner
+        -> <Anonymous function>
+    Runtime error: Variable x not found.
+    An error has occured. Stack trace (most recent call on top):
+        -> <Anonymous function>
+    Runtime error: Function failed.
 end
