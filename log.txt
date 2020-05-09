@@ -1,0 +1,1943 @@
+==== Bytecode ====
+
+0   00000000005890D0 OP_IMPORT                    graphics
+3   00000000005890D3 OP_IMPORT                    math
+6   00000000005890D6 OP_LOAD_VARIABLE             graphics
+9   00000000005890D9 OP_SET_VARIABLE              sdl
+12  00000000005890DC OP_CONSTANT                  false
+15  00000000005890DF OP_LOAD_VARIABLE             sdl
+18  00000000005890E2 OP_GET_ATTRIBUTE             SDL_SCANCODE_UP
+21  00000000005890E5 OP_CONSTANT                  false
+24  00000000005890E8 OP_LOAD_VARIABLE             sdl
+27  00000000005890EB OP_GET_ATTRIBUTE             SDL_SCANCODE_DOWN
+30  00000000005890EE OP_CONSTANT                  false
+33  00000000005890F1 OP_LOAD_VARIABLE             sdl
+36  00000000005890F4 OP_GET_ATTRIBUTE             SDL_SCANCODE_LEFT
+39  00000000005890F7 OP_CONSTANT                  false
+42  00000000005890FA OP_LOAD_VARIABLE             sdl
+45  00000000005890FD OP_GET_ATTRIBUTE             SDL_SCANCODE_RIGHT
+48  0000000000589100 OP_CONSTANT                  false
+51  0000000000589103 OP_LOAD_VARIABLE             sdl
+54  0000000000589106 OP_GET_ATTRIBUTE             SDL_SCANCODE_SPACE
+57  0000000000589109 OP_MAKE_TABLE                5
+59  000000000058910B OP_SET_VARIABLE              keyboard
+62  000000000058910E OP_CONSTANT                  1000
+65  0000000000589111 OP_SET_VARIABLE              SCREEN_WIDTH
+68  0000000000589114 OP_CONSTANT                  800
+71  0000000000589117 OP_SET_VARIABLE              SCREEN_HEIGHT
+74  000000000058911A OP_MAKE_CLASS                <Code object at 00000000005949A0>
+77  000000000058911D OP_SET_VARIABLE              Player
+80  0000000000589120 OP_MAKE_CLASS                <Code object at 000000000059AB40>
+83  0000000000589123 OP_SET_VARIABLE              Ball
+86  0000000000589126 OP_MAKE_CLASS                <Code object at 00000000005A1730>
+89  0000000000589129 OP_SET_VARIABLE              VeryPsuedoRandomGenerator
+92  000000000058912C OP_LOAD_VARIABLE             VeryPsuedoRandomGenerator
+95  000000000058912F OP_CALL                      0
+97  0000000000589131 OP_SET_VARIABLE              random
+100 0000000000589134 OP_MAKE_CLASS                <Code object at 00000000005EE970>
+103 0000000000589137 OP_SET_VARIABLE              Game
+106 000000000058913A OP_MAKE_FUNCTION             <Code object at 00000000005EEBB0>
+111 000000000058913F OP_SET_VARIABLE              main
+114 0000000000589142 OP_LOAD_VARIABLE             main
+117 0000000000589145 OP_CALL                      0
+119 0000000000589147 OP_POP
+120 0000000000589148 OP_NIL
+121 0000000000589149 OP_RETURN
+
+Inner chunk [index 54]:
+0   00000000005889E0 OP_MAKE_FUNCTION             <Code object at 0000000000579BD0>, x, y, texture
+11  00000000005889EB OP_SET_VARIABLE              @init
+14  00000000005889EE OP_MAKE_FUNCTION             <Code object at 000000000058A230>, dt
+21  00000000005889F5 OP_SET_VARIABLE              update
+24  00000000005889F8 OP_NIL
+25  00000000005889F9 OP_RETURN
+
+Inner chunk [index 13]:
+0   000000000058A1A0 OP_LOAD_VARIABLE             X
+3   000000000058A1A3 OP_LOAD_VARIABLE             self
+6   000000000058A1A6 OP_SET_ATTRIBUTE             x
+9   000000000058A1A9 OP_LOAD_VARIABLE             y
+12  000000000058A1AC OP_LOAD_VARIABLE             self
+15  000000000058A1AF OP_SET_ATTRIBUTE             y
+18  000000000058A1B2 OP_CONSTANT                  0
+21  000000000058A1B5 OP_LOAD_VARIABLE             self
+24  000000000058A1B8 OP_SET_ATTRIBUTE             dx
+27  000000000058A1BB OP_CONSTANT                  0
+30  000000000058A1BE OP_LOAD_VARIABLE             self
+33  000000000058A1C1 OP_SET_ATTRIBUTE             dy
+36  000000000058A1C4 OP_MAKE_TABLE                0
+38  000000000058A1C6 OP_SET_VARIABLE              details
+41  000000000058A1C9 OP_LOAD_VARIABLE             details
+44  000000000058A1CC OP_LOAD_VARIABLE             texture
+47  000000000058A1CF OP_LOAD_VARIABLE             sdl
+50  000000000058A1D2 OP_GET_ATTRIBUTE             query_texture
+53  000000000058A1D5 OP_CALL                      2
+55  000000000058A1D7 OP_POP
+56  000000000058A1D8 OP_MAKE_STRING               w
+59  000000000058A1DB OP_LOAD_VARIABLE             details
+62  000000000058A1DE OP_ACCESS_KEY
+63  000000000058A1DF OP_CONSTANT                  50
+66  000000000058A1E2 OP_DIVIDE
+67  000000000058A1E3 OP_LOAD_VARIABLE             self
+70  000000000058A1E6 OP_SET_ATTRIBUTE             width
+73  000000000058A1E9 OP_MAKE_STRING               h
+76  000000000058A1EC OP_LOAD_VARIABLE             details
+79  000000000058A1EF OP_ACCESS_KEY
+80  000000000058A1F0 OP_CONSTANT                  50
+83  000000000058A1F3 OP_DIVIDE
+84  000000000058A1F4 OP_LOAD_VARIABLE             self
+87  000000000058A1F7 OP_SET_ATTRIBUTE             height
+90  000000000058A1FA OP_NIL
+91  000000000058A1FB OP_RETURN
+
+Constant table [size 27] of chunk pointing at '000000000058A1A0':
+0: X [ type 4 ]
+1: self [ type 4 ]
+2: x [ type 4 ]
+3: y [ type 4 ]
+4: self [ type 4 ]
+5: y [ type 4 ]
+6: 0 [ type 0 ]
+7: self [ type 4 ]
+8: dx [ type 4 ]
+9: 0 [ type 0 ]
+10: self [ type 4 ]
+11: dy [ type 4 ]
+12: details [ type 4 ]
+13: details [ type 4 ]
+14: texture [ type 4 ]
+15: sdl [ type 4 ]
+16: query_texture [ type 4 ]
+17: w [ type 4 ]
+18: details [ type 4 ]
+19: 50 [ type 0 ]
+20: self [ type 4 ]
+21: width [ type 4 ]
+22: h [ type 4 ]
+23: details [ type 4 ]
+24: 50 [ type 0 ]
+25: self [ type 4 ]
+26: height [ type 4 ]
+
+Inner chunk [index 35]:
+0   00000000005919F0 OP_LOAD_VARIABLE             sdl
+3   00000000005919F3 OP_GET_ATTRIBUTE             SDL_SCANCODE_RIGHT
+6   00000000005919F6 OP_LOAD_VARIABLE             keyboard
+9   00000000005919F9 OP_ACCESS_KEY
+10  00000000005919FA OP_JUMP_IF_FALSE             34
+13  00000000005919FD OP_LOAD_VARIABLE             dt
+16  0000000000591A00 OP_CONSTANT                  0
+19  0000000000591A03 OP_CONSTANT                  4
+22  0000000000591A06 OP_LOAD_VARIABLE             self
+25  0000000000591A09 OP_GET_ATTRIBUTE             apply_force
+28  0000000000591A0C OP_CALL                      3
+30  0000000000591A0E OP_POP
+31  0000000000591A0F OP_JUMP                      34
+34  0000000000591A12 OP_LOAD_VARIABLE             sdl
+37  0000000000591A15 OP_GET_ATTRIBUTE             SDL_SCANCODE_LEFT
+40  0000000000591A18 OP_LOAD_VARIABLE             keyboard
+43  0000000000591A1B OP_ACCESS_KEY
+44  0000000000591A1C OP_JUMP_IF_FALSE             69
+47  0000000000591A1F OP_LOAD_VARIABLE             dt
+50  0000000000591A22 OP_CONSTANT                  0
+53  0000000000591A25 OP_CONSTANT                  4
+56  0000000000591A28 OP_NEGATE
+57  0000000000591A29 OP_LOAD_VARIABLE             self
+60  0000000000591A2C OP_GET_ATTRIBUTE             apply_force
+63  0000000000591A2F OP_CALL                      3
+65  0000000000591A31 OP_POP
+66  0000000000591A32 OP_JUMP                      69
+69  0000000000591A35 OP_LOAD_VARIABLE             sdl
+72  0000000000591A38 OP_GET_ATTRIBUTE             SDL_SCANCODE_SPACE
+75  0000000000591A3B OP_LOAD_VARIABLE             keyboard
+78  0000000000591A3E OP_ACCESS_KEY
+79  0000000000591A3F OP_JUMP_IF_FALSE             94
+82  0000000000591A42 OP_MAKE_STRING               shoot
+85  0000000000591A45 OP_LOAD_VARIABLE             print
+88  0000000000591A48 OP_CALL                      1
+90  0000000000591A4A OP_POP
+91  0000000000591A4B OP_JUMP                      94
+94  0000000000591A4E OP_CONSTANT                  10
+97  0000000000591A51 OP_LOAD_VARIABLE             self
+100 0000000000591A54 OP_GET_ATTRIBUTE             dy
+103 0000000000591A57 OP_LOAD_VARIABLE             math
+106 0000000000591A5A OP_GET_ATTRIBUTE             min
+109 0000000000591A5D OP_CALL                      2
+111 0000000000591A5F OP_LOAD_VARIABLE             self
+114 0000000000591A62 OP_SET_ATTRIBUTE             dy
+117 0000000000591A65 OP_CONSTANT                  10
+120 0000000000591A68 OP_LOAD_VARIABLE             self
+123 0000000000591A6B OP_GET_ATTRIBUTE             dx
+126 0000000000591A6E OP_LOAD_VARIABLE             math
+129 0000000000591A71 OP_GET_ATTRIBUTE             min
+132 0000000000591A74 OP_CALL                      2
+134 0000000000591A76 OP_LOAD_VARIABLE             self
+137 0000000000591A79 OP_SET_ATTRIBUTE             dx
+140 0000000000591A7C OP_NIL
+141 0000000000591A7D OP_RETURN
+
+Constant table [size 35] of chunk pointing at '00000000005919F0':
+0: sdl [ type 4 ]
+1: SDL_SCANCODE_RIGHT [ type 4 ]
+2: keyboard [ type 4 ]
+3: dt [ type 4 ]
+4: 0 [ type 0 ]
+5: 4 [ type 0 ]
+6: self [ type 4 ]
+7: apply_force [ type 4 ]
+8: sdl [ type 4 ]
+9: SDL_SCANCODE_LEFT [ type 4 ]
+10: keyboard [ type 4 ]
+11: dt [ type 4 ]
+12: 0 [ type 0 ]
+13: 4 [ type 0 ]
+14: self [ type 4 ]
+15: apply_force [ type 4 ]
+16: sdl [ type 4 ]
+17: SDL_SCANCODE_SPACE [ type 4 ]
+18: keyboard [ type 4 ]
+19: shoot [ type 4 ]
+20: print [ type 4 ]
+21: 10 [ type 0 ]
+22: self [ type 4 ]
+23: dy [ type 4 ]
+24: math [ type 4 ]
+25: min [ type 4 ]
+26: self [ type 4 ]
+27: dy [ type 4 ]
+28: 10 [ type 0 ]
+29: self [ type 4 ]
+30: dx [ type 4 ]
+31: math [ type 4 ]
+32: min [ type 4 ]
+33: self [ type 4 ]
+34: dx [ type 4 ]
+
+Constant table [size 38] of chunk pointing at '00000000005889E0':
+0: X [ type 4 ]
+1: self [ type 4 ]
+2: y [ type 4 ]
+3: self [ type 4 ]
+4: self [ type 4 ]
+5: self [ type 4 ]
+6: details [ type 4 ]
+7: texture [ type 4 ]
+8: sdl [ type 4 ]
+9: details [ type 4 ]
+10: self [ type 4 ]
+11: details [ type 4 ]
+12: self [ type 4 ]
+13: <Code object at 0000000000579BD0> [ type 4 ]
+14: x [ type 4 ]
+15: y [ type 4 ]
+16: texture [ type 4 ]
+17: @init [ type 4 ]
+18: sdl [ type 4 ]
+19: keyboard [ type 4 ]
+20: dt [ type 4 ]
+21: self [ type 4 ]
+22: sdl [ type 4 ]
+23: keyboard [ type 4 ]
+24: dt [ type 4 ]
+25: self [ type 4 ]
+26: sdl [ type 4 ]
+27: keyboard [ type 4 ]
+28: print [ type 4 ]
+29: self [ type 4 ]
+30: math [ type 4 ]
+31: self [ type 4 ]
+32: self [ type 4 ]
+33: math [ type 4 ]
+34: self [ type 4 ]
+35: <Code object at 000000000058A230> [ type 4 ]
+36: dt [ type 4 ]
+37: update [ type 4 ]
+
+Inner chunk [index 119]:
+0   0000000000586D40 OP_MAKE_FUNCTION             <Code object at 000000000058B550>, x, y, texture
+11  0000000000586D4B OP_SET_VARIABLE              @init
+14  0000000000586D4E OP_MAKE_FUNCTION             <Code object at 000000000058B440>
+19  0000000000586D53 OP_SET_VARIABLE              debug_print
+22  0000000000586D56 OP_MAKE_FUNCTION             <Code object at 000000000059A910>, fx, fy, dt
+33  0000000000586D61 OP_SET_VARIABLE              apply_force
+36  0000000000586D64 OP_MAKE_FUNCTION             <Code object at 000000000059AAB0>, dt
+43  0000000000586D6B OP_SET_VARIABLE              update
+46  0000000000586D6E OP_NIL
+47  0000000000586D6F OP_RETURN
+
+Inner chunk [index 16]:
+0   0000000000597E70 OP_LOAD_VARIABLE             x
+3   0000000000597E73 OP_LOAD_VARIABLE             self
+6   0000000000597E76 OP_SET_ATTRIBUTE             x
+9   0000000000597E79 OP_LOAD_VARIABLE             y
+12  0000000000597E7C OP_LOAD_VARIABLE             self
+15  0000000000597E7F OP_SET_ATTRIBUTE             y
+18  0000000000597E82 OP_CONSTANT                  0
+21  0000000000597E85 OP_LOAD_VARIABLE             self
+24  0000000000597E88 OP_SET_ATTRIBUTE             dx
+27  0000000000597E8B OP_CONSTANT                  0
+30  0000000000597E8E OP_LOAD_VARIABLE             self
+33  0000000000597E91 OP_SET_ATTRIBUTE             dy
+36  0000000000597E94 OP_LOAD_VARIABLE             texture
+39  0000000000597E97 OP_LOAD_VARIABLE             self
+42  0000000000597E9A OP_SET_ATTRIBUTE             texture
+45  0000000000597E9D OP_MAKE_TABLE                0
+47  0000000000597E9F OP_SET_VARIABLE              details
+50  0000000000597EA2 OP_LOAD_VARIABLE             details
+53  0000000000597EA5 OP_LOAD_VARIABLE             texture
+56  0000000000597EA8 OP_LOAD_VARIABLE             sdl
+59  0000000000597EAB OP_GET_ATTRIBUTE             query_texture
+62  0000000000597EAE OP_CALL                      2
+64  0000000000597EB0 OP_POP
+65  0000000000597EB1 OP_MAKE_STRING               w
+68  0000000000597EB4 OP_LOAD_VARIABLE             details
+71  0000000000597EB7 OP_ACCESS_KEY
+72  0000000000597EB8 OP_CONSTANT                  10
+75  0000000000597EBB OP_DIVIDE
+76  0000000000597EBC OP_LOAD_VARIABLE             self
+79  0000000000597EBF OP_SET_ATTRIBUTE             width
+82  0000000000597EC2 OP_MAKE_STRING               h
+85  0000000000597EC5 OP_LOAD_VARIABLE             details
+88  0000000000597EC8 OP_ACCESS_KEY
+89  0000000000597EC9 OP_CONSTANT                  10
+92  0000000000597ECC OP_DIVIDE
+93  0000000000597ECD OP_LOAD_VARIABLE             self
+96  0000000000597ED0 OP_SET_ATTRIBUTE             height
+99  0000000000597ED3 OP_CONSTANT                  0
+102 0000000000597ED6 OP_LOAD_VARIABLE             self
+105 0000000000597ED9 OP_SET_ATTRIBUTE             _bounces
+108 0000000000597EDC OP_NIL
+109 0000000000597EDD OP_RETURN
+
+Constant table [size 33] of chunk pointing at '0000000000597E70':
+0: x [ type 4 ]
+1: self [ type 4 ]
+2: x [ type 4 ]
+3: y [ type 4 ]
+4: self [ type 4 ]
+5: y [ type 4 ]
+6: 0 [ type 0 ]
+7: self [ type 4 ]
+8: dx [ type 4 ]
+9: 0 [ type 0 ]
+10: self [ type 4 ]
+11: dy [ type 4 ]
+12: texture [ type 4 ]
+13: self [ type 4 ]
+14: texture [ type 4 ]
+15: details [ type 4 ]
+16: details [ type 4 ]
+17: texture [ type 4 ]
+18: sdl [ type 4 ]
+19: query_texture [ type 4 ]
+20: w [ type 4 ]
+21: details [ type 4 ]
+22: 10 [ type 0 ]
+23: self [ type 4 ]
+24: width [ type 4 ]
+25: h [ type 4 ]
+26: details [ type 4 ]
+27: 10 [ type 0 ]
+28: self [ type 4 ]
+29: height [ type 4 ]
+30: 0 [ type 0 ]
+31: self [ type 4 ]
+32: _bounces [ type 4 ]
+
+Inner chunk [index 40]:
+0   000000000059E3C0 OP_MAKE_STRING               --- Ball ---
+3   000000000059E3C3 OP_LOAD_VARIABLE             print
+6   000000000059E3C6 OP_CALL                      1
+8   000000000059E3C8 OP_POP
+9   000000000059E3C9 OP_MAKE_STRING               X: 
+12  000000000059E3CC OP_LOAD_VARIABLE             self
+15  000000000059E3CF OP_GET_ATTRIBUTE             x
+18  000000000059E3D2 OP_LOAD_VARIABLE             to_string
+21  000000000059E3D5 OP_CALL                      1
+23  000000000059E3D7 OP_ADD
+24  000000000059E3D8 OP_MAKE_STRING               , Y: 
+27  000000000059E3DB OP_ADD
+28  000000000059E3DC OP_LOAD_VARIABLE             self
+31  000000000059E3DF OP_GET_ATTRIBUTE             y
+34  000000000059E3E2 OP_LOAD_VARIABLE             to_string
+37  000000000059E3E5 OP_CALL                      1
+39  000000000059E3E7 OP_ADD
+40  000000000059E3E8 OP_LOAD_VARIABLE             print
+43  000000000059E3EB OP_CALL                      1
+45  000000000059E3ED OP_POP
+46  000000000059E3EE OP_MAKE_STRING               DX: 
+49  000000000059E3F1 OP_LOAD_VARIABLE             self
+52  000000000059E3F4 OP_GET_ATTRIBUTE             dx
+55  000000000059E3F7 OP_LOAD_VARIABLE             to_string
+58  000000000059E3FA OP_CALL                      1
+60  000000000059E3FC OP_ADD
+61  000000000059E3FD OP_MAKE_STRING               , DY: 
+64  000000000059E400 OP_ADD
+65  000000000059E401 OP_LOAD_VARIABLE             self
+68  000000000059E404 OP_GET_ATTRIBUTE             dy
+71  000000000059E407 OP_LOAD_VARIABLE             to_string
+74  000000000059E40A OP_CALL                      1
+76  000000000059E40C OP_ADD
+77  000000000059E40D OP_LOAD_VARIABLE             print
+80  000000000059E410 OP_CALL                      1
+82  000000000059E412 OP_POP
+83  000000000059E413 OP_MAKE_STRING               W: 
+86  000000000059E416 OP_LOAD_VARIABLE             self
+89  000000000059E419 OP_GET_ATTRIBUTE             width
+92  000000000059E41C OP_LOAD_VARIABLE             to_string
+95  000000000059E41F OP_CALL                      1
+97  000000000059E421 OP_ADD
+98  000000000059E422 OP_MAKE_STRING               , H: 
+101 000000000059E425 OP_ADD
+102 000000000059E426 OP_LOAD_VARIABLE             self
+105 000000000059E429 OP_GET_ATTRIBUTE             height
+108 000000000059E42C OP_LOAD_VARIABLE             to_string
+111 000000000059E42F OP_CALL                      1
+113 000000000059E431 OP_ADD
+114 000000000059E432 OP_LOAD_VARIABLE             print
+117 000000000059E435 OP_CALL                      1
+119 000000000059E437 OP_POP
+120 000000000059E438 OP_MAKE_STRING               Bounces: 
+123 000000000059E43B OP_LOAD_VARIABLE             self
+126 000000000059E43E OP_GET_ATTRIBUTE             _bounces
+129 000000000059E441 OP_LOAD_VARIABLE             to_string
+132 000000000059E444 OP_CALL                      1
+134 000000000059E446 OP_ADD
+135 000000000059E447 OP_LOAD_VARIABLE             print
+138 000000000059E44A OP_CALL                      1
+140 000000000059E44C OP_POP
+141 000000000059E44D OP_NIL
+142 000000000059E44E OP_RETURN
+
+Constant table [size 34] of chunk pointing at '000000000059E3C0':
+0: --- Ball --- [ type 4 ]
+1: print [ type 4 ]
+2: X:  [ type 4 ]
+3: self [ type 4 ]
+4: x [ type 4 ]
+5: to_string [ type 4 ]
+6: , Y:  [ type 4 ]
+7: self [ type 4 ]
+8: y [ type 4 ]
+9: to_string [ type 4 ]
+10: print [ type 4 ]
+11: DX:  [ type 4 ]
+12: self [ type 4 ]
+13: dx [ type 4 ]
+14: to_string [ type 4 ]
+15: , DY:  [ type 4 ]
+16: self [ type 4 ]
+17: dy [ type 4 ]
+18: to_string [ type 4 ]
+19: print [ type 4 ]
+20: W:  [ type 4 ]
+21: self [ type 4 ]
+22: width [ type 4 ]
+23: to_string [ type 4 ]
+24: , H:  [ type 4 ]
+25: self [ type 4 ]
+26: height [ type 4 ]
+27: to_string [ type 4 ]
+28: print [ type 4 ]
+29: Bounces:  [ type 4 ]
+30: self [ type 4 ]
+31: _bounces [ type 4 ]
+32: to_string [ type 4 ]
+33: print [ type 4 ]
+
+Inner chunk [index 50]:
+0   0000000000586CF0 OP_LOAD_VARIABLE             self
+3   0000000000586CF3 OP_GET_ATTRIBUTE             dx
+6   0000000000586CF6 OP_LOAD_VARIABLE             fx
+9   0000000000586CF9 OP_LOAD_VARIABLE             dt
+12  0000000000586CFC OP_MULTIPLY
+13  0000000000586CFD OP_ADD
+14  0000000000586CFE OP_LOAD_VARIABLE             self
+17  0000000000586D01 OP_SET_ATTRIBUTE             dx
+20  0000000000586D04 OP_LOAD_VARIABLE             self
+23  0000000000586D07 OP_GET_ATTRIBUTE             dy
+26  0000000000586D0A OP_LOAD_VARIABLE             fy
+29  0000000000586D0D OP_LOAD_VARIABLE             dt
+32  0000000000586D10 OP_MULTIPLY
+33  0000000000586D11 OP_ADD
+34  0000000000586D12 OP_LOAD_VARIABLE             self
+37  0000000000586D15 OP_SET_ATTRIBUTE             dy
+40  0000000000586D18 OP_NIL
+41  0000000000586D19 OP_RETURN
+
+Constant table [size 12] of chunk pointing at '0000000000586CF0':
+0: self [ type 4 ]
+1: dx [ type 4 ]
+2: fx [ type 4 ]
+3: dt [ type 4 ]
+4: self [ type 4 ]
+5: dx [ type 4 ]
+6: self [ type 4 ]
+7: dy [ type 4 ]
+8: fy [ type 4 ]
+9: dt [ type 4 ]
+10: self [ type 4 ]
+11: dy [ type 4 ]
+
+Inner chunk [index 75]:
+0   000000000059A9A0 OP_LOAD_VARIABLE             self
+3   000000000059A9A3 OP_GET_ATTRIBUTE             x
+6   000000000059A9A6 OP_LOAD_VARIABLE             self
+9   000000000059A9A9 OP_GET_ATTRIBUTE             dx
+12  000000000059A9AC OP_LOAD_VARIABLE             dt
+15  000000000059A9AF OP_MULTIPLY
+16  000000000059A9B0 OP_ADD
+17  000000000059A9B1 OP_LOAD_VARIABLE             self
+20  000000000059A9B4 OP_SET_ATTRIBUTE             x
+23  000000000059A9B7 OP_LOAD_VARIABLE             self
+26  000000000059A9BA OP_GET_ATTRIBUTE             y
+29  000000000059A9BD OP_LOAD_VARIABLE             self
+32  000000000059A9C0 OP_GET_ATTRIBUTE             dy
+35  000000000059A9C3 OP_LOAD_VARIABLE             dt
+38  000000000059A9C6 OP_MULTIPLY
+39  000000000059A9C7 OP_ADD
+40  000000000059A9C8 OP_LOAD_VARIABLE             self
+43  000000000059A9CB OP_SET_ATTRIBUTE             y
+46  000000000059A9CE OP_LOAD_VARIABLE             SCREEN_HEIGHT
+49  000000000059A9D1 OP_LOAD_VARIABLE             self
+52  000000000059A9D4 OP_GET_ATTRIBUTE             height
+55  000000000059A9D7 OP_SUBTRACT
+56  000000000059A9D8 OP_SET_VARIABLE              floor
+59  000000000059A9DB OP_LOAD_VARIABLE             self
+62  000000000059A9DE OP_GET_ATTRIBUTE             y
+65  000000000059A9E1 OP_LOAD_VARIABLE             floor
+68  000000000059A9E4 OP_GREATER_EQUAL
+69  000000000059A9E5 OP_JUMP_IF_FALSE             117
+72  000000000059A9E8 OP_LOAD_VARIABLE             floor
+75  000000000059A9EB OP_LOAD_VARIABLE             self
+78  000000000059A9EE OP_SET_ATTRIBUTE             y
+81  000000000059A9F1 OP_LOAD_VARIABLE             self
+84  000000000059A9F4 OP_GET_ATTRIBUTE             _bounces
+87  000000000059A9F7 OP_CONSTANT                  1
+90  000000000059A9FA OP_ADD
+91  000000000059A9FB OP_LOAD_VARIABLE             self
+94  000000000059A9FE OP_SET_ATTRIBUTE             _bounces
+97  000000000059AA01 OP_LOAD_VARIABLE             self
+100 000000000059AA04 OP_GET_ATTRIBUTE             dy
+103 000000000059AA07 OP_CONSTANT                  1
+106 000000000059AA0A OP_NEGATE
+107 000000000059AA0B OP_MULTIPLY
+108 000000000059AA0C OP_LOAD_VARIABLE             self
+111 000000000059AA0F OP_SET_ATTRIBUTE             dy
+114 000000000059AA12 OP_JUMP                      135
+117 000000000059AA15 OP_LOAD_VARIABLE             dt
+120 000000000059AA18 OP_CONSTANT                  300
+123 000000000059AA1B OP_CONSTANT                  0
+126 000000000059AA1E OP_LOAD_VARIABLE             self
+129 000000000059AA21 OP_GET_ATTRIBUTE             apply_force
+132 000000000059AA24 OP_CALL                      3
+134 000000000059AA26 OP_POP
+135 000000000059AA27 OP_NIL
+136 000000000059AA28 OP_RETURN
+
+Constant table [size 39] of chunk pointing at '000000000059A9A0':
+0: self [ type 4 ]
+1: x [ type 4 ]
+2: self [ type 4 ]
+3: dx [ type 4 ]
+4: dt [ type 4 ]
+5: self [ type 4 ]
+6: x [ type 4 ]
+7: self [ type 4 ]
+8: y [ type 4 ]
+9: self [ type 4 ]
+10: dy [ type 4 ]
+11: dt [ type 4 ]
+12: self [ type 4 ]
+13: y [ type 4 ]
+14: SCREEN_HEIGHT [ type 4 ]
+15: self [ type 4 ]
+16: height [ type 4 ]
+17: floor [ type 4 ]
+18: self [ type 4 ]
+19: y [ type 4 ]
+20: floor [ type 4 ]
+21: floor [ type 4 ]
+22: self [ type 4 ]
+23: y [ type 4 ]
+24: self [ type 4 ]
+25: _bounces [ type 4 ]
+26: 1 [ type 0 ]
+27: self [ type 4 ]
+28: _bounces [ type 4 ]
+29: self [ type 4 ]
+30: dy [ type 4 ]
+31: 1 [ type 0 ]
+32: self [ type 4 ]
+33: dy [ type 4 ]
+34: dt [ type 4 ]
+35: 300 [ type 0 ]
+36: 0 [ type 0 ]
+37: self [ type 4 ]
+38: apply_force [ type 4 ]
+
+Constant table [size 78] of chunk pointing at '0000000000586D40':
+0: x [ type 4 ]
+1: self [ type 4 ]
+2: y [ type 4 ]
+3: self [ type 4 ]
+4: self [ type 4 ]
+5: self [ type 4 ]
+6: texture [ type 4 ]
+7: self [ type 4 ]
+8: details [ type 4 ]
+9: texture [ type 4 ]
+10: sdl [ type 4 ]
+11: details [ type 4 ]
+12: self [ type 4 ]
+13: details [ type 4 ]
+14: self [ type 4 ]
+15: self [ type 4 ]
+16: <Code object at 000000000058B550> [ type 4 ]
+17: x [ type 4 ]
+18: y [ type 4 ]
+19: texture [ type 4 ]
+20: @init [ type 4 ]
+21: print [ type 4 ]
+22: self [ type 4 ]
+23: to_string [ type 4 ]
+24: self [ type 4 ]
+25: to_string [ type 4 ]
+26: print [ type 4 ]
+27: self [ type 4 ]
+28: to_string [ type 4 ]
+29: self [ type 4 ]
+30: to_string [ type 4 ]
+31: print [ type 4 ]
+32: self [ type 4 ]
+33: to_string [ type 4 ]
+34: self [ type 4 ]
+35: to_string [ type 4 ]
+36: print [ type 4 ]
+37: self [ type 4 ]
+38: to_string [ type 4 ]
+39: print [ type 4 ]
+40: <Code object at 000000000058B440> [ type 4 ]
+41: debug_print [ type 4 ]
+42: self [ type 4 ]
+43: fx [ type 4 ]
+44: dt [ type 4 ]
+45: self [ type 4 ]
+46: self [ type 4 ]
+47: fy [ type 4 ]
+48: dt [ type 4 ]
+49: self [ type 4 ]
+50: <Code object at 000000000059A910> [ type 4 ]
+51: fx [ type 4 ]
+52: fy [ type 4 ]
+53: dt [ type 4 ]
+54: apply_force [ type 4 ]
+55: self [ type 4 ]
+56: self [ type 4 ]
+57: dt [ type 4 ]
+58: self [ type 4 ]
+59: self [ type 4 ]
+60: self [ type 4 ]
+61: dt [ type 4 ]
+62: self [ type 4 ]
+63: SCREEN_HEIGHT [ type 4 ]
+64: self [ type 4 ]
+65: self [ type 4 ]
+66: floor [ type 4 ]
+67: floor [ type 4 ]
+68: self [ type 4 ]
+69: self [ type 4 ]
+70: self [ type 4 ]
+71: self [ type 4 ]
+72: self [ type 4 ]
+73: dt [ type 4 ]
+74: self [ type 4 ]
+75: <Code object at 000000000059AAB0> [ type 4 ]
+76: dt [ type 4 ]
+77: update [ type 4 ]
+
+Inner chunk [index 131]:
+0   0000000000588A10 OP_MAKE_FUNCTION             <Code object at 0000000000594790>
+5   0000000000588A15 OP_SET_VARIABLE              @init
+8   0000000000588A18 OP_MAKE_FUNCTION             <Code object at 00000000005948B0>
+13  0000000000588A1D OP_SET_VARIABLE              next_number
+16  0000000000588A20 OP_NIL
+17  0000000000588A21 OP_RETURN
+
+Inner chunk [index 2]:
+0   0000000000597BE0 OP_CONSTANT                  53
+3   0000000000597BE3 OP_CONSTANT                  0
+6   0000000000597BE6 OP_CONSTANT                  34536
+9   0000000000597BE9 OP_CONSTANT                  1
+12  0000000000597BEC OP_CONSTANT                  867
+15  0000000000597BEF OP_CONSTANT                  2
+18  0000000000597BF2 OP_CONSTANT                  92444
+21  0000000000597BF5 OP_CONSTANT                  3
+24  0000000000597BF8 OP_CONSTANT                  4
+27  0000000000597BFB OP_NEGATE
+28  0000000000597BFC OP_CONSTANT                  4
+31  0000000000597BFF OP_CONSTANT                  25672
+34  0000000000597C02 OP_CONSTANT                  5
+37  0000000000597C05 OP_CONSTANT                  87531
+40  0000000000597C08 OP_CONSTANT                  6
+43  0000000000597C0B OP_CONSTANT                  30
+46  0000000000597C0E OP_CONSTANT                  7
+49  0000000000597C11 OP_CONSTANT                  1996
+52  0000000000597C14 OP_CONSTANT                  8
+55  0000000000597C17 OP_CONSTANT                  458736
+58  0000000000597C1A OP_CONSTANT                  9
+61  0000000000597C1D OP_CONSTANT                  77
+64  0000000000597C20 OP_CONSTANT                  10
+67  0000000000597C23 OP_CONSTANT                  2
+70  0000000000597C26 OP_NEGATE
+71  0000000000597C27 OP_CONSTANT                  11
+74  0000000000597C2A OP_CONSTANT                  95617
+77  0000000000597C2D OP_CONSTANT                  12
+80  0000000000597C30 OP_CONSTANT                  242
+83  0000000000597C33 OP_CONSTANT                  13
+86  0000000000597C36 OP_CONSTANT                  10
+89  0000000000597C39 OP_CONSTANT                  14
+92  0000000000597C3C OP_CONSTANT                  593845
+95  0000000000597C3F OP_CONSTANT                  15
+98  0000000000597C42 OP_CONSTANT                  32652
+101 0000000000597C45 OP_CONSTANT                  16
+104 0000000000597C48 OP_CONSTANT                  97865
+107 0000000000597C4B OP_CONSTANT                  17
+110 0000000000597C4E OP_CONSTANT                  561230
+113 0000000000597C51 OP_CONSTANT                  18
+116 0000000000597C54 OP_CONSTANT                  468
+119 0000000000597C57 OP_CONSTANT                  19
+122 0000000000597C5A OP_CONSTANT                  5
+125 0000000000597C5D OP_CONSTANT                  20
+128 0000000000597C60 OP_CONSTANT                  73
+131 0000000000597C63 OP_CONSTANT                  21
+134 0000000000597C66 OP_CONSTANT                  967
+137 0000000000597C69 OP_CONSTANT                  22
+140 0000000000597C6C OP_CONSTANT                  723
+143 0000000000597C6F OP_CONSTANT                  23
+146 0000000000597C72 OP_CONSTANT                  7
+149 0000000000597C75 OP_CONSTANT                  24
+152 0000000000597C78 OP_CONSTANT                  1.14533e+006
+155 0000000000597C7B OP_CONSTANT                  25
+158 0000000000597C7E OP_CONSTANT                  42
+161 0000000000597C81 OP_NEGATE
+162 0000000000597C82 OP_CONSTANT                  26
+165 0000000000597C85 OP_MAKE_TABLE                27
+167 0000000000597C87 OP_LOAD_VARIABLE             self
+170 0000000000597C8A OP_SET_ATTRIBUTE             _numbers
+173 0000000000597C8D OP_CONSTANT                  0
+176 0000000000597C90 OP_LOAD_VARIABLE             self
+179 0000000000597C93 OP_SET_ATTRIBUTE             _i
+182 0000000000597C96 OP_NIL
+183 0000000000597C97 OP_RETURN
+
+Constant table [size 59] of chunk pointing at '0000000000597BE0':
+0: 53 [ type 0 ]
+1: 0 [ type 0 ]
+2: 34536 [ type 0 ]
+3: 1 [ type 0 ]
+4: 867 [ type 0 ]
+5: 2 [ type 0 ]
+6: 92444 [ type 0 ]
+7: 3 [ type 0 ]
+8: 4 [ type 0 ]
+9: 4 [ type 0 ]
+10: 25672 [ type 0 ]
+11: 5 [ type 0 ]
+12: 87531 [ type 0 ]
+13: 6 [ type 0 ]
+14: 30 [ type 0 ]
+15: 7 [ type 0 ]
+16: 1996 [ type 0 ]
+17: 8 [ type 0 ]
+18: 458736 [ type 0 ]
+19: 9 [ type 0 ]
+20: 77 [ type 0 ]
+21: 10 [ type 0 ]
+22: 2 [ type 0 ]
+23: 11 [ type 0 ]
+24: 95617 [ type 0 ]
+25: 12 [ type 0 ]
+26: 242 [ type 0 ]
+27: 13 [ type 0 ]
+28: 10 [ type 0 ]
+29: 14 [ type 0 ]
+30: 593845 [ type 0 ]
+31: 15 [ type 0 ]
+32: 32652 [ type 0 ]
+33: 16 [ type 0 ]
+34: 97865 [ type 0 ]
+35: 17 [ type 0 ]
+36: 561230 [ type 0 ]
+37: 18 [ type 0 ]
+38: 468 [ type 0 ]
+39: 19 [ type 0 ]
+40: 5 [ type 0 ]
+41: 20 [ type 0 ]
+42: 73 [ type 0 ]
+43: 21 [ type 0 ]
+44: 967 [ type 0 ]
+45: 22 [ type 0 ]
+46: 723 [ type 0 ]
+47: 23 [ type 0 ]
+48: 7 [ type 0 ]
+49: 24 [ type 0 ]
+50: 1.14533e+006 [ type 0 ]
+51: 25 [ type 0 ]
+52: 42 [ type 0 ]
+53: 26 [ type 0 ]
+54: self [ type 4 ]
+55: _numbers [ type 4 ]
+56: 0 [ type 0 ]
+57: self [ type 4 ]
+58: _i [ type 4 ]
+
+Inner chunk [index 12]:
+0   0000000000594820 OP_LOAD_VARIABLE             self
+3   0000000000594823 OP_GET_ATTRIBUTE             _i
+6   0000000000594826 OP_CONSTANT                  1
+9   0000000000594829 OP_ADD
+10  000000000059482A OP_LOAD_VARIABLE             self
+13  000000000059482D OP_SET_ATTRIBUTE             _i
+16  0000000000594830 OP_LOAD_VARIABLE             self
+19  0000000000594833 OP_GET_ATTRIBUTE             _i
+22  0000000000594836 OP_LOAD_VARIABLE             self
+25  0000000000594839 OP_GET_ATTRIBUTE             _numbers
+28  000000000059483C OP_GET_ATTRIBUTE             length
+31  000000000059483F OP_CALL                      0
+33  0000000000594841 OP_GREATER_EQUAL
+34  0000000000594842 OP_JUMP_IF_FALSE             49
+37  0000000000594845 OP_CONSTANT                  0
+40  0000000000594848 OP_LOAD_VARIABLE             self
+43  000000000059484B OP_SET_ATTRIBUTE             _i
+46  000000000059484E OP_JUMP                      49
+49  0000000000594851 OP_LOAD_VARIABLE             self
+52  0000000000594854 OP_GET_ATTRIBUTE             _i
+55  0000000000594857 OP_LOAD_VARIABLE             self
+58  000000000059485A OP_GET_ATTRIBUTE             _numbers
+61  000000000059485D OP_ACCESS_KEY
+62  000000000059485E OP_LOAD_VARIABLE             math
+65  0000000000594861 OP_GET_ATTRIBUTE             abs
+68  0000000000594864 OP_CALL                      1
+70  0000000000594866 OP_RETURN
+71  0000000000594867 OP_NIL
+72  0000000000594868 OP_RETURN
+
+Constant table [size 19] of chunk pointing at '0000000000594820':
+0: self [ type 4 ]
+1: _i [ type 4 ]
+2: 1 [ type 0 ]
+3: self [ type 4 ]
+4: _i [ type 4 ]
+5: self [ type 4 ]
+6: _i [ type 4 ]
+7: self [ type 4 ]
+8: _numbers [ type 4 ]
+9: length [ type 4 ]
+10: 0 [ type 0 ]
+11: self [ type 4 ]
+12: _i [ type 4 ]
+13: self [ type 4 ]
+14: _i [ type 4 ]
+15: self [ type 4 ]
+16: _numbers [ type 4 ]
+17: math [ type 4 ]
+18: abs [ type 4 ]
+
+Constant table [size 14] of chunk pointing at '0000000000588A10':
+0: self [ type 4 ]
+1: self [ type 4 ]
+2: <Code object at 0000000000594790> [ type 4 ]
+3: @init [ type 4 ]
+4: self [ type 4 ]
+5: self [ type 4 ]
+6: self [ type 4 ]
+7: self [ type 4 ]
+8: self [ type 4 ]
+9: self [ type 4 ]
+10: self [ type 4 ]
+11: math [ type 4 ]
+12: <Code object at 00000000005948B0> [ type 4 ]
+13: next_number [ type 4 ]
+
+Inner chunk [index 227]:
+0   00000000005EE8E0 OP_MAKE_FUNCTION             <Code object at 00000000005EDFE0>, title
+7   00000000005EE8E7 OP_SET_VARIABLE              _init_sdl
+10  00000000005EE8EA OP_MAKE_FUNCTION             <Code object at 00000000005EE190>, title
+17  00000000005EE8F1 OP_SET_VARIABLE              @init
+20  00000000005EE8F4 OP_MAKE_FUNCTION             <Code object at 00000000005EE340>
+25  00000000005EE8F9 OP_SET_VARIABLE              spawn_ball
+28  00000000005EE8FC OP_MAKE_FUNCTION             <Code object at 00000000005EE3D0>
+33  00000000005EE901 OP_SET_VARIABLE              prepare_scene
+36  00000000005EE904 OP_MAKE_FUNCTION             <Code object at 00000000005EE460>
+41  00000000005EE909 OP_SET_VARIABLE              present_scene
+44  00000000005EE90C OP_MAKE_FUNCTION             <Code object at 00000000005EE610>, dt
+51  00000000005EE913 OP_SET_VARIABLE              logic
+54  00000000005EE916 OP_MAKE_FUNCTION             <Code object at 00000000005EE7C0>
+59  00000000005EE91B OP_SET_VARIABLE              draw
+62  00000000005EE91E OP_MAKE_FUNCTION             <Code object at 00000000005EE850>
+67  00000000005EE923 OP_SET_VARIABLE              input
+70  00000000005EE926 OP_NIL
+71  00000000005EE927 OP_RETURN
+
+Inner chunk [index 18]:
+0   00000000005A17C0 OP_LOAD_VARIABLE             sdl
+3   00000000005A17C3 OP_GET_ATTRIBUTE             SDL_INIT_VIDEO
+6   00000000005A17C6 OP_LOAD_VARIABLE             sdl
+9   00000000005A17C9 OP_GET_ATTRIBUTE             init
+12  00000000005A17CC OP_CALL                      1
+14  00000000005A17CE OP_POP
+15  00000000005A17CF OP_CONSTANT                  0
+18  00000000005A17D2 OP_LOAD_VARIABLE             SCREEN_HEIGHT
+21  00000000005A17D5 OP_LOAD_VARIABLE             SCREEN_WIDTH
+24  00000000005A17D8 OP_LOAD_VARIABLE             sdl
+27  00000000005A17DB OP_GET_ATTRIBUTE             SDL_WINDOWPOS_UNDEFINED
+30  00000000005A17DE OP_LOAD_VARIABLE             sdl
+33  00000000005A17E1 OP_GET_ATTRIBUTE             SDL_WINDOWPOS_UNDEFINED
+36  00000000005A17E4 OP_LOAD_VARIABLE             title
+39  00000000005A17E7 OP_LOAD_VARIABLE             sdl
+42  00000000005A17EA OP_GET_ATTRIBUTE             create_window
+45  00000000005A17ED OP_CALL                      6
+47  00000000005A17EF OP_LOAD_VARIABLE             self
+50  00000000005A17F2 OP_SET_ATTRIBUTE             window
+53  00000000005A17F5 OP_MAKE_STRING               linear
+56  00000000005A17F8 OP_LOAD_VARIABLE             sdl
+59  00000000005A17FB OP_GET_ATTRIBUTE             SDL_HINT_RENDER_SCALE_QUALITY
+62  00000000005A17FE OP_LOAD_VARIABLE             sdl
+65  00000000005A1801 OP_GET_ATTRIBUTE             set_hint
+68  00000000005A1804 OP_CALL                      2
+70  00000000005A1806 OP_POP
+71  00000000005A1807 OP_LOAD_VARIABLE             sdl
+74  00000000005A180A OP_GET_ATTRIBUTE             SDL_RENDERER_ACCELERATED
+77  00000000005A180D OP_CONSTANT                  1
+80  00000000005A1810 OP_NEGATE
+81  00000000005A1811 OP_LOAD_VARIABLE             self
+84  00000000005A1814 OP_GET_ATTRIBUTE             window
+87  00000000005A1817 OP_LOAD_VARIABLE             sdl
+90  00000000005A181A OP_GET_ATTRIBUTE             create_renderer
+93  00000000005A181D OP_CALL                      3
+95  00000000005A181F OP_LOAD_VARIABLE             self
+98  00000000005A1822 OP_SET_ATTRIBUTE             renderer
+101 00000000005A1825 OP_LOAD_VARIABLE             sdl
+104 00000000005A1828 OP_GET_ATTRIBUTE             IMG_INIT_PNG
+107 00000000005A182B OP_LOAD_VARIABLE             sdl
+110 00000000005A182E OP_GET_ATTRIBUTE             img_init
+113 00000000005A1831 OP_CALL                      1
+115 00000000005A1833 OP_POP
+116 00000000005A1834 OP_CONSTANT                  1
+119 00000000005A1837 OP_LOAD_VARIABLE             sdl
+122 00000000005A183A OP_GET_ATTRIBUTE             show_cursor
+125 00000000005A183D OP_CALL                      1
+127 00000000005A183F OP_POP
+128 00000000005A1840 OP_NIL
+129 00000000005A1841 OP_RETURN
+
+Constant table [size 37] of chunk pointing at '00000000005A17C0':
+0: sdl [ type 4 ]
+1: SDL_INIT_VIDEO [ type 4 ]
+2: sdl [ type 4 ]
+3: init [ type 4 ]
+4: 0 [ type 0 ]
+5: SCREEN_HEIGHT [ type 4 ]
+6: SCREEN_WIDTH [ type 4 ]
+7: sdl [ type 4 ]
+8: SDL_WINDOWPOS_UNDEFINED [ type 4 ]
+9: sdl [ type 4 ]
+10: SDL_WINDOWPOS_UNDEFINED [ type 4 ]
+11: title [ type 4 ]
+12: sdl [ type 4 ]
+13: create_window [ type 4 ]
+14: self [ type 4 ]
+15: window [ type 4 ]
+16: linear [ type 4 ]
+17: sdl [ type 4 ]
+18: SDL_HINT_RENDER_SCALE_QUALITY [ type 4 ]
+19: sdl [ type 4 ]
+20: set_hint [ type 4 ]
+21: sdl [ type 4 ]
+22: SDL_RENDERER_ACCELERATED [ type 4 ]
+23: 1 [ type 0 ]
+24: self [ type 4 ]
+25: window [ type 4 ]
+26: sdl [ type 4 ]
+27: create_renderer [ type 4 ]
+28: self [ type 4 ]
+29: renderer [ type 4 ]
+30: sdl [ type 4 ]
+31: IMG_INIT_PNG [ type 4 ]
+32: sdl [ type 4 ]
+33: img_init [ type 4 ]
+34: 1 [ type 0 ]
+35: sdl [ type 4 ]
+36: show_cursor [ type 4 ]
+
+Inner chunk [index 33]:
+0   00000000005EE070 OP_LOAD_VARIABLE             title
+3   00000000005EE073 OP_LOAD_VARIABLE             self
+6   00000000005EE076 OP_GET_ATTRIBUTE             _init_sdl
+9   00000000005EE079 OP_CALL                      1
+11  00000000005EE07B OP_POP
+12  00000000005EE07C OP_MAKE_STRING               sdl_extension\pictures\ball.png
+15  00000000005EE07F OP_LOAD_VARIABLE             self
+18  00000000005EE082 OP_GET_ATTRIBUTE             renderer
+21  00000000005EE085 OP_LOAD_VARIABLE             sdl
+24  00000000005EE088 OP_GET_ATTRIBUTE             img_load_texture
+27  00000000005EE08B OP_CALL                      2
+29  00000000005EE08D OP_LOAD_VARIABLE             self
+32  00000000005EE090 OP_SET_ATTRIBUTE             ball_texture
+35  00000000005EE093 OP_MAKE_STRING               sdl_extension\pictures\ball.png
+38  00000000005EE096 OP_LOAD_VARIABLE             self
+41  00000000005EE099 OP_GET_ATTRIBUTE             renderer
+44  00000000005EE09C OP_LOAD_VARIABLE             sdl
+47  00000000005EE09F OP_GET_ATTRIBUTE             img_load_texture
+50  00000000005EE0A2 OP_CALL                      2
+52  00000000005EE0A4 OP_SET_VARIABLE              player_texture
+55  00000000005EE0A7 OP_MAKE_TABLE                0
+57  00000000005EE0A9 OP_LOAD_VARIABLE             self
+60  00000000005EE0AC OP_SET_ATTRIBUTE             balls
+63  00000000005EE0AF OP_CONSTANT                  0
+66  00000000005EE0B2 OP_SET_VARIABLE              i
+69  00000000005EE0B5 OP_LOAD_VARIABLE             i
+72  00000000005EE0B8 OP_CONSTANT                  1
+75  00000000005EE0BB OP_LESS_THAN
+76  00000000005EE0BC OP_JUMP_IF_FALSE             101
+79  00000000005EE0BF OP_LOAD_VARIABLE             self
+82  00000000005EE0C2 OP_GET_ATTRIBUTE             spawn_ball
+85  00000000005EE0C5 OP_CALL                      0
+87  00000000005EE0C7 OP_POP
+88  00000000005EE0C8 OP_LOAD_VARIABLE             i
+91  00000000005EE0CB OP_CONSTANT                  1
+94  00000000005EE0CE OP_ADD
+95  00000000005EE0CF OP_SET_VARIABLE              i
+98  00000000005EE0D2 OP_JUMP                      69
+101 00000000005EE0D5 OP_CONSTANT                  true
+104 00000000005EE0D8 OP_LOAD_VARIABLE             self
+107 00000000005EE0DB OP_SET_ATTRIBUTE             running
+110 00000000005EE0DE OP_NIL
+111 00000000005EE0DF OP_RETURN
+
+Constant table [size 30] of chunk pointing at '00000000005EE070':
+0: title [ type 4 ]
+1: self [ type 4 ]
+2: _init_sdl [ type 4 ]
+3: sdl_extension\pictures\ball.png [ type 4 ]
+4: self [ type 4 ]
+5: renderer [ type 4 ]
+6: sdl [ type 4 ]
+7: img_load_texture [ type 4 ]
+8: self [ type 4 ]
+9: ball_texture [ type 4 ]
+10: sdl_extension\pictures\ball.png [ type 4 ]
+11: self [ type 4 ]
+12: renderer [ type 4 ]
+13: sdl [ type 4 ]
+14: img_load_texture [ type 4 ]
+15: player_texture [ type 4 ]
+16: self [ type 4 ]
+17: balls [ type 4 ]
+18: 0 [ type 0 ]
+19: i [ type 4 ]
+20: i [ type 4 ]
+21: 1 [ type 0 ]
+22: self [ type 4 ]
+23: spawn_ball [ type 4 ]
+24: i [ type 4 ]
+25: 1 [ type 0 ]
+26: i [ type 4 ]
+27: true [ type 1 ]
+28: self [ type 4 ]
+29: running [ type 4 ]
+
+Inner chunk [index 50]:
+0   00000000005EE2B0 OP_LOAD_VARIABLE             random
+3   00000000005EE2B3 OP_GET_ATTRIBUTE             next_number
+6   00000000005EE2B6 OP_CALL                      0
+8   00000000005EE2B8 OP_SET_VARIABLE              randnum
+11  00000000005EE2BB OP_LOAD_VARIABLE             randnum
+14  00000000005EE2BE OP_LOAD_VARIABLE             SCREEN_WIDTH
+17  00000000005EE2C1 OP_LOAD_VARIABLE             math
+20  00000000005EE2C4 OP_GET_ATTRIBUTE             min
+23  00000000005EE2C7 OP_CALL                      2
+25  00000000005EE2C9 OP_LOAD_VARIABLE             randnum
+28  00000000005EE2CC OP_LOAD_VARIABLE             SCREEN_WIDTH
+31  00000000005EE2CF OP_LOAD_VARIABLE             math
+34  00000000005EE2D2 OP_GET_ATTRIBUTE             max
+37  00000000005EE2D5 OP_CALL                      2
+39  00000000005EE2D7 OP_DIVIDE
+40  00000000005EE2D8 OP_LOAD_VARIABLE             SCREEN_WIDTH
+43  00000000005EE2DB OP_MULTIPLY
+44  00000000005EE2DC OP_SET_VARIABLE              random_x
+47  00000000005EE2DF OP_LOAD_VARIABLE             self
+50  00000000005EE2E2 OP_GET_ATTRIBUTE             ball_texture
+53  00000000005EE2E5 OP_SET_VARIABLE              texture
+56  00000000005EE2E8 OP_LOAD_VARIABLE             texture
+59  00000000005EE2EB OP_CONSTANT                  0
+62  00000000005EE2EE OP_LOAD_VARIABLE             random_x
+65  00000000005EE2F1 OP_LOAD_VARIABLE             Ball
+68  00000000005EE2F4 OP_CALL                      3
+70  00000000005EE2F6 OP_LOAD_VARIABLE             self
+73  00000000005EE2F9 OP_GET_ATTRIBUTE             balls
+76  00000000005EE2FC OP_GET_ATTRIBUTE             length
+79  00000000005EE2FF OP_CALL                      0
+81  00000000005EE301 OP_LOAD_VARIABLE             self
+84  00000000005EE304 OP_GET_ATTRIBUTE             balls
+87  00000000005EE307 OP_SET_KEY
+88  00000000005EE308 OP_NIL
+89  00000000005EE309 OP_RETURN
+
+Constant table [size 25] of chunk pointing at '00000000005EE2B0':
+0: random [ type 4 ]
+1: next_number [ type 4 ]
+2: randnum [ type 4 ]
+3: randnum [ type 4 ]
+4: SCREEN_WIDTH [ type 4 ]
+5: math [ type 4 ]
+6: min [ type 4 ]
+7: randnum [ type 4 ]
+8: SCREEN_WIDTH [ type 4 ]
+9: math [ type 4 ]
+10: max [ type 4 ]
+11: SCREEN_WIDTH [ type 4 ]
+12: random_x [ type 4 ]
+13: self [ type 4 ]
+14: ball_texture [ type 4 ]
+15: texture [ type 4 ]
+16: texture [ type 4 ]
+17: 0 [ type 0 ]
+18: random_x [ type 4 ]
+19: Ball [ type 4 ]
+20: self [ type 4 ]
+21: balls [ type 4 ]
+22: length [ type 4 ]
+23: self [ type 4 ]
+24: balls [ type 4 ]
+
+Inner chunk [index 56]:
+0   0000000000586E30 OP_CONSTANT                  255
+3   0000000000586E33 OP_CONSTANT                  5
+6   0000000000586E36 OP_CONSTANT                  230
+9   0000000000586E39 OP_CONSTANT                  128
+12  0000000000586E3C OP_LOAD_VARIABLE             self
+15  0000000000586E3F OP_GET_ATTRIBUTE             renderer
+18  0000000000586E42 OP_LOAD_VARIABLE             sdl
+21  0000000000586E45 OP_GET_ATTRIBUTE             set_render_draw_color
+24  0000000000586E48 OP_CALL                      5
+26  0000000000586E4A OP_POP
+27  0000000000586E4B OP_LOAD_VARIABLE             self
+30  0000000000586E4E OP_GET_ATTRIBUTE             renderer
+33  0000000000586E51 OP_LOAD_VARIABLE             sdl
+36  0000000000586E54 OP_GET_ATTRIBUTE             render_clear
+39  0000000000586E57 OP_CALL                      1
+41  0000000000586E59 OP_POP
+42  0000000000586E5A OP_NIL
+43  0000000000586E5B OP_RETURN
+
+Constant table [size 12] of chunk pointing at '0000000000586E30':
+0: 255 [ type 0 ]
+1: 5 [ type 0 ]
+2: 230 [ type 0 ]
+3: 128 [ type 0 ]
+4: self [ type 4 ]
+5: renderer [ type 4 ]
+6: sdl [ type 4 ]
+7: set_render_draw_color [ type 4 ]
+8: self [ type 4 ]
+9: renderer [ type 4 ]
+10: sdl [ type 4 ]
+11: render_clear [ type 4 ]
+
+Inner chunk [index 60]:
+0   0000000000588B00 OP_LOAD_VARIABLE             self
+3   0000000000588B03 OP_GET_ATTRIBUTE             renderer
+6   0000000000588B06 OP_LOAD_VARIABLE             sdl
+9   0000000000588B09 OP_GET_ATTRIBUTE             render_present
+12  0000000000588B0C OP_CALL                      1
+14  0000000000588B0E OP_POP
+15  0000000000588B0F OP_NIL
+16  0000000000588B10 OP_RETURN
+
+Constant table [size 4] of chunk pointing at '0000000000588B00':
+0: self [ type 4 ]
+1: renderer [ type 4 ]
+2: sdl [ type 4 ]
+3: render_present [ type 4 ]
+
+Inner chunk [index 72]:
+0   00000000005EE4F0 OP_LOAD_VARIABLE             sdl
+3   00000000005EE4F3 OP_GET_ATTRIBUTE             SDL_SCANCODE_SPACE
+6   00000000005EE4F6 OP_LOAD_VARIABLE             keyboard
+9   00000000005EE4F9 OP_ACCESS_KEY
+10  00000000005EE4FA OP_JUMP_IF_FALSE             25
+13  00000000005EE4FD OP_LOAD_VARIABLE             self
+16  00000000005EE500 OP_GET_ATTRIBUTE             spawn_ball
+19  00000000005EE503 OP_CALL                      0
+21  00000000005EE505 OP_POP
+22  00000000005EE506 OP_JUMP                      25
+25  00000000005EE509 OP_CONSTANT                  0
+28  00000000005EE50C OP_SET_VARIABLE              i
+31  00000000005EE50F OP_LOAD_VARIABLE             i
+34  00000000005EE512 OP_LOAD_VARIABLE             self
+37  00000000005EE515 OP_GET_ATTRIBUTE             balls
+40  00000000005EE518 OP_GET_ATTRIBUTE             length
+43  00000000005EE51B OP_CALL                      0
+45  00000000005EE51D OP_LESS_THAN
+46  00000000005EE51E OP_JUMP_IF_FALSE             87
+49  00000000005EE521 OP_LOAD_VARIABLE             i
+52  00000000005EE524 OP_LOAD_VARIABLE             self
+55  00000000005EE527 OP_GET_ATTRIBUTE             balls
+58  00000000005EE52A OP_ACCESS_KEY
+59  00000000005EE52B OP_SET_VARIABLE              ball
+62  00000000005EE52E OP_LOAD_VARIABLE             dt
+65  00000000005EE531 OP_LOAD_VARIABLE             ball
+68  00000000005EE534 OP_GET_ATTRIBUTE             update
+71  00000000005EE537 OP_CALL                      1
+73  00000000005EE539 OP_POP
+74  00000000005EE53A OP_LOAD_VARIABLE             i
+77  00000000005EE53D OP_CONSTANT                  1
+80  00000000005EE540 OP_ADD
+81  00000000005EE541 OP_SET_VARIABLE              i
+84  00000000005EE544 OP_JUMP                      31
+87  00000000005EE547 OP_NIL
+88  00000000005EE548 OP_RETURN
+
+Constant table [size 21] of chunk pointing at '00000000005EE4F0':
+0: sdl [ type 4 ]
+1: SDL_SCANCODE_SPACE [ type 4 ]
+2: keyboard [ type 4 ]
+3: self [ type 4 ]
+4: spawn_ball [ type 4 ]
+5: 0 [ type 0 ]
+6: i [ type 4 ]
+7: i [ type 4 ]
+8: self [ type 4 ]
+9: balls [ type 4 ]
+10: length [ type 4 ]
+11: i [ type 4 ]
+12: self [ type 4 ]
+13: balls [ type 4 ]
+14: ball [ type 4 ]
+15: dt [ type 4 ]
+16: ball [ type 4 ]
+17: update [ type 4 ]
+18: i [ type 4 ]
+19: 1 [ type 0 ]
+20: i [ type 4 ]
+
+Inner chunk [index 90]:
+0   00000000005EE730 OP_CONSTANT                  0
+3   00000000005EE733 OP_SET_VARIABLE              i
+6   00000000005EE736 OP_LOAD_VARIABLE             i
+9   00000000005EE739 OP_LOAD_VARIABLE             self
+12  00000000005EE73C OP_GET_ATTRIBUTE             balls
+15  00000000005EE73F OP_GET_ATTRIBUTE             length
+18  00000000005EE742 OP_CALL                      0
+20  00000000005EE744 OP_LESS_THAN
+21  00000000005EE745 OP_JUMP_IF_FALSE             112
+24  00000000005EE748 OP_LOAD_VARIABLE             i
+27  00000000005EE74B OP_LOAD_VARIABLE             self
+30  00000000005EE74E OP_GET_ATTRIBUTE             balls
+33  00000000005EE751 OP_ACCESS_KEY
+34  00000000005EE752 OP_SET_VARIABLE              ball
+37  00000000005EE755 OP_LOAD_VARIABLE             ball
+40  00000000005EE758 OP_GET_ATTRIBUTE             height
+43  00000000005EE75B OP_LOAD_VARIABLE             ball
+46  00000000005EE75E OP_GET_ATTRIBUTE             width
+49  00000000005EE761 OP_LOAD_VARIABLE             ball
+52  00000000005EE764 OP_GET_ATTRIBUTE             y
+55  00000000005EE767 OP_LOAD_VARIABLE             ball
+58  00000000005EE76A OP_GET_ATTRIBUTE             x
+61  00000000005EE76D OP_LOAD_VARIABLE             sdl
+64  00000000005EE770 OP_GET_ATTRIBUTE             Rect
+67  00000000005EE773 OP_CALL                      4
+69  00000000005EE775 OP_SET_VARIABLE              dest_rect
+72  00000000005EE778 OP_LOAD_VARIABLE             dest_rect
+75  00000000005EE77B OP_LOAD_VARIABLE             nil
+78  00000000005EE77E OP_LOAD_VARIABLE             ball
+81  00000000005EE781 OP_GET_ATTRIBUTE             texture
+84  00000000005EE784 OP_LOAD_VARIABLE             self
+87  00000000005EE787 OP_GET_ATTRIBUTE             renderer
+90  00000000005EE78A OP_LOAD_VARIABLE             sdl
+93  00000000005EE78D OP_GET_ATTRIBUTE             render_copy
+96  00000000005EE790 OP_CALL                      4
+98  00000000005EE792 OP_POP
+99  00000000005EE793 OP_LOAD_VARIABLE             i
+102 00000000005EE796 OP_CONSTANT                  1
+105 00000000005EE799 OP_ADD
+106 00000000005EE79A OP_SET_VARIABLE              i
+109 00000000005EE79D OP_JUMP                      6
+112 00000000005EE7A0 OP_NIL
+113 00000000005EE7A1 OP_RETURN
+
+Constant table [size 32] of chunk pointing at '00000000005EE730':
+0: 0 [ type 0 ]
+1: i [ type 4 ]
+2: i [ type 4 ]
+3: self [ type 4 ]
+4: balls [ type 4 ]
+5: length [ type 4 ]
+6: i [ type 4 ]
+7: self [ type 4 ]
+8: balls [ type 4 ]
+9: ball [ type 4 ]
+10: ball [ type 4 ]
+11: height [ type 4 ]
+12: ball [ type 4 ]
+13: width [ type 4 ]
+14: ball [ type 4 ]
+15: y [ type 4 ]
+16: ball [ type 4 ]
+17: x [ type 4 ]
+18: sdl [ type 4 ]
+19: Rect [ type 4 ]
+20: dest_rect [ type 4 ]
+21: dest_rect [ type 4 ]
+22: nil [ type 4 ]
+23: ball [ type 4 ]
+24: texture [ type 4 ]
+25: self [ type 4 ]
+26: renderer [ type 4 ]
+27: sdl [ type 4 ]
+28: render_copy [ type 4 ]
+29: i [ type 4 ]
+30: 1 [ type 0 ]
+31: i [ type 4 ]
+
+Inner chunk [index 109]:
+0   00000000005A20F0 OP_LOAD_VARIABLE             sdl
+3   00000000005A20F3 OP_GET_ATTRIBUTE             poll_event
+6   00000000005A20F6 OP_CALL                      0
+8   00000000005A20F8 OP_SET_VARIABLE              event
+11  00000000005A20FB OP_LOAD_VARIABLE             event
+14  00000000005A20FE OP_LOAD_VARIABLE             nil
+17  00000000005A2101 OP_EQUAL
+18  00000000005A2102 OP_NEGATE
+19  00000000005A2103 OP_JUMP_IF_FALSE             150
+22  00000000005A2106 OP_LOAD_VARIABLE             event
+25  00000000005A2109 OP_GET_ATTRIBUTE             type
+28  00000000005A210C OP_LOAD_VARIABLE             sdl
+31  00000000005A210F OP_GET_ATTRIBUTE             SDL_QUIT
+34  00000000005A2112 OP_EQUAL
+35  00000000005A2113 OP_JUMP_IF_FALSE             50
+38  00000000005A2116 OP_CONSTANT                  false
+41  00000000005A2119 OP_LOAD_VARIABLE             self
+44  00000000005A211C OP_SET_ATTRIBUTE             running
+47  00000000005A211F OP_JUMP                      136
+50  00000000005A2122 OP_LOAD_VARIABLE             event
+53  00000000005A2125 OP_GET_ATTRIBUTE             type
+56  00000000005A2128 OP_LOAD_VARIABLE             sdl
+59  00000000005A212B OP_GET_ATTRIBUTE             SDL_KEYUP
+62  00000000005A212E OP_EQUAL
+63  00000000005A212F OP_LOAD_VARIABLE             event
+66  00000000005A2132 OP_GET_ATTRIBUTE             repeat
+69  00000000005A2135 OP_CONSTANT                  0
+72  00000000005A2138 OP_EQUAL
+73  00000000005A2139 OP_AND
+74  00000000005A213A OP_JUMP_IF_FALSE             93
+77  00000000005A213D OP_CONSTANT                  false
+80  00000000005A2140 OP_LOAD_VARIABLE             event
+83  00000000005A2143 OP_GET_ATTRIBUTE             scancode
+86  00000000005A2146 OP_LOAD_VARIABLE             keyboard
+89  00000000005A2149 OP_SET_KEY
+90  00000000005A214A OP_JUMP                      136
+93  00000000005A214D OP_LOAD_VARIABLE             event
+96  00000000005A2150 OP_GET_ATTRIBUTE             type
+99  00000000005A2153 OP_LOAD_VARIABLE             sdl
+102 00000000005A2156 OP_GET_ATTRIBUTE             SDL_KEYDOWN
+105 00000000005A2159 OP_EQUAL
+106 00000000005A215A OP_LOAD_VARIABLE             event
+109 00000000005A215D OP_GET_ATTRIBUTE             repeat
+112 00000000005A2160 OP_CONSTANT                  0
+115 00000000005A2163 OP_EQUAL
+116 00000000005A2164 OP_AND
+117 00000000005A2165 OP_JUMP_IF_FALSE             136
+120 00000000005A2168 OP_CONSTANT                  true
+123 00000000005A216B OP_LOAD_VARIABLE             event
+126 00000000005A216E OP_GET_ATTRIBUTE             scancode
+129 00000000005A2171 OP_LOAD_VARIABLE             keyboard
+132 00000000005A2174 OP_SET_KEY
+133 00000000005A2175 OP_JUMP                      136
+136 00000000005A2178 OP_LOAD_VARIABLE             sdl
+139 00000000005A217B OP_GET_ATTRIBUTE             poll_event
+142 00000000005A217E OP_CALL                      0
+144 00000000005A2180 OP_SET_VARIABLE              event
+147 00000000005A2183 OP_JUMP                      11
+150 00000000005A2186 OP_NIL
+151 00000000005A2187 OP_RETURN
+
+Constant table [size 37] of chunk pointing at '00000000005A20F0':
+0: sdl [ type 4 ]
+1: poll_event [ type 4 ]
+2: event [ type 4 ]
+3: event [ type 4 ]
+4: nil [ type 4 ]
+5: event [ type 4 ]
+6: type [ type 4 ]
+7: sdl [ type 4 ]
+8: SDL_QUIT [ type 4 ]
+9: false [ type 1 ]
+10: self [ type 4 ]
+11: running [ type 4 ]
+12: event [ type 4 ]
+13: type [ type 4 ]
+14: sdl [ type 4 ]
+15: SDL_KEYUP [ type 4 ]
+16: event [ type 4 ]
+17: repeat [ type 4 ]
+18: 0 [ type 0 ]
+19: false [ type 1 ]
+20: event [ type 4 ]
+21: scancode [ type 4 ]
+22: keyboard [ type 4 ]
+23: event [ type 4 ]
+24: type [ type 4 ]
+25: sdl [ type 4 ]
+26: SDL_KEYDOWN [ type 4 ]
+27: event [ type 4 ]
+28: repeat [ type 4 ]
+29: 0 [ type 0 ]
+30: true [ type 1 ]
+31: event [ type 4 ]
+32: scancode [ type 4 ]
+33: keyboard [ type 4 ]
+34: sdl [ type 4 ]
+35: poll_event [ type 4 ]
+36: event [ type 4 ]
+
+Constant table [size 111] of chunk pointing at '00000000005EE8E0':
+0: sdl [ type 4 ]
+1: sdl [ type 4 ]
+2: SCREEN_HEIGHT [ type 4 ]
+3: SCREEN_WIDTH [ type 4 ]
+4: sdl [ type 4 ]
+5: sdl [ type 4 ]
+6: title [ type 4 ]
+7: sdl [ type 4 ]
+8: self [ type 4 ]
+9: sdl [ type 4 ]
+10: sdl [ type 4 ]
+11: sdl [ type 4 ]
+12: self [ type 4 ]
+13: sdl [ type 4 ]
+14: self [ type 4 ]
+15: sdl [ type 4 ]
+16: sdl [ type 4 ]
+17: sdl [ type 4 ]
+18: <Code object at 00000000005EDFE0> [ type 4 ]
+19: title [ type 4 ]
+20: _init_sdl [ type 4 ]
+21: title [ type 4 ]
+22: self [ type 4 ]
+23: self [ type 4 ]
+24: sdl [ type 4 ]
+25: self [ type 4 ]
+26: self [ type 4 ]
+27: sdl [ type 4 ]
+28: self [ type 4 ]
+29: i [ type 4 ]
+30: self [ type 4 ]
+31: i [ type 4 ]
+32: self [ type 4 ]
+33: <Code object at 00000000005EE190> [ type 4 ]
+34: title [ type 4 ]
+35: @init [ type 4 ]
+36: random [ type 4 ]
+37: randnum [ type 4 ]
+38: SCREEN_WIDTH [ type 4 ]
+39: math [ type 4 ]
+40: randnum [ type 4 ]
+41: SCREEN_WIDTH [ type 4 ]
+42: math [ type 4 ]
+43: SCREEN_WIDTH [ type 4 ]
+44: self [ type 4 ]
+45: texture [ type 4 ]
+46: random_x [ type 4 ]
+47: Ball [ type 4 ]
+48: self [ type 4 ]
+49: self [ type 4 ]
+50: <Code object at 00000000005EE340> [ type 4 ]
+51: spawn_ball [ type 4 ]
+52: self [ type 4 ]
+53: sdl [ type 4 ]
+54: self [ type 4 ]
+55: sdl [ type 4 ]
+56: <Code object at 00000000005EE3D0> [ type 4 ]
+57: prepare_scene [ type 4 ]
+58: self [ type 4 ]
+59: sdl [ type 4 ]
+60: <Code object at 00000000005EE460> [ type 4 ]
+61: present_scene [ type 4 ]
+62: sdl [ type 4 ]
+63: keyboard [ type 4 ]
+64: self [ type 4 ]
+65: i [ type 4 ]
+66: self [ type 4 ]
+67: i [ type 4 ]
+68: self [ type 4 ]
+69: dt [ type 4 ]
+70: ball [ type 4 ]
+71: i [ type 4 ]
+72: <Code object at 00000000005EE610> [ type 4 ]
+73: dt [ type 4 ]
+74: logic [ type 4 ]
+75: i [ type 4 ]
+76: self [ type 4 ]
+77: i [ type 4 ]
+78: self [ type 4 ]
+79: ball [ type 4 ]
+80: ball [ type 4 ]
+81: ball [ type 4 ]
+82: ball [ type 4 ]
+83: sdl [ type 4 ]
+84: dest_rect [ type 4 ]
+85: nil [ type 4 ]
+86: ball [ type 4 ]
+87: self [ type 4 ]
+88: sdl [ type 4 ]
+89: i [ type 4 ]
+90: <Code object at 00000000005EE7C0> [ type 4 ]
+91: draw [ type 4 ]
+92: sdl [ type 4 ]
+93: event [ type 4 ]
+94: nil [ type 4 ]
+95: event [ type 4 ]
+96: sdl [ type 4 ]
+97: self [ type 4 ]
+98: event [ type 4 ]
+99: sdl [ type 4 ]
+100: event [ type 4 ]
+101: event [ type 4 ]
+102: keyboard [ type 4 ]
+103: event [ type 4 ]
+104: sdl [ type 4 ]
+105: event [ type 4 ]
+106: event [ type 4 ]
+107: keyboard [ type 4 ]
+108: sdl [ type 4 ]
+109: <Code object at 00000000005EE850> [ type 4 ]
+110: input [ type 4 ]
+
+Inner chunk [index 254]:
+0   00000000005A1A60 OP_MAKE_STRING               My Plane Game! :D
+3   00000000005A1A63 OP_LOAD_VARIABLE             Game
+6   00000000005A1A66 OP_CALL                      1
+8   00000000005A1A68 OP_SET_VARIABLE              game
+11  00000000005A1A6B OP_CONSTANT                  50
+14  00000000005A1A6E OP_SET_VARIABLE              MAX_FPS
+17  00000000005A1A71 OP_CONSTANT                  1
+20  00000000005A1A74 OP_LOAD_VARIABLE             MAX_FPS
+23  00000000005A1A77 OP_DIVIDE
+24  00000000005A1A78 OP_SET_VARIABLE              MAX_DT
+27  00000000005A1A7B OP_CONSTANT                  0
+30  00000000005A1A7E OP_SET_VARIABLE              prev_time
+33  00000000005A1A81 OP_LOAD_VARIABLE             sdl
+36  00000000005A1A84 OP_GET_ATTRIBUTE             get_ticks
+39  00000000005A1A87 OP_CALL                      0
+41  00000000005A1A89 OP_CONSTANT                  1000
+44  00000000005A1A8C OP_DIVIDE
+45  00000000005A1A8D OP_SET_VARIABLE              curr_time
+48  00000000005A1A90 OP_CONSTANT                  0
+51  00000000005A1A93 OP_SET_VARIABLE              dbg_frame_count
+54  00000000005A1A96 OP_CONSTANT                  0
+57  00000000005A1A99 OP_SET_VARIABLE              dbg_frames_divided
+60  00000000005A1A9C OP_LOAD_VARIABLE             game
+63  00000000005A1A9F OP_GET_ATTRIBUTE             running
+66  00000000005A1AA2 OP_JUMP_IF_FALSE             240
+69  00000000005A1AA5 OP_LOAD_VARIABLE             game
+72  00000000005A1AA8 OP_GET_ATTRIBUTE             prepare_scene
+75  00000000005A1AAB OP_CALL                      0
+77  00000000005A1AAD OP_POP
+78  00000000005A1AAE OP_LOAD_VARIABLE             game
+81  00000000005A1AB1 OP_GET_ATTRIBUTE             input
+84  00000000005A1AB4 OP_CALL                      0
+86  00000000005A1AB6 OP_POP
+87  00000000005A1AB7 OP_LOAD_VARIABLE             curr_time
+90  00000000005A1ABA OP_SET_VARIABLE              prev_time
+93  00000000005A1ABD OP_LOAD_VARIABLE             sdl
+96  00000000005A1AC0 OP_GET_ATTRIBUTE             get_ticks
+99  00000000005A1AC3 OP_CALL                      0
+101 00000000005A1AC5 OP_CONSTANT                  1000
+104 00000000005A1AC8 OP_DIVIDE
+105 00000000005A1AC9 OP_SET_VARIABLE              curr_time
+108 00000000005A1ACC OP_LOAD_VARIABLE             curr_time
+111 00000000005A1ACF OP_LOAD_VARIABLE             prev_time
+114 00000000005A1AD2 OP_SUBTRACT
+115 00000000005A1AD3 OP_SET_VARIABLE              frame_time
+118 00000000005A1AD6 OP_CONSTANT                  0
+121 00000000005A1AD9 OP_SET_VARIABLE              dbg_x
+124 00000000005A1ADC OP_LOAD_VARIABLE             frame_time
+127 00000000005A1ADF OP_CONSTANT                  0
+130 00000000005A1AE2 OP_GREATER_THAN
+131 00000000005A1AE3 OP_JUMP_IF_FALSE             186
+134 00000000005A1AE6 OP_LOAD_VARIABLE             MAX_DT
+137 00000000005A1AE9 OP_LOAD_VARIABLE             frame_time
+140 00000000005A1AEC OP_LOAD_VARIABLE             math
+143 00000000005A1AEF OP_GET_ATTRIBUTE             min
+146 00000000005A1AF2 OP_CALL                      2
+148 00000000005A1AF4 OP_SET_VARIABLE              dt
+151 00000000005A1AF7 OP_LOAD_VARIABLE             dt
+154 00000000005A1AFA OP_LOAD_VARIABLE             game
+157 00000000005A1AFD OP_GET_ATTRIBUTE             logic
+160 00000000005A1B00 OP_CALL                      1
+162 00000000005A1B02 OP_POP
+163 00000000005A1B03 OP_LOAD_VARIABLE             frame_time
+166 00000000005A1B06 OP_LOAD_VARIABLE             dt
+169 00000000005A1B09 OP_SUBTRACT
+170 00000000005A1B0A OP_SET_VARIABLE              frame_time
+173 00000000005A1B0D OP_LOAD_VARIABLE             dbg_x
+176 00000000005A1B10 OP_CONSTANT                  1
+179 00000000005A1B13 OP_ADD
+180 00000000005A1B14 OP_SET_VARIABLE              dbg_x
+183 00000000005A1B17 OP_JUMP                      124
+186 00000000005A1B1A OP_LOAD_VARIABLE             dbg_x
+189 00000000005A1B1D OP_CONSTANT                  0
+192 00000000005A1B20 OP_GREATER_THAN
+193 00000000005A1B21 OP_JUMP_IF_FALSE             209
+196 00000000005A1B24 OP_LOAD_VARIABLE             dbg_frames_divided
+199 00000000005A1B27 OP_CONSTANT                  1
+202 00000000005A1B2A OP_ADD
+203 00000000005A1B2B OP_SET_VARIABLE              dbg_frames_divided
+206 00000000005A1B2E OP_JUMP                      209
+209 00000000005A1B31 OP_LOAD_VARIABLE             game
+212 00000000005A1B34 OP_GET_ATTRIBUTE             draw
+215 00000000005A1B37 OP_CALL                      0
+217 00000000005A1B39 OP_POP
+218 00000000005A1B3A OP_LOAD_VARIABLE             game
+221 00000000005A1B3D OP_GET_ATTRIBUTE             present_scene
+224 00000000005A1B40 OP_CALL                      0
+226 00000000005A1B42 OP_POP
+227 00000000005A1B43 OP_LOAD_VARIABLE             dbg_frame_count
+230 00000000005A1B46 OP_CONSTANT                  1
+233 00000000005A1B49 OP_ADD
+234 00000000005A1B4A OP_SET_VARIABLE              dbg_frame_count
+237 00000000005A1B4D OP_JUMP                      60
+240 00000000005A1B50 OP_LOAD_VARIABLE             x
+243 00000000005A1B53 OP_POP
+244 00000000005A1B54 OP_NIL
+245 00000000005A1B55 OP_RETURN
+
+Constant table [size 64] of chunk pointing at '00000000005A1A60':
+0: My Plane Game! :D [ type 4 ]
+1: Game [ type 4 ]
+2: game [ type 4 ]
+3: 50 [ type 0 ]
+4: MAX_FPS [ type 4 ]
+5: 1 [ type 0 ]
+6: MAX_FPS [ type 4 ]
+7: MAX_DT [ type 4 ]
+8: 0 [ type 0 ]
+9: prev_time [ type 4 ]
+10: sdl [ type 4 ]
+11: get_ticks [ type 4 ]
+12: 1000 [ type 0 ]
+13: curr_time [ type 4 ]
+14: 0 [ type 0 ]
+15: dbg_frame_count [ type 4 ]
+16: 0 [ type 0 ]
+17: dbg_frames_divided [ type 4 ]
+18: game [ type 4 ]
+19: running [ type 4 ]
+20: game [ type 4 ]
+21: prepare_scene [ type 4 ]
+22: game [ type 4 ]
+23: input [ type 4 ]
+24: curr_time [ type 4 ]
+25: prev_time [ type 4 ]
+26: sdl [ type 4 ]
+27: get_ticks [ type 4 ]
+28: 1000 [ type 0 ]
+29: curr_time [ type 4 ]
+30: curr_time [ type 4 ]
+31: prev_time [ type 4 ]
+32: frame_time [ type 4 ]
+33: 0 [ type 0 ]
+34: dbg_x [ type 4 ]
+35: frame_time [ type 4 ]
+36: 0 [ type 0 ]
+37: MAX_DT [ type 4 ]
+38: frame_time [ type 4 ]
+39: math [ type 4 ]
+40: min [ type 4 ]
+41: dt [ type 4 ]
+42: dt [ type 4 ]
+43: game [ type 4 ]
+44: logic [ type 4 ]
+45: frame_time [ type 4 ]
+46: dt [ type 4 ]
+47: frame_time [ type 4 ]
+48: dbg_x [ type 4 ]
+49: 1 [ type 0 ]
+50: dbg_x [ type 4 ]
+51: dbg_x [ type 4 ]
+52: 0 [ type 0 ]
+53: dbg_frames_divided [ type 4 ]
+54: 1 [ type 0 ]
+55: dbg_frames_divided [ type 4 ]
+56: game [ type 4 ]
+57: draw [ type 4 ]
+58: game [ type 4 ]
+59: present_scene [ type 4 ]
+60: dbg_frame_count [ type 4 ]
+61: 1 [ type 0 ]
+62: dbg_frame_count [ type 4 ]
+63: x [ type 4 ]
+
+Constant table [size 257] of chunk pointing at '00000000005890D0':
+0: graphics [ type 4 ]
+1: math [ type 4 ]
+2: graphics [ type 4 ]
+3: sdl [ type 4 ]
+4: false [ type 1 ]
+5: sdl [ type 4 ]
+6: SDL_SCANCODE_UP [ type 4 ]
+7: false [ type 1 ]
+8: sdl [ type 4 ]
+9: SDL_SCANCODE_DOWN [ type 4 ]
+10: false [ type 1 ]
+11: sdl [ type 4 ]
+12: SDL_SCANCODE_LEFT [ type 4 ]
+13: false [ type 1 ]
+14: sdl [ type 4 ]
+15: SDL_SCANCODE_RIGHT [ type 4 ]
+16: false [ type 1 ]
+17: sdl [ type 4 ]
+18: SDL_SCANCODE_SPACE [ type 4 ]
+19: keyboard [ type 4 ]
+20: 1000 [ type 0 ]
+21: SCREEN_WIDTH [ type 4 ]
+22: 800 [ type 0 ]
+23: SCREEN_HEIGHT [ type 4 ]
+24: X [ type 4 ]
+25: self [ type 4 ]
+26: y [ type 4 ]
+27: self [ type 4 ]
+28: self [ type 4 ]
+29: self [ type 4 ]
+30: details [ type 4 ]
+31: texture [ type 4 ]
+32: sdl [ type 4 ]
+33: details [ type 4 ]
+34: self [ type 4 ]
+35: details [ type 4 ]
+36: self [ type 4 ]
+37: sdl [ type 4 ]
+38: keyboard [ type 4 ]
+39: dt [ type 4 ]
+40: self [ type 4 ]
+41: sdl [ type 4 ]
+42: keyboard [ type 4 ]
+43: dt [ type 4 ]
+44: self [ type 4 ]
+45: sdl [ type 4 ]
+46: keyboard [ type 4 ]
+47: print [ type 4 ]
+48: self [ type 4 ]
+49: math [ type 4 ]
+50: self [ type 4 ]
+51: self [ type 4 ]
+52: math [ type 4 ]
+53: self [ type 4 ]
+54: <Code object at 00000000005949A0> [ type 4 ]
+55: Player [ type 4 ]
+56: x [ type 4 ]
+57: self [ type 4 ]
+58: y [ type 4 ]
+59: self [ type 4 ]
+60: self [ type 4 ]
+61: self [ type 4 ]
+62: texture [ type 4 ]
+63: self [ type 4 ]
+64: details [ type 4 ]
+65: texture [ type 4 ]
+66: sdl [ type 4 ]
+67: details [ type 4 ]
+68: self [ type 4 ]
+69: details [ type 4 ]
+70: self [ type 4 ]
+71: self [ type 4 ]
+72: print [ type 4 ]
+73: self [ type 4 ]
+74: to_string [ type 4 ]
+75: self [ type 4 ]
+76: to_string [ type 4 ]
+77: print [ type 4 ]
+78: self [ type 4 ]
+79: to_string [ type 4 ]
+80: self [ type 4 ]
+81: to_string [ type 4 ]
+82: print [ type 4 ]
+83: self [ type 4 ]
+84: to_string [ type 4 ]
+85: self [ type 4 ]
+86: to_string [ type 4 ]
+87: print [ type 4 ]
+88: self [ type 4 ]
+89: to_string [ type 4 ]
+90: print [ type 4 ]
+91: self [ type 4 ]
+92: fx [ type 4 ]
+93: dt [ type 4 ]
+94: self [ type 4 ]
+95: self [ type 4 ]
+96: fy [ type 4 ]
+97: dt [ type 4 ]
+98: self [ type 4 ]
+99: self [ type 4 ]
+100: self [ type 4 ]
+101: dt [ type 4 ]
+102: self [ type 4 ]
+103: self [ type 4 ]
+104: self [ type 4 ]
+105: dt [ type 4 ]
+106: self [ type 4 ]
+107: SCREEN_HEIGHT [ type 4 ]
+108: self [ type 4 ]
+109: self [ type 4 ]
+110: floor [ type 4 ]
+111: floor [ type 4 ]
+112: self [ type 4 ]
+113: self [ type 4 ]
+114: self [ type 4 ]
+115: self [ type 4 ]
+116: self [ type 4 ]
+117: dt [ type 4 ]
+118: self [ type 4 ]
+119: <Code object at 000000000059AB40> [ type 4 ]
+120: Ball [ type 4 ]
+121: self [ type 4 ]
+122: self [ type 4 ]
+123: self [ type 4 ]
+124: self [ type 4 ]
+125: self [ type 4 ]
+126: self [ type 4 ]
+127: self [ type 4 ]
+128: self [ type 4 ]
+129: self [ type 4 ]
+130: math [ type 4 ]
+131: <Code object at 00000000005A1730> [ type 4 ]
+132: VeryPsuedoRandomGenerator [ type 4 ]
+133: VeryPsuedoRandomGenerator [ type 4 ]
+134: random [ type 4 ]
+135: sdl [ type 4 ]
+136: sdl [ type 4 ]
+137: SCREEN_HEIGHT [ type 4 ]
+138: SCREEN_WIDTH [ type 4 ]
+139: sdl [ type 4 ]
+140: sdl [ type 4 ]
+141: title [ type 4 ]
+142: sdl [ type 4 ]
+143: self [ type 4 ]
+144: sdl [ type 4 ]
+145: sdl [ type 4 ]
+146: sdl [ type 4 ]
+147: self [ type 4 ]
+148: sdl [ type 4 ]
+149: self [ type 4 ]
+150: sdl [ type 4 ]
+151: sdl [ type 4 ]
+152: sdl [ type 4 ]
+153: title [ type 4 ]
+154: self [ type 4 ]
+155: self [ type 4 ]
+156: sdl [ type 4 ]
+157: self [ type 4 ]
+158: self [ type 4 ]
+159: sdl [ type 4 ]
+160: self [ type 4 ]
+161: i [ type 4 ]
+162: self [ type 4 ]
+163: i [ type 4 ]
+164: self [ type 4 ]
+165: random [ type 4 ]
+166: randnum [ type 4 ]
+167: SCREEN_WIDTH [ type 4 ]
+168: math [ type 4 ]
+169: randnum [ type 4 ]
+170: SCREEN_WIDTH [ type 4 ]
+171: math [ type 4 ]
+172: SCREEN_WIDTH [ type 4 ]
+173: self [ type 4 ]
+174: texture [ type 4 ]
+175: random_x [ type 4 ]
+176: Ball [ type 4 ]
+177: self [ type 4 ]
+178: self [ type 4 ]
+179: self [ type 4 ]
+180: sdl [ type 4 ]
+181: self [ type 4 ]
+182: sdl [ type 4 ]
+183: self [ type 4 ]
+184: sdl [ type 4 ]
+185: sdl [ type 4 ]
+186: keyboard [ type 4 ]
+187: self [ type 4 ]
+188: i [ type 4 ]
+189: self [ type 4 ]
+190: i [ type 4 ]
+191: self [ type 4 ]
+192: dt [ type 4 ]
+193: ball [ type 4 ]
+194: i [ type 4 ]
+195: i [ type 4 ]
+196: self [ type 4 ]
+197: i [ type 4 ]
+198: self [ type 4 ]
+199: ball [ type 4 ]
+200: ball [ type 4 ]
+201: ball [ type 4 ]
+202: ball [ type 4 ]
+203: sdl [ type 4 ]
+204: dest_rect [ type 4 ]
+205: nil [ type 4 ]
+206: ball [ type 4 ]
+207: self [ type 4 ]
+208: sdl [ type 4 ]
+209: i [ type 4 ]
+210: sdl [ type 4 ]
+211: event [ type 4 ]
+212: nil [ type 4 ]
+213: event [ type 4 ]
+214: sdl [ type 4 ]
+215: self [ type 4 ]
+216: event [ type 4 ]
+217: sdl [ type 4 ]
+218: event [ type 4 ]
+219: event [ type 4 ]
+220: keyboard [ type 4 ]
+221: event [ type 4 ]
+222: sdl [ type 4 ]
+223: event [ type 4 ]
+224: event [ type 4 ]
+225: keyboard [ type 4 ]
+226: sdl [ type 4 ]
+227: <Code object at 00000000005EE970> [ type 4 ]
+228: Game [ type 4 ]
+229: Game [ type 4 ]
+230: MAX_FPS [ type 4 ]
+231: sdl [ type 4 ]
+232: game [ type 4 ]
+233: game [ type 4 ]
+234: game [ type 4 ]
+235: curr_time [ type 4 ]
+236: sdl [ type 4 ]
+237: curr_time [ type 4 ]
+238: prev_time [ type 4 ]
+239: frame_time [ type 4 ]
+240: MAX_DT [ type 4 ]
+241: frame_time [ type 4 ]
+242: math [ type 4 ]
+243: dt [ type 4 ]
+244: game [ type 4 ]
+245: frame_time [ type 4 ]
+246: dt [ type 4 ]
+247: dbg_x [ type 4 ]
+248: dbg_x [ type 4 ]
+249: dbg_frames_divided [ type 4 ]
+250: game [ type 4 ]
+251: game [ type 4 ]
+252: dbg_frame_count [ type 4 ]
+253: x [ type 4 ]
+254: <Code object at 00000000005EEBB0> [ type 4 ]
+255: main [ type 4 ]
+256: main [ type 4 ]
+
+================

@@ -1011,6 +1011,17 @@ static CellTable find_free_vars_for_new_function(ObjectCode* func_code) {
 	return free_vars;
 }
 
+#define READ_BYTE() (*vm.ip++)
+
+static Value read_constant(void) {
+	uint8_t index_byte1 = READ_BYTE();
+	uint8_t index_byte2 = READ_BYTE();
+	uint16_t index = two_bytes_to_short(index_byte1, index_byte2);
+	return current_bytecode()->constants.values[index];
+}
+
+#define READ_CONSTANT() (read_constant())
+
 static bool vm_interpret_frame(StackFrame* frame) {
 	#define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
@@ -1065,9 +1076,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
 	bool is_executing = true;
 	bool runtime_error_occured = false;
 
-	#define READ_BYTE() (*vm.ip++)
-	#define READ_CONSTANT() (current_bytecode()->constants.values[READ_BYTE()])
-
 	DEBUG_TRACE("Starting interpreter loop.");
 
     while (is_executing) {
@@ -1120,8 +1128,9 @@ static bool vm_interpret_frame(StackFrame* frame) {
 
         switch (opcode) {
             case OP_CONSTANT: {
-                int constantIndex = READ_BYTE();
-                Value constant = current_bytecode()->constants.values[constantIndex];
+                // int constantIndex = READ_BYTE();
+                // Value constant = current_bytecode()->constants.values[constantIndex];
+				Value constant = READ_CONSTANT();
                 push(constant);
                 break;
             }
@@ -1416,7 +1425,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
             }
             
             case OP_LOAD_VARIABLE: {
-                Value name_value = current_bytecode()->constants.values[READ_BYTE()];
+                // Value name_value = current_bytecode()->constants.values[READ_BYTE()];
+                Value name_value = READ_CONSTANT();
                 ASSERT_VALUE_TYPE(name_value, VALUE_OBJECT);
                 ObjectString* name_string = object_as_string(name_value.as.object);
                 push(load_variable(name_string));
@@ -1425,8 +1435,9 @@ static bool vm_interpret_frame(StackFrame* frame) {
             }
             
             case OP_SET_VARIABLE: {
-                int constant_index = READ_BYTE();
-                Value name_val = current_bytecode()->constants.values[constant_index];
+                // int constant_index = READ_BYTE();
+                // Value name_val = current_bytecode()->constants.values[constant_index];
+				Value name_val = READ_CONSTANT();
                 ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
                 ObjectString* name = OBJECT_AS_STRING(name_val.as.object);
 
@@ -1493,8 +1504,9 @@ static bool vm_interpret_frame(StackFrame* frame) {
 			}
 
             case OP_GET_ATTRIBUTE: {
-                int constant_index = READ_BYTE();
-                Value name_val = current_bytecode()->constants.values[constant_index];
+                // int constant_index = READ_BYTE();
+                // Value name_val = current_bytecode()->constants.values[constant_index];
+				Value name_val = READ_CONSTANT();
                 ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
                 ObjectString* name = OBJECT_AS_STRING(name_val.as.object);
 
@@ -1516,7 +1528,8 @@ static bool vm_interpret_frame(StackFrame* frame) {
             }
 
             case OP_SET_ATTRIBUTE: {
-                Value name_val = current_bytecode()->constants.values[READ_BYTE()];
+                // Value name_val = current_bytecode()->constants.values[READ_BYTE()];
+				Value name_val = READ_CONSTANT();
                 ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
                 ObjectString* name = OBJECT_AS_STRING(name_val.as.object);
 

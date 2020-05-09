@@ -548,7 +548,7 @@ ObjectModule* object_module_native_new(ObjectString* name, HMODULE dll) {
 
 void object_free(Object* o) {
 	cell_table_free(&o->attributes);
-\
+
 	ObjectType type = o->type;
 
     switch (type) {

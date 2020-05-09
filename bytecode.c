@@ -13,6 +13,12 @@ void bytecode_init(Bytecode* chunk) {
 }
 
 void bytecode_write(Bytecode* chunk, uint8_t byte) {
+    if (chunk->count >= 65534) {
+        // Because jump offsets are currently absolute shorts. We should change them to relative offsets, but it's fine for now.
+        FAIL("One bytecode object cannot have more than 65533 bytes. This likely means you have at least a few thousands"
+                "of lines of code in one file or function. Please split the file or function into multiple ones.");
+    }
+
     if (chunk->count == chunk->capacity) {
         int oldCapacity = chunk->capacity;
         chunk->capacity = GROW_CAPACITY(oldCapacity);
@@ -41,12 +47,16 @@ void bytecode_free(Bytecode* chunk) {
 }
 
 int bytecode_add_constant(Bytecode* chunk, struct Value* constant) {
+    if (chunk->constants.count >= 65534) {
+        FAIL("Too many constants to one code object (>= 65534). Cannot fit the index into a short in the bytecode.");
+    }
+
 	value_array_write(&chunk->constants, constant);
     return chunk->constants.count - 1;
 }
 
 void bytecode_print_constant_table(Bytecode* chunk) { // For debugging
-	printf("\nConstant table of chunk pointing at '%p':\n", chunk->code);
+	printf("\nConstant table [size %d] of chunk pointing at '%p':\n", chunk->constants.count, chunk->code);
 	for (int i = 0; i < chunk->constants.count; i++) {
 		Value constant = chunk->constants.values[i];
 		printf("%d: ", i);

@@ -21,36 +21,49 @@ static int short_operand_instruction(const char* name, Bytecode* chunk, int offs
     return offset + 3;
 }
 
+static Value read_constant_operand(Bytecode* chunk, int offset) {
+	uint8_t constant_index_byte_1 = chunk->code[offset];
+	uint8_t constant_index_byte_2 = chunk->code[offset + 1];
+	uint16_t index = two_bytes_to_short(constant_index_byte_1, constant_index_byte_2);
+	return chunk->constants.values[index];
+}
+
 static int constant_instruction(const char* name, Bytecode* chunk, int offset) {
-    int constantIndex = chunk->code[offset + 1];
-    Value constant = chunk->constants.values[constantIndex];
+	Value constant = read_constant_operand(chunk, offset + 1);
+
+    // int constantIndex = chunk->code[offset + 1];
+    // Value constant = chunk->constants.values[constantIndex];
     
     printf("%p %-28s ", chunk->code + offset, name);
     value_print(constant);
     printf("\n");
     
-    return offset + 2;
+    return offset + 3;
 }
 
 static int constant_and_variable_length_constants_instruction(const char* name, Bytecode* chunk, int offset) {
-    int constantIndex = chunk->code[offset + 1];
-    Value constant = chunk->constants.values[constantIndex];
+    // int constantIndex = chunk->code[offset + 1];
+    // Value constant = chunk->constants.values[constantIndex];
+
+	Value constant = read_constant_operand(chunk, offset + 1);
 
     printf("%p %-28s ", chunk->code + offset, name);
     value_print(constant);
 
-    uint16_t additional_operands_count = two_bytes_to_short(chunk->code[offset + 2], chunk->code[offset + 3]);
-    for (int i = 0; i < additional_operands_count; i++) {
-		int additional_operand_offset = offset + 4 + i;
-		uint8_t additional_operand_index = chunk->code[additional_operand_offset];
-		Value operand = chunk->constants.values[additional_operand_index];
+    uint16_t additional_operands_count = two_bytes_to_short(chunk->code[offset + 3], chunk->code[offset + 4]);
+
+    for (int i = 0; i < additional_operands_count * 2; i += 2) {
+		int additional_operand_offset = offset + 5 + i;
+		Value operand = read_constant_operand(chunk, additional_operand_offset);
+		// uint8_t additional_operand_index = chunk->code[additional_operand_offset];
+		// Value operand = chunk->constants.values[additional_operand_index];
 		printf(", ");
 		value_print(operand);
 	}
 
     printf("\n");
 
-    return offset + 4 + additional_operands_count;
+    return offset + 5 + (additional_operands_count * 2);
 }
 
 static int simple_instruction(const char* name, Bytecode* chunk, int offset) {

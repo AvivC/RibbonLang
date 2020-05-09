@@ -17,21 +17,25 @@ static void emit_two_bytes(Bytecode* chunk, uint8_t byte1, uint8_t byte2) {
 	emit_byte(chunk, byte2);
 }
 
-static void emit_opcode_with_constant_operand(Bytecode* chunk, OP_CODE instruction, Value constant) {
-	emit_two_bytes(chunk, instruction, bytecode_add_constant(chunk, &constant));
-}
-
-static int emit_constant_operand(Bytecode* chunk, Value constant) {
-	int constant_index = bytecode_add_constant(chunk, &constant);
-	emit_byte(chunk, constant_index);
-	return constant_index;
-}
-
 static void emit_short_as_two_bytes(Bytecode* chunk, uint16_t number) {
 	uint8_t bytes[2];
 	short_to_two_bytes(number, bytes);
 	emit_byte(chunk, bytes[0]);
 	emit_byte(chunk, bytes[1]);
+}
+
+static int emit_constant_operand(Bytecode* chunk, Value constant) {
+	int constant_index = bytecode_add_constant(chunk, &constant);
+
+	emit_short_as_two_bytes(chunk, constant_index);
+	// emit_byte(chunk, constant_index);
+	return constant_index;
+}
+
+static void emit_opcode_with_constant_operand(Bytecode* chunk, OP_CODE instruction, Value constant) {
+	// emit_two_bytes(chunk, instruction, bytecode_add_constant(chunk, &constant));
+	emit_byte(chunk, instruction);
+	emit_constant_operand(chunk, constant);
 }
 
 static size_t emit_opcode_with_short_placeholder(Bytecode* chunk, OP_CODE opcode) {
@@ -99,10 +103,10 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             Value name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_variable->name, node_variable->length));
             size_t constant_index = (size_t) bytecode_add_constant(bytecode, &name_constant);
 
-            // integer_array_write(&bytecode->referenced_names_indices, (size_t*) &constant_index);
             integer_array_write(&bytecode->referenced_names_indices, &constant_index);
             
-            emit_two_bytes(bytecode, OP_LOAD_VARIABLE, constant_index);
+			emit_byte(bytecode, OP_LOAD_VARIABLE);
+            emit_short_as_two_bytes(bytecode, constant_index);
 
             break;
         }
@@ -116,7 +120,9 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 			size_t constant_index = (size_t) bytecode_add_constant(bytecode, &name_constant);
 
 			integer_array_write(&bytecode->assigned_names_indices, &constant_index);
-			emit_two_bytes(bytecode, OP_SET_VARIABLE, constant_index);
+			// emit_two_bytes(bytecode, OP_SET_VARIABLE, constant_index);
+			emit_byte(bytecode, OP_SET_VARIABLE);
+            emit_short_as_two_bytes(bytecode, constant_index);
 
             break;
         }
@@ -143,7 +149,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             for (int i = 0; i < func_referenced_names_indices.count; i++) {
             	Value referenced_name = func_bytecode.constants.values[func_referenced_names_indices.values[i]];
             	size_t constant_index = (size_t) bytecode_add_constant(bytecode, &referenced_name);
-            	// integer_array_write(&bytecode->referenced_names_indices, (size_t*) &constant_index);
             	integer_array_write(&bytecode->referenced_names_indices, &constant_index);
 			}
 
@@ -191,6 +196,10 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         case AST_NODE_CALL: {
             AstNodeCall* node_call = (AstNodeCall*) node;
 
+			if (node_call->arguments.count > 255) {
+				FAIL("Calling a function with more than 255 arguments is not supported.");
+			}
+
             for (int i = node_call->arguments.count - 1; i >= 0; i--) {
             	AstNode* argument = node_call->arguments.values[i];
 				compile_tree(argument, bytecode);
@@ -226,7 +235,9 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         case AST_NODE_TABLE: {
         	AstNodeTable* node_table = (AstNodeTable*) node;
 
-			assert(node_table->pairs.count <= 255);
+			if (node_table->pairs.count > 255) {
+				FAIL("Table initializer can't have more than 255 entries. You can add additional entires after the initializer.");
+			}
 
 			for (int i = 0; i < node_table->pairs.count; i++) {
 				AstNodesKeyValuePair pair = node_table->pairs.values[i];
