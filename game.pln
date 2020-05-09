@@ -4,6 +4,8 @@ sdl = graphics
 
 # print = { takes text to }
 
+MAX_FPS = 50
+
 keyboard = [sdl.SDL_SCANCODE_UP: false,
             sdl.SDL_SCANCODE_DOWN: false,
             sdl.SDL_SCANCODE_LEFT: false,
@@ -15,35 +17,49 @@ SCREEN_HEIGHT = 800
 
 Player = class {
     @init = { takes x, y, texture to
-        # self.x = X
-        # self.y = y
-        # self.dx = 0
-        # self.dy = 0
+        self.x = x
+        self.y = y
+        self.dx = 0
+        self.dy = 0
 
-        # details = []
-        # sdl.query_texture(texture, details)
-        # self.width = details["w"] / 50
-        # self.height = details["h"] / 50
+        self.texture = texture
+
+        details = []
+        sdl.query_texture(texture, details)
+        self.width = details["w"] / 15
+        self.height = details["h"] / 15
     }
 
-    # apply_force = { takes fx, fy, dt to
-    #     self.dx = self.dx + fx * dt
-    #     self.dy = self.dy + fy * dt
-    # }
+    apply_force = { takes fx, fy, dt to
+        self.dx = self.dx + fx * dt
+        self.dy = self.dy + fy * dt
+    }
+
+    apply_breaks = { takes dt to
+        self.apply_force(self.dx * -10, self.dy * -10, dt)
+    }
 
     update = { takes dt to
         if keyboard[sdl.SDL_SCANCODE_RIGHT] {
-            self.apply_force(4, 0, dt)
-        }
-        if keyboard[sdl.SDL_SCANCODE_LEFT] {
-            self.apply_force(-4, 0, dt)
+            self.apply_force(30, 0, dt)
+        } elsif keyboard[sdl.SDL_SCANCODE_LEFT] {
+            self.apply_force(-30, 0, dt)
+        } else {
+            self.apply_breaks(dt)
         }
         if keyboard[sdl.SDL_SCANCODE_SPACE] {
             print("shoot")
         }
 
-        self.dy = math.min(self.dy, 10)
-        self.dx = math.min(self.dx, 10)
+        self.x = self.x + (self.dx * dt) * MAX_FPS
+        self.y = self.y + (self.dy * dt) * MAX_FPS
+
+        if math.abs(self.dy) <= 0.05 {
+            self.dy = 0
+        }
+        if math.abs(self.dx) <= 0.05 {
+            self.dx = 0
+        }
     }
 }
 
@@ -75,11 +91,11 @@ Ball = class {
         self.dx = self.dx + fx * dt
         self.dy = self.dy + fy * dt
     }
-    
+
     update = { takes dt to
 
-        self.x = self.x + (self.dx * dt)
-        self.y = self.y + (self.dy * dt)
+        self.x = self.x + (self.dx * dt) * MAX_FPS
+        self.y = self.y + (self.dy * dt) * MAX_FPS
         
         floor = SCREEN_HEIGHT - self.height
         
@@ -90,7 +106,7 @@ Ball = class {
 
             self.dy = self.dy * (-1)       
         } else {
-            self.apply_force(0, 300, dt)
+            self.apply_force(0, 30, dt)
         }
         
     }
@@ -132,7 +148,7 @@ Game = class {
         self.ball_texture = sdl.img_load_texture(self.renderer, "sdl_extension\pictures\ball.png")
         
         player_texture = sdl.img_load_texture(self.renderer, "sdl_extension\pictures\ball.png")
-        # self.player = Player(SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 50, player_texture)
+        self.player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 160, player_texture)
         self.balls = []
         
         i = 0
@@ -161,6 +177,8 @@ Game = class {
     }
     
     logic = { takes dt to
+        self.player.update(dt)
+
         if keyboard[sdl.SDL_SCANCODE_SPACE] {
             self.spawn_ball()
         }
@@ -176,9 +194,10 @@ Game = class {
     }
     
     draw = {
-        # player = self.player
-        # dest_rect = sdl.Rect(player.x, player.y, player.width, player.height)
-        # sdl.render_copy(self.renderer, player.texture, nil, dest_rect)
+        player = self.player
+        print(player.x)
+        dest_rect = sdl.Rect(player.x, player.y, player.width, player.height)
+        sdl.render_copy(self.renderer, player.texture, nil, dest_rect)
 
         i = 0
         while i < self.balls.length() {
@@ -209,7 +228,6 @@ Game = class {
 main = {
     game = Game("My Plane Game! :D")
 
-    MAX_FPS = 50
     MAX_DT = 1 / MAX_FPS
     
     prev_time = 0
