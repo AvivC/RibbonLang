@@ -40,7 +40,6 @@ test module attributes
 
     print(testmodule1.attr1)
     print(testmodule1.func1(2))
-    print(testmodule1.nonexistent)
     print(testmodule1.func2(2))
 
     testmodule1.func1 = { takes x to
@@ -49,6 +48,8 @@ test module attributes
 
     print(testmodule1.func1(2))
     print(testmodule1.func2(2))
+
+    testmodule1.nonexistent # this will crash the program with an error
 file testmodule1.pln
     attr1 = "I'm an attribute"
     func1 = { takes x to
@@ -60,10 +61,12 @@ file testmodule1.pln
 expect
     I'm an attribute
     4
-    nil
     8
     20
     40
+    An error has occured. Stack trace (most recent call on top):
+        -> <Anonymous function>
+    Runtime error: Cannot find attribute nonexistent of object.
 end
 
 test import stdlib module
@@ -75,15 +78,16 @@ end
 
 test user module takes precedence over stdlib module
     import math
-    print(math.abs)  # should print nil since math.abs doesn't exist in the user module
+    print(math.user_module_variable)
     import math  # won't print anything because module is already cached
-    print(math.abs)  # should print nil again
+    print(math.user_module_variable)
 file math.pln
     print("I'm the math.pln user module")
+    user_module_variable = 10
 expect
     I'm the math.pln user module
-    nil
-    nil
+    10
+    10
 end
 
 test unfound module raises error

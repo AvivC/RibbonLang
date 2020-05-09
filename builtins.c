@@ -180,7 +180,6 @@ bool builtin_to_number(Object* self, ValueArray args, Value* out) {
 	return success;
 }
 
-/* Ugly and temporary solution */
 bool builtin_to_string(Object* self, ValueArray args, Value* out) {
 	bool success = true;
 
@@ -199,4 +198,16 @@ bool builtin_to_string(Object* self, ValueArray args, Value* out) {
 
 	*out = success ? MAKE_VALUE_OBJECT(object_string_take(buffer, strlen(buffer))) : MAKE_VALUE_NIL();
 	return success;
+}
+
+bool builtin_has_attr(Object* self, ValueArray args, Value* out) {
+	if (args.count != 2 || !(args.values[0].type == VALUE_OBJECT && object_value_is(args.values[1], OBJECT_STRING))) {
+		return false;
+	}
+
+	Object* object = args.values[0].as.object;
+	ObjectString* attr = (ObjectString*) args.values[1].as.object;
+	Value throwaway;
+	*out = MAKE_VALUE_BOOLEAN(object_load_attribute(object, attr, &throwaway));
+	return true;
 }

@@ -28,7 +28,7 @@ test objects of the same type are independent
     print(s1 == s2)  # identity equality, should be false
 
     s1.attr = "thing"
-    print(s2.attr)  # should be nil, because it's a different object
+    print(has_attribute(s2, "attr"))  # should print false
     print(s1.attr)
     s2.attr = "other thing"
     print(s1.attr)
@@ -49,10 +49,10 @@ test objects of the same type are independent
     s1.shared_attr = "Something not shared"
     print(s1.shared_attr)
     print(s2.shared_attr.nested_attr)
-    print(s1.shared_attr.nested_attr)
+    print(has_attribute(s1.shared_attr, "nested_attr"))
 expect
     false
-    nil
+    false
     thing
     thing
     other thing
@@ -61,5 +61,5 @@ expect
     I'm nested
     Something not shared
     I'm nested
-    nil
+    false
 end

@@ -13,5 +13,6 @@ bool builtin_spawn(Object* self, ValueArray args, Value* out);
 bool builtin_time(Object* self, ValueArray args, Value* out);
 bool builtin_to_number(Object* self, ValueArray args, Value* out);
 bool builtin_to_string(Object* self, ValueArray args, Value* out);
+bool builtin_has_attr(Object* self, ValueArray args, Value* out);
 
 #endif

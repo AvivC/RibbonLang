@@ -410,6 +410,7 @@ static void set_builtin_globals(void) {
 	register_builtin_function("to_number", 1, (char*[]) {"value"}, builtin_to_number);
 	register_builtin_function("to_string", 1, (char*[]) {"value"}, builtin_to_string);
 	register_builtin_function("time", 0, NULL, builtin_time);
+	register_builtin_function("has_attribute", 2, (char*[]) {"object", "attribute"}, builtin_has_attr);
 }
 
 static void register_function_on_module(ObjectModule* module, char* name, int num_params, char* params[], NativeFunction func) {
@@ -1510,8 +1511,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
 			}
 
             case OP_GET_ATTRIBUTE: {
-                // int constant_index = READ_BYTE();
-                // Value name_val = current_bytecode()->constants.values[constant_index];
 				Value name_val = READ_CONSTANT();
                 ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
                 ObjectString* name = OBJECT_AS_STRING(name_val.as.object);
@@ -1528,8 +1527,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
 					break;
 				}
 
-				/* TODO: Runtime error instead of nil */
-				push(MAKE_VALUE_NIL());
+				RUNTIME_ERROR("Cannot find attribute %.*s of object.", name->length, name->chars);
                 break;
             }
 

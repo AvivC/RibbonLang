@@ -49,3 +49,25 @@ expect
     true
     false
 end
+
+test has attribute function
+    C = class {
+        @init = {
+            self.x = 10
+        }
+    }
+
+    c = C()
+    s = "hello"
+
+    print(has_attribute(c, "x"))
+    print(has_attribute(c, "y"))
+
+    print(has_attribute(s, "x"))
+    print(has_attribute(s, "length"))
+expect
+    true
+    false
+    false
+    true
+end
