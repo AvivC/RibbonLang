@@ -18,6 +18,7 @@ typedef enum {
     AST_NODE_RETURN,
     AST_NODE_IF,
     AST_NODE_WHILE,
+    AST_NODE_FOR,
 	AST_NODE_AND,
 	AST_NODE_OR,
 	AST_NODE_ATTRIBUTE,
@@ -133,6 +134,14 @@ typedef struct {
 } AstNodeWhile;
 
 typedef struct {
+    AstNode base;
+    const char* variable_name;
+    int variable_length;
+    AstNode* container;
+    AstNodeStatements* body;
+} AstNodeFor;
+
+typedef struct {
 	AstNode base;
 	AstNode* left;
 	AstNode* right;
@@ -196,6 +205,7 @@ AstNodeReturn* ast_new_node_return(AstNode* expression);
 AstNodeCall* ast_new_node_call(AstNode* expression, PointerArray arguments);
 AstNodeFunction* ast_new_node_function(AstNodeStatements* statements, ValueArray parameters);
 AstNodeIf* ast_new_node_if(AstNode* condition, AstNodeStatements* body, PointerArray elsif_clauses, AstNodeStatements* else_body);
+AstNodeFor* ast_new_node_for(const char* variable_name, int variable_length, AstNode* container, AstNodeStatements* body);
 AstNodeWhile* ast_new_node_while(AstNode* condition, AstNodeStatements* body);
 AstNodeAnd* ast_new_node_and(AstNode* left, AstNode* right);
 AstNodeOr* ast_new_node_or(AstNode* left, AstNode* right);

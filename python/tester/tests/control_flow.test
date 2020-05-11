@@ -231,3 +231,88 @@ expect
     2
     hi
 end
+
+test basic for loop
+    for word in ["hello", "my", "friends"] {
+        print(word)
+    }
+expect
+    hello
+    my
+    friends
+end
+
+test for loop on string
+    table = []
+    for character in "Kangaroo!" {
+        table[table.length()] = character
+    }
+
+    for c in table {
+        print(c)
+    }
+expect
+    K
+    a
+    n
+    g
+    a
+    r
+    o
+    o
+    !
+end
+
+test nested for loops
+    t1 = [10, 20 30]
+    t2 = [0.5, 2, 4]
+    result = []
+    for x in t1 {
+        for y in t2 {
+            result[result.length()] = x * y
+        }
+    }
+
+    for n in result {
+        print(n)
+    }
+expect
+    5
+    20
+    40
+    10
+    40
+    80
+    15
+    60
+    120
+end
+
+test all control structures together
+    for c in "hello" {
+        i = 2
+        while i < 4 {
+            print(c + c)
+            if i == 3 {
+                print("Kawabanga")
+            }
+            i = i + 1
+        }
+    }
+expect
+    hh
+    hh
+    Kawabanga
+    ee
+    ee
+    Kawabanga
+    ll
+    ll
+    Kawabanga
+    ll
+    ll
+    Kawabanga
+    oo
+    oo
+    Kawabanga
+end

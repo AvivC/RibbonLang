@@ -93,6 +93,8 @@ static Token parse_identifier() {
         return make_token(TOKEN_ELSIF);
     } else if (check_token("while")) {
     	return make_token(TOKEN_WHILE);
+	} else if (check_token("for")) {
+    	return make_token(TOKEN_FOR);
 	} else if (check_token("and")) {
         return make_token(TOKEN_AND);
     } else if (check_token("or")) {
@@ -111,6 +113,8 @@ static Token parse_identifier() {
         return make_token(TOKEN_CLASS);
     } else if (check_token("nil")) {
         return make_token(TOKEN_NIL);
+    } else if (check_token("in")) {
+        return make_token(TOKEN_IN);
     }
     
     return make_token(TOKEN_IDENTIFIER);

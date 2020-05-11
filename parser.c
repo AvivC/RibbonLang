@@ -331,6 +331,25 @@ static AstNode* while_statement(void) {
 	return (AstNode*) ast_new_node_while(condition, body);
 }
 
+static AstNode* for_statement(void) {
+    consume(TOKEN_IDENTIFIER, "Expected variable name after \"for\"");
+
+    const char* variable_name = parser.previous.start;
+    int variable_length = parser.previous.length;
+
+    consume(TOKEN_IN, "Expected \"in\" after variable name in for statement.");
+
+    AstNode* container = parse_expression(PREC_ASSIGNMENT, 1);
+
+    consume(TOKEN_LEFT_BRACE, "Expected '{' to open for loop body.");
+
+    AstNodeStatements* body = (AstNodeStatements*) statements();
+
+    consume(TOKEN_RIGHT_BRACE, "Expected '}' to close for loop body.");
+
+    return (AstNode*) ast_new_node_for(variable_name, variable_length, container, body);
+}
+
 static AstNode* import_statement(void) {
 	consume(TOKEN_IDENTIFIER, "Expected module name after 'import'.");
 	const char* name = parser.previous.start;
@@ -379,6 +398,8 @@ static ParseRule rules[] = {
     {NULL, NULL, PREC_NONE},     // TOKEN_IMPORT
     {klass, NULL, PREC_NONE},     // TOKEN_CLASS
     {nil, NULL, PREC_NONE},     // TOKEN_NIL
+    {NULL, NULL, PREC_NONE},     // TOKEN_FOR
+    {NULL, NULL, PREC_NONE},     // TOKEN_IN
     {NULL, NULL, PREC_NONE},           // TOKEN_EOF
     {NULL, NULL, PREC_NONE}            // TOKEN_ERROR
 };
@@ -438,7 +459,9 @@ static AstNode* statements(void) {
         	child_node = (AstNode*) if_statement();
         } else if (match(TOKEN_WHILE)) {
         	child_node = (AstNode*) while_statement();
-    	} else if (match(TOKEN_IMPORT)) {
+    	} else if (match(TOKEN_FOR)) {
+            child_node = (AstNode*) for_statement();
+        } else if (match(TOKEN_IMPORT)) {
     		child_node = (AstNode*) import_statement();
     	} else {
     		AstNode* expr_or_attr_assignment_or_key_assignment = parse_expression(PREC_ASSIGNMENT, 0);

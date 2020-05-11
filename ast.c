@@ -18,6 +18,7 @@ const char* AST_NODE_TYPE_NAMES[] = {
 	"AST_NODE_RETURN",
 	"AST_NODE_IF",
 	"AST_NODE_WHILE",
+	"AST_NODE_FOR",
 	"AST_NODE_AND",
 	"AST_NODE_OR",
 	"AST_NODE_ATTRIBUTE",
@@ -293,6 +294,21 @@ static void print_node(AstNode* node, int nesting) {
         	break;
         }
 
+		case AST_NODE_FOR: {
+        	AstNodeFor* node_for = (AstNodeFor*) node;
+        	print_nesting_string(nesting);
+			printf("FOR\n");
+			print_nesting_string(nesting);
+			printf("Variable: %.*s\n", node_for->variable_length, node_for->variable_name);
+			print_nesting_string(nesting);
+			printf("Container:\n");
+			print_node((AstNode*) node_for->container, nesting + 1);
+			print_nesting_string(nesting);
+			printf("Body:\n");
+			print_node((AstNode*) node_for->body, nesting + 1);
+        	break;
+        }
+
         case AST_NODE_AND: {
         	AstNodeAnd* nodeAnd = (AstNodeAnd*) node;
         	print_nesting_string(nesting);
@@ -519,6 +535,14 @@ static void node_free(AstNode* node, int nesting) {
 			break;
 		}
 
+		case AST_NODE_FOR: {
+			AstNodeFor* node_for = (AstNodeFor*) node;
+			node_free((AstNode*) node_for->container, nesting + 1);
+			node_free((AstNode*) node_for->body, nesting + 1);
+			deallocate(node_for, sizeof(AstNodeFor), deallocationString);
+			break;
+		}
+
         case AST_NODE_AND: {
 			AstNodeAnd* nodeAnd = (AstNodeAnd*) node;
 			node_free((AstNode*) nodeAnd->left, nesting + 1);
@@ -630,6 +654,15 @@ AstNodeIf* ast_new_node_if(AstNode* condition, AstNodeStatements* body, PointerA
 	node->body = body;
 	node->elsif_clauses = elsif_clauses;
 	node->else_body = else_body;
+	return node;
+}
+
+AstNodeFor* ast_new_node_for(const char* variable_name, int variable_length, AstNode* container, AstNodeStatements* body) {
+	AstNodeFor* node = ALLOCATE_AST_NODE(AstNodeFor, AST_NODE_FOR);
+	node->variable_name = variable_name;
+	node->variable_length = variable_length;
+	node->container = container;
+	node->body = body;
 	return node;
 }
 

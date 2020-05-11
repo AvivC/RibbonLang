@@ -24,16 +24,19 @@ static void emit_short_as_two_bytes(Bytecode* chunk, uint16_t number) {
 	emit_byte(chunk, bytes[1]);
 }
 
+static void emit_byte_with_short_operand(Bytecode* chunk, uint8_t byte, uint16_t number) {
+	emit_byte(chunk, byte);
+	emit_short_as_two_bytes(chunk, number);
+}
+
 static int emit_constant_operand(Bytecode* chunk, Value constant) {
 	int constant_index = bytecode_add_constant(chunk, &constant);
 
 	emit_short_as_two_bytes(chunk, constant_index);
-	// emit_byte(chunk, constant_index);
 	return constant_index;
 }
 
 static void emit_opcode_with_constant_operand(Bytecode* chunk, OP_CODE instruction, Value constant) {
-	// emit_two_bytes(chunk, instruction, bytecode_add_constant(chunk, &constant));
 	emit_byte(chunk, instruction);
 	emit_constant_operand(chunk, constant);
 }
@@ -120,7 +123,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 			size_t constant_index = (size_t) bytecode_add_constant(bytecode, &name_constant);
 
 			integer_array_write(&bytecode->assigned_names_indices, &constant_index);
-			// emit_two_bytes(bytecode, OP_SET_VARIABLE, constant_index);
 			emit_byte(bytecode, OP_SET_VARIABLE);
             emit_short_as_two_bytes(bytecode, constant_index);
 
@@ -365,6 +367,58 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
 			bytecode_set(bytecode, placeholderOffset, (bytecode->count >> 8) & 0xFF);
 			bytecode_set(bytecode, placeholderOffset + 1, (bytecode->count) & 0xFF);
+
+			break;
+		}
+
+		case AST_NODE_FOR: {
+			AstNodeFor* node_for = (AstNodeFor*) node;
+
+			Value length_attr_constant = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated("length"));
+			uint16_t length_attr_index = bytecode_add_constant(bytecode, &length_attr_constant);
+
+			Value get_key_attr_constant = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated("@get_key"));
+			uint16_t get_key_attr_index = bytecode_add_constant(bytecode, &get_key_attr_constant);
+
+			Value variable_name_constant = MAKE_VALUE_OBJECT(
+					object_string_copy(node_for->variable_name, node_for->variable_length));
+			uint16_t variable_name_index = bytecode_add_constant(bytecode, &variable_name_constant);
+
+			emit_opcode_with_constant_operand(bytecode, OP_CONSTANT, MAKE_VALUE_NUMBER(0));
+
+			compile_tree((AstNode*) node_for->container, bytecode);
+
+			uint16_t top = bytecode->count;
+
+			emit_byte_with_short_operand(bytecode, OP_GET_OFFSET_FROM_TOP, 1);
+			emit_byte_with_short_operand(bytecode, OP_GET_ATTRIBUTE, length_attr_index);			
+			emit_two_bytes(bytecode, OP_CALL, 0);
+			emit_byte_with_short_operand(bytecode, OP_GET_OFFSET_FROM_TOP, 3);
+			emit_byte(bytecode, OP_GREATER_THAN);
+
+			emit_byte(bytecode, OP_JUMP_IF_FALSE);
+			int placeholder_offset = bytecode->count;
+			emit_short_as_two_bytes(bytecode, 0);
+
+			emit_byte_with_short_operand(bytecode, OP_GET_OFFSET_FROM_TOP, 2);
+			emit_byte_with_short_operand(bytecode, OP_GET_OFFSET_FROM_TOP, 2);
+			emit_byte_with_short_operand(bytecode, OP_GET_ATTRIBUTE, get_key_attr_index);			
+			emit_two_bytes(bytecode, OP_CALL, 1);
+			emit_byte_with_short_operand(bytecode, OP_SET_VARIABLE, variable_name_index);	
+
+			compile_tree((AstNode*) node_for->body, bytecode);
+
+			emit_byte_with_short_operand(bytecode, OP_GET_OFFSET_FROM_TOP, 2);
+			emit_opcode_with_constant_operand(bytecode, OP_CONSTANT, MAKE_VALUE_NUMBER(1));
+			emit_byte(bytecode, OP_ADD);
+			emit_byte_with_short_operand(bytecode, OP_SET_OFFSET_FROM_TOP, 3);
+			emit_byte_with_short_operand(bytecode, OP_JUMP, top);
+
+			bytecode_set(bytecode, placeholder_offset, (bytecode->count >> 8) & 0xFF);
+			bytecode_set(bytecode, placeholder_offset + 1, (bytecode->count) & 0xFF);
+
+			emit_byte(bytecode, OP_POP);
+			emit_byte(bytecode, OP_POP);
 
 			break;
 		}

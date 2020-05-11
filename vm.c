@@ -1207,7 +1207,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
                 BINARY_MATH_OP(/);
                 break;
             }
-            
+
             case OP_LESS_THAN: {
         		Value b = pop();
         		Value a = pop();
@@ -1422,6 +1422,29 @@ static bool vm_interpret_frame(StackFrame* frame) {
             	pop();
             	break;
             }
+
+			case OP_DUP: {
+				Value v = peek();
+				push(v);
+				break;
+			}
+
+			case OP_GET_OFFSET_FROM_TOP: {
+				uint8_t byte1 = READ_BYTE();
+            	uint8_t byte2 = READ_BYTE();
+            	uint16_t offset = two_bytes_to_short(byte1, byte2);
+				Value v = peek_at(offset);
+				push(v);
+				break;
+			}
+
+			case OP_SET_OFFSET_FROM_TOP: {
+				uint8_t byte1 = READ_BYTE();
+            	uint8_t byte2 = READ_BYTE();
+            	uint16_t offset = two_bytes_to_short(byte1, byte2);
+				*(vm.stack_top - offset) = pop();
+				break;
+			}
 
             case OP_NEGATE: {
                 Value operand = pop();
