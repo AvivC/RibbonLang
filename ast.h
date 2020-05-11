@@ -27,7 +27,8 @@ typedef enum {
 	AST_NODE_KEY_ASSIGNMENT,
 	AST_NODE_TABLE,
 	AST_NODE_IMPORT,
-    AST_NODE_CLASS
+    AST_NODE_CLASS,
+    AST_NODE_NIL
 } AstNodeType;
 
 extern const char* AST_NODE_TYPE_NAMES[];
@@ -66,6 +67,10 @@ typedef struct {
     AstNode base;
     AstNode* operand;
 } AstNodeUnary;
+
+typedef struct {
+    AstNode base;
+} AstNodeNil;
 
 typedef struct {
     AstNode base;
@@ -180,6 +185,7 @@ void ast_print_tree(AstNode* tree);
 void ast_free_tree(AstNode* node);
 
 AstNodeConstant* ast_new_node_constant(Value value);
+AstNodeNil* ast_new_node_nil(void);
 AstNodeBinary* ast_new_node_binary(ScannerTokenType operator, AstNode* left_operand, AstNode* right_operand);
 AstNodeStatements* ast_new_node_statements(void);
 AstNodeVariable* ast_new_node_variable(const char* name, int length);

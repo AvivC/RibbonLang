@@ -1,3 +1,67 @@
+test nil generally
+    print(nil)
+    x = nil
+    print(x)
+expect
+    nil
+    nil
+end
+
+test nil attributes
+    C = class {
+        @init = { | x, z |
+            self.x = x
+            self.z = z
+            self.y = nil
+        }
+    }
+
+    c = C(nil, 10)
+    c.q = nil
+
+    print(c.x)
+    print(c.z)
+    print(c.y)
+    print(c.q)
+expect
+    nil
+    10
+    nil
+    nil
+end
+
+test nil returned from function
+    f1 = {
+        print("Some function")
+        # returning nil implicitly
+    }
+
+    print(f1())
+
+    f2 = {
+        print("Another function")
+        return nil
+    }
+
+    print(f2())
+
+    C = class {
+        method = {
+            print("Some method")
+            return nil
+        }
+    }
+
+    print(C().method())
+expect
+    Some function
+    nil
+    Another function
+    nil
+    Some method
+    nil
+end
+
 repeat test surface memory corruptions by validating consistent stdout output
     # By specifying "repeat" on the test, it will not run once, but hundreds of times.
     # Trying to help inconsistent undefined behavior etc surface.

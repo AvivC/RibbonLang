@@ -266,6 +266,10 @@ static AstNode* unary(int expression_level) {
     return (AstNode*) ast_new_node_unary(parse_expression(PREC_UNARY, expression_level + 1)); // so-called right associativity
 }
 
+static AstNode* nil(int expression_level) {
+    return (AstNode*) ast_new_node_nil();
+}
+
 static AstNode* boolean(int expression_level) {
 	bool boolean_value;
 	if (parser.previous.type == TOKEN_TRUE) {
@@ -374,6 +378,7 @@ static ParseRule rules[] = {
     {boolean, NULL, PREC_NONE},     // TOKEN_FALSE
     {NULL, NULL, PREC_NONE},     // TOKEN_IMPORT
     {klass, NULL, PREC_NONE},     // TOKEN_CLASS
+    {nil, NULL, PREC_NONE},     // TOKEN_NIL
     {NULL, NULL, PREC_NONE},           // TOKEN_EOF
     {NULL, NULL, PREC_NONE}            // TOKEN_ERROR
 };

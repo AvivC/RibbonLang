@@ -109,8 +109,8 @@ static Token parse_identifier() {
     	return make_token(TOKEN_IMPORT);
     } else if (check_token("class")) {
         return make_token(TOKEN_CLASS);
-    } else if (check_token("ref")) {
-        return make_token(TOKEN_REF);
+    } else if (check_token("nil")) {
+        return make_token(TOKEN_NIL);
     }
     
     return make_token(TOKEN_IDENTIFIER);

@@ -192,6 +192,11 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
 			break;
 		}
+
+		case AST_NODE_NIL: {
+			emit_byte(bytecode, OP_NIL);
+			break;
+		}
         
         case AST_NODE_CALL: {
             AstNodeCall* node_call = (AstNodeCall*) node;

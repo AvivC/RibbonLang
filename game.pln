@@ -2,7 +2,7 @@ import graphics
 import math
 sdl = graphics
 
-# print = { takes text to }
+# print = { | text | }
 
 MAX_FPS = 50
 
@@ -16,7 +16,7 @@ SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
 
 Player = class {
-    @init = { takes x, y, texture to
+    @init = { | x, y, texture |
         self.x = x
         self.y = y
         self.dx = 0
@@ -30,16 +30,16 @@ Player = class {
         self.height = details["h"] / 15
     }
 
-    apply_force = { takes fx, fy, dt to
+    apply_force = { | fx, fy, dt |
         self.dx = self.dx + fx * dt
         self.dy = self.dy + fy * dt
     }
 
-    apply_breaks = { takes dt to
+    apply_breaks = { | dt |
         self.apply_force(self.dx * -10, self.dy * -10, dt)
     }
 
-    update = { takes dt to
+    update = { | dt |
         if keyboard[sdl.SDL_SCANCODE_RIGHT] {
             self.apply_force(30, 0, dt)
         } elsif keyboard[sdl.SDL_SCANCODE_LEFT] {
@@ -64,7 +64,7 @@ Player = class {
 }
 
 Ball = class {
-    @init = { takes x, y, texture to
+    @init = { | x, y, texture |
         self.x = x
         self.y = y
         self.dx = 0
@@ -87,12 +87,12 @@ Ball = class {
         print("Bounces: " + to_string(self._bounces))
     }
     
-    apply_force = { takes fx, fy, dt to
+    apply_force = { | fx, fy, dt |
         self.dx = self.dx + fx * dt
         self.dy = self.dy + fy * dt
     }
 
-    update = { takes dt to
+    update = { | dt |
 
         self.x = self.x + (self.dx * dt) * MAX_FPS
         self.y = self.y + (self.dy * dt) * MAX_FPS
@@ -130,7 +130,7 @@ VeryPsuedoRandomGenerator = class {
 random = VeryPsuedoRandomGenerator()
 
 Game = class {
-    _init_sdl = { takes title to
+    _init_sdl = { | title |
         sdl.init(sdl.SDL_INIT_VIDEO)
         
         self.window = sdl.create_window(title, sdl.SDL_WINDOWPOS_UNDEFINED, sdl.SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0)
@@ -142,7 +142,7 @@ Game = class {
         sdl.show_cursor(1)
     }
 
-    @init = { takes title to
+    @init = { | title |
         self._init_sdl(title)
 
         self.ball_texture = sdl.img_load_texture(self.renderer, "sdl_extension\pictures\ball.png")
@@ -176,7 +176,7 @@ Game = class {
         sdl.render_present(self.renderer)
     }
     
-    logic = { takes dt to
+    logic = { | dt |
         self.player.update(dt)
 
         if keyboard[sdl.SDL_SCANCODE_SPACE] {

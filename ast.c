@@ -27,7 +27,8 @@ const char* AST_NODE_TYPE_NAMES[] = {
 	"AST_NODE_KEY_ASSIGNMENT",
 	"AST_NODE_TABLE",
 	"AST_NODE_IMPORT",
-	"AST_NODE_CLASS"
+	"AST_NODE_CLASS",
+	"AST_NODE_NIL"
 };
 
 static void print_nesting_string(int nesting) {
@@ -337,6 +338,11 @@ static void print_node(AstNode* node, int nesting) {
             }
 			break;
 		}
+		case AST_NODE_NIL: {
+			print_nesting_string(nesting);
+			printf("NIL\n");
+			break;
+		}
     }
 }
 
@@ -542,6 +548,11 @@ static void node_free(AstNode* node, int nesting) {
 			deallocate(node_class, sizeof(AstNodeClass), deallocationString);
 			break;
 		}
+		case AST_NODE_NIL: {
+			AstNodeNil* node_nil = (AstNodeNil*) node;
+			deallocate(node_nil, sizeof(AstNodeNil), deallocationString);
+			break;
+		}
     }
 }
 
@@ -607,6 +618,10 @@ AstNodeConstant* ast_new_node_constant(Value value) {
 	AstNodeConstant* node = ALLOCATE_AST_NODE(AstNodeConstant, AST_NODE_CONSTANT);
 	node->value = value;
 	return node;
+}
+
+AstNodeNil* ast_new_node_nil(void) {
+	return ALLOCATE_AST_NODE(AstNodeNil, AST_NODE_NIL);
 }
 
 AstNodeIf* ast_new_node_if(AstNode* condition, AstNodeStatements* body, PointerArray elsif_clauses, AstNodeStatements* else_body) {

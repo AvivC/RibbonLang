@@ -1134,7 +1134,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
                 push(constant);
                 break;
             }
-            
+
             case OP_ADD: {
             	if (peek_at(2).type == VALUE_OBJECT) {
             		Value other = peek_at(1); /* This will be popped later */
