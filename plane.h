@@ -82,6 +82,8 @@ typedef struct {
 
     ObjectInstance* (*object_descriptor_new) (ObjectFunction* get, ObjectFunction* set);
     ObjectInstance* (*object_descriptor_new_native) (NativeFunction get, NativeFunction set);
+
+    bool (*arguments_valid) (ValueArray args, const char* string);
 } PlaneApi;
 
 extern PlaneApi API;

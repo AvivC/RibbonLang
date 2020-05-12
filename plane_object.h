@@ -62,7 +62,6 @@ typedef struct ObjectCell {
 typedef struct ObjectFunction {
     Object base;
     char* name;
-    // char** parameters;
 	ObjectString** parameters;
     int num_params;
     bool is_native;
@@ -186,6 +185,8 @@ bool is_instance_of_class(Object* object, char* klass_name);
 bool is_value_instance_of_class(Value value, char* klass_name);
 
 ObjectFunction* object_make_constructor(int num_params, char** params, NativeFunction function);
+
+char* object_get_callable_name(Object* object);
 
 #define VALUE_AS_OBJECT(value, object_type, cast) object_value_is(value, object_type) ? (cast*) value.as.object : NULL
 

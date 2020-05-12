@@ -1459,7 +1459,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
             }
             
             case OP_LOAD_VARIABLE: {
-                // Value name_value = current_bytecode()->constants.values[READ_BYTE()];
                 Value name_value = READ_CONSTANT();
                 ASSERT_VALUE_TYPE(name_value, VALUE_OBJECT);
                 ObjectString* name_string = object_as_string(name_value.as.object);
@@ -1469,7 +1468,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				} else {
 					RUNTIME_ERROR("Variable %.*s not found.", name_string->length, name_string->chars);
 				}
-                // push(load_variable(name_string));
 
                 break;
             }
@@ -1506,24 +1504,38 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				Object* callee = callee_value.as.object;
 
 				ValueArray args = collect_values(arg_count);
+
+				push(callee_value); /* We push the callee so the GC doesn't collect it in any chance */
+
 				CallResult call_result = call_object_leave_on_stack(callee, args);
 				value_array_free(&args);
 
+				if (call_result == CALL_RESULT_SUCCESS) {
+					Value returnvalue = pop();
+					pop(); /* The callee */
+					push(returnvalue);
+					break;
+				}
+
+				pop(); /* The callee */
+
+				char* callable_name = object_get_callable_name(callee);
+				
 				switch (call_result) {
 					case CALL_RESULT_SUCCESS: {
-						/* Return value is already on the stack */
+						/* Just to silence the compiler warning */
 						break;
 					}
 					case CALL_RESULT_INVALID_ARGUMENT_COUNT: {
-						RUNTIME_ERROR("Function called with illegal number of arguments.");
+						RUNTIME_ERROR("Function %s called with illegal number of arguments.", callable_name);
 						break;
 					}
 					case CALL_RESULT_NATIVE_EXECUTION_FAILED: {
-						RUNTIME_ERROR("Native function failed.");
+						RUNTIME_ERROR("Native function %s failed.", callable_name);
 						break;
 					}
 					case CALL_RESULT_PLANE_CODE_EXECUTION_FAILED: {
-						RUNTIME_ERROR("Function failed.");
+						RUNTIME_ERROR("Function %s failed.", callable_name);
 						break;
 					}
 					case CALL_RESULT_CLASS_INIT_NOT_METHOD: {
@@ -1535,7 +1547,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
 						break;
 					}
 					case CALL_RESULT_NO_SUCH_ATTRIBUTE: {
-						FAIL("Pretty sure CALL_RESULT_NO_SUCH_ATTRIBUTE should never happen from OP_CALL.");
+						FAIL("CALL_RESULT_NO_SUCH_ATTRIBUTE should never happen from OP_CALL.");
 						break;
 					}
 				}

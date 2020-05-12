@@ -1,9 +1,10 @@
 #include <string.h>
+#include <windows.h>
 
 #include "plane_utils.h"
 #include "memory.h"
-#include <windows.h>
-// #include <dbghelp.h>
+#include "value.h"
+#include "plane_object.h"
 
 uint16_t two_bytes_to_short(uint8_t a, uint8_t b) {
 	return (a << 8) + b;
@@ -177,35 +178,81 @@ char* concat_null_terminated_paths(char* p1, char* p2, char* alloc_string) {
 	return concat_multi_null_terminated_cstrings(3, (char*[]) {p1, "\\", p2}, alloc_string);
 }
 
+bool arguments_valid(ValueArray args, const char* string) {
+	const char* c = string;
+
+	int i = 0;
+	while (*c != '\0') {
+		while (*c == ' ') {
+			c++;
+		}
+
+		Value value = args.values[i];
+
+		if (*c == 'n') {
+			if (value.type != VALUE_NUMBER) {
+				return false;
+			}
+		} else if (*c == 'b') {
+			if (value.type != VALUE_BOOLEAN) {
+				return false;
+			}
+		} else if (*c == 'i') {
+			if (value.type != VALUE_NIL) {
+				return false;
+			}
+		} else if (*c == 'o') {
+			if (value.type != VALUE_OBJECT) {
+				return false;
+			}
+
+			c++;
+			Object* object = value.as.object;
+			int object_type_length = strcspn(c, " ");
+			if (cstrings_equal(c, object_type_length, "String", strlen("String"))) {
+				if (object->type != OBJECT_STRING) {
+					return false;
+				}
+			} else if (cstrings_equal(c, object_type_length, "Table", strlen("Table"))) {
+				if (object->type != OBJECT_TABLE) {
+					return false;
+				}
+			} else if (cstrings_equal(c, object_type_length, "Function", strlen("Function"))) {
+				if (object->type != OBJECT_FUNCTION) {
+					return false;
+				}
+			} else if (cstrings_equal(c, object_type_length, "Module", strlen("Module"))) {
+				if (object->type != OBJECT_MODULE) {
+					return false;
+				}
+			} else if (cstrings_equal(c, object_type_length, "Class", strlen("Class"))) {
+				if (object->type != OBJECT_CLASS) {
+					return false;
+				}
+			} else {
+				char* class_name = copy_cstring(c, object_type_length, "Validator class name string");
+				if (!is_instance_of_class(object, class_name)) {
+					return false;
+				}
+				deallocate(class_name, strlen(class_name) + 1, "Validator class name string");
+			}
+
+			c += object_type_length;
+		} else {
+			return false; /* Illegal format string, might as well fail the caller */
+		}
+
+		c++;
+		i++;
+	}
+
+	if (i < args.count) { 
+		return false;
+	}
+
+	return true;
+}
+
 IMPLEMENT_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)
 
 IMPLEMENT_DYNAMIC_ARRAY(char, CharacterArray, character_array)
-
-// TODO: Make this work.
-
-// void printStack( void )
-// {
-//     unsigned int   i;
-//     void         * stack[ 100 ];
-//     unsigned short frames;
-//     SYMBOL_INFO  * symbol;
-//     HANDLE         process;
-
-//     process = GetCurrentProcess();
-
-//     SymInitialize( process, NULL, TRUE );
-
-//     frames               = CaptureStackBackTrace( 0, 100, stack, NULL );
-//     symbol               = ( SYMBOL_INFO * )calloc( sizeof( SYMBOL_INFO ) + 256 * sizeof( char ), 1 );
-//     symbol->MaxNameLen   = 255;
-//     symbol->SizeOfStruct = sizeof( SYMBOL_INFO );
-
-//     for( i = 0; i < frames; i++ )
-//     {
-//         SymFromAddr( process, ( DWORD64 )( stack[ i ] ), 0, symbol );
-
-//         printf( "%i: %s - 0x%0X\n", frames - i - 1, symbol->Name, symbol->Address );
-//     }
-
-//     free( symbol );
-// }

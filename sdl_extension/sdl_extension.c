@@ -49,11 +49,12 @@ typedef struct ObjectInstanceEvent {
 
 static bool window_init(Object* self, ValueArray args, Value* out) {
     assert(plane.is_instance_of_class(self, "Window"));
-    // if (!plane.is_instance_of_class(self, "Window")) {
-    //     FAIL("Window self is not a Window instance.");
-    // }
 
     ObjectInstanceWindow* instance = (ObjectInstanceWindow*) self;
+
+    if (!plane.arguments_valid(args, "oString n n n n n")) {
+        return false;
+    }
 
     ObjectString* title_arg = (ObjectString*) (args.values[0].as.object);
     double x_arg = args.values[1].as.number;
@@ -80,11 +81,12 @@ static bool window_init(Object* self, ValueArray args, Value* out) {
 
 static bool renderer_init(Object* self, ValueArray args, Value* out) {
     assert(plane.is_instance_of_class(self, "Renderer"));
-    // if (!plane.is_instance_of_class(self, "Renderer")) {
-    //     FAIL("Renderer self is not a Renderer instance.");
-    // }
 
     ObjectInstanceRenderer* instance = (ObjectInstanceRenderer*) self;
+
+    if (!plane.arguments_valid(args, "oWindow n n")) {
+        return false;
+    }
 
     ObjectInstanceWindow* window = (ObjectInstanceWindow*) args.values[0].as.object;
     int index = args.values[1].as.number;
@@ -108,6 +110,10 @@ static bool renderer_init(Object* self, ValueArray args, Value* out) {
 static bool rect_init(Object* self, ValueArray args, Value* out) {
     ObjectInstanceRect* instance = (ObjectInstanceRect*) self;
     
+    if (!plane.arguments_valid(args, "n n n n")) {
+        return false;
+    }
+
     double x = args.values[0].as.number;
     double y = args.values[1].as.number;
     double w = args.values[2].as.number;
@@ -121,19 +127,17 @@ static bool rect_init(Object* self, ValueArray args, Value* out) {
 }
 
 static bool rect_descriptor_get(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oRect oString")) {
+        return false;
+    }
+
     Object* object = args.values[0].as.object;
 
     assert(plane.is_instance_of_class(object, "Rect"));
-    // if (!plane.is_instance_of_class(object, "Rect")) {
-    //     FAIL("Non Rect passed as first argument to Rect descriptor get");
-    // }
 
     ObjectInstanceRect* rect = (ObjectInstanceRect*) object;
 
     assert(plane.object_value_is(args.values[1], OBJECT_STRING));
-    // if (!plane.object_value_is(args.values[1], OBJECT_STRING)) {
-    //     FAIL("Non string passed as second argument to Rect descriptor get");
-    // }
 
     ObjectString* attr_name = (ObjectString*) args.values[1].as.object;
 
@@ -156,25 +160,19 @@ static bool rect_descriptor_get(Object* self, ValueArray args, Value* out) {
 }
 
 static bool rect_descriptor_set(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oRect oString n")) {
+        return false;
+    }
+
     Object* object = args.values[0].as.object;
 
     assert(plane.is_instance_of_class(object, "Rect"));
-    // if (!plane.is_instance_of_class(object, "Rect")) {
-    //     FAIL("Non Rect passed as first argument to Rect descriptor get");
-    // }
 
     ObjectInstanceRect* rect = (ObjectInstanceRect*) object;
 
     assert(plane.object_value_is(args.values[1], OBJECT_STRING));
-    // if (!plane.object_value_is(args.values[1], OBJECT_STRING)) {
-    //     FAIL("Non string passed as second argument to Rect descriptor get");
-    // }
 
     assert(args.values[2].type == VALUE_NUMBER);
-    // if (args.values[2].type != VALUE_NUMBER) {
-    //     /* Temp fail */
-    //     FAIL("Non number passed as third argument to Rect descriptor get");
-    // }
 
     ObjectString* attr_name = (ObjectString*) args.values[1].as.object;
     double value = args.values[2].as.number;
@@ -199,6 +197,10 @@ static bool rect_descriptor_set(Object* self, ValueArray args, Value* out) {
 }
 
 static bool event_descriptor_get(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oEvent oString")) {
+        return false;
+    }
+
     assert(args.count == 2);
 
     Object* object = args.values[0].as.object;
@@ -226,6 +228,10 @@ static bool event_descriptor_get(Object* self, ValueArray args, Value* out) {
 }
 
 static bool event_descriptor_set(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oEvent oString n")) {
+        return false;
+    }
+
     assert(args.count == 3);
 
     Object* object = args.values[0].as.object;
@@ -255,10 +261,11 @@ static bool event_descriptor_set(Object* self, ValueArray args, Value* out) {
 }
 
 static bool texture_init(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oRenderer oString")) {
+        return false;
+    }
+
     assert(plane.is_instance_of_class(self, "Texture"));
-    // if (!plane.is_instance_of_class(self, "Texture")) {
-    //     FAIL("texture_init called with none Texture");
-    // }
 
     ObjectInstanceTexture* texture_instance = (ObjectInstanceTexture*) self;
 
@@ -283,10 +290,9 @@ static bool texture_init(Object* self, ValueArray args, Value* out) {
 }
 
 static bool event_init(Object* self, ValueArray args, Value* out) {
-    // if (plane.vm_instantiate_class(event_class, args, out) != CALL_RESULT_SUCCESS) {
-    //     *out = MAKE_VALUE_NIL();
-    //     return true;
-    // }
+    if (!plane.arguments_valid(args, "n n n")) {
+        return false;
+    }
 
     assert(plane.is_instance_of_class(self, "Event"));
 
@@ -305,6 +311,10 @@ static bool event_init(Object* self, ValueArray args, Value* out) {
 }
 
 static bool init(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "n")) {
+        return false;
+    }
+
     int flags = args.values[0].as.number;
     double result = SDL_Init(flags);
     *out = MAKE_VALUE_NUMBER(result);
@@ -321,6 +331,10 @@ static bool create_window(Object* self, ValueArray args, Value* out) {
 }
 
 static bool set_hint(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oString oString")) {
+        return false;
+    }
+
     ObjectString* name_arg = (ObjectString*) args.values[0].as.object;
     ObjectString* value_arg = (ObjectString*) args.values[1].as.object;
 
@@ -346,6 +360,10 @@ static bool create_renderer(Object* self, ValueArray args, Value* out) {
 }
 
 static bool img_init(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "n")) {
+        return false;
+    }
+
     int flags = args.values[0].as.number;
     int result = IMG_Init(flags);
     *out = MAKE_VALUE_NUMBER(result);
@@ -353,6 +371,10 @@ static bool img_init(Object* self, ValueArray args, Value* out) {
 }
 
 static bool show_cursor(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "n")) {
+        return false;
+    }
+
     int toggle = args.values[0].as.number;
     int result = SDL_ShowCursor(toggle);
     *out = MAKE_VALUE_NUMBER(result);
@@ -360,6 +382,10 @@ static bool show_cursor(Object* self, ValueArray args, Value* out) {
 }
 
 static bool destroy_renderer(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oRenderer")) {
+        return false;
+    }
+
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     if (renderer->renderer != NULL) {
         SDL_DestroyRenderer(renderer->renderer);
@@ -370,6 +396,10 @@ static bool destroy_renderer(Object* self, ValueArray args, Value* out) {
 }
 
 static bool destroy_window(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oWindow")) {
+        return false;
+    }
+
     ObjectInstanceWindow* window = (ObjectInstanceWindow*) args.values[0].as.object;
     if (window->window != NULL) {
         SDL_DestroyWindow(window->window);
@@ -417,7 +447,6 @@ static void window_class_deallocate(ObjectInstance* instance) {
         SDL_DestroyWindow(window->window);
         window->window = NULL;
     }
-    // plane.deallocate(window->title, strlen(window->title) + 1, "SDL_Window title");
     plane.deallocate(window->title, strlen(window->title) + 1, plane.EXTENSION_ALLOC_STRING_CSTRING);
 }
 
@@ -430,6 +459,10 @@ static void renderer_class_deallocate(ObjectInstance* instance) {
 }
 
 static bool log_message(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "n n oString")) {
+        return false;
+    }
+
     int category = args.values[0].as.number;
     int priority = args.values[1].as.number;
     ObjectString* message = (ObjectString*) args.values[2].as.object;
@@ -451,6 +484,10 @@ static bool log_message(Object* self, ValueArray args, Value* out) {
 }
 
 static bool query_texture(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oTexture oTable")) {
+        return false;
+    }
+
     ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[0].as.object;
     ObjectTable* out_table = (ObjectTable*) args.values[1].as.object;
 
@@ -468,6 +505,10 @@ static bool query_texture(Object* self, ValueArray args, Value* out) {
 }
 
 static bool set_render_draw_color(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oRenderer n n n n")) {
+        return false;
+    }
+
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     int r = args.values[1].as.number;
     int g = args.values[2].as.number;
@@ -479,12 +520,20 @@ static bool set_render_draw_color(Object* self, ValueArray args, Value* out) {
 }
 
 static bool render_clear(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oRenderer")) {
+        return false;
+    }
+
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     *out = MAKE_VALUE_NUMBER(SDL_RenderClear(renderer->renderer));
     return true;   
 }
 
 static bool render_present(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oRenderer")) {
+        return false;
+    }
+
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     SDL_RenderPresent(renderer->renderer);
     *out = MAKE_VALUE_NIL();
@@ -492,6 +541,10 @@ static bool render_present(Object* self, ValueArray args, Value* out) {
 }
 
 static bool render_copy(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oRenderer oTexture oRect oRect")) {
+        return false;
+    }
+
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[1].as.object;
 
@@ -528,10 +581,6 @@ static bool poll_event(Object* self, ValueArray args, Value* out) {
     int result = SDL_PollEvent(&event);
 
     assert(result == 0 || result == 1);
-    // if (result != 0 && result != 1) {
-    //     /* Ummmm.... should we? */
-    //     FAIL("SDL_PollEvent returned a non 1 or 0 value: %d", result);
-    // }
 
     int scancode = -1;
     int repeat = -1;
@@ -560,6 +609,10 @@ static bool get_ticks(Object* self, ValueArray args, Value* out) {
 }
 
 static bool delay(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "n")) {
+        return false;
+    }
+
     int ms = args.values[0].as.number;
     SDL_Delay(ms);
     *out = MAKE_VALUE_NIL();
@@ -567,6 +620,10 @@ static bool delay(Object* self, ValueArray args, Value* out) {
 }
 
 static bool render_draw_line(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oRenderer n n n n")) {
+        return false;
+    }
+
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     int x1 = args.values[1].as.number;
     int y1 = args.values[2].as.number;
@@ -578,6 +635,10 @@ static bool render_draw_line(Object* self, ValueArray args, Value* out) {
 }
 
 static bool set_render_draw_blend_mode(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oRenderer n")) {
+        return false;
+    }
+
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) args.values[0].as.object;
     int blend_mode = args.values[1].as.number;
 
@@ -586,6 +647,10 @@ static bool set_render_draw_blend_mode(Object* self, ValueArray args, Value* out
 }
 
 static bool set_texture_blend_mode(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oTexture n")) {
+        return false;
+    }
+
     ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[0].as.object;
     int blend_mode = args.values[1].as.number;
 
@@ -594,6 +659,10 @@ static bool set_texture_blend_mode(Object* self, ValueArray args, Value* out) {
 }
 
 static bool set_texture_color_mod(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oTexture n n n")) {
+        return false;
+    }
+
     ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[0].as.object;
     int r = args.values[1].as.number;
     int g = args.values[2].as.number;
@@ -604,6 +673,10 @@ static bool set_texture_color_mod(Object* self, ValueArray args, Value* out) {
 }
 
 static bool set_texture_alpha_mod(Object* self, ValueArray args, Value* out) {
+    if (!plane.arguments_valid(args, "oTexture n")) {
+        return false;
+    }
+
     ObjectInstanceTexture* texture = (ObjectInstanceTexture*) args.values[0].as.object;
     int alpha = args.values[1].as.number;
 

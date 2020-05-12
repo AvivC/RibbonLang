@@ -49,5 +49,6 @@ PlaneApi API = {
     .is_value_instance_of_class = is_value_instance_of_class,
     .object_make_constructor = object_make_constructor,
     .object_descriptor_new = object_descriptor_new,
-    .object_descriptor_new_native = object_descriptor_new_native
+    .object_descriptor_new_native = object_descriptor_new_native,
+    .arguments_valid = arguments_valid
 };

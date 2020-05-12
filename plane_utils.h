@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "dynamic_array.h"
+#include "value_array.h"
 
 uint16_t two_bytes_to_short(uint8_t a, uint8_t b);
 
@@ -30,6 +31,8 @@ char* concat_null_terminated_paths(char* p1, char* p2, char* alloc_string);
 char* find_interpreter_directory(void);
 char* get_current_working_directory(void);
 char* directory_from_path(char* path);
+
+bool arguments_valid(ValueArray args, const char* string);
 
 DECLARE_DYNAMIC_ARRAY(size_t, IntegerArray, integer_array)
 

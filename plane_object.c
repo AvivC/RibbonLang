@@ -930,3 +930,22 @@ bool is_value_instance_of_class(Value value, char* klass_name) {
 ObjectFunction* object_make_constructor(int num_params, char** params, NativeFunction function) {
     return make_native_function_with_params("@init", num_params, params, function);
 }
+
+char* object_get_callable_name(Object* object) {
+	switch (object->type) {
+		case OBJECT_FUNCTION: {
+			return ((ObjectFunction*) object)->name;
+		}
+		case OBJECT_BOUND_METHOD: {
+			return ((ObjectBoundMethod*) object)->method->name;
+		}
+		case OBJECT_CLASS: {
+			return ((ObjectClass*) object)->name;
+		}
+		default: {
+			FAIL("get_callable_name called on a none callable, should never happen.");
+		}
+	}
+
+	return NULL;
+}
