@@ -76,14 +76,6 @@ static bool object_string_length(Object* self, ValueArray args, Value* result) {
 	assert(args.count == 0);
 	assert(self->type == OBJECT_STRING);
 
-	// if (args.count != 0) {
-	// 	FAIL("string length() called with arguments.");
-	// }
-
-	// if (self->type != OBJECT_STRING) {
-	// 	FAIL("string length() called on non ObjectString");
-	// }
-
     ObjectString* self_string = OBJECT_AS_STRING(self);
 
     *result = MAKE_VALUE_NUMBER(self_string->length);
@@ -94,14 +86,6 @@ static bool object_table_length(Object* self, ValueArray args, Value* result) {
 	assert(args.count == 0);
 	assert(self->type == OBJECT_TABLE);
 
-	// if (args.count != 0) {
-	// 	FAIL("table length() called with arguments.");
-	// }
-
-	// if (self->type != OBJECT_TABLE) {
-	// 	FAIL("table length() called on non ObjectTable");
-	// }
-
     ObjectTable* self_table = (ObjectTable*) self;
 
 	PointerArray entries = table_iterate(&self_table->table, "table object length table_iterate buffer");
@@ -111,14 +95,73 @@ static bool object_table_length(Object* self, ValueArray args, Value* result) {
     return true;
 }
 
+static bool object_table_add(Object* self, ValueArray args, Value* result) {
+	assert(args.count == 1);
+	assert(self->type == OBJECT_TABLE);
+
+	bool success = true;
+
+	ValueArray length_args = value_array_make(0, NULL);
+	Value length;
+	if (vm_call_attribute_cstring(self, "length", length_args, &length) != CALL_RESULT_SUCCESS) {
+		success = false;
+		goto cleanup;
+	}
+
+	ValueArray set_key_args = value_array_make(2, (Value[]) {length, args.values[0]});
+	Value throwaway;
+	if (vm_call_attribute_cstring(self, "@set_key", set_key_args, &throwaway) != CALL_RESULT_SUCCESS) {
+		success = false;
+	}
+
+	value_array_free(&set_key_args);
+
+	cleanup:
+	value_array_free(&length_args);
+	return success;
+}
+
+static bool object_table_pop(Object* self, ValueArray args, Value* result) {
+	assert(args.count == 0);
+	assert(self->type == OBJECT_TABLE);
+
+	bool success = true;
+
+	ValueArray length_args = value_array_make(0, NULL);
+	Value length;
+	if (vm_call_attribute_cstring(self, "length", length_args, &length) != CALL_RESULT_SUCCESS) {
+		success = false;
+		goto cleanup;
+	}
+
+	ValueArray delete_args = value_array_make(1, (Value[]) {MAKE_VALUE_NUMBER(length.as.number - 1)});
+	Value throwaway;
+	if (vm_call_attribute_cstring(self, "remove_key", delete_args, &throwaway) != CALL_RESULT_SUCCESS) {
+		success = false;
+	}
+
+	value_array_free(&delete_args);
+
+	cleanup:
+	value_array_free(&length_args);
+	return success;
+}
+
+static bool object_table_remove_key(Object* self, ValueArray args, Value* result) {
+	assert(args.count == 1);
+	assert(self->type == OBJECT_TABLE);
+
+	ObjectTable* table = (ObjectTable*) self;
+	Value key = args.values[0];
+
+	*result = MAKE_VALUE_NIL();
+	return table_delete(&table->table, key);
+}
+
 static bool object_string_get_key(Object* self, ValueArray args, Value* result) {
 	assert(self->type == OBJECT_STRING);
 
 	Value other_value = args.values[0];
-
-	// if (self->type != OBJECT_STRING) {
-	// 	FAIL("string @get_key called on non ObjectString");
-	// }
 
     if (other_value.type != VALUE_NUMBER) {
     	*result = MAKE_VALUE_NIL();
@@ -144,14 +187,10 @@ static bool object_string_get_key(Object* self, ValueArray args, Value* result) 
     return true;
 }
 
-static bool table_get_key_function(Object* self, ValueArray args, Value* result) {
+static bool object_table_get_key(Object* self, ValueArray args, Value* result) {
 	assert(self->type == OBJECT_TABLE);
 
 	Value key = args.values[0];
-
-	// if (self->type != OBJECT_TABLE) {
-	// 	FAIL("table @get_key called on non ObjectTable");
-	// }
 
     ObjectTable* self_table = (ObjectTable*) self;
 
@@ -159,26 +198,30 @@ static bool table_get_key_function(Object* self, ValueArray args, Value* result)
     if (table_get(&self_table->table, key, &value)) {
     	*result = value;
     } else {
-    	*result = MAKE_VALUE_NIL();
+    	return false;
     }
 
     return true;
 }
 
-static bool table_set_key_function(Object* self, ValueArray args, Value* result) {
+static bool object_table_has_key(Object* self, ValueArray args, Value* result) {
+	assert(self->type == OBJECT_TABLE);
+
+	Value key = args.values[0];
+
+    ObjectTable* self_table = (ObjectTable*) self;
+
+    Value throwaway;
+    *result = MAKE_VALUE_BOOLEAN(table_get(&self_table->table, key, &throwaway));
+    return true;
+}
+
+static bool object_table_set_key(Object* self, ValueArray args, Value* result) {
 	assert(args.count == 2);
 	assert(self->type == OBJECT_TABLE);
 
-	// if (args.count != 2) {
-	// 	FAIL("Table @set_key called with argument number other than 2: %d", args.count);
-	// }
-
 	Value key_value = args.values[0];
 	Value value_to_set = args.values[1];
-
-	// if (self->type != OBJECT_TABLE) {
-	// 	FAIL("table @set_key called on non ObjectTable");
-	// }
 
     ObjectTable* self_table = (ObjectTable*) self;
 
@@ -375,10 +418,6 @@ static bool descriptor_init(Object* self, ValueArray args, Value* out) {
 
 	assert(is_instance_of_class(self, "Descriptor"));
 
-	// if (!is_instance_of_class(self, "Descriptor")) {
-	// 	FAIL("Descriptor passed as self to @init isn't an instance of the Descriptor class.");
-	// }
-
 	Value get_arg = args.values[0];
 	Value set_arg = args.values[1];
 
@@ -395,9 +434,6 @@ static bool descriptor_init(Object* self, ValueArray args, Value* out) {
 
 	if (set_arg.type != VALUE_NIL) {
 		assert(object_value_is(set_arg, OBJECT_FUNCTION));
-		// if (!object_value_is(set_arg, OBJECT_FUNCTION)) {
-		// 	FAIL("set argument passed to descriptor @init is not a function.");
-		// }
 		object_set_attribute_cstring_key((Object*) self, "@set", set_arg);
 	}
 
@@ -445,11 +481,13 @@ ObjectTable* object_table_new(Table table) {
 	ObjectTable* object_table = (ObjectTable*) allocate_object(sizeof(ObjectTable), "ObjectTable", OBJECT_TABLE);
 	object_table->table = table;
 
-	/* TODO: The method system changed. At time of writing tables and strings still use this kind of thing, we
-	need to change it at some point. */
 	set_object_native_method((Object*) object_table, "length", (char*[]){}, 0, object_table_length);
-	set_object_native_method((Object*) object_table, "@get_key", (char*[]){"other"}, 1, table_get_key_function);
-	set_object_native_method((Object*) object_table, "@set_key", (char*[]){"key", "value"}, 2, table_set_key_function);
+	set_object_native_method((Object*) object_table, "@get_key", (char*[]){"other"}, 1, object_table_get_key);
+	set_object_native_method((Object*) object_table, "@set_key", (char*[]){"key", "value"}, 2, object_table_set_key);
+	set_object_native_method((Object*) object_table, "has_key", (char*[]){"key"}, 1, object_table_has_key);
+	set_object_native_method((Object*) object_table, "remove_key", (char*[]){"key"}, 1, object_table_remove_key);
+	set_object_native_method((Object*) object_table, "add", (char*[]){"value"}, 1, object_table_add);
+	set_object_native_method((Object*) object_table, "pop", NULL, 0, object_table_pop);
 
 	return object_table;
 }

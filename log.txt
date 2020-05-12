@@ -1,997 +1,379 @@
-Starting Build and Run
-Building...
-Build successful. Running. 
-==== AST ====
-
-
-STATEMENTS
-
-. . ASSIGNMENT: outer
-
-. . . . FUNCTION
-
-. . . . Parameters: -- No parameters --
-
-. . . . Statements:
-
-. . . . . . ASSIGNMENT: inner
-
-. . . . . . . . FUNCTION
-
-. . . . . . . . Parameters: -- No parameters --
-
-. . . . . . . . Statements:
-
-. . . . . . . . . . EXPR_STATEMENT
-
-. . . . . . . . . . . . CALL
-
-. . . . . . . . . . . . . . VARIABLE: print
-
-. . . . . . . . . . . . Arguments:
-
-. . . . . . . . . . . . . . VARIABLE: x
-
-. . . . . . IF
-
-. . . . . . Condition:
-
-. . . . . . . . CONSTANT: false
-
-. . . . . . Body:
-
-. . . . . . . . STATEMENTS
-
-. . . . . . . . . . ASSIGNMENT: x
-
-. . . . . . . . . . . . CONSTANT: 10
-
-. . . . . . RETURN
-
-. . . . . . . . VARIABLE: inner
-
-. . ASSIGNMENT: inner
-
-. . . . CALL
-
-. . . . . . VARIABLE: outer
-
-. . . . Arguments:
-
-. . EXPR_STATEMENT
-
-. . . . CALL
-
-. . . . . . VARIABLE: inner
-
-. . . . Arguments:
-
-==== Bytecode ====
-
-0   00000000006038A0 OP_MAKE_FUNCTION             <Code object at 00000000006037C0>
-5   00000000006038A5 OP_SET_VARIABLE              outer
-8   00000000006038A8 OP_LOAD_VARIABLE             outer
-11  00000000006038AB OP_CALL                      0
-13  00000000006038AD OP_SET_VARIABLE              inner
-16  00000000006038B0 OP_LOAD_VARIABLE             inner
-19  00000000006038B3 OP_CALL                      0
-21  00000000006038B5 OP_POP
-22  00000000006038B6 OP_NIL
-23  00000000006038B7 OP_RETURN
-
-Inner chunk [index 3]:
-0   0000000000603670 OP_MAKE_FUNCTION             <Code object at 0000000000603590>
-5   0000000000603675 OP_SET_VARIABLE              inner
-8   0000000000603678 OP_CONSTANT                  false
-11  000000000060367B OP_JUMP_IF_FALSE             23
-14  000000000060367E OP_CONSTANT                  10
-17  0000000000603681 OP_SET_VARIABLE              x
-20  0000000000603684 OP_JUMP                      23
-23  0000000000603687 OP_LOAD_VARIABLE             inner
-26  000000000060368A OP_RETURN
-27  000000000060368B OP_NIL
-28  000000000060368C OP_RETURN
-
-Inner chunk [index 2]:
-0   000000000027A570 OP_LOAD_VARIABLE             x
-3   000000000027A573 OP_LOAD_VARIABLE             print
-6   000000000027A576 OP_CALL                      1
-8   000000000027A578 OP_POP
-9   000000000027A579 OP_NIL
-10  000000000027A57A OP_RETURN
-
-Constant table [size 2] of chunk pointing at '000000000027A570':
-0: x [ type 4 ]
-1: print [ type 4 ]
-
-Constant table [size 8] of chunk pointing at '0000000000603670':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: <Code object at 0000000000603590> [ type 4 ]
-3: inner [ type 4 ]
-4: false [ type 1 ]
-5: 10 [ type 0 ]
-6: x [ type 4 ]
-7: inner [ type 4 ]
-
-Constant table [size 8] of chunk pointing at '00000000006038A0':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: inner [ type 4 ]
-3: <Code object at 00000000006037C0> [ type 4 ]
-4: outer [ type 4 ]
-5: outer [ type 4 ]
-6: inner [ type 4 ]
-7: inner [ type 4 ]
-
-================
-Starting interpreter loop.
-Starting interpreter loop.
---------------------------
-num_objects: 290, max_objects: 558
-0   00000000006038A0 OP_MAKE_FUNCTION             <Code object at 00000000006037C0>
-
-[ -- Empty Stack -- ]
-
-Local variables:
-[]
-
-Constant table [size 8] of chunk pointing at '00000000006038A0':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: inner [ type 4 ]
-3: <Code object at 00000000006037C0> [ type 4 ]
-4: outer [ type 4 ]
-5: outer [ type 4 ]
-6: inner [ type 4 ]
-7: inner [ type 4 ]
-
-Call stack:
-    -> <Anonymous function>
-
---------------------------
-num_objects: 292, max_objects: 580
-5   00000000006038A5 OP_SET_VARIABLE              outer
-
-[ <Function <Anonymous function> at 00000000005EB330> ]
-
-Local variables:
-[inner: <Cell object at 00000000005ED690 wrapping nil>]
-
-Constant table [size 8] of chunk pointing at '00000000006038A0':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: inner [ type 4 ]
-3: <Code object at 00000000006037C0> [ type 4 ]
-4: outer [ type 4 ]
-5: outer [ type 4 ]
-6: inner [ type 4 ]
-7: inner [ type 4 ]
-
-Call stack:
-    -> <Anonymous function>
-
---------------------------
-num_objects: 293, max_objects: 584
-8   00000000006038A8 OP_LOAD_VARIABLE             outer
-
-[ -- Empty Stack -- ]
-
-Local variables:
-[inner: <Cell object at 00000000005ED690 wrapping nil>, outer: <Cell object at 00000000005ED700 wrapping <Function outer at 00000000005EB330>>]
-
-Constant table [size 8] of chunk pointing at '00000000006038A0':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: inner [ type 4 ]
-3: <Code object at 00000000006037C0> [ type 4 ]
-4: outer [ type 4 ]
-5: outer [ type 4 ]
-6: inner [ type 4 ]
-7: inner [ type 4 ]
-
-Call stack:
-    -> <Anonymous function>
-
---------------------------
-num_objects: 293, max_objects: 586
-11  00000000006038AB OP_CALL                      0
-
-[ <Function outer at 00000000005EB330> ]
-
-Local variables:
-[inner: <Cell object at 00000000005ED690 wrapping nil>, outer: <Cell object at 00000000005ED700 wrapping <Function outer at 00000000005EB330>>]
-
-Constant table [size 8] of chunk pointing at '00000000006038A0':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: inner [ type 4 ]
-3: <Code object at 00000000006037C0> [ type 4 ]
-4: outer [ type 4 ]
-5: outer [ type 4 ]
-6: inner [ type 4 ]
-7: inner [ type 4 ]
-
-Call stack:
-    -> <Anonymous function>
-
-Starting interpreter loop.
---------------------------
-num_objects: 293, max_objects: 586
-0   0000000000603670 OP_MAKE_FUNCTION             <Code object at 0000000000603590>
-
-[ <Function outer at 00000000005EB330> ]
-
-Local variables:
-[]
-
-Constant table [size 8] of chunk pointing at '0000000000603670':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: <Code object at 0000000000603590> [ type 4 ]
-3: inner [ type 4 ]
-4: false [ type 1 ]
-5: 10 [ type 0 ]
-6: x [ type 4 ]
-7: inner [ type 4 ]
-
-Call stack:
-    -> outer
-    -> <Anonymous function>
-
---------------------------
-num_objects: 295, max_objects: 586
-5   0000000000603675 OP_SET_VARIABLE              inner
-
-[ <Function outer at 00000000005EB330> ][ <Function <Anonymous function> at 00000000005EB3D0> ]
-
-Local variables:
-[x: <Cell object at 00000000005ED770 wrapping nil>]
-
-Constant table [size 8] of chunk pointing at '0000000000603670':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: <Code object at 0000000000603590> [ type 4 ]
-3: inner [ type 4 ]
-4: false [ type 1 ]
-5: 10 [ type 0 ]
-6: x [ type 4 ]
-7: inner [ type 4 ]
-
-Call stack:
-    -> outer
-    -> <Anonymous function>
-
---------------------------
-num_objects: 296, max_objects: 590
-8   0000000000603678 OP_CONSTANT                  false
-
-[ <Function outer at 00000000005EB330> ]
-
-Local variables:
-[inner: <Cell object at 00000000005ED7E0 wrapping <Function inner at 00000000005EB3D0>>, x: <Cell object at 00000000005ED770 wrapping nil>]
-
-Constant table [size 8] of chunk pointing at '0000000000603670':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: <Code object at 0000000000603590> [ type 4 ]
-3: inner [ type 4 ]
-4: false [ type 1 ]
-5: 10 [ type 0 ]
-6: x [ type 4 ]
-7: inner [ type 4 ]
-
-Call stack:
-    -> outer
-    -> <Anonymous function>
-
---------------------------
-num_objects: 296, max_objects: 592
-11  000000000060367B OP_JUMP_IF_FALSE             23
-
-[ <Function outer at 00000000005EB330> ][ false ]
-
-Local variables:
-[inner: <Cell object at 00000000005ED7E0 wrapping <Function inner at 00000000005EB3D0>>, x: <Cell object at 00000000005ED770 wrapping nil>]
-
-Constant table [size 8] of chunk pointing at '0000000000603670':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: <Code object at 0000000000603590> [ type 4 ]
-3: inner [ type 4 ]
-4: false [ type 1 ]
-5: 10 [ type 0 ]
-6: x [ type 4 ]
-7: inner [ type 4 ]
-
-Call stack:
-    -> outer
-    -> <Anonymous function>
-
---------------------------
-num_objects: 296, max_objects: 592
-23  0000000000603687 OP_LOAD_VARIABLE             inner
-
-[ <Function outer at 00000000005EB330> ]
-
-Local variables:
-[inner: <Cell object at 00000000005ED7E0 wrapping <Function inner at 00000000005EB3D0>>, x: <Cell object at 00000000005ED770 wrapping nil>]
-
-Constant table [size 8] of chunk pointing at '0000000000603670':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: <Code object at 0000000000603590> [ type 4 ]
-3: inner [ type 4 ]
-4: false [ type 1 ]
-5: 10 [ type 0 ]
-6: x [ type 4 ]
-7: inner [ type 4 ]
-
-Call stack:
-    -> outer
-    -> <Anonymous function>
-
---------------------------
-num_objects: 296, max_objects: 592
-26  000000000060368A OP_RETURN
-
-[ <Function outer at 00000000005EB330> ][ <Function inner at 00000000005EB3D0> ]
-
-Local variables:
-[inner: <Cell object at 00000000005ED7E0 wrapping <Function inner at 00000000005EB3D0>>, x: <Cell object at 00000000005ED770 wrapping nil>]
-
-Constant table [size 8] of chunk pointing at '0000000000603670':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: <Code object at 0000000000603590> [ type 4 ]
-3: inner [ type 4 ]
-4: false [ type 1 ]
-5: 10 [ type 0 ]
-6: x [ type 4 ]
-7: inner [ type 4 ]
-
-Call stack:
-    -> outer
-    -> <Anonymous function>
-
-
---------------------------
-
-Ended interpreter loop.
---------------------------
-num_objects: 296, max_objects: 592
-13  00000000006038AD OP_SET_VARIABLE              inner
-
-[ <Function inner at 00000000005EB3D0> ]
-
-Local variables:
-[inner: <Cell object at 00000000005ED690 wrapping nil>, outer: <Cell object at 00000000005ED700 wrapping <Function outer at 00000000005EB330>>]
-
-Constant table [size 8] of chunk pointing at '00000000006038A0':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: inner [ type 4 ]
-3: <Code object at 00000000006037C0> [ type 4 ]
-4: outer [ type 4 ]
-5: outer [ type 4 ]
-6: inner [ type 4 ]
-7: inner [ type 4 ]
-
-Call stack:
-    -> <Anonymous function>
-
---------------------------
-num_objects: 295, max_objects: 590
-16  00000000006038B0 OP_LOAD_VARIABLE             inner
-
-[ -- Empty Stack -- ]
-
-Local variables:
-[inner: <Cell object at 00000000005ED690 wrapping <Function inner at 00000000005EB3D0>>, outer: <Cell object at 00000000005ED700 wrapping <Function outer at 00000000005EB330>>]
-
-Constant table [size 8] of chunk pointing at '00000000006038A0':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: inner [ type 4 ]
-3: <Code object at 00000000006037C0> [ type 4 ]
-4: outer [ type 4 ]
-5: outer [ type 4 ]
-6: inner [ type 4 ]
-7: inner [ type 4 ]
-
-Call stack:
-    -> <Anonymous function>
-
---------------------------
-num_objects: 295, max_objects: 590
-19  00000000006038B3 OP_CALL                      0
-
-[ <Function inner at 00000000005EB3D0> ]
-
-Local variables:
-[inner: <Cell object at 00000000005ED690 wrapping <Function inner at 00000000005EB3D0>>, outer: <Cell object at 00000000005ED700 wrapping <Function outer at 00000000005EB330>>]
-
-Constant table [size 8] of chunk pointing at '00000000006038A0':
-0: x [ type 4 ]
-1: print [ type 4 ]
-2: inner [ type 4 ]
-3: <Code object at 00000000006037C0> [ type 4 ]
-4: outer [ type 4 ]
-5: outer [ type 4 ]
-6: inner [ type 4 ]
-7: inner [ type 4 ]
-
-Call stack:
-    -> <Anonymous function>
-
-Starting interpreter loop.
---------------------------
-num_objects: 295, max_objects: 590
-0   000000000027A570 OP_LOAD_VARIABLE             x
-
-[ <Function inner at 00000000005EB3D0> ]
-
-Local variables:
-[]
-
-Constant table [size 2] of chunk pointing at '000000000027A570':
-0: x [ type 4 ]
-1: print [ type 4 ]
-
-Call stack:
-    -> inner
-    -> <Anonymous function>
-
-An error has occured. Stack trace (most recent call on top):
-    -> inner
-    -> <Anonymous function>
-Variable x not found.
-
---------------------------
-
-Ended interpreter loop.
-
---------------------------
-
-Ended interpreter loop.
-======== Memory diagnostics ========
-*******
-Allocated memory is 48528, not 0!
-*******
-*******
-Number of allocations which have not been freed is 524, not 0!
-*******
-Allocated memory entries:
-
-Capacity: 1024 
-Count: 610 
-Data: 
-6 = [Key: 27b4e0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-8 = [Key: 27a5d0, Value: <Internal: allocation marker of 'Function name' size 9>]
-9 = [Key: 5f2400, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-10 = [Key: 5f2dc0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-11 = [Key: 27b6c0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-12 = [Key: 27d050, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-13 = [Key: 27b600, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-15 = [Key: 5f16f0, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-16 = [Key: 27bc00, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-18 = [Key: 5f24c0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-20 = [Key: 5e8d20, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-21 = [Key: 5ea3e0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-24 = [Key: 5f3940, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-25 = [Key: 27a2d0, Value: <Internal: allocation marker of 'Function name' size 9>]
-27 = [Key: 5f21c0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-28 = [Key: 5f2be0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-29 = [Key: 5ea4d0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-34 = [Key: 276950, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-36 = [Key: 5f2e60, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-37 = [Key: 5e8140, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-38 = [Key: 5ea750, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-46 = [Key: 277b70, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-47 = [Key: 27a700, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-49 = [Key: 27bf00, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-51 = [Key: 27bcc0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-53 = [Key: 27ab10, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-54 = [Key: 278720, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-55 = [Key: 279860, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-56 = [Key: 27bde0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-57 = [Key: 27be40, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-58 = [Key: 276810, Value: <Internal: allocation marker of 'ObjectCode' size 136>]
-59 = [Key: 276d60, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-60 = [Key: 27d7c0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-61 = [Key: 27a5f0, Value: <Internal: allocation marker of 'Function name' size 9>]
-62 = [Key: 5e9040, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-64 = [Key: 27dfe0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-68 = [Key: 27a3f0, Value: <Internal: allocation marker of 'Function name' size 9>]
-71 = [Key: 603470, Value: <Internal: allocation marker of 'ValueArray buffer' size 192>]
-74 = [Key: 278a50, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-80 = [Key: 277df0, Value: <Internal: allocation marker of 'Function name' size 11>]
-82 = [Key: 603350, Value: <Internal: allocation marker of 'ValueArray buffer' size 192>]
-86 = [Key: 5f3b10, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-87 = [Key: 27f850, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-89 = [Key: 27a110, Value: <Internal: allocation marker of 'Object string buffer' size 9>]
-91 = [Key: 279fb0, Value: <Internal: allocation marker of 'Object string buffer' size 10>]
-92 = [Key: 5e8dc0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-93 = [Key: 5ea610, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-94 = [Key: 5f2880, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-95 = [Key: 2768f0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-96 = [Key: 278910, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-99 = [Key: 276fa0, Value: <Internal: allocation marker of 'Object string buffer' size 10>]
-103 = [Key: 5e8b40, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-106 = [Key: 6036a0, Value: <Internal: allocation marker of 'ValueArray buffer' size 192>]
-107 = [Key: 27fa30, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-110 = [Key: 5eaa70, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-112 = [Key: 27bae0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-113 = [Key: 276dd0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-114 = [Key: 5ea1e0, Value: <Internal: allocation marker of 'Object string buffer' size 8>]
-115 = [Key: 5e9d60, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-116 = [Key: 5ea380, Value: <Internal: allocation marker of 'Object string buffer' size 4>]
-120 = [Key: 278840, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-121 = [Key: 27abb0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-124 = [Key: 5f2520, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-125 = [Key: 27a390, Value: <Internal: allocation marker of 'Function name' size 9>]
-128 = [Key: 5ea420, Value: <Internal: allocation marker of 'Object string buffer' size 7>]
-131 = [Key: 5e9540, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-134 = [Key: 5e81e0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-137 = [Key: 277540, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-145 = [Key: 277eb0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-148 = [Key: 27a2b0, Value: <Internal: allocation marker of 'Object string buffer' size 19>]
-150 = [Key: 5f1ec0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-153 = [Key: 27b5a0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-154 = [Key: 603670, Value: <Internal: allocation marker of 'Chunk code buffer' size 32>]
-158 = [Key: 27d360, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-161 = [Key: 5ea280, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-162 = [Key: 279c50, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-163 = [Key: 5f33d0, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-166 = [Key: 27d280, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-167 = [Key: 276ee0, Value: <Internal: allocation marker of 'Object string buffer' size 6>]
-168 = [Key: 27a590, Value: <Internal: allocation marker of 'Function name' size 9>]
-173 = [Key: 27a050, Value: <Internal: allocation marker of 'Function name' size 9>]
-174 = [Key: 27b300, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-175 = [Key: 277860, Value: <Internal: allocation marker of 'Parameters list strings' size 16>]
-176 = [Key: 27fc90, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-178 = [Key: 5e8640, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-181 = [Key: 27dd70, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-183 = [Key: 27a1f0, Value: <Internal: allocation marker of 'Object string buffer' size 24>]
-185 = [Key: 27b180, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-190 = [Key: 5ea290, Value: <Internal: allocation marker of 'Function name' size 5>]
-191 = [Key: 27a150, Value: <Internal: allocation marker of 'Object string buffer' size 11>]
-194 = [Key: 279f50, Value: <Internal: allocation marker of 'Object string buffer' size 10>]
-200 = [Key: 5f2280, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-201 = [Key: 27e1c0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-202 = [Key: 27b720, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-203 = [Key: 5e7d80, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-204 = [Key: 5e99a0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-205 = [Key: 2799b0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-206 = [Key: 27df30, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-209 = [Key: 5e94a0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-210 = [Key: 276f80, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-211 = [Key: 5e8f00, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-212 = [Key: 27a210, Value: <Internal: allocation marker of 'Function name' size 24>]
-213 = [Key: 278990, Value: <Internal: allocation marker of 'Function name' size 7>]
-215 = [Key: 2767e0, Value: <Internal: allocation marker of 'Object string buffer' size 6>]
-216 = [Key: 279470, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-217 = [Key: 27a310, Value: <Internal: allocation marker of 'Parameters list strings' size 16>]
-219 = [Key: 278a20, Value: <Internal: allocation marker of 'Function name' size 7>]
-220 = [Key: 276700, Value: <Internal: allocation marker of 'Object string buffer' size 5>]
-221 = [Key: 5f22e0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-222 = [Key: 27af50, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-223 = [Key: 27d600, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-224 = [Key: 5ea340, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-225 = [Key: 5ea890, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-226 = [Key: 5f1fe0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-233 = [Key: 276ce0, Value: <Internal: allocation marker of 'Object string buffer' size 7>]
-234 = [Key: 2788d0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-235 = [Key: 27ba20, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-236 = [Key: 5e8be0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-238 = [Key: 2789b0, Value: <Internal: allocation marker of 'Function name' size 5>]
-239 = [Key: 279240, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-240 = [Key: 5f2760, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-242 = [Key: 2779a0, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-245 = [Key: 27e160, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-249 = [Key: 2786d0, Value: <Internal: allocation marker of 'Function name' size 5>]
-251 = [Key: 5ea300, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-253 = [Key: 27cfe0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-254 = [Key: 277320, Value: <Internal: allocation marker of 'Object string buffer' size 5>]
-259 = [Key: 277880, Value: <Internal: allocation marker of 'Function name' size 9>]
-260 = [Key: 277be0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-261 = [Key: 278830, Value: <Internal: allocation marker of 'Function name' size 7>]
-262 = [Key: 277f70, Value: <Internal: allocation marker of 'Function name' size 9>]
-263 = [Key: 5e80a0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-264 = [Key: 278950, Value: <Internal: allocation marker of 'Object string buffer' size 7>]
-266 = [Key: 2767c0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-267 = [Key: 5e97c0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-268 = [Key: 2788a0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-270 = [Key: 603590, Value: <Internal: allocation marker of 'ObjectCode' size 136>]
-271 = [Key: 27d590, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-272 = [Key: 278ea0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-274 = [Key: 5e8000, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-275 = [Key: 2768d0, Value: <Internal: allocation marker of 'Function name' size 7>]
-276 = [Key: 2775a0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-277 = [Key: 27b8a0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-278 = [Key: 2789c0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-279 = [Key: 5f23a0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-281 = [Key: 5e7df0, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-283 = [Key: 277d30, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-286 = [Key: 27a250, Value: <Internal: allocation marker of 'Function name' size 9>]
-294 = [Key: 5ea3f0, Value: <Internal: allocation marker of 'Function name' size 5>]
-296 = [Key: 276bf0, Value: <Internal: allocation marker of 'Object string buffer' size 9>]
-298 = [Key: 27d1a0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-300 = [Key: 2788c0, Value: <Internal: allocation marker of 'Function name' size 5>]
-301 = [Key: 5ea200, Value: <Internal: allocation marker of 'Function name' size 5>]
-303 = [Key: 5ea500, Value: <Internal: allocation marker of 'Function name' size 7>]
-304 = [Key: 5ed620, Value: <Internal: allocation marker of 'ObjectModule' size 96>]
-305 = [Key: 277080, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-306 = [Key: 27f7e0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-309 = [Key: 277900, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-310 = [Key: 2794e0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-312 = [Key: 5ea2e0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-314 = [Key: 5e95e0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-316 = [Key: 27db40, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-318 = [Key: 277dd0, Value: <Internal: allocation marker of 'Object string buffer' size 11>]
-319 = [Key: 5e86e0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-320 = [Key: 27a130, Value: <Internal: allocation marker of 'Function name' size 9>]
-321 = [Key: 27d210, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-322 = [Key: 5ea3c0, Value: <Internal: allocation marker of 'Function name' size 7>]
-323 = [Key: 5eb150, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-324 = [Key: 5eb290, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-332 = [Key: 278710, Value: <Internal: allocation marker of 'Object string buffer' size 5>]
-334 = [Key: 279f90, Value: <Internal: allocation marker of 'Function name' size 10>]
-335 = [Key: 277f90, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-336 = [Key: 279a90, Value: <Internal: allocation marker of 'ObjectModule' size 96>]
-338 = [Key: 278a70, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-339 = [Key: 278030, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-340 = [Key: 279160, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-341 = [Key: 27b2a0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-342 = [Key: 279d30, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-343 = [Key: 5ea310, Value: <Internal: allocation marker of 'Function name' size 7>]
-344 = [Key: 276e40, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-345 = [Key: 2788e0, Value: <Internal: allocation marker of 'Function name' size 7>]
-346 = [Key: 27a8d0, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-347 = [Key: 5f3200, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-348 = [Key: 5ea3b0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-349 = [Key: 278940, Value: <Internal: allocation marker of 'Function name' size 7>]
-350 = [Key: 27e280, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-352 = [Key: 5ea370, Value: <Internal: allocation marker of 'Function name' size 7>]
-354 = [Key: 5ea430, Value: <Internal: allocation marker of 'Object string buffer' size 6>]
-356 = [Key: 5ea2a0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-357 = [Key: 27dec0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-361 = [Key: 5ea5a0, Value: <Internal: allocation marker of 'Object string buffer' size 42>]
-362 = [Key: 2795c0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-363 = [Key: 5eabb0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-365 = [Key: 5eae30, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-367 = [Key: 276f20, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-368 = [Key: 5ea230, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-369 = [Key: 277e10, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-370 = [Key: 5e83c0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-371 = [Key: 27bf60, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-372 = [Key: 2773c0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-373 = [Key: 27dc90, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-374 = [Key: 27a070, Value: <Internal: allocation marker of 'Object string buffer' size 10>]
-376 = [Key: 27d0c0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-379 = [Key: 278760, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-380 = [Key: 2778a0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-381 = [Key: 27b3c0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-382 = [Key: 278a60, Value: <Internal: allocation marker of 'Function name' size 5>]
-384 = [Key: 5ea7f0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-385 = [Key: 276c10, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-390 = [Key: 27a090, Value: <Internal: allocation marker of 'Object string buffer' size 14>]
-392 = [Key: 5f2a00, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-394 = [Key: 27ba80, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-396 = [Key: 5f27c0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-397 = [Key: 2789f0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-399 = [Key: 276d00, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-403 = [Key: 279400, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-404 = [Key: 27d670, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-405 = [Key: 5ea460, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-407 = [Key: 5ea270, Value: <Internal: allocation marker of 'Function name' size 7>]
-408 = [Key: 5e8500, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-409 = [Key: 276720, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-410 = [Key: 5eacf0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-412 = [Key: 5f29a0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-413 = [Key: 27a270, Value: <Internal: allocation marker of 'Object string buffer' size 12>]
-415 = [Key: 27b900, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-417 = [Key: 2787b0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-418 = [Key: 278960, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-424 = [Key: 277c50, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-425 = [Key: 27b9c0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-426 = [Key: 27a470, Value: <Internal: allocation marker of 'Function name' size 9>]
-427 = [Key: 603770, Value: <Internal: allocation marker of 'IntegerArray buffer' size 64>]
-428 = [Key: 5e85a0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-429 = [Key: 2787f0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-430 = [Key: 2777c0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-431 = [Key: 2786f0, Value: <Internal: allocation marker of 'Function name' size 7>]
-432 = [Key: 278900, Value: <Internal: allocation marker of 'Object string buffer' size 5>]
-433 = [Key: 279a20, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-434 = [Key: 5e9680, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-435 = [Key: 5f25e0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-436 = [Key: 279b00, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-437 = [Key: 27a550, Value: <Internal: allocation marker of 'Function name' size 21>]
-438 = [Key: 603620, Value: <Internal: allocation marker of 'IntegerArray buffer' size 64>]
-439 = [Key: 5f4080, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-442 = [Key: 277220, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-447 = [Key: 277140, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-449 = [Key: 5ea1d0, Value: <Internal: allocation marker of 'Object string buffer' size 8>]
-451 = [Key: 27a350, Value: <Internal: allocation marker of 'Object string buffer' size 14>]
-452 = [Key: 5ea4c0, Value: <Internal: allocation marker of 'Function name' size 7>]
-453 = [Key: 5ea2b0, Value: <Internal: allocation marker of 'Function name' size 7>]
-455 = [Key: 2790f0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-457 = [Key: 5f3eb0, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-460 = [Key: 279b70, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-461 = [Key: 5ed690, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-462 = [Key: 5f1a90, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-463 = [Key: 27a190, Value: <Internal: allocation marker of 'Parameters list strings' size 24>]
-464 = [Key: 5ea320, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-465 = [Key: 5e9720, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-466 = [Key: 5e9360, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-467 = [Key: 5ea530, Value: <Internal: allocation marker of 'Function name' size 6>]
-469 = [Key: 2776c0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-470 = [Key: 27b240, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-471 = [Key: 5ea220, Value: <Internal: allocation marker of 'Function name' size 7>]
-472 = [Key: 5f2d00, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-476 = [Key: 27b360, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-477 = [Key: 27d520, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-478 = [Key: 5ea1f0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-479 = [Key: 5ea9d0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-480 = [Key: 27dad0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-481 = [Key: 5ea4f0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-482 = [Key: 2789a0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-486 = [Key: 5ea250, Value: <Internal: allocation marker of 'Function name' size 5>]
-487 = [Key: 278a40, Value: <Internal: allocation marker of 'Object string buffer' size 5>]
-489 = [Key: 6037c0, Value: <Internal: allocation marker of 'ObjectCode' size 136>]
-490 = [Key: 5e8aa0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-491 = [Key: 5ead90, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-492 = [Key: 27d9f0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-493 = [Key: 27e100, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-494 = [Key: 27dde0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-496 = [Key: 278750, Value: <Internal: allocation marker of 'Function name' size 7>]
-498 = [Key: 5f2640, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-499 = [Key: 5f2700, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-500 = [Key: 5f28e0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-501 = [Key: 278970, Value: <Internal: allocation marker of 'Function name' size 5>]
-502 = [Key: 27a1d0, Value: <Internal: allocation marker of 'Object string buffer' size 9>]
-503 = [Key: 5f2b20, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-504 = [Key: 5f1f80, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-505 = [Key: 27d830, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-506 = [Key: 27ad10, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-507 = [Key: 5f1e60, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-510 = [Key: 27b420, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-511 = [Key: 279fd0, Value: <Internal: allocation marker of 'Function name' size 9>]
-515 = [Key: 276fc0, Value: <Internal: allocation marker of 'Function name' size 9>]
-522 = [Key: 279390, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-523 = [Key: 5ea440, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-524 = [Key: 27aaa0, Value: <Internal: allocation marker of 'Function name' size 42>]
-535 = [Key: 27b120, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-536 = [Key: 27d4b0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-537 = [Key: 5e9c20, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-539 = [Key: 27da60, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-546 = [Key: 2767a0, Value: <Internal: allocation marker of 'Function name' size 6>]
-548 = [Key: 2770e0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-550 = [Key: 5f2340, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-552 = [Key: 27a3d0, Value: <Internal: allocation marker of 'Parameters list strings' size 16>]
-556 = [Key: 27d130, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-557 = [Key: 277f50, Value: <Internal: allocation marker of 'Object string buffer' size 12>]
-558 = [Key: 27a370, Value: <Internal: allocation marker of 'Function name' size 9>]
-561 = [Key: 279320, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-564 = [Key: 27a0f0, Value: <Internal: allocation marker of 'Function name' size 9>]
-565 = [Key: 2798d0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-566 = [Key: 5e9b80, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-568 = [Key: 27acb0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-569 = [Key: 279cc0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-570 = [Key: 5e88c0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-571 = [Key: 277640, Value: <Internal: allocation marker of 'Function name' size 10>]
-572 = [Key: 27b540, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-576 = [Key: 5e92c0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-578 = [Key: 27f9d0, Value: <Internal: allocation marker of 'Function name' size 12>]
-579 = [Key: 5ea3a0, Value: <Internal: allocation marker of 'Function name' size 5>]
-582 = [Key: 278980, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-584 = [Key: 5f18c0, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-585 = [Key: 5f2940, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-587 = [Key: 278770, Value: <Internal: allocation marker of 'Function name' size 5>]
-591 = [Key: 5eab10, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-595 = [Key: 279710, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-601 = [Key: 279630, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-602 = [Key: 5ea4a0, Value: <Internal: allocation marker of 'Function name' size 5>]
-603 = [Key: 5e8820, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-604 = [Key: 278870, Value: <Internal: allocation marker of 'Function name' size 5>]
-605 = [Key: 27bba0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-606 = [Key: 277200, Value: <Internal: allocation marker of 'Function name' size 5>]
-607 = [Key: 277360, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-608 = [Key: 276fe0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-609 = [Key: 2774d0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-610 = [Key: 27a290, Value: <Internal: allocation marker of 'Function name' size 12>]
-611 = [Key: 277cc0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-612 = [Key: 27d750, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-613 = [Key: 5f3ce0, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-615 = [Key: 279080, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-616 = [Key: 5e9ea0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-617 = [Key: 277760, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-618 = [Key: 5f1f20, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-624 = [Key: 27fa10, Value: <Internal: allocation marker of 'Function name' size 9>]
-625 = [Key: 27d6e0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-626 = [Key: 2786e0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-627 = [Key: 276c70, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-628 = [Key: 27bc60, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-630 = [Key: 27d440, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-631 = [Key: 5f2100, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-639 = [Key: 278a10, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-645 = [Key: 5ea350, Value: <Internal: allocation marker of 'Function name' size 5>]
-648 = [Key: 5ed770, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-649 = [Key: 279f70, Value: <Internal: allocation marker of 'Function name' size 9>]
-650 = [Key: 2796a0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-651 = [Key: 5e8c80, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-652 = [Key: 603540, Value: <Internal: allocation marker of 'IntegerArray buffer' size 64>]
-653 = [Key: 278780, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-655 = [Key: 6038a0, Value: <Internal: allocation marker of 'Chunk code buffer' size 32>]
-656 = [Key: 27b1e0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-666 = [Key: 27b780, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-667 = [Key: 5e8780, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-668 = [Key: 5ea210, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-669 = [Key: 278790, Value: <Internal: allocation marker of 'Function name' size 7>]
-671 = [Key: 5e8280, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-673 = [Key: 279e80, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-674 = [Key: 27a1b0, Value: <Internal: allocation marker of 'Function name' size 9>]
-676 = [Key: 27bea0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-679 = [Key: 5ed700, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-682 = [Key: 279010, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-683 = [Key: 27a510, Value: <Internal: allocation marker of 'Function name' size 9>]
-684 = [Key: 5ea240, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-687 = [Key: 276b80, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-688 = [Key: 5e9ae0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-690 = [Key: 278860, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-695 = [Key: 27b060, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-696 = [Key: 27a430, Value: <Internal: allocation marker of 'Function name' size 13>]
-697 = [Key: 5e8320, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-698 = [Key: 278a00, Value: <Internal: allocation marker of 'Function name' size 5>]
-699 = [Key: 5ea4e0, Value: <Internal: allocation marker of 'Function name' size 5>]
-704 = [Key: 603850, Value: <Internal: allocation marker of 'IntegerArray buffer' size 64>]
-712 = [Key: 279f30, Value: <Internal: allocation marker of 'Object string buffer' size 12>]
-713 = [Key: 27e040, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-716 = [Key: 5ea2d0, Value: <Internal: allocation marker of 'Object string buffer' size 3>]
-717 = [Key: 5f2460, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-718 = [Key: 5ea6b0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-726 = [Key: 5e8e60, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-727 = [Key: 5eaf70, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-729 = [Key: 5e9900, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-730 = [Key: 2771e0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-734 = [Key: 5e9cc0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-735 = [Key: 5ea400, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-736 = [Key: 5ea450, Value: <Internal: allocation marker of 'Function name' size 5>]
-737 = [Key: 27aee0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-743 = [Key: 278fa0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-744 = [Key: 27a410, Value: <Internal: allocation marker of 'Object string buffer' size 13>]
-745 = [Key: 5ea390, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-746 = [Key: 27e220, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-757 = [Key: 279da0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-758 = [Key: 2789e0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-759 = [Key: 2787e0, Value: <Internal: allocation marker of 'Function name' size 7>]
-762 = [Key: 278600, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-764 = [Key: 27b7e0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-768 = [Key: 5ea930, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-775 = [Key: 5e9180, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-779 = [Key: 27f930, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-782 = [Key: 277660, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-783 = [Key: 279ff0, Value: <Internal: allocation marker of 'Function name' size 10>]
-784 = [Key: 5e90e0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-785 = [Key: 5e9e00, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-787 = [Key: 277340, Value: <Internal: allocation marker of 'Function name' size 9>]
-791 = [Key: 5e9860, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-793 = [Key: 5f4250, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-795 = [Key: 5ea4b0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-797 = [Key: 5e8960, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-800 = [Key: 2797f0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-801 = [Key: 5f2580, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-803 = [Key: 27cde0, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-813 = [Key: 5ea330, Value: <Internal: allocation marker of 'Object string buffer' size 6>]
-816 = [Key: 5eac50, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-817 = [Key: 278740, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-818 = [Key: 276780, Value: <Internal: allocation marker of 'Object string buffer' size 6>]
-819 = [Key: 5e9a40, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-822 = [Key: 279550, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-823 = [Key: 5e9220, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-824 = [Key: 27a2f0, Value: <Internal: allocation marker of 'Function name' size 19>]
-833 = [Key: 5eb010, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-844 = [Key: 279be0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-846 = [Key: 5eb330, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-847 = [Key: 5e9fd0, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-848 = [Key: 278200, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-854 = [Key: 5eb1f0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-855 = [Key: 27b480, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-856 = [Key: 5ea480, Value: <Internal: allocation marker of 'Object string buffer' size 6>]
-857 = [Key: 5f4420, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-860 = [Key: 5ea2c0, Value: <Internal: allocation marker of 'Function name' size 3>]
-862 = [Key: 27a0d0, Value: <Internal: allocation marker of 'Object string buffer' size 9>]
-863 = [Key: 27b0c0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-864 = [Key: 27bb40, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-865 = [Key: 5ea360, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-866 = [Key: 5f2ac0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-868 = [Key: 278700, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-869 = [Key: 5ea2f0, Value: <Internal: allocation marker of 'Function name' size 5>]
-870 = [Key: 5f35a0, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-871 = [Key: 2769b0, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-872 = [Key: 27b960, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-873 = [Key: 278730, Value: <Internal: allocation marker of 'Function name' size 5>]
-874 = [Key: 2787c0, Value: <Internal: allocation marker of 'Function name' size 5>]
-875 = [Key: 279940, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-876 = [Key: 27dc20, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-877 = [Key: 5eb3d0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-878 = [Key: 278a30, Value: <Internal: allocation marker of 'Object string buffer' size 5>]
-880 = [Key: 27a570, Value: <Internal: allocation marker of 'Chunk code buffer' size 16>]
-882 = [Key: 27d2f0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-883 = [Key: 277280, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-884 = [Key: 5f26a0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-889 = [Key: 5f2040, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-890 = [Key: 27a030, Value: <Internal: allocation marker of 'Function name' size 9>]
-893 = [Key: 5ea490, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-895 = [Key: 27a230, Value: <Internal: allocation marker of 'Parameters list strings' size 16>]
-896 = [Key: 2791d0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-898 = [Key: 27f8c0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-899 = [Key: 27a170, Value: <Internal: allocation marker of 'Function name' size 11>]
-901 = [Key: 278a80, Value: <Internal: allocation marker of 'Function name' size 7>]
-905 = [Key: 27d3d0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-906 = [Key: 5eb0b0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-910 = [Key: 5f2d60, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-912 = [Key: 27fc70, Value: <Internal: allocation marker of 'Function name' size 12>]
-913 = [Key: 5f3030, Value: <Internal: allocation marker of 'Hash table array' size 448>]
-916 = [Key: 279780, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-917 = [Key: 278850, Value: <Internal: allocation marker of 'Object string buffer' size 6>]
-923 = [Key: 27b660, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-924 = [Key: 278890, Value: <Internal: allocation marker of 'Function name' size 7>]
-925 = [Key: 5e8a00, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-928 = [Key: 5f2a60, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-929 = [Key: 27fc00, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-931 = [Key: 603420, Value: <Internal: allocation marker of 'IntegerArray buffer' size 64>]
-932 = [Key: 27a3b0, Value: <Internal: allocation marker of 'Function name' size 14>]
-933 = [Key: 5eaed0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-936 = [Key: 5f2c40, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-940 = [Key: 278820, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-948 = [Key: 278880, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-949 = [Key: 27bd20, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-950 = [Key: 5f2820, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-951 = [Key: 27d8a0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-952 = [Key: 27d980, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-953 = [Key: 2788f0, Value: <Internal: allocation marker of 'Function name' size 5>]
-954 = [Key: 278920, Value: <Internal: allocation marker of 'Function name' size 5>]
-956 = [Key: 27a0b0, Value: <Internal: allocation marker of 'Function name' size 14>]
-957 = [Key: 5e8fa0, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-958 = [Key: 5f2220, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-959 = [Key: 5e8460, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-960 = [Key: 2792b0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-962 = [Key: 278930, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-963 = [Key: 5e9400, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-964 = [Key: 5ea260, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-965 = [Key: 27a330, Value: <Internal: allocation marker of 'Function name' size 9>]
-966 = [Key: 5f2b80, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-969 = [Key: 277460, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-970 = [Key: 27b000, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-971 = [Key: 27de50, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-973 = [Key: 278800, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-974 = [Key: 5ea3d0, Value: <Internal: allocation marker of 'Object string buffer' size 2>]
-975 = [Key: 2789d0, Value: <Internal: allocation marker of 'Function name' size 7>]
-976 = [Key: 2787d0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-977 = [Key: 5f20a0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-981 = [Key: 279e10, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-982 = [Key: 276f00, Value: <Internal: allocation marker of 'Function name' size 6>]
-985 = [Key: 27dbb0, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-986 = [Key: 278f30, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-987 = [Key: 27b840, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-988 = [Key: 27bd80, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-989 = [Key: 2788b0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-990 = [Key: 27d910, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-992 = [Key: 5ea470, Value: <Internal: allocation marker of 'Function name' size 7>]
-997 = [Key: 27ac10, Value: <Internal: allocation marker of 'ObjectFunction' size 152>]
-999 = [Key: 602e40, Value: <Internal: allocation marker of 'Hash table array' size 896>]
-1000 = [Key: 278810, Value: <Internal: allocation marker of 'Function name' size 5>]
-1003 = [Key: 5ea510, Value: <Internal: allocation marker of 'Function name' size 6>]
-1010 = [Key: 5f2160, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-1012 = [Key: 27a010, Value: <Internal: allocation marker of 'Parameters list strings' size 16>]
-1016 = [Key: 5ea410, Value: <Internal: allocation marker of 'Function name' size 7>]
-1017 = [Key: 27e0a0, Value: <Internal: allocation marker of 'ObjectBoundMethod' size 88>]
-1019 = [Key: 27dd00, Value: <Internal: allocation marker of 'ObjectCell' size 104>]
-1021 = [Key: 5f2ca0, Value: <Internal: allocation marker of 'ObjectString' size 88>]
-1022 = [Key: 2787a0, Value: <Internal: allocation marker of 'Parameters list strings' size 8>]
-
-*******
-No live objects.
-*******
-======== End memory diagnostics ========
+Running tests in builtin_functions.test
+
+Test empty_print_prints_newline                                                   SUCCESS
+Test print_line                                                                   SUCCESS
+Test print_multiple_lines                                                         SUCCESS
+Test read_file                                                                    SUCCESS
+Test file io cycle                                                                SUCCESS
+Test has attribute function                                                       SUCCESS
+
+Running tests in classes.test
+
+Test empty named class                                                            SUCCESS
+Test empty anonymous class                                                        SUCCESS
+Test class attributes                                                             SUCCESS
+Test constructors                                                                 SUCCESS
+Test more constructors                                                            SUCCESS
+Test tribe of proud happy kangaroos living together in peace and harmony jumpin aroundSUCCESS
+Test self is captured by closures in methods                                      SUCCESS
+Test more funky classes stuff                                                     SUCCESS
+
+Running tests in control_flow.test
+
+Test plain_if                                                                     SUCCESS
+Test if_else                                                                      SUCCESS
+Test if_elsif_else                                                                SUCCESS
+Test nested_if_elsif_else                                                         SUCCESS
+Test more if elsif else                                                           SUCCESS
+Test counting_while_loop                                                          SUCCESS
+Test while_inside_if                                                              SUCCESS
+Test if_inside_while                                                              SUCCESS
+Test basic for loop                                                               SUCCESS
+Test for loop on string                                                           SUCCESS
+Test nested for loops                                                             SUCCESS
+Test all control structures together                                              SUCCESS
+
+Running tests in func.test
+
+
+Running tests in functions.test
+
+Test empty_function_does_nothing                                                  SUCCESS
+Test empty pipes take no parameters                                               SUCCESS
+Test function_with_no_return_returns_nil                                          SUCCESS
+Test return with no value returns nil                                             SUCCESS
+Test recursion                                                                    SUCCESS
+Test function_calls                                                               SUCCESS
+Test fuction_calls_multi_arg                                                      SUCCESS
+Test function_as_argument                                                         SUCCESS
+Test function_call_in_expression                                                  SUCCESS
+Test function instances are independent objects                                   SUCCESS
+Test basic closures                                                               SUCCESS
+Test deeply nested closures                                                       SUCCESS
+Test deeply nested closures with different names                                  SUCCESS
+Test higher order closures                                                        SUCCESS
+Test closure semantics                                                            SUCCESS
+Test closure with arguments                                                       SUCCESS
+Test function reaches to base function                                            SUCCESS
+Test weird closure behavior                                                       SUCCESS
+Test closure cannot alter enclosed variable                                       SUCCESS
+Test nested closure cannot alter enclosed variable                                SUCCESS
+Test free variable referenced before assignment raises error                      SUCCESS
+
+Running tests in math.test
+
+Test binary_operations                                                            SUCCESS
+Test expression                                                                   SUCCESS
+Test modulo with negative numbers unsupported                                     SUCCESS
+Test boolean expressions                                                          SUCCESS
+Test mutation statements                                                          SUCCESS
+
+Running tests in misc.test
+
+Test nil generally                                                                SUCCESS
+Test nil attributes                                                               SUCCESS
+Test nil returned from function                                                   SUCCESS
+Test surface memory corruptions by validating consistent stdout output            SUCCESS
+Test string concat does not overflow stack                                        SUCCESS
+Test table access does not overflow stack                                         SUCCESS
+Test more than 255 constants is handled correctly                                 SUCCESS
+
+Running tests in modules.test
+
+Test basic import                                                                 SUCCESS
+Test nested imports                                                               SUCCESS
+Test module caching                                                               SUCCESS
+Test module attributes                                                            SUCCESS
+Test import stdlib module                                                         SUCCESS
+Test user module takes precedence over stdlib module                              SUCCESS
+Test unfound module raises error                                                  SUCCESS
+Test load stdlib extension module                                                 SUCCESS
+Test load user extension module                                                   SUCCESS
+Test extension classes                                                            SUCCESS
+Test extension imports and uses other extension                                   SUCCESS
+Test extension causes the import of another extension                             SUCCESS
+Test more extension communication and also importing plane module from extension  SUCCESS
+
+Running tests in native_integ.test
+
+Test native function calls user function                                          SUCCESS
+Test native function calls user function with arguments and return value          SUCCESS
+Test native function calls user function that fails                               SUCCESS
+Test user code calls native code calls user code calls native code                SUCCESS
+Test with nested closures                                                         SUCCESS
+Test cross module                                                                 SUCCESS
+Test descriptors                                                                  SUCCESS
+
+Running tests in objects.test
+
+Test attribute assignment                                                         SUCCESS
+Test objects of the same type are independent                                     SUCCESS
+
+Running tests in strings.test
+
+Test adding strings                                                               SUCCESS
+Test illegal to set attribute on string                                           SUCCESS
+Test string length method                                                         SUCCESS
+Test string interning                                                             SUCCESS
+Test advanced string interning                                                    SUCCESS
+Test string key accessor                                                          SUCCESS
+Test string operations                                                            SUCCESS
+
+Running tests in table.test
+
+Test empty table                                                                  SUCCESS
+Test table operations                                                             SUCCESS
+Test nested tables                                                                SUCCESS
+Test initializing with keys of different types                                    SUCCESS
+Test setting keys of different types                                              SUCCESS
+Test table as plain array                                                         SUCCESS
+Test table as mixed array and dictionary                                          SUCCESS
+Test large table                                                                  SUCCESS
+Test big ass table internals                                                      FAILURE
+
+Ln. Expected        | Actual
+
+0                   |                
+1   Adding key a to table. | Adding key a to table.
+2   Table:          | Table:         
+3   [a: 10]         | [a: 10]        
+4   Details:        | Details:       
+5   [collision_count: 0, capacity: 8, num_entries: 1, count: 1] | [collision_count: 0, capacity: 8, num_entries: 1, count: 1]
+6                   |                
+7                   |                
+8   Adding key b to table. | Adding key b to table.
+9   Table:          | Table:         
+10  [a: 10, b: 20]  | [a: 10, b: 20] 
+11  Details:        | Details:       
+12  [collision_count: 0, capacity: 8, num_entries: 2, count: 2] | [collision_count: 0, capacity: 8, num_entries: 2, count: 2]
+13                  |                
+14                  |                
+15  Adding key c to table. | Adding key c to table.
+16  Table:          | Table:         
+17  [c: 30, a: 10, b: 20] | [c: 30, a: 10, b: 20]
+18  Details:        | Details:       
+19  [collision_count: 0, capacity: 8, num_entries: 3, count: 3] | [collision_count: 0, capacity: 8, num_entries: 3, count: 3]
+20                  |                
+21                  |                
+22  Adding key d to table. | Adding key d to table.
+23  Table:          | Table:         
+24  [c: 30, d: 40, a: 10, b: 20] | [c: 30, d: 40, a: 10, b: 20]
+25  Details:        | Details:       
+26  [collision_count: 0, capacity: 8, num_entries: 4, count: 4] | [collision_count: 0, capacity: 8, num_entries: 4, count: 4]
+27                  |                
+28                  |                
+29  Adding key e to table. | Adding key e to table.
+30  Table:          | Table:         
+31  [c: 30, d: 40, e: 50, a: 10, b: 20] | [c: 30, d: 40, e: 50, a: 10, b: 20]
+32  Details:        | Details:       
+33  [collision_count: 0, capacity: 8, num_entries: 5, count: 5] | [collision_count: 0, capacity: 8, num_entries: 5, count: 5]
+34                  |                
+35                  |                
+36  Adding key f to table. | Adding key f to table.
+37  Table:          | Table:         
+38  [a: 10, b: 20, c: 30, d: 40, e: 50, f: 60] | [a: 10, b: 20, c: 30, d: 40, e: 50, f: 60]
+39  Details:        | Details:       
+40  [collision_count: 0, capacity: 16, num_entries: 6, count: 6] | [collision_count: 0, capacity: 16, num_entries: 6, count: 6]
+41                  |                
+42                  |                
+43  Adding key g to table. | Adding key g to table.
+44  Table:          | Table:         
+45  [a: 10, b: 20, c: 30, d: 40, e: 50, f: 60, g: 70] | [a: 10, b: 20, c: 30, d: 40, e: 50, f: 60, g: 70]
+46  Details:        | Details:       
+47  [collision_count: 0, capacity: 16, num_entries: 7, count: 7] | [collision_count: 0, capacity: 16, num_entries: 7, count: 7]
+48                  |                
+49                  |                
+50  Adding key h to table. | Adding key h to table.
+51  Table:          | Table:         
+52  [a: 10, b: 20, c: 30, d: 40, e: 50, f: 60, g: 70, h: 80] | [a: 10, b: 20, c: 30, d: 40, e: 50, f: 60, g: 70, h: 80]
+53  Details:        | Details:       
+54  [collision_count: 0, capacity: 16, num_entries: 8, count: 8] | [collision_count: 0, capacity: 16, num_entries: 8, count: 8]
+55                  |                
+56                  |                
+57  Removing entry e from table. | Removing entry e from table.
+58  Table:          | Table:         
+59  [a: 10, b: 20, c: 30, d: 40, f: 60, g: 70, h: 80] | [a: 10, b: 20, c: 30, d: 40, f: 60, g: 70, h: 80]
+60  Details:        | Details:       
+61  [collision_count: 0, capacity: 16, num_entries: 7, count: 8] | [collision_count: 0, capacity: 16, num_entries: 7, count: 8]
+62                  |                
+63                  |                
+64  Removing entry a from table. | Removing entry a from table.
+65  Table:          | Table:         
+66  [b: 20, c: 30, d: 40, f: 60, g: 70, h: 80] | [b: 20, c: 30, d: 40, f: 60, g: 70, h: 80]
+67  Details:        | Details:       
+68  [collision_count: 0, capacity: 16, num_entries: 6, count: 8] | [collision_count: 0, capacity: 16, num_entries: 6, count: 8]
+69                  |                
+70  false           | false          
+71                  |                
+72  Adding key i to table. | Adding key i to table.
+73  Table:          | Table:         
+74  [b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80] | [b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80]
+75  Details:        | Details:       
+76  [collision_count: 1, capacity: 16, num_entries: 7, count: 9] | [collision_count: 1, capacity: 16, num_entries: 7, count: 9]
+77                  |                
+78                  |                
+79  Adding key j to table. | Adding key j to table.
+80  Table:          | Table:         
+81  [b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80] | [b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80]
+82  Details:        | Details:       
+83  [collision_count: 1, capacity: 16, num_entries: 8, count: 10] | [collision_count: 1, capacity: 16, num_entries: 8, count: 10]
+84                  |                
+85                  |                
+86  Adding key k to table. | Adding key k to table.
+87  Table:          | Table:         
+88  [k: 80, b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80] | [k: 80, b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80]
+89  Details:        | Details:       
+90  [collision_count: 1, capacity: 16, num_entries: 9, count: 11] | [collision_count: 1, capacity: 16, num_entries: 9, count: 11]
+91                  |                
+92                  |                
+93  Adding key l to table. | Adding key l to table.
+94  Table:          | Table:         
+95  [b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80] | [b: 20, c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+96  Details:        | Details:       
+97  [collision_count: 0, capacity: 32, num_entries: 10, count: 10] | [collision_count: 0, capacity: 32, num_entries: 10, count: 10]
+98                  |                
+99                  |                
+100 Removing entry b from table. | Removing entry b from table.
+101 Table:          | Table:         
+102 [c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80] | [c: 30, d: 40, f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+103 Details:        | Details:       
+104 [collision_count: 0, capacity: 32, num_entries: 9, count: 10] | [collision_count: 0, capacity: 32, num_entries: 9, count: 10]
+105                 |                
+106                 |                
+107 Removing entry c from table. | Removing entry c from table.
+108 Table:          | Table:         
+109 [d: 40, f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80] | [d: 40, f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+110 Details:        | Details:       
+111 [collision_count: 0, capacity: 32, num_entries: 8, count: 10] | [collision_count: 0, capacity: 32, num_entries: 8, count: 10]
+112                 |                
+113                 |                
+114 Removing entry d from table. | Removing entry d from table.
+115 Table:          | Table:         
+116 [f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80] | [f: 60, g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+117 Details:        | Details:       
+118 [collision_count: 0, capacity: 32, num_entries: 7, count: 10] | [collision_count: 0, capacity: 32, num_entries: 7, count: 10]
+119                 |                
+120                 |                
+121 Removing entry f from table. | Removing entry f from table.
+122 Table:          | Table:         
+123 [g: 70, h: 80, i: 80, j: 80, k: 80, l: 80] | [g: 70, h: 80, i: 80, j: 80, k: 80, l: 80]
+124 Details:        | Details:       
+125 [collision_count: 0, capacity: 32, num_entries: 6, count: 10] | [collision_count: 0, capacity: 32, num_entries: 6, count: 10]
+126                 |                
+127                 |                
+128 Removing entry l from table. | Removing entry l from table.
+129 Table:          | Table:         
+130 [g: 70, h: 80, i: 80, j: 80, k: 80] | [g: 70, h: 80, i: 80, j: 80, k: 80]
+131 Details:        | Details:       
+132 [collision_count: 0, capacity: 32, num_entries: 5, count: 10] | [collision_count: 0, capacity: 32, num_entries: 5, count: 10]
+133                 |                
+134                 |                
+135 Adding key 0 to table. | Adding key 0 to table.
+136 Table:          | Table:         
+137 [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22] | [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22]
+138 Details:        | Details:       
+139 [collision_count: 0, capacity: 32, num_entries: 6, count: 11] | [collision_count: 0, capacity: 32, num_entries: 6, count: 11]
+140                 |                
+141                 |                
+142 Adding key 1 to table. | Adding key 1 to table.
+143 Table:          | Table:         
+144 [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22] | [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22]
+145 Details:        | Details:       
+146 [collision_count: 0, capacity: 32, num_entries: 7, count: 12] | [collision_count: 0, capacity: 32, num_entries: 7, count: 12]
+147                 |                
+148                 |                
+149 Adding key 2 to table. | Adding key 2 to table.
+150 Table:          | Table:         
+151 [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22] | [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22]
+152 Details:        | Details:       
+153 [collision_count: 0, capacity: 32, num_entries: 8, count: 13] | [collision_count: 0, capacity: 32, num_entries: 8, count: 13]
+154                 |                
+155                 |                
+156 Adding key 3 to table. | Adding key 3 to table.
+157 Table:          | Table:         
+158 [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22] | [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22]
+159 Details:        | Details:       
+160 [collision_count: 0, capacity: 32, num_entries: 9, count: 14] | [collision_count: 0, capacity: 32, num_entries: 9, count: 14]
+161                 |                
+162                 |                
+163 Adding key 4 to table. | Adding key 4 to table.
+164 Table:          | Table:         
+165 [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22] | [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22]
+166 Details:        | Details:       
+167 [collision_count: 0, capacity: 32, num_entries: 10, count: 15] | [collision_count: 0, capacity: 32, num_entries: 10, count: 15]
+168                 |                
+169                 |                
+170 Adding key 5 to table. | Adding key 5 to table.
+171 Table:          | Table:         
+172 [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22] | [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22]
+173 Details:        | Details:       
+174 [collision_count: 0, capacity: 32, num_entries: 11, count: 16] | [collision_count: 0, capacity: 32, num_entries: 11, count: 16]
+175                 |                
+176                 |                
+177 Adding key 6 to table. | Adding key 6 to table.
+178 Table:          | Table:         
+179 [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22] | [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22]
+180 Details:        | Details:       
+181 [collision_count: 0, capacity: 32, num_entries: 12, count: 17] | [collision_count: 0, capacity: 32, num_entries: 12, count: 17]
+182                 |                
+183                 |                
+184 Adding key 7 to table. | Adding key 7 to table.
+185 Table:          | Table:         
+186 [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22] | [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22]
+187 Details:        | Details:       
+188 [collision_count: 0, capacity: 32, num_entries: 13, count: 18] | [collision_count: 0, capacity: 32, num_entries: 13, count: 18]
+189                 |                
+190                 |                
+191 Adding key 8 to table. | Adding key 8 to table.
+192 Table:          | Table:         
+193 [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22] | [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22]
+194 Details:        | Details:       
+195 [collision_count: 0, capacity: 32, num_entries: 14, count: 19] | [collision_count: 0, capacity: 32, num_entries: 14, count: 19]
+196                 |                
+197                 |                
+198 Adding key 9 to table. | Adding key 9 to table.
+199 Table:          | Table:         
+200 [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22] | [g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+201 Details:        | Details:       
+202 [collision_count: 0, capacity: 32, num_entries: 15, count: 20] | [collision_count: 0, capacity: 32, num_entries: 15, count: 20]
+203                 |                
+204                 |                
+205 Adding key 10 to table. | Adding key 10 to table.
+206 Table:          | Table:         
+207 [10: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22] | [10: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+208 Details:        | Details:       
+209 [collision_count: 0, capacity: 32, num_entries: 16, count: 21] | [collision_count: 0, capacity: 32, num_entries: 16, count: 21]
+210                 |                
+211                 |                
+212 Adding key 11 to table. | Adding key 11 to table.
+213 Table:          | Table:         
+214 [10: 22, 11: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22] | [10: 22, 11: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+215 Details:        | Details:       
+216 [collision_count: 1, capacity: 32, num_entries: 17, count: 22] | [collision_count: 1, capacity: 32, num_entries: 17, count: 22]
+217                 |                
+218                 |                
+219 Adding key 12 to table. | Adding key 12 to table.
+220 Table:          | Table:         
+221 [10: 22, 11: 22, 12: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22] | [10: 22, 11: 22, 12: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+222 Details:        | Details:       
+223 [collision_count: 2, capacity: 32, num_entries: 18, count: 23] | [collision_count: 2, capacity: 32, num_entries: 18, count: 23]
+224                 |                
+225                 |                
+226 Adding key 13 to table. | Adding key 13 to table.
+227 Table:          | Table:         
+228 [10: 22, 11: 22, 12: 22, 13: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22] | [10: 22, 11: 22, 12: 22, 13: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+229 Details:        | Details:       
+230 [collision_count: 0, capacity: 64, num_entries: 19, count: 19] | [collision_count: 0, capacity: 64, num_entries: 19, count: 19]
+231                 |                
+232                 |                
+233 Adding key 14 to table. | Adding key 14 to table.
+234 Table:          | Table:         
+235 [10: 22, 11: 22, 12: 22, 13: 22, 14: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22] | [10: 22, 11: 22, 12: 22, 13: 22, 14: 22, g: 70, h: 80, i: 80, j: 80, k: 80, 0: 22, 1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 6: 22, 7: 22, 8: 22, 9: 22]
+236 Details:        | Details:       
+237 [collision_count: 0, capacity: 64, num_entries: 20, count: 20] | [collision_count: 0, capacity: 64, num_entries: 20, count: 20]
+238                 |                
+239 22              | 22             
+240 nil             | false          [DIFF]
+
+Found total 97 tests.
+Some tests failed!

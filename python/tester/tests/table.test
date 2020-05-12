@@ -2,22 +2,32 @@ test empty table
     t = []
     print(t["something"])
 expect
-    nil
+    An error has occured. Stack trace (most recent call on top):
+        -> <Anonymous function>
+    @get_key function failed.
 end
 
 test table operations
     t = ["a": 10, "b": "thing"]
+
     print(t["b"])
     print(t["a"])
     t["c"] = 20
     t["a"] = 30
     print(t["c"])
     print(t["a"])
+    print(t.has_key("b"))
+    print(t.has_key("d"))
+    t.remove_key("a")
+    print(t.has_key("a"))
 expect
     thing
     10
     20
     30
+    true
+    false
+    false
 end
 
 test nested tables
@@ -76,6 +86,22 @@ expect
     are
     items
     And I'm a function!
+end
+
+test table as stack
+    stack = ["a", "b"]
+    stack.add("c")
+    print(stack[0] + stack[1] + stack[2])
+    stack.add("d")
+    print(stack[0] + stack[1] + stack[2] + stack[3])
+    stack.pop()
+    print(stack.has_key(3))
+    print(stack[0] + stack[1] + stack[2])
+expect
+    abc
+    abcd
+    false
+    abc
 end
 
 test table as mixed array and dictionary
@@ -235,7 +261,7 @@ test big ass table internals
     del("e")
     del("a")
 
-    print(t["a"])
+    print(t.has_key("a"))
 
     f("i", 80)
     f("j", 80)
@@ -256,7 +282,7 @@ test big ass table internals
     }
 
     print(t["9"])
-    print(t["d"])
+    print(t.has_key("d"))
 expect
 
     Adding key a to table.
@@ -328,7 +354,7 @@ expect
     Details:
     [collision_count: 0, capacity: 16, num_entries: 6, count: 8]
 
-    nil
+    false
 
     Adding key i to table.
     Table:
@@ -498,5 +524,5 @@ expect
     [collision_count: 0, capacity: 64, num_entries: 20, count: 20]
 
     22
-    nil
+    false
 end
