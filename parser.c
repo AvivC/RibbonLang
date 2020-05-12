@@ -224,15 +224,6 @@ static AstNode* function(int expression_level) {
                 value_array_write(&parameters, &param);
             } while (match(TOKEN_COMMA));
         }
-
-		// do {
-		// 	consume(TOKEN_IDENTIFIER, "Expected parameter name.");
-        //     unsigned long hash = hash_string_bounded(parser.previous.start, parser.previous.length);
-		// 	Value param = MAKE_VALUE_RAW_STRING(parser.previous.start, parser.previous.length, hash);
-		// 	value_array_write(&parameters, &param);
-		// } while (match(TOKEN_COMMA));
-
-		// consume(TOKEN_PIPE, "Expected '|' at end of parameter list.");
 	}
 
     AstNodeStatements* statementsNode = (AstNodeStatements*) statements();
@@ -365,10 +356,12 @@ static ParseRule rules[] = {
     {unary, binary, PREC_TERM},         // TOKEN_MINUS
     {NULL, binary, PREC_FACTOR},       // TOKEN_STAR
     {NULL, binary, PREC_FACTOR},       // TOKEN_SLASH
+    {NULL, binary, PREC_FACTOR},       // TOKEN_MODULO
     {NULL, NULL, PREC_FACTOR},       // TOKEN_PLUS_EQUALS
     {NULL, NULL, PREC_FACTOR},       // TOKEN_MINUS_EQUALS
     {NULL, NULL, PREC_FACTOR},       // TOKEN_STAR_EQUALS
     {NULL, NULL, PREC_FACTOR},       // TOKEN_SLASH_EQUALS
+    {NULL, NULL, PREC_FACTOR},       // TOKEN_MODULO_EQUALS
     {NULL, NULL, PREC_NONE},     // TOKEN_EQUAL
     {unary, NULL, PREC_NONE},     // TOKEN_NOT
     {NULL, binary, PREC_COMPARISON},     // TOKEN_LESS_THAN
@@ -417,7 +410,7 @@ static AstNode* parse_expression(Precedence precedence, int expression_level) {
     ParseRule prefix_rule = get_rule(parser.previous.type);
     if (prefix_rule.prefix == NULL) {
         error("Expecting a prefix operator."); // TODO: better message
-        return NULL; // TODO: This makes the program crash...
+        return NULL;
     }
     
     node = (AstNode*) prefix_rule.prefix(expression_level);
@@ -450,7 +443,11 @@ static AstNodeMutation* mutation_statement(void) {
 
     ScannerTokenType operator = parser.previous.type;
 
-    assert(operator == TOKEN_PLUS_EQUALS || operator == TOKEN_SLASH_EQUALS || operator == TOKEN_STAR_EQUALS || operator == TOKEN_MINUS_EQUALS);
+    assert(operator == TOKEN_PLUS_EQUALS 
+        || operator == TOKEN_SLASH_EQUALS 
+        || operator == TOKEN_STAR_EQUALS 
+        || operator == TOKEN_MINUS_EQUALS
+        || operator == TOKEN_MODULO_EQUALS);
 
     AstNode* value = parse_expression(PREC_ASSIGNMENT, 1);
 
@@ -473,7 +470,12 @@ static AstNode* statements(void) {
 
         if (check(TOKEN_IDENTIFIER) && match_next(TOKEN_EQUAL)) {
             child_node = (AstNode*) assignment_statement();
-        } else if (check(TOKEN_IDENTIFIER) && match_next(TOKEN_PLUS_EQUALS)) {
+        } else if (check(TOKEN_IDENTIFIER) 
+                && (match_next(TOKEN_PLUS_EQUALS)
+                || match_next(TOKEN_MINUS_EQUALS)
+                || match_next(TOKEN_STAR_EQUALS)
+                || match_next(TOKEN_SLASH_EQUALS)
+                || match_next(TOKEN_MODULO_EQUALS))) {
             child_node = (AstNode*) mutation_statement();
         } else if (check(TOKEN_IDENTIFIER) && match_next(TOKEN_MINUS_EQUALS)) {
             child_node = (AstNode*) mutation_statement();

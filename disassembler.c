@@ -87,6 +87,9 @@ int disassembler_do_single_instruction(OP_CODE opcode, Bytecode* chunk, int offs
 		case OP_DIVIDE: {
 			return simple_instruction("OP_DIVIDE", chunk, offset);
 		}
+		case OP_MODULO: {
+			return simple_instruction("OP_MODULO", chunk, offset);
+		}
 		case OP_MULTIPLY: {
 			return simple_instruction("OP_MULTIPLY", chunk, offset);
 		}

@@ -75,6 +75,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
                 case TOKEN_MINUS: emit_byte(bytecode, OP_SUBTRACT); break;
                 case TOKEN_STAR: emit_byte(bytecode, OP_MULTIPLY); break;
                 case TOKEN_SLASH: emit_byte(bytecode, OP_DIVIDE); break;
+                case TOKEN_MODULO: emit_byte(bytecode, OP_MODULO); break;
                 case TOKEN_GREATER_THAN: emit_byte(bytecode, OP_GREATER_THAN); break;
                 case TOKEN_LESS_THAN: emit_byte(bytecode, OP_LESS_THAN); break;
                 case TOKEN_GREATER_EQUAL: emit_byte(bytecode, OP_GREATER_EQUAL); break;
@@ -108,6 +109,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 				case TOKEN_MINUS_EQUALS: emit_byte(bytecode, OP_SUBTRACT); break;
 				case TOKEN_STAR_EQUALS: emit_byte(bytecode, OP_MULTIPLY); break;
 				case TOKEN_SLASH_EQUALS: emit_byte(bytecode, OP_DIVIDE); break;
+				case TOKEN_MODULO_EQUALS: emit_byte(bytecode, OP_MODULO); break;
 				default: FAIL("Illegal operator %d found in compiler for AST_NODE_MUTATION, shouldn't happen.", operator);
 			}
 

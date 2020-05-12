@@ -1,4 +1,5 @@
 #include <string.h>
+#include <math.h>
 #include <windows.h>
 
 #include "vm.h"
@@ -1032,7 +1033,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
 	#define BINARY_MATH_OP(op) do { \
         Value b = pop(); \
         Value a = pop(); \
-        push(MAKE_VALUE_NUMBER(a.as.number op b.as.number)); \
+        push(MAKE_VALUE_NUMBER((a.as.number) op (b.as.number))); \
     } while(false)
 
 	#define RUNTIME_ERROR(...) do { \
@@ -1205,6 +1206,19 @@ static bool vm_interpret_frame(StackFrame* frame) {
 					break;
 				}
                 BINARY_MATH_OP(/);
+                break;
+            }
+
+			case OP_MODULO: {
+				if (peek_at(2).type != VALUE_NUMBER || peek_at(1).type != VALUE_NUMBER) {
+					RUNTIME_ERROR("Attempting to perform modulo on types which do not support it.");
+					break;
+				}
+				
+				Value b = pop();
+				Value a = pop();
+				push(MAKE_VALUE_NUMBER(fmod(a.as.number, b.as.number)));
+
                 break;
             }
 
