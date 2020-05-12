@@ -8,6 +8,7 @@
 const char* AST_NODE_TYPE_NAMES[] = {
     "AST_NODE_CONSTANT",
     "AST_NODE_BINARY",
+	"AST_NODE_MUTATION",
     "AST_NODE_UNARY",
     "AST_NODE_VARIABLE",
     "AST_NODE_ASSIGNMENT",
@@ -76,6 +77,28 @@ static void print_node(AstNode* node, int nesting) {
             print_nesting_string(nesting);
             printf("Right:\n");
             print_node(nodeBinary->right_operand, nesting + 1);
+            break;
+        }
+
+		case AST_NODE_MUTATION: {
+            AstNodeMutation* node_mutation = (AstNodeMutation*) node;
+            
+            const char* operator = NULL;
+            switch (node_mutation->operator) {
+				case TOKEN_PLUS_EQUALS: operator = "+=";
+				case TOKEN_MINUS_EQUALS: operator = "-=";
+				case TOKEN_STAR_EQUALS: operator = "*=";
+				case TOKEN_SLASH_EQUALS: operator = "/=";
+                default: operator = "Unrecognized";
+            }
+            
+            print_nesting_string(nesting);
+            printf("MUTATION: %s\n", operator);
+            print_nesting_string(nesting);
+            printf("Variable: %.*s\n", node_mutation->name_length, node_mutation->name);
+			print_nesting_string(nesting);
+            printf("Value: %.*s\n", node_mutation->name_length, node_mutation->name);
+            print_node(node_mutation->value, nesting + 1);
             break;
         }
         
@@ -423,6 +446,16 @@ static void node_free(AstNode* node, int nesting) {
             
             break;
         }
+
+		case AST_NODE_MUTATION: {
+            AstNodeMutation* node_mutation = (AstNodeMutation*) node;
+            
+            node_free(node_mutation->value, nesting + 1);
+            
+            deallocate(node_mutation, sizeof(AstNodeMutation), deallocationString);
+            
+            break;
+        }
         
         case AST_NODE_UNARY: {
             AstNodeUnary* nodeUnary = (AstNodeUnary*) node;
@@ -615,6 +648,15 @@ AstNodeBinary* ast_new_node_binary(ScannerTokenType operator, AstNode* left_oper
 	node->operator = operator;
 	node->left_operand = left_operand;
 	node->right_operand = right_operand;
+	return node;
+}
+
+AstNodeMutation* ast_new_node_mutation(ScannerTokenType operator, const char* name, int name_length, AstNode* value) {
+	AstNodeMutation* node = ALLOCATE_AST_NODE(AstNodeMutation, AST_NODE_MUTATION);
+	node->operator = operator;
+	node->name = name;
+	node->name_length = name_length;
+	node->value = value;
 	return node;
 }
 

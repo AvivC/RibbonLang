@@ -86,6 +86,37 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             
             break;
         }
+
+		case AST_NODE_MUTATION: {
+			AstNodeMutation* node_mutation = (AstNodeMutation*) node;
+
+            Value name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_mutation->name, node_mutation->name_length));
+            size_t constant_index = (size_t) bytecode_add_constant(bytecode, &name_constant);
+
+            integer_array_write(&bytecode->referenced_names_indices, &constant_index);
+            
+			emit_byte(bytecode, OP_LOAD_VARIABLE);
+            emit_short_as_two_bytes(bytecode, constant_index);
+
+			compile_tree(node_mutation->value, bytecode);
+
+			/* Using a ScannerTokenType inside the compiler isn't the prettiest solution. But it works well and will probably stay this way. */
+			ScannerTokenType operator = node_mutation->operator;
+
+			switch (operator) {
+				case TOKEN_PLUS_EQUALS: emit_byte(bytecode, OP_ADD); break;
+				case TOKEN_MINUS_EQUALS: emit_byte(bytecode, OP_SUBTRACT); break;
+				case TOKEN_STAR_EQUALS: emit_byte(bytecode, OP_MULTIPLY); break;
+				case TOKEN_SLASH_EQUALS: emit_byte(bytecode, OP_DIVIDE); break;
+				default: FAIL("Illegal operator %d found in compiler for AST_NODE_MUTATION, shouldn't happen.", operator);
+			}
+
+			integer_array_write(&bytecode->assigned_names_indices, &constant_index);
+			emit_byte(bytecode, OP_SET_VARIABLE);
+            emit_short_as_two_bytes(bytecode, constant_index);
+
+			break;
+		}
         
         case AST_NODE_CONSTANT: {
             AstNodeConstant* node_constant = (AstNodeConstant*) node;

@@ -117,3 +117,24 @@ expect
     true
     false
 end
+
+test mutation statements
+    a = 100
+
+    a += 50
+    print(a)
+
+    a /= 2 * 10
+    print(a)
+
+    a *= -1
+    print(a)
+
+    a -= a * 2
+    print(a)
+expect
+    150
+    7.5
+    -7.5
+    7.5
+end

@@ -213,10 +213,30 @@ Token scanner_next_token() {
     }
     
     switch (c) {
-        case '+': return make_token(TOKEN_PLUS);
-        case '-': return make_token(TOKEN_MINUS);
-        case '*': return make_token(TOKEN_STAR);
-        case '/': return make_token(TOKEN_SLASH);
+        case '+': {
+            if (match('=')) {
+                return make_token(TOKEN_PLUS_EQUALS);
+            }
+            return make_token(TOKEN_PLUS);
+        }
+        case '-': {
+            if (match('=')) {
+                return make_token(TOKEN_MINUS_EQUALS);
+            }
+            return make_token(TOKEN_MINUS);
+        }
+        case '*': {
+            if (match('=')) {
+                return make_token(TOKEN_STAR_EQUALS);
+            }
+            return make_token(TOKEN_STAR);
+        }
+        case '/': {
+            if (match('=')) {
+                return make_token(TOKEN_SLASH_EQUALS);
+            }
+            return make_token(TOKEN_SLASH);
+        }
         case '=': return (match('=') ? make_token(TOKEN_EQUAL_EQUAL) : make_token(TOKEN_EQUAL));
         case '<': return (match('=') ? make_token(TOKEN_LESS_EQUAL) : make_token(TOKEN_LESS_THAN));
         case '>': return (match('=') ? make_token(TOKEN_GREATER_EQUAL) : make_token(TOKEN_GREATER_THAN));

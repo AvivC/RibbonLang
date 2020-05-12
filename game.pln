@@ -79,14 +79,6 @@ Ball = class {
         self._bounces = 0 # debugging
     }
     
-    debug_print = {
-        print("--- Ball ---")
-        print("X: " + to_string(self.x) + ", Y: " + to_string(self.y))
-        print("DX: " + to_string(self.dx) + ", DY: " + to_string(self.dy))
-        print("W: " + to_string(self.width) + ", H: " + to_string(self.height))
-        print("Bounces: " + to_string(self._bounces))
-    }
-    
     apply_force = { | fx, fy, dt |
         self.dx = self.dx + fx * dt
         self.dy = self.dy + fy * dt
@@ -151,11 +143,7 @@ Game = class {
         self.player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 160, player_texture)
         self.balls = []
         
-        i = 0
-        while i < 1 {
-            self.spawn_ball()
-            i = i + 1
-        }
+        self.spawn_ball()
 
         self.running = true
     }
@@ -183,29 +171,19 @@ Game = class {
             self.spawn_ball()
         }
         
-        i = 0
-        while i < self.balls.length() {
-            ball = self.balls[i]
-            
+        for ball in self.balls {
             ball.update(dt)
-            
-            i = i + 1
         }
     }
     
     draw = {
         player = self.player
-        print(player.x)
         dest_rect = sdl.Rect(player.x, player.y, player.width, player.height)
         sdl.render_copy(self.renderer, player.texture, nil, dest_rect)
 
-        i = 0
-        while i < self.balls.length() {
-            ball = self.balls[i]
+        for ball in self.balls {
             dest_rect = sdl.Rect(ball.x, ball.y, ball.width, ball.height)
             sdl.render_copy(self.renderer, ball.texture, nil, dest_rect)
-            
-            i = i + 1
         }
     }
     

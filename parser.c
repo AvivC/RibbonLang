@@ -179,8 +179,8 @@ static AstNode* dot(AstNode* left_node, int expression_level) {
 	}
 }
 
-static AstNode* return_statement(void) { // TODO: Add expression_level here?
-	return (AstNode*) ast_new_node_return(parse_expression(PREC_ASSIGNMENT, 0));
+static AstNode* return_statement(void) {
+	return (AstNode*) ast_new_node_return(parse_expression(PREC_ASSIGNMENT, 1));
 }
 
 static AstNode* identifier(int expression_level) {
@@ -365,6 +365,10 @@ static ParseRule rules[] = {
     {unary, binary, PREC_TERM},         // TOKEN_MINUS
     {NULL, binary, PREC_FACTOR},       // TOKEN_STAR
     {NULL, binary, PREC_FACTOR},       // TOKEN_SLASH
+    {NULL, NULL, PREC_FACTOR},       // TOKEN_PLUS_EQUALS
+    {NULL, NULL, PREC_FACTOR},       // TOKEN_MINUS_EQUALS
+    {NULL, NULL, PREC_FACTOR},       // TOKEN_STAR_EQUALS
+    {NULL, NULL, PREC_FACTOR},       // TOKEN_SLASH_EQUALS
     {NULL, NULL, PREC_NONE},     // TOKEN_EQUAL
     {unary, NULL, PREC_NONE},     // TOKEN_NOT
     {NULL, binary, PREC_COMPARISON},     // TOKEN_LESS_THAN
@@ -432,9 +436,25 @@ static AstNodeAssignment* assignment_statement(void) {
     int variable_length = parser.previous.length;
 
     consume(TOKEN_EQUAL, "Expected '=' after variable name in assignment.");
-    AstNode* value = parse_expression(PREC_ASSIGNMENT, 0);
+    AstNode* value = parse_expression(PREC_ASSIGNMENT, 1);
 
     return ast_new_node_assignment(variable_name, variable_length, value);
+}
+
+
+static AstNodeMutation* mutation_statement(void) {
+    const char* variable_name = parser.previous.start;
+    int variable_length = parser.previous.length;
+
+    advance();
+
+    ScannerTokenType operator = parser.previous.type;
+
+    assert(operator == TOKEN_PLUS_EQUALS || operator == TOKEN_SLASH_EQUALS || operator == TOKEN_STAR_EQUALS || operator == TOKEN_MINUS_EQUALS);
+
+    AstNode* value = parse_expression(PREC_ASSIGNMENT, 1);
+
+    return ast_new_node_mutation(operator, variable_name, variable_length, value);
 }
 
 static ParseRule get_rule(ScannerTokenType type) {
@@ -453,6 +473,14 @@ static AstNode* statements(void) {
 
         if (check(TOKEN_IDENTIFIER) && match_next(TOKEN_EQUAL)) {
             child_node = (AstNode*) assignment_statement();
+        } else if (check(TOKEN_IDENTIFIER) && match_next(TOKEN_PLUS_EQUALS)) {
+            child_node = (AstNode*) mutation_statement();
+        } else if (check(TOKEN_IDENTIFIER) && match_next(TOKEN_MINUS_EQUALS)) {
+            child_node = (AstNode*) mutation_statement();
+        } else if (check(TOKEN_IDENTIFIER) && match_next(TOKEN_STAR_EQUALS)) {
+            child_node = (AstNode*) mutation_statement();
+        } else if (check(TOKEN_IDENTIFIER) && match_next(TOKEN_SLASH_EQUALS)) {
+            child_node = (AstNode*) mutation_statement();
         } else if (match(TOKEN_RETURN)) {
         	child_node = (AstNode*) return_statement();
         } else if (match(TOKEN_IF)) {
