@@ -27,6 +27,31 @@ expect
     nil
 end
 
+test return with no value returns nil
+    f = { | n |
+        if n < 0 {
+                print("Can't do negative!")
+                return
+        }
+
+        return n * n
+    }
+
+    print(f(10))
+    print(f(-10))
+
+    f2 = {
+        return
+    }
+
+    print(f2())
+expect
+    100
+    Can't do negative!
+    nil
+    nil
+end
+
 test recursion
     factorial = { | n |
         if n == 1 {

@@ -180,7 +180,13 @@ static AstNode* dot(AstNode* left_node, int expression_level) {
 }
 
 static AstNode* return_statement(void) {
-	return (AstNode*) ast_new_node_return(parse_expression(PREC_ASSIGNMENT, 1));
+    AstNode* expression;
+    if (check(TOKEN_NEWLINE)) {
+        expression = (AstNode*) ast_new_node_nil();
+    } else {
+        expression = (AstNode*) parse_expression(PREC_ASSIGNMENT, 1);
+    }
+    return (AstNode*) ast_new_node_return(expression);
 }
 
 static AstNode* identifier(int expression_level) {
