@@ -1,6 +1,7 @@
 #include <string.h>
 #include <math.h>
 #include <windows.h>
+#include <time.h>
 
 #include "vm.h"
 #include "plane.h"
@@ -515,6 +516,8 @@ void vm_init(void) {
 
 	vm.main_module_path = NULL;
 	vm.interpreter_dir_path = find_interpreter_directory();
+
+	srand(time(NULL)); /* Our builtin random() function needs the randomizer seeded */
 }
 
 void vm_free(void) {

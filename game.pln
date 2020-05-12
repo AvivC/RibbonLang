@@ -104,23 +104,6 @@ Ball = class {
     }
 }
 
-VeryPsuedoRandomGenerator = class {
-    @init = {
-        self._numbers = [53, 34536, 867, 92444, -4, 25672, 87531, 30, 1996, 458736, 77, -2, 095617, 242, 10, 593845, 32652, 097865, 561230, 468, 05, 73, 967, 723, 7, 1145329, -42]
-        self._i = 0
-    }
-    
-    next_number = {
-        self._i = self._i + 1
-        if self._i >= self._numbers.length() {
-            self._i = 0
-        }
-        return math.abs(self._numbers[self._i])
-    }
-}
-
-random = VeryPsuedoRandomGenerator()
-
 Game = class {
     _init_sdl = { | title |
         sdl.init(sdl.SDL_INIT_VIDEO)
@@ -149,8 +132,7 @@ Game = class {
     }
     
     spawn_ball = {
-        randnum = random.next_number()
-        random_x = (math.min(SCREEN_WIDTH, randnum) / math.max(SCREEN_WIDTH, randnum)) * SCREEN_WIDTH
+        random_x = math.random_in_range(0 + 60, SCREEN_WIDTH - 60)
         texture = self.ball_texture
         self.balls[self.balls.length()] = Ball(random_x, 0, texture)
     }

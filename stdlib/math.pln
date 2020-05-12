@@ -65,6 +65,6 @@ sqrt = { | x |
     return _sqrt_estimate(x, 1, x, 0)
 }
 
-random_int = { | min, max |
-	return random() % max + min
+random_in_range = { | min, max |
+	return random() % (max - min + 1) + min
 }
