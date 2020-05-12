@@ -178,6 +178,80 @@ char* concat_null_terminated_paths(char* p1, char* p2, char* alloc_string) {
 	return concat_multi_null_terminated_cstrings(3, (char*[]) {p1, "\\", p2}, alloc_string);
 }
 
+static bool argument_matches(Value value, const char** c) {
+	bool matching = true;
+
+	int type_length = strcspn(*c, " |");
+
+	if (**c == 'n') {
+		if (value.type != VALUE_NUMBER) {
+			matching = false;
+		}
+	} else if (**c == 'b') {
+		if (value.type != VALUE_BOOLEAN) {
+			matching = false;
+		}
+	} else if (**c == 'i') {
+		if (value.type != VALUE_NIL) {
+			matching = false;
+		}
+	} else if (**c == 'o') {
+		if (value.type == VALUE_OBJECT) {
+			Object* object = value.as.object;
+			
+			if (cstrings_equal((*c) + 1, type_length - 1, "String", strlen("String"))) {
+				if (object->type != OBJECT_STRING) {
+					matching = false;
+				}
+			} else if (cstrings_equal((*c) + 1, type_length - 1, "Table", strlen("Table"))) {
+				if (object->type != OBJECT_TABLE) {
+					matching = false;
+				}
+			} else if (cstrings_equal((*c) + 1, type_length - 1, "Function", strlen("Function"))) {
+				if (object->type != OBJECT_FUNCTION) {
+					matching = false;
+				}
+			} else if (cstrings_equal((*c) + 1, type_length - 1, "Module", strlen("Module"))) {
+				if (object->type != OBJECT_MODULE) {
+					matching = false;
+				}
+			} else if (cstrings_equal((*c) + 1, type_length - 1, "Class", strlen("Class"))) {
+				if (object->type != OBJECT_CLASS) {
+					matching = false;
+				}
+			} else {
+				char* class_name = copy_cstring((*c) + 1, type_length - 1, "Validator class name string");
+				if (!is_instance_of_class(object, class_name)) {
+					matching = false;
+				}
+				deallocate(class_name, strlen(class_name) + 1, "Validator class name string");
+			}
+		} else {
+			matching = false;
+		}
+	} else {
+		return false; /* Illegal format string, might as well fail the caller */
+	}
+
+	*c += type_length;
+
+	if (matching && **c == '|') {
+		while (**c != ' ' && **c != '\0') {
+			(*c)++;
+		}
+	}
+
+	return matching;
+}
+
+static bool match_character(const char** c, char expected) {
+	if (**c == expected) {
+		(*c)++;
+		return true;
+	}
+	return false;
+}
+
 bool arguments_valid(ValueArray args, const char* string) {
 	const char* c = string;
 
@@ -188,61 +262,16 @@ bool arguments_valid(ValueArray args, const char* string) {
 		}
 
 		Value value = args.values[i];
+		
+		bool matching;
+		do {
+			matching = argument_matches(value, &c);
+		}  while (!matching && match_character(&c, '|'));
 
-		if (*c == 'n') {
-			if (value.type != VALUE_NUMBER) {
-				return false;
-			}
-		} else if (*c == 'b') {
-			if (value.type != VALUE_BOOLEAN) {
-				return false;
-			}
-		} else if (*c == 'i') {
-			if (value.type != VALUE_NIL) {
-				return false;
-			}
-		} else if (*c == 'o') {
-			if (value.type != VALUE_OBJECT) {
-				return false;
-			}
-
-			c++;
-			Object* object = value.as.object;
-			int object_type_length = strcspn(c, " ");
-			if (cstrings_equal(c, object_type_length, "String", strlen("String"))) {
-				if (object->type != OBJECT_STRING) {
-					return false;
-				}
-			} else if (cstrings_equal(c, object_type_length, "Table", strlen("Table"))) {
-				if (object->type != OBJECT_TABLE) {
-					return false;
-				}
-			} else if (cstrings_equal(c, object_type_length, "Function", strlen("Function"))) {
-				if (object->type != OBJECT_FUNCTION) {
-					return false;
-				}
-			} else if (cstrings_equal(c, object_type_length, "Module", strlen("Module"))) {
-				if (object->type != OBJECT_MODULE) {
-					return false;
-				}
-			} else if (cstrings_equal(c, object_type_length, "Class", strlen("Class"))) {
-				if (object->type != OBJECT_CLASS) {
-					return false;
-				}
-			} else {
-				char* class_name = copy_cstring(c, object_type_length, "Validator class name string");
-				if (!is_instance_of_class(object, class_name)) {
-					return false;
-				}
-				deallocate(class_name, strlen(class_name) + 1, "Validator class name string");
-			}
-
-			c += object_type_length;
-		} else {
-			return false; /* Illegal format string, might as well fail the caller */
+		if (!matching) {
+			return false;
 		}
 
-		c++;
 		i++;
 	}
 

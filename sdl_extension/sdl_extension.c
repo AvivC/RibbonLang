@@ -541,7 +541,7 @@ static bool render_present(Object* self, ValueArray args, Value* out) {
 }
 
 static bool render_copy(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oRenderer oTexture oRect oRect")) {
+    if (!plane.arguments_valid(args, "oRenderer oTexture i|oRect oRect|i")) {
         return false;
     }
 
