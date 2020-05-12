@@ -412,6 +412,7 @@ static void set_builtin_globals(void) {
 	register_builtin_function("to_string", 1, (char*[]) {"value"}, builtin_to_string);
 	register_builtin_function("time", 0, NULL, builtin_time);
 	register_builtin_function("has_attribute", 2, (char*[]) {"object", "attribute"}, builtin_has_attr);
+	register_builtin_function("random", 0, NULL, builtin_random);
 }
 
 static void register_function_on_module(ObjectModule* module, char* name, int num_params, char* params[], NativeFunction func) {
@@ -1214,9 +1215,15 @@ static bool vm_interpret_frame(StackFrame* frame) {
 					RUNTIME_ERROR("Attempting to perform modulo on types which do not support it.");
 					break;
 				}
-				
+
 				Value b = pop();
 				Value a = pop();
+
+				if (a.as.number < 0 || b.as.number < 0) {
+					RUNTIME_ERROR("Modulo with negative numbers not supported.");
+					break;
+				}
+
 				push(MAKE_VALUE_NUMBER(fmod(a.as.number, b.as.number)));
 
                 break;

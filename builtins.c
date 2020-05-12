@@ -211,3 +211,8 @@ bool builtin_has_attr(Object* self, ValueArray args, Value* out) {
 	*out = MAKE_VALUE_BOOLEAN(object_load_attribute(object, attr, &throwaway));
 	return true;
 }
+
+bool builtin_random(Object* self, ValueArray args, Value* out) {
+	*out = MAKE_VALUE_NUMBER(rand());
+	return true;
+}

@@ -60,6 +60,7 @@ static void print_node(AstNode* node, int nesting) {
                 case TOKEN_MINUS: operator = "-"; break;
                 case TOKEN_STAR: operator = "*"; break;
                 case TOKEN_SLASH: operator = "/"; break;
+                case TOKEN_MODULO: operator = "%"; break;
                 case TOKEN_EQUAL_EQUAL: operator = "=="; break;
                 case TOKEN_GREATER_EQUAL: operator = ">="; break;
                 case TOKEN_LESS_EQUAL: operator = "<="; break;
