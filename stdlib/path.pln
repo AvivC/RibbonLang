@@ -1,2 +1,10 @@
-concat = { paths
+concat = { | paths |
+    result = ""
+    for path in paths {
+        result += path
+        if path != paths[paths.length() - 1] {
+            result += "\"
+        }
+    }
+    return result
 }

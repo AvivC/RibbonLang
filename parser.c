@@ -286,12 +286,14 @@ static AstNode* call(AstNode* left_node, int expression_level) {
 	PointerArray arguments;
 	pointer_array_init(&arguments, "AstNodeCall arguments pointer array buffer");
 
-	while (!match(TOKEN_RIGHT_PAREN)) {
+	while (!check(TOKEN_RIGHT_PAREN) && !check(TOKEN_EOF)) {
 		do {
 			AstNode* argument = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
 			pointer_array_write(&arguments, argument);
 		} while (match(TOKEN_COMMA));
 	}
+
+    consume(TOKEN_RIGHT_PAREN, "Expected ')' at end of argument list.");
 
 	return (AstNode*) ast_new_node_call(left_node, arguments);
 }
@@ -458,13 +460,13 @@ static AstNode* parse_expression(Precedence precedence, int expression_level) {
     advance(); // always assume the previous token is the "acting operator"
     ParseRule prefix_rule = get_rule(parser.previous.type);
     if (prefix_rule.prefix == NULL) {
-        error("Expecting a prefix operator."); // TODO: better message
+        error("Expecting a prefix operator.");
         return NULL;
     }
     
     node = (AstNode*) prefix_rule.prefix(expression_level);
     
-    while (get_rule(parser.current.type).precedence >= precedence) { // TODO: also validate no NULL?
+    while (get_rule(parser.current.type).precedence >= precedence) {
         advance();
         ParseRule infix_rule = get_rule(parser.previous.type);
         node = (AstNode*) infix_rule.infix(node, expression_level);
