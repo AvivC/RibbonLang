@@ -297,7 +297,21 @@ expect
 end
 
 test inheritance
-    A = class {
+    O = class {
+        method_o1 = {
+            print("o1")
+        }
+
+        method_o2 = {
+            print("o2")
+        }
+
+        method_o3 = {
+            print("o3")
+        }
+    }
+
+    A = class : O {
         method_a1 = {
             print("a1")
         }
@@ -308,6 +322,14 @@ test inheritance
 
         method_a3 = { |y|
             return self.x * y
+        }
+
+        method_o1 = {
+            print("o1 A override")
+        }
+
+        method_o2 = {
+            print("o2 A override")
         }
 
         some_other_thing = 8
@@ -325,12 +347,19 @@ test inheritance
         method_a2 = {
             print("b2")
         }
+
+        method_o1 = {
+            print("o1 B override")
+        }
     }
 
     b = B(5)
     b.method_a1()
     b.method_a2()
     b.method_b1()
+    b.method_o1()
+    b.method_o2()
+    b.method_o3()
     print(b.method_a3(10))
     print(b.some_other_thing)
 
@@ -339,6 +368,9 @@ expect
     a1
     b2
     b1
+    o1 B override
+    o2 A override
+    o3
     50
     8
     true
