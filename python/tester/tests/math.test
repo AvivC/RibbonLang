@@ -159,6 +159,8 @@ test boolean expression short circuiting
     print(f2() and true and f2() and f1())
 
     print(f2() and true or f2() and f1())
+
+    print(8 + 2 >= 10 and true or f2() and f1())
 expect
     Called
     false
@@ -177,6 +179,7 @@ expect
     Called
     false
     Called
+    true
     true
 end
 
