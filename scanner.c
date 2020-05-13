@@ -115,8 +115,8 @@ static Token parse_identifier() {
         return make_token(TOKEN_NIL);
     } else if (check_token("in")) {
         return make_token(TOKEN_IN);
-    } else if (check_token("global")) {
-        return make_token(TOKEN_GLOBAL);
+    } else if (check_token("external")) {
+        return make_token(TOKEN_EXTERNAL);
     }
     
     return make_token(TOKEN_IDENTIFIER);

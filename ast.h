@@ -12,7 +12,7 @@ typedef enum {
     AST_NODE_IN_PLACE_KEY_BINARY,
     AST_NODE_UNARY,
     AST_NODE_VARIABLE,
-    AST_NODE_GLOBAL,
+    AST_NODE_EXTERNAL,
     AST_NODE_ASSIGNMENT,
     AST_NODE_STATEMENTS,
     AST_NODE_FUNCTION,
@@ -56,7 +56,7 @@ typedef struct {
     AstNode base;
     const char* name;
     int length;
-} AstNodeGlobal;
+} AstNodeExternal;
 
 typedef struct {
     AstNode base;
@@ -228,7 +228,7 @@ AstNodeInPlaceAttributeBinary* ast_new_node_in_place_attribute_binary(
 AstNodeInPlaceKeyBinary* ast_new_node_in_place_key_binary(ScannerTokenType operator, AstNode* subject, AstNode* key, AstNode* value);
 AstNodeStatements* ast_new_node_statements(void);
 AstNodeVariable* ast_new_node_variable(const char* name, int length);
-AstNodeGlobal* ast_new_node_global(const char* name, int length);
+AstNodeExternal* ast_new_node_external(const char* name, int length);
 AstNodeAssignment* ast_new_node_assignment(const char* name, int name_length, AstNode* value);
 AstNodeConstant* ast_new_node_number(double number);
 AstNodeExprStatement* ast_new_node_expr_statement(AstNode* expression);

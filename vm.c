@@ -1554,7 +1554,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
                 break;
             }
 
-			case OP_DECLARE_GLOBAL: {
+			case OP_DECLARE_EXTERNAL: {
 				Value name_val = READ_CONSTANT();
 				assert(object_value_is(name_val, OBJECT_STRING));
 				ObjectString* name = (ObjectString*) name_val.as.object;

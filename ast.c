@@ -12,7 +12,7 @@ const char* AST_NODE_TYPE_NAMES[] = {
 	"AST_NODE_IN_PLACE_KEY_BINARY",
     "AST_NODE_UNARY",
     "AST_NODE_VARIABLE",
-    "AST_NODE_GLOBAL",
+    "AST_NODE_EXTERNAL",
     "AST_NODE_ASSIGNMENT",
     "AST_NODE_STATEMENTS",
     "AST_NODE_FUNCTION",
@@ -148,10 +148,10 @@ static void print_node(AstNode* node, int nesting) {
             break;
         }
 
-		case AST_NODE_GLOBAL: {
-            AstNodeGlobal* node_global = (AstNodeGlobal*) node;
+		case AST_NODE_EXTERNAL: {
+            AstNodeExternal* node_external = (AstNodeExternal*) node;
             print_nesting_string(nesting);
-            printf("GLOBAL: %.*s\n", node_global->length, node_global->name);
+            printf("GLOBAL: %.*s\n", node_external->length, node_external->name);
             break;
         }
         
@@ -443,9 +443,9 @@ static void node_free(AstNode* node, int nesting) {
             break;
         }
 
-		case AST_NODE_GLOBAL: {
-            AstNodeGlobal* node_global = (AstNodeGlobal*) node;
-            deallocate(node_global, sizeof(AstNodeGlobal), deallocationString);
+		case AST_NODE_EXTERNAL: {
+            AstNodeExternal* node_external = (AstNodeExternal*) node;
+            deallocate(node_external, sizeof(AstNodeExternal), deallocationString);
             break;
         }
         
@@ -694,8 +694,8 @@ AstNodeVariable* ast_new_node_variable(const char* name, int length) {
 	return node;
 }
 
-AstNodeGlobal* ast_new_node_global(const char* name, int length) {
-	AstNodeGlobal* node = ALLOCATE_AST_NODE(AstNodeGlobal, AST_NODE_GLOBAL);
+AstNodeExternal* ast_new_node_external(const char* name, int length) {
+	AstNodeExternal* node = ALLOCATE_AST_NODE(AstNodeExternal, AST_NODE_EXTERNAL);
 	node->name = name;
 	node->length = length;
 	return node;

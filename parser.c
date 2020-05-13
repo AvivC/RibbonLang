@@ -401,7 +401,7 @@ static AstNode* import_statement(void) {
 
 static AstNode* global_statement(void) {
     consume(TOKEN_IDENTIFIER, "Expected variable name after \"global\".");
-    return (AstNode*) ast_new_node_global(parser.previous.start, parser.previous.length);
+    return (AstNode*) ast_new_node_external(parser.previous.start, parser.previous.length);
 }
 
 static ParseRule rules[] = {
@@ -453,7 +453,7 @@ static ParseRule rules[] = {
     {nil, NULL, PREC_NONE},     // TOKEN_NIL
     {NULL, NULL, PREC_NONE},     // TOKEN_FOR
     {NULL, NULL, PREC_NONE},     // TOKEN_IN
-    {NULL, NULL, PREC_NONE},     // TOKEN_GLOBAL
+    {NULL, NULL, PREC_NONE},     // TOKEN_EXTERNAL
     {NULL, NULL, PREC_NONE},           // TOKEN_EOF
     {NULL, NULL, PREC_NONE}            // TOKEN_ERROR
 };
@@ -543,7 +543,7 @@ static AstNode* statements(void) {
             child_node = (AstNode*) for_statement();
         } else if (match(TOKEN_IMPORT)) {
     		child_node = (AstNode*) import_statement();
-        } else if (match(TOKEN_GLOBAL)) {
+        } else if (match(TOKEN_EXTERNAL)) {
             child_node = (AstNode*) global_statement();
     	} else {
     		AstNode* expr_or_attr_assignment_or_key_assignment = parse_expression(PREC_ASSIGNMENT, 0);
