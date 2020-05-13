@@ -16,22 +16,6 @@ keyboard = [sdl.SDL_SCANCODE_UP: false,
             sdl.SDL_SCANCODE_RIGHT: false,
             sdl.SDL_SCANCODE_SPACE: false]
 
-zero_velocity = { | n, min |
-    if math.abs(n) < min {
-        if n < 0 {
-            return - 1 * min
-        } else {
-            return min
-        }
-    }
-
-    return n
-}
-
-Bullet = class {
-
-}
-
 Player = class {
     @init = { | x, y, texture |
         self.x = x
@@ -43,20 +27,20 @@ Player = class {
 
         details = []
         sdl.query_texture(texture, details)
-        self.width = details["w"] / 10
-        self.height = details["h"] / 10
+        self.width = details["w"] / 15
+        self.height = details["h"] / 15
     }
 
     apply_force = { | fx, fy, dt |
-        self.dx += fx * dt
-        self.dy += fy * dt
+        self.dx = self.dx + fx * dt
+        self.dy = self.dy + fy * dt
     }
 
     apply_breaks = { | dt |
         self.apply_force(self.dx * -10, self.dy * -10, dt)
     }
 
-    update = { | dt, game |
+    update = { | dt |
         if keyboard[sdl.SDL_SCANCODE_RIGHT] {
             self.apply_force(30, 0, dt)
         } elsif keyboard[sdl.SDL_SCANCODE_LEFT] {
@@ -65,11 +49,11 @@ Player = class {
             self.apply_breaks(dt)
         }
         if keyboard[sdl.SDL_SCANCODE_SPACE] {
-            game.bullets.add()
+            print("shoot")
         }
 
-        self.x = self.x + (self.dx * dt) * MAX_FPS
-        self.y = self.y + (self.dy * dt) * MAX_FPS
+        self.x += self.dx * dt * MAX_FPS
+        self.y += self.dy * dt * MAX_FPS
 
         if math.abs(self.dy) <= 0.05 {
             self.dy = 0
@@ -99,10 +83,7 @@ Ball = class {
     @init = { | x, y, texture |
         self.x = x
         self.y = y
-        self.dx = math.random_in_range(2, 4)
-        if math.random_in_range(0, 1) == 0 {
-            self.dx *= -1
-        }
+        self.dx = 0
         self.dy = 0
         self.texture = texture
         
@@ -119,18 +100,15 @@ Ball = class {
 
     update = { | dt |
 
-        # self.dy = zero_velocity(self.dy, 0.5)
-
-        self.x += self.dx * dt * MAX_FPS
-        self.y += self.dy * dt * MAX_FPS
+        self.x += (self.dx * dt) * MAX_FPS
+        self.y += (self.dy * dt) * MAX_FPS
         
         floor = SCREEN_HEIGHT - self.height
         
         if self.y >= floor {
             self.y = floor
         
-            self.dy *= -0.8
-            self.dx *= 0.95
+            self.dy = self.dy * (-1)       
         } else {
             self.apply_force(0, 30, dt)
         }
@@ -155,21 +133,19 @@ Game = class {
         self._init_sdl(title)
 
         self.ball_texture = sdl.img_load_texture(self.renderer, path.relative_to_main_directory("pictures\ball.png"))
-        self.bullet_texture = sdl.img_load_texture(self.renderer, path.relative_to_main_directory("pictures\bullet.png"))
         
-        player_texture = sdl.img_load_texture(self.renderer, path.relative_to_main_directory("pictures\kangaroo.png"))
+        player_texture = sdl.img_load_texture(self.renderer, path.relative_to_main_directory("pictures\ball.png"))
         self.player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 160, player_texture)
         self.balls = []
         
-        self.last_ball_drop = time()
-        self.next_ball_drop = 0
+        self.spawn_ball()
 
         self.running = true
     }
     
     spawn_ball = {
         random_x = math.random_in_range(0, SCREEN_WIDTH - 220)
-        self.balls.add(Ball(random_x, -200, self.ball_texture))
+        self.balls.add(Ball(random_x, 0, self.ball_texture))
     }
     
     prepare_scene = {
@@ -180,17 +156,16 @@ Game = class {
     present_scene = {
         sdl.render_present(self.renderer)
     }
-
+    
     logic = { | dt |
-        self.player.update(dt, self)
+        self.player.update(dt)
 
+        if keyboard[sdl.SDL_SCANCODE_SPACE] {
+            self.spawn_ball()
+        }
+        
         for ball in self.balls {
             ball.update(dt)
-        }
-
-        if time() >= self.next_ball_drop {
-            self.spawn_ball()
-            self.next_ball_drop += math.random_in_range(1000, 2000)
         }
     }
     
