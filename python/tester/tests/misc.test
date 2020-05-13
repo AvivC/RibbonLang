@@ -430,3 +430,59 @@ expect
     12
     Done
 end
+
+test stack overflow error
+    # Note: currently if a native function causes a stack overflow in the language level (obviously by calling a language function),
+    # it will be reported as generally a "Native function failed" message, because of the very basic boolean based error reporting mechanism
+    # currently in place.
+    # In case of a stack overflow caused directly by language code, the test exhibits what happens.
+    
+    f = {
+        f()
+    }
+    f()
+expect
+    An error has occured. Stack trace (most recent call on top):
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> f
+        -> [... 215 lower frames truncated ...]
+    Stack overflow
+end

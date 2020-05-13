@@ -36,7 +36,7 @@ typedef struct Object {
 
 typedef struct ObjectString {
     Object base;
-    char* chars;
+    char* chars; /* Guaranteed to be NULL terminated */
     int length;
 	unsigned long hash;
 } ObjectString;
@@ -97,7 +97,6 @@ typedef struct ObjectClass {
 	/* TODO: Make distinction between plane and native classes clearer. Different types? Flag? Union? */
 	Object base;
 	char* name;
-	int name_length;
 	ObjectFunction* base_function;
 	size_t instance_size;
 	DeallocationFunction dealloc_func;
@@ -123,9 +122,7 @@ ObjectString** object_create_copied_strings_array(const char** strings, int num,
 ObjectString* object_string_copy_from_null_terminated(const char* string);
 ObjectString* object_string_new_partial_from_null_terminated(char* chars);
 
-// ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, CellTable free_vars);
 ObjectFunction* object_user_function_new(ObjectCode* code, ObjectString** parameters, int numParams, CellTable free_vars);
-// ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams);
 ObjectFunction* object_native_function_new(NativeFunction nativeFunction, ObjectString** parameters, int numParams);
 void object_function_set_name(ObjectFunction* function, char* name);
 ObjectFunction* make_native_function_with_params(char* name, int num_params, char** params, NativeFunction function);
@@ -142,7 +139,7 @@ ObjectClass* object_class_new(ObjectFunction* base_function, char* name);
 ObjectClass* object_class_native_new(
 		char* name, size_t instance_size, DeallocationFunction dealloc_func,
 		GcMarkFunction gc_mark_func, ObjectFunction* constructor, void* descriptors[][2]);
-void object_class_set_name(ObjectClass* klass, char* name, int length);
+void object_class_set_name(ObjectClass* klass, char* name);
 
 ObjectInstance* object_instance_new(ObjectClass* klass);
 
@@ -187,6 +184,8 @@ bool is_value_instance_of_class(Value value, char* klass_name);
 ObjectFunction* object_make_constructor(int num_params, char** params, NativeFunction function);
 
 char* object_get_callable_name(Object* object);
+
+const char* object_get_type_name(Object* object);
 
 #define VALUE_AS_OBJECT(value, object_type, cast) object_value_is(value, object_type) ? (cast*) value.as.object : NULL
 

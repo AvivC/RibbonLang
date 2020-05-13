@@ -230,24 +230,15 @@ static bool more_talk_with_other_extension(Object* self, ValueArray args, Value*
     plane.value_array_free(&mythinga_args);
 
     assert(plane.object_value_is(instance_val, OBJECT_INSTANCE));
-    // if (!plane.object_value_is(instance_val, OBJECT_INSTANCE)) {
-    //     FAIL("Instantiating MyThingA of myuserextension didn't return an instance or something.");
-    // }
 
     ObjectInstance* instance = (ObjectInstance*) instance_val.as.object;
 
-    assert(strncmp(instance->klass->name, "MyThingA", instance->klass->name_length) == 0);
-    // if (strncmp(instance->klass->name, "MyThingA", instance->klass->name_length) != 0) {
-    //     FAIL("Class of instance is not MyThingA. Actual class name: %.*s", instance->klass->name_length, instance->klass->name);
-    // }
+    assert(plane.cstrings_equal(instance->klass->name, strlen(instance->klass->name), "MyThingA", strlen("MyThingA")));
 
     Value get_text_val;
     plane.object_load_attribute_cstring_key((Object*) instance, "get_text", &get_text_val);
 
     assert(plane.object_value_is(get_text_val, OBJECT_BOUND_METHOD));
-    // if (!plane.object_value_is(get_text_val, OBJECT_BOUND_METHOD)) {
-    //     FAIL("get_text from MyThingA of myuserextension isn't a BoundMethod.");
-    // }
 
     ObjectBoundMethod* get_text = (ObjectBoundMethod*) get_text_val.as.object;
 

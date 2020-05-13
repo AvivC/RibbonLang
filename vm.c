@@ -419,6 +419,7 @@ static void set_builtin_globals(void) {
 	register_builtin_function("has_attribute", 2, (char*[]) {"object", "attribute"}, builtin_has_attr);
 	register_builtin_function("random", 0, NULL, builtin_random);
 	register_builtin_function("get_main_file_path", 0, NULL, builtin_get_main_file_path);
+	register_builtin_function("is_instance", 2, (char*[]) {"object", "type_name"}, builtin_is_instance);
 }
 
 static void register_function_on_module(ObjectModule* module, char* name, int num_params, char* params[], NativeFunction func) {
@@ -581,9 +582,9 @@ static void set_function_name(const Value* function_value, ObjectString* name) {
 
 static void set_class_name(const Value* class_value, ObjectString* name) {
 	ObjectClass* klass = (ObjectClass*) class_value->as.object;
-	deallocate(klass->name, klass->name_length + 1, "Class name");
+	deallocate(klass->name, strlen(klass->name) + 1, "Class name");
 	char* new_cstring_name = copy_null_terminated_cstring(name->chars, "Class name");
-	object_class_set_name(klass, new_cstring_name, strlen(new_cstring_name));
+	object_class_set_name(klass, new_cstring_name);
 }
 
 static bool call_plane_function(

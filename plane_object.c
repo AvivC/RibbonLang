@@ -32,13 +32,6 @@ bool object_value_is(Value value, ObjectType type) {
 }
 
 static void set_object_native_method(Object* object, char* method_name, char** params, int num_params, NativeFunction function) {
-	// char** copied_params = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
-
-	// for (int i = 0; i < num_params; i++) {
-	// 	copied_params[i] = copy_null_terminated_cstring(params[i], "ObjectFunction param cstring");
-	// }
-
-	// ObjectFunction* method = object_native_function_new(function, copied_params, num_params);
 	ObjectFunction* method = make_native_function_with_params(method_name, num_params, params, function);
 	ObjectBoundMethod* bound_method = object_bound_method_new(method, object);
 	object_set_attribute_cstring_key(object, method_name, MAKE_VALUE_OBJECT(bound_method));
@@ -397,9 +390,8 @@ void object_function_set_name(ObjectFunction* function, char* name) {
 	function->name = name;
 }
 
-void object_class_set_name(ObjectClass* klass, char* name, int length) {
+void object_class_set_name(ObjectClass* klass, char* name) {
 	klass->name = name;
-	klass->name_length = length;
 }
 
 ObjectBoundMethod* object_bound_method_new(ObjectFunction* method, Object* self) {
@@ -513,7 +505,6 @@ static ObjectClass* object_class_new_base(
 	ObjectClass* klass = (ObjectClass*) allocate_object(sizeof(ObjectClass), "ObjectClass", OBJECT_CLASS);
 	name = name == NULL ? "<Anonymous class>" : name;
 	klass->name = copy_null_terminated_cstring(name, "Class name");
-	klass->name_length = strlen(name);
 	klass->base_function = base_function;
 	klass->instance_size = instance_size;
 	klass->dealloc_func = dealloc_func;
@@ -646,7 +637,7 @@ void object_free(Object* o) {
 		case OBJECT_CLASS: {
 			ObjectClass* class = (ObjectClass*) o;
 			DEBUG_OBJECTS_PRINT("Freeing ObjectClass at '%p'", class);
-			deallocate(class->name, class->name_length + 1, "Class name");
+			deallocate(class->name, strlen(class->name) + 1, "Class name");
 			deallocate(class, sizeof(ObjectClass), "ObjectClass");
         	break;
 		}
@@ -728,13 +719,12 @@ void object_print(Object* o) {
 		case OBJECT_CLASS: {
 			ObjectClass* klass = (ObjectClass*) o;
 			const char* name = klass->name;
-			int name_length = klass->name_length;
-			printf("<Class %.*s>", name_length, name);
+			printf("<Class %s>", name);
 			return;
 		}
 		case OBJECT_INSTANCE: {
 			ObjectInstance* instance = (ObjectInstance*) o;
-			printf("<%.*s instance at %p>", instance->klass->name_length, instance->klass->name, instance);
+			printf("<%s instance at %p>", instance->klass->name, instance);
 			return;
 		}
 		case OBJECT_BOUND_METHOD: {
@@ -951,7 +941,7 @@ bool is_instance_of_class(Object* object, char* klass_name) {
     ObjectInstance* instance = (ObjectInstance*) object;
 
     ObjectClass* klass = instance->klass;
-    return (strlen(klass_name) == klass->name_length) && (strncmp(klass_name, klass->name, klass->name_length) == 0);;
+    return (strlen(klass_name) == strlen(klass->name)) && (strcmp(klass_name, klass->name) == 0);;
 }
 
 bool is_value_instance_of_class(Value value, char* klass_name) {
@@ -982,5 +972,22 @@ char* object_get_callable_name(Object* object) {
 		}
 	}
 
+	return NULL;
+}
+
+const char* object_get_type_name(Object* object) {
+	switch (object->type) {
+		case OBJECT_STRING: return "String";
+		case OBJECT_FUNCTION: return "Function";
+		case OBJECT_BOUND_METHOD: return "BoundMethod";
+		case OBJECT_TABLE: return "Table";
+		case OBJECT_MODULE: return "Module";
+		case OBJECT_CLASS: return "Class";
+		case OBJECT_INSTANCE: return ((ObjectInstance*) object)->klass->name;
+		case OBJECT_CODE: FAIL("object_get_type_name() should never be called on an ObjectCode.");
+		case OBJECT_CELL: FAIL("object_get_type_name() should never be called on an ObjectCell.");
+	}
+
+	FAIL("Object type not found in object_get_type_name, should never happen.");
 	return NULL;
 }

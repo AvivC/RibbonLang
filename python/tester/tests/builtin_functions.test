@@ -50,7 +50,7 @@ expect
     false
 end
 
-test has attribute function
+test has_attribute function
     C = class {
         @init = {
             self.x = 10
@@ -70,4 +70,53 @@ expect
     false
     false
     true
+end
+
+test is_instance function
+    import math
+
+    s = "abc"
+    t = []
+    f = {}
+
+    C = class {
+        m = {}
+    }
+
+    o = C()
+
+    m = o.m
+
+    print(is_instance(s, "String"))
+    print(is_instance(s, "Table"))
+
+    print(is_instance(t, "String"))
+    print(is_instance(t, "Table"))
+
+    print(is_instance(f, "Function"))
+    print(is_instance(f, ""))
+
+    print(is_instance(C, "Class"))
+    print(is_instance(C, "C"))
+
+    print(is_instance(o, "C"))
+    print(is_instance(o, "Instance"))
+    print(is_instance(o, "Class"))
+
+    print(is_instance(m, "BoundMethod"))
+    print(is_instance(m, "Function"))
+expect
+    true
+    false
+    false
+    true
+    true
+    false
+    true
+    false
+    true
+    false
+    false
+    true
+    false
 end
