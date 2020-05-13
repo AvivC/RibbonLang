@@ -167,6 +167,19 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
             break;
         }
+
+		case AST_NODE_GLOBAL: {
+			AstNodeGlobal* node_global = (AstNodeGlobal*) node;
+
+            Value name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_global->name, node_global->length));
+            size_t constant_index = (size_t) bytecode_add_constant(bytecode, &name_constant);
+
+            integer_array_write(&bytecode->referenced_names_indices, &constant_index);
+            
+			emit_byte_with_short_operand(bytecode, OP_DECLARE_GLOBAL, constant_index);
+
+			break;
+		}
         
         case AST_NODE_ASSIGNMENT: {
             AstNodeAssignment* node_assignment = (AstNodeAssignment*) node;

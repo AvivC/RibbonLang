@@ -385,3 +385,114 @@ expect
         -> <Anonymous function>
     Variable x not found.
 end
+
+test set outside variable part 1
+    x = 10
+
+    q = {
+        x = 5
+        f = {
+            global x
+            print(x)
+            x = 20
+            print(x)
+        }
+        return f
+    }
+
+    q()()
+    print(x)
+expect
+    5
+    20
+    10
+end
+
+test set outside variable part 2
+    x = 10
+
+    q = {
+        f = {
+            global x
+            print(x)
+            x = 20
+            print(x)
+        }
+        return f
+    }
+
+    q()()
+    print(x)
+expect
+    10
+    20
+    20
+end
+
+test some more testing for scope rules
+    x = 10
+
+    q = {
+        f = {
+            # no global x declaration here
+            print(x)
+            x = 20
+            print(x)
+        }
+        return f
+    }
+
+    q()()
+    print(x)
+expect
+    10
+    20
+    10
+end
+
+test outside variable setting with classes
+    x = 0
+
+    C = class {
+        @init = { |incrementor|
+            self.incrementor = incrementor
+        }
+        f = {
+            global x
+            x += self.incrementor
+        }
+    }
+
+    o = C(1)
+    o.f()
+    o.f()
+    o.f()
+    print(x)
+expect
+    3
+end
+
+test outside variable setting with classes and some more scope stuff
+    x = 0
+
+    f = {
+        return class {
+            @init = { |incrementor|
+                self.incrementor = incrementor
+            }
+            f = {
+                x = -2
+                global x  # this overrides the existing local in the table, with the cell of the external one
+                x += self.incrementor
+            }
+        }
+    }
+
+    o = f()(1)
+    o.f()
+    o.f()
+    o.f()
+    print(x)
+expect
+    3
+end

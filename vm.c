@@ -1537,8 +1537,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
             }
             
             case OP_SET_VARIABLE: {
-                // int constant_index = READ_BYTE();
-                // Value name_val = current_bytecode()->constants.values[constant_index];
 				Value name_val = READ_CONSTANT();
                 ASSERT_VALUE_TYPE(name_val, VALUE_OBJECT);
                 ObjectString* name = OBJECT_AS_STRING(name_val.as.object);
@@ -1555,6 +1553,21 @@ static bool vm_interpret_frame(StackFrame* frame) {
                 cell_table_set_value(locals_or_module_table(), name, value);
                 break;
             }
+
+			case OP_DECLARE_GLOBAL: {
+				Value name_val = READ_CONSTANT();
+				assert(object_value_is(name_val, OBJECT_STRING));
+				ObjectString* name = (ObjectString*) name_val.as.object;
+
+				CellTable* free_vars = &current_frame()->function->free_vars;
+				ObjectCell* cell = NULL;
+				if (!cell_table_get_cell(free_vars, name, &cell)) {
+					FAIL("In OP_DECLARE_GLOBAL, couldn't find the matching cell in the free variables. Shouldn't happen.");
+				}
+				cell_table_set_cell(locals_or_module_table(), name, cell);
+
+				break;
+			}
             
 			case OP_CALL: {
 				int arg_count = READ_BYTE();

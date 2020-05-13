@@ -120,6 +120,9 @@ int disassembler_do_single_instruction(OP_CODE opcode, Bytecode* chunk, int offs
 		case OP_LOAD_VARIABLE: {
 			return constant_instruction("OP_LOAD_VARIABLE", chunk, offset);
 		}
+		case OP_DECLARE_GLOBAL: {
+			return constant_instruction("OP_DECLARE_GLOBAL", chunk, offset);
+		}
 		case OP_SET_VARIABLE: {
 			return constant_instruction("OP_SET_VARIABLE", chunk, offset);
 		}
