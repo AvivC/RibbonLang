@@ -55,4 +55,6 @@ bool value_compare(Value a, Value b, int* output);
 
 bool value_hash(Value* value, unsigned long* result);
 
+const char* value_get_type(Value value);
+
 #endif

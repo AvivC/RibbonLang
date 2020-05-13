@@ -419,7 +419,8 @@ static void set_builtin_globals(void) {
 	register_builtin_function("has_attribute", 2, (char*[]) {"object", "attribute"}, builtin_has_attr);
 	register_builtin_function("random", 0, NULL, builtin_random);
 	register_builtin_function("get_main_file_path", 0, NULL, builtin_get_main_file_path);
-	register_builtin_function("is_instance", 2, (char*[]) {"object", "type_name"}, builtin_is_instance);
+	register_builtin_function("is_instance", 2, (char*[]) {"value", "type_name"}, builtin_is_instance);
+	register_builtin_function("type", 1, (char*[]) {"value"}, builtin_get_type);
 }
 
 static void register_function_on_module(ObjectModule* module, char* name, int num_params, char* params[], NativeFunction func) {

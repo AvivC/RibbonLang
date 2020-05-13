@@ -223,18 +223,18 @@ bool builtin_get_main_file_path(Object* self, ValueArray args, Value* out) {
 }
 
 bool builtin_is_instance(Object* self, ValueArray args, Value* out) {
-	if (args.values[0].type != VALUE_OBJECT) {
-		return false;
-	}
 	if (!object_value_is(args.values[1], OBJECT_STRING)) {
 		return false;
 	}
 
-	Object* object = args.values[0].as.object;
+	Value value = args.values[0];
 	ObjectString* type_name = (ObjectString*) args.values[1].as.object;
 
-	const char* object_type = object_get_type_name(object);
+	*out = MAKE_VALUE_BOOLEAN(strcmp(value_get_type(value), type_name->chars) == 0);
+	return true;
+}
 
-	*out = MAKE_VALUE_BOOLEAN(strcmp(object_type, type_name->chars) == 0);
+bool builtin_get_type(Object* self, ValueArray args, Value* out) {
+	*out = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(value_get_type(args.values[0])));
 	return true;
 }

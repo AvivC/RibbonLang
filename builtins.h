@@ -17,5 +17,6 @@ bool builtin_has_attr(Object* self, ValueArray args, Value* out);
 bool builtin_random(Object* self, ValueArray args, Value* out);
 bool builtin_get_main_file_path(Object* self, ValueArray args, Value* out);
 bool builtin_is_instance(Object* self, ValueArray args, Value* out);
+bool builtin_get_type(Object* self, ValueArray args, Value* out);
 
 #endif

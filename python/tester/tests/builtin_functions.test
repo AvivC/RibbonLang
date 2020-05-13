@@ -87,6 +87,8 @@ test is_instance function
 
     m = o.m
 
+    print(is_instance(math, "Module"))
+
     print(is_instance(s, "String"))
     print(is_instance(s, "Table"))
 
@@ -105,18 +107,70 @@ test is_instance function
 
     print(is_instance(m, "BoundMethod"))
     print(is_instance(m, "Function"))
+
+    print(is_instance(2, "Number"))
+    print(is_instance(2, "Boolean"))
+
+    print(is_instance(true, "Boolean"))
+    print(is_instance(true, "Number"))
+
+    print(is_instance(nil, "Nil"))
 expect
     true
-    false
-    false
-    true
-    true
-    false
-    true
-    false
     true
     false
     false
     true
+    true
     false
+    true
+    false
+    true
+    false
+    false
+    true
+    false
+    true
+    false
+    true
+    false
+    true
+end
+
+test type function
+    import math
+
+    s = "abc"
+    t = []
+    f = {}
+
+    Thing = class {
+        m = {}
+    }
+
+    o = Thing()
+
+    m = o.m
+
+    print(type(math))
+    print(type(s))
+    print(type(t))
+    print(type(f))
+    print(type(Thing))
+    print(type(o))
+    print(type(m))
+    print(type(100))
+    print(type(false))
+    print(type(nil))
+expect
+    Module
+    String
+    Table
+    Function
+    Class
+    Thing
+    BoundMethod
+    Number
+    Boolean
+    Nil
 end

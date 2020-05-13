@@ -169,3 +169,18 @@ bool value_hash(Value* value, unsigned long* result) {
 	FAIL("value.c:hash_value - shouldn't get here.");
 	return false;
 }
+
+const char* value_get_type(Value value) {
+	switch (value.type) {
+		case VALUE_NUMBER: return "Number";
+		case VALUE_BOOLEAN: return "Boolean";
+		case VALUE_NIL: return "Nil";
+		case VALUE_OBJECT: return object_get_type_name(value.as.object);
+		case VALUE_ALLOCATION: FAIL("Shouldn't ever get type of Allocation value.");
+		case VALUE_ADDRESS: FAIL("Shouldn't ever get type of Address value.");
+		case VALUE_RAW_STRING: FAIL("Shouldn't ever get type of RawString value.");
+	}
+
+	FAIL("Illegal value type passed in value_get_type(): %d", value.type);
+	return NULL;
+}
