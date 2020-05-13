@@ -147,8 +147,14 @@ int disassembler_do_single_instruction(OP_CODE opcode, Bytecode* chunk, int offs
 		case OP_DUP: {
 			return simple_instruction("OP_DUP", chunk, offset);
 		}
+		case OP_DUP_TWO: {
+			return simple_instruction("OP_DUP_TWO", chunk, offset);
+		}
 		case OP_SWAP: {
 			return simple_instruction("OP_SWAP", chunk, offset);
+		}
+		case OP_SWAP_TOP_WITH_NEXT_TWO: {
+			return simple_instruction("OP_SWAP_TOP_WITH_NEXT_TWO", chunk, offset);
 		}
 		case OP_JUMP_IF_FALSE: {
 			return short_operand_instruction("OP_JUMP_IF_FALSE", chunk, offset);

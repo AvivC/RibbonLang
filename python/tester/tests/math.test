@@ -217,3 +217,71 @@ expect
     f() called
     15
 end
+
+test inplace key binary
+    t = ["a": 2]
+
+    t["a"] += 4
+    print(t["a"])
+    t["a"] -= 3
+    print(t["a"])
+    t["a"] *= 100
+    print(t["a"])
+    t["a"] /= 10
+    print(t["a"])
+    t["a"] %= 2
+    print(t["a"])
+expect
+    6
+    3
+    300
+    30
+    0
+end
+
+test object expression in inplace key binary mutation is evaluated only once
+    t = ["a": 2]
+
+    C = class {
+        @init = {
+            print("@init() called")
+        }
+
+        f = { | x |
+            print("f() called")
+            return t
+        }
+    }
+
+    C().f(true)["a"] += 4
+    print(t["a"])
+
+    C().f(true)["a"] -= 3
+    print(t["a"])
+
+    C().f(true)["a"] *= 100
+    print(t["a"])
+
+    C().f(true)["a"] /= 10
+    print(t["a"])
+
+    C().f(true)["a"] %= 2
+    print(t["a"])
+    
+expect
+    @init() called
+    f() called
+    6
+    @init() called
+    f() called
+    3
+    @init() called
+    f() called
+    300
+    @init() called
+    f() called
+    30
+    @init() called
+    f() called
+    0
+end

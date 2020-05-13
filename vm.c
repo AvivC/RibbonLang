@@ -1457,11 +1457,29 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				break;
 			}
 
+			case OP_DUP_TWO: {
+				Value lower = peek_at(2);
+				Value upper = peek_at(1);
+				push(lower);
+				push(upper);
+				break;
+			}
+
 			case OP_SWAP: {
 				Value upper = pop();
 				Value lower = pop();
 				push(upper);
 				push(lower);
+				break;
+			}
+
+			case OP_SWAP_TOP_WITH_NEXT_TWO: {
+				Value top = pop();
+				Value second = pop();
+				Value third = pop();
+				push(top);
+				push(third);
+				push(second);
 				break;
 			}
 
@@ -1663,9 +1681,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				Object* self = bound_method->self;
 
 				assert(subject == self);
-				// if (subject != self) {
-				// 	FAIL("Before calling @get_key, subject was different than bound method's self attribute.");
-				// }
 
 				Value result;
 				if (bound_method->method->is_native) {

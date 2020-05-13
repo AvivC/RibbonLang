@@ -168,20 +168,17 @@ static AstNode* key_access(AstNode* left_node, int expression_level) {
                 || match(TOKEN_STAR_EQUALS)
                 || match(TOKEN_SLASH_EQUALS)
                 || match(TOKEN_MODULO_EQUALS)) { 
+        // In place binary on key
+
         if (expression_level != 0) {
-			error("Key assignment illegal inside expression");
+			error("Key in place binary operation illegal inside expression");
 			return NULL;
 		}
 
-        ScannerTokenType mutation_operator = parser.previous.type;
-
-		// Mutate key
-        AstNodeKeyAccess* key_access_node = ast_new_node_key_access(key_node, left_node);
+        ScannerTokenType in_place_operator = parser.previous.type;
 		AstNode* value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
-        ScannerTokenType binary_operator = mutate_operator_to_binary(mutation_operator);
-        AstNodeBinary* binary = ast_new_node_binary(binary_operator, (AstNode*) key_access_node, value);
 
-		return (AstNode*) ast_new_node_key_assignment(key_node, (AstNode*) binary, left_node);
+        return (AstNode*) ast_new_node_in_place_key_binary(in_place_operator, left_node, key_node, value);
     } else {
 		// Get key
 		return (AstNode*) ast_new_node_key_access(key_node, left_node);
@@ -209,7 +206,7 @@ static AstNode* dot(AstNode* left_node, int expression_level) {
                 || match(TOKEN_SLASH_EQUALS)
                 || match(TOKEN_MODULO_EQUALS)) { 
         if (expression_level != 0) {
-			error("Attribute assignment illegal inside expression");
+			error("Attribute in place binary operation illegal inside expression");
 			return NULL;
 		}
 
@@ -543,7 +540,8 @@ static AstNode* statements(void) {
     		AstNodeType node_type = expr_or_attr_assignment_or_key_assignment->type;
     		if (node_type == AST_NODE_ATTRIBUTE_ASSIGNMENT 
                 || node_type == AST_NODE_KEY_ASSIGNMENT
-                || node_type == AST_NODE_IN_PLACE_ATTRIBUTE_BINARY) {
+                || node_type == AST_NODE_IN_PLACE_ATTRIBUTE_BINARY
+                || node_type == AST_NODE_IN_PLACE_KEY_BINARY) {
     			child_node = expr_or_attr_assignment_or_key_assignment;
     		} else {
     			child_node = (AstNode*) ast_new_node_expr_statement(expr_or_attr_assignment_or_key_assignment);

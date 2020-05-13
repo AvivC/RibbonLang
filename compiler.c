@@ -57,6 +57,17 @@ static void backpatch_placeholder_with_current_address(Bytecode* chunk, size_t p
 	backpatch_placeholder(chunk, placeholder_offset, chunk->count);
 }
 
+static void emit_binary_opcode_for_in_place_operator(Bytecode* bytecode, ScannerTokenType operator) {
+	switch(operator) {
+		case TOKEN_PLUS_EQUALS: emit_byte(bytecode, OP_ADD); break;
+		case TOKEN_MINUS_EQUALS: emit_byte(bytecode, OP_SUBTRACT); break;
+		case TOKEN_STAR_EQUALS: emit_byte(bytecode, OP_MULTIPLY); break;
+		case TOKEN_SLASH_EQUALS: emit_byte(bytecode, OP_DIVIDE); break;
+		case TOKEN_MODULO_EQUALS: emit_byte(bytecode, OP_MODULO); break;
+		default: FAIL("Operator is not an in place binary operator: %d", operator); break;
+	}
+}
+
 static void compile_tree(AstNode* node, Bytecode* bytecode) {
     AstNodeType node_type = node->type;
     
@@ -89,30 +100,43 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         }
 
 		case AST_NODE_IN_PLACE_ATTRIBUTE_BINARY: {
-			AstNodeInPlaceAttributeBinary* in_place_node = (AstNodeInPlaceAttributeBinary*) node;
+			AstNodeInPlaceAttributeBinary* node_in_place = (AstNodeInPlaceAttributeBinary*) node;
 
-			compile_tree(in_place_node->subject, bytecode);
+			compile_tree(node_in_place->subject, bytecode);
 			emit_byte(bytecode, OP_DUP);
 
-			Value attr_name_constant = MAKE_VALUE_OBJECT(object_string_copy(in_place_node->attribute, in_place_node->attribute_length));
+			Value attr_name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_in_place->attribute, node_in_place->attribute_length));
 			int attr_index = bytecode_add_constant(bytecode, &attr_name_constant);
 
             emit_byte_with_short_operand(bytecode, OP_GET_ATTRIBUTE, attr_index);
 
-			compile_tree(in_place_node->value, bytecode);
+			compile_tree(node_in_place->value, bytecode);
 
-			switch(in_place_node->operator) {
-				case TOKEN_PLUS_EQUALS: emit_byte(bytecode, OP_ADD); break;
-				case TOKEN_MINUS_EQUALS: emit_byte(bytecode, OP_SUBTRACT); break;
-				case TOKEN_STAR_EQUALS: emit_byte(bytecode, OP_MULTIPLY); break;
-				case TOKEN_SLASH_EQUALS: emit_byte(bytecode, OP_DIVIDE); break;
-				case TOKEN_MODULO_EQUALS: emit_byte(bytecode, OP_MODULO); break;
-				default: FAIL("Illegal operator in AST_NODE_IN_PLACE_ATTRIBUTE_BINARY: %d", in_place_node->operator); break;
-			}
+			emit_binary_opcode_for_in_place_operator(bytecode, node_in_place->operator);
 
 			emit_byte(bytecode, OP_SWAP);
 
 			emit_byte_with_short_operand(bytecode, OP_SET_ATTRIBUTE, attr_index);
+
+			break;
+		}
+
+		case AST_NODE_IN_PLACE_KEY_BINARY: {
+			AstNodeInPlaceKeyBinary* node_in_place = (AstNodeInPlaceKeyBinary*) node;
+
+			compile_tree(node_in_place->key, bytecode);
+			compile_tree(node_in_place->subject, bytecode);
+			emit_byte(bytecode, OP_DUP_TWO);
+
+            emit_byte(bytecode, OP_ACCESS_KEY);
+
+			compile_tree(node_in_place->value, bytecode);
+
+			emit_binary_opcode_for_in_place_operator(bytecode, node_in_place->operator);
+
+			emit_byte(bytecode, OP_SWAP_TOP_WITH_NEXT_TWO);
+
+			emit_byte(bytecode, OP_SET_KEY);
 
 			break;
 		}

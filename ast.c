@@ -9,6 +9,7 @@ const char* AST_NODE_TYPE_NAMES[] = {
     "AST_NODE_CONSTANT",
     "AST_NODE_BINARY",
 	"AST_NODE_IN_PLACE_ATTRIBUTE_BINARY",
+	"AST_NODE_IN_PLACE_KEY_BINARY",
     "AST_NODE_UNARY",
     "AST_NODE_VARIABLE",
     "AST_NODE_ASSIGNMENT",
@@ -38,6 +39,17 @@ static void print_nesting_string(int nesting) {
 	for (int i = 0; i < nesting; i++) {
         printf(". . ");
     }
+}
+
+static const char* in_place_operator_to_string(ScannerTokenType operator) {
+	switch (operator) {
+		case TOKEN_PLUS_EQUALS: return "+=";
+		case TOKEN_MINUS_EQUALS: return "-=";
+		case TOKEN_STAR_EQUALS: return "*=";
+		case TOKEN_SLASH_EQUALS: return "/=";
+		case TOKEN_MODULO_EQUALS: return "%=";
+		default: FAIL("Unrecognized operator in inplace binary operation AST node: %d", operator);
+	}
 }
 
 static void print_node(AstNode* node, int nesting) {
@@ -84,20 +96,32 @@ static void print_node(AstNode* node, int nesting) {
 		case AST_NODE_IN_PLACE_ATTRIBUTE_BINARY: {
 			AstNodeInPlaceAttributeBinary* in_place_node = (AstNodeInPlaceAttributeBinary*) node;
 
-			const char* operator = NULL;
-            switch (in_place_node->operator) {
-                case TOKEN_PLUS_EQUALS: operator = "+="; break;
-                case TOKEN_MINUS_EQUALS: operator = "-="; break;
-                case TOKEN_STAR_EQUALS: operator = "*="; break;
-                case TOKEN_SLASH_EQUALS: operator = "/="; break;
-                case TOKEN_MODULO_EQUALS: operator = "%="; break;
-                default: FAIL("Unrecognized operator in AST_NODE_IN_PLACE_ATTRIBUTE_BINARY: %d", in_place_node->operator);
-            }
+			const char* operator = in_place_operator_to_string(in_place_node->operator);
             
             print_nesting_string(nesting);
             printf("IN_PLACE_ATTRIBUTE_BINARY: %s\n", operator);
             print_nesting_string(nesting);
             printf("Attribute: %.*s\n", in_place_node->attribute_length, in_place_node->attribute);
+            print_nesting_string(nesting);
+            printf("Of object:\n");
+            print_node(in_place_node->subject, nesting + 1);
+			print_nesting_string(nesting);
+            printf("With value:\n");
+			print_node(in_place_node->value, nesting + 1);
+
+			break;
+		}
+
+		case AST_NODE_IN_PLACE_KEY_BINARY: {
+			AstNodeInPlaceKeyBinary* in_place_node = (AstNodeInPlaceKeyBinary*) node;
+
+			const char* operator = in_place_operator_to_string(in_place_node->operator);
+            
+            print_nesting_string(nesting);
+            printf("IN_PLACE_KEY_BINARY: %s\n", operator);
+            print_nesting_string(nesting);
+            printf("Key:\n");
+			print_node(in_place_node->key, nesting + 1);
             print_nesting_string(nesting);
             printf("Of object:\n");
             print_node(in_place_node->subject, nesting + 1);
@@ -413,7 +437,7 @@ static void node_free(AstNode* node, int nesting) {
         
         case AST_NODE_IMPORT: {
         	AstNodeImport* node_import = (AstNodeImport*) node;
-        	// The name in the node points into the source code, do not free it. Maybe change that later?
+        	/* The name in the node points into the source code, not freeing it */
 			deallocate(node_import, sizeof(AstNodeImport), deallocationString);
         	break;
         }
@@ -460,6 +484,18 @@ static void node_free(AstNode* node, int nesting) {
             node_free(node_in_place->value, nesting + 1);
             
             deallocate(node_in_place, sizeof(AstNodeInPlaceAttributeBinary), deallocationString);
+            
+            break;
+        }
+
+		case AST_NODE_IN_PLACE_KEY_BINARY: {
+            AstNodeInPlaceKeyBinary* node_in_place = (AstNodeInPlaceKeyBinary*) node;
+            
+            node_free(node_in_place->subject, nesting + 1);
+            node_free(node_in_place->key, nesting + 1);
+            node_free(node_in_place->value, nesting + 1);
+            
+            deallocate(node_in_place, sizeof(AstNodeInPlaceKeyBinary), deallocationString);
             
             break;
         }
@@ -665,6 +701,15 @@ AstNodeInPlaceAttributeBinary* ast_new_node_in_place_attribute_binary(
 	node->subject = subject;
 	node->attribute = attribute;
 	node->attribute_length = attribute_length;
+	node->value = value;
+	return node;
+}
+
+AstNodeInPlaceKeyBinary* ast_new_node_in_place_key_binary(ScannerTokenType operator, AstNode* subject, AstNode* key, AstNode* value) {
+	AstNodeInPlaceKeyBinary* node = ALLOCATE_AST_NODE(AstNodeInPlaceKeyBinary, AST_NODE_IN_PLACE_KEY_BINARY);
+	node->operator = operator;
+	node->subject = subject;
+	node->key = key;
 	node->value = value;
 	return node;
 }
