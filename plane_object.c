@@ -54,10 +54,6 @@ static bool object_string_add(Object* self, ValueArray args, Value* result) {
 
 	assert(self->type == OBJECT_STRING);
 
-	// if (self->type != OBJECT_STRING) {
-	// 	FAIL("@add called on non ObjectString");
-	// }
-
     ObjectString* self_string = OBJECT_AS_STRING(self);
     ObjectString* other_string = OBJECT_AS_STRING(other_value.as.object);
 
@@ -198,6 +194,7 @@ static bool object_table_get_key(Object* self, ValueArray args, Value* result) {
     if (table_get(&self_table->table, key, &value)) {
     	*result = value;
     } else {
+		*result = MAKE_VALUE_NIL();
     	return false;
     }
 

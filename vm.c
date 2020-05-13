@@ -97,14 +97,15 @@ static StackFrame new_stack_frame(
 	return frame;
 }
 
-static void push_frame(StackFrame frame) {
-	/* TODO: Not a FAIL, but a boolean indicating success or failure or something, in order to present a sensible runtime error. */
+static bool push_frame(StackFrame frame) {
 	if (vm.call_stack_top - vm.call_stack == CALL_STACK_MAX) {
-		FAIL("Stack overflow.");
+		return false;
 	}
 
 	*vm.call_stack_top = frame;
 	vm.call_stack_top++;
+
+	return true;
 }
 
 static void stack_frame_free(StackFrame* frame) {
@@ -113,9 +114,8 @@ static void stack_frame_free(StackFrame* frame) {
 }
 
 static StackFrame pop_frame(void) {
-	/* TODO: Not a FAIL, but a boolean indicating success or failure or something, in order to present a sensible runtime error. */
 	if (vm.call_stack_top <= vm.call_stack) {
-		FAIL("Stack underflow.");
+		FAIL("Stack underflow - should never happen.");
 	}
 	vm.call_stack_top--;
 	return *vm.call_stack_top;
@@ -457,7 +457,9 @@ static bool call_native_function(ObjectFunction* function, Object* self, ValueAr
 	Without this "native frame", OP_RETURN in the user function will make control jump
 	back to the point where the caller _native_ function was called. */
 	StackFrame native_frame = new_stack_frame(NULL, function, NULL, false, true, false);
-	push_frame(native_frame);
+	if (!push_frame(native_frame)) {
+		return false;
+	}
 
 	/* If the native function will end up calling a user function, the instruction
 	pointer will be moving forward. When we go back to this calling site, we have to
@@ -555,8 +557,13 @@ void vm_free(void) {
 }
 
 static void print_call_stack(void) {
-	for (StackFrame* frame = vm.call_stack_top - 1; frame >= vm.call_stack; frame--) {
+	const int MAX_FRAMES_VISUALIZE = 40;
+	StackFrame* stopping_point = vm.call_stack_top - vm.call_stack <= MAX_FRAMES_VISUALIZE ? vm.call_stack : vm.call_stack_top - MAX_FRAMES_VISUALIZE;
+	for (StackFrame* frame = vm.call_stack_top - 1; frame >= stopping_point; frame--) {
 		printf("    -> %s\n", frame->function->name);
+	}
+	if (stopping_point != vm.call_stack) {
+		printf("    -> [... %d lower frames truncated ...]\n", (int) (stopping_point - vm.call_stack));
 	}
 }
 
@@ -1078,12 +1085,16 @@ static bool vm_interpret_frame(StackFrame* frame) {
 		ERROR_IF_WRONG_TYPE(value, VALUE_NIL, message); \
 	} while (false)
 
-	push_frame(*frame);
-
-	vm.ip = current_frame()->function->code->bytecode.code;;
-
 	bool is_executing = true;
 	bool runtime_error_occured = false;
+
+	if (!push_frame(*frame)) {
+		RUNTIME_ERROR("Stack overflow");
+		stack_frame_free(frame);
+		return false;
+	}
+
+	vm.ip = current_frame()->function->code->bytecode.code;;
 
 	DEBUG_TRACE("Starting interpreter loop.");
 
@@ -1161,24 +1172,19 @@ static bool vm_interpret_frame(StackFrame* frame) {
 						break;
 					}
 
-					/* TODO: Switch to new cleaner function-calling functions */
-
 					ObjectBoundMethod* add_bound_method = (ObjectBoundMethod*) add_method.as.object;
 					Object* self = add_bound_method->self;
 
 					assert(subject == self);
 
-					if (add_bound_method->method->is_native) {
-						if (!call_native_function_args_from_stack(add_bound_method->method, add_bound_method->self)) {
-							RUNTIME_ERROR("@add function failed.");
-							goto op_add_cleanup;
-						}
-					} else {
-						// TODO: user function
+					ValueArray arguments = collect_values(add_bound_method->method->num_params);
+					if (call_bound_method_leave_on_stack(add_bound_method, arguments) != CALL_RESULT_SUCCESS) {
+						RUNTIME_ERROR("@add function failed.");
+						goto op_add_cleanup;
 					}
 
-					 /* Pop subject from stack - TODO: ugly hack, change later */
-					op_add_cleanup: ;
+					op_add_cleanup:
+					value_array_free(&arguments);
 					Value result = pop();
 					pop(); /* The subject */
 					push(result);
@@ -1664,7 +1670,9 @@ static bool vm_interpret_frame(StackFrame* frame) {
             	}
 
             	Object* subject = subject_value.as.object;
-            	Value key = peek();
+				Value key = pop();
+				push(subject_value);
+				push(key);
 
 				Value key_access_method_value;
 				if (!object_load_attribute_cstring_key(subject, "@get_key", &key_access_method_value)) {
@@ -1681,24 +1689,28 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				Object* self = bound_method->self;
 
 				assert(subject == self);
+				assert(bound_method->method->num_params == 1);
 
-				Value result;
-				if (bound_method->method->is_native) {
-					if (!call_native_function_args_from_stack(bound_method->method, self)) {
-						RUNTIME_ERROR("@get_key function failed.");
-						break;
-					}
-				} else {
-					// TODO: user function
+				ValueArray arguments = collect_values(bound_method->method->num_params);
+				if (call_bound_method_leave_on_stack(bound_method, arguments) != CALL_RESULT_SUCCESS) {
+					RUNTIME_ERROR("@get_key function failed.");
+					goto op_access_key_cleanup;
 				}
+
+				Value result = pop();
+				pop(); /* The subject */
+				push(result);
+
+				op_access_key_cleanup:
+				value_array_free(&arguments);				
 
             	break;
             }
 
             case OP_SET_KEY: {
-            	Value subject_as_value = pop();
-            	Value key = pop();
-            	Value value = pop();
+            	Value subject_as_value = peek_at(1);
+            	Value key = peek_at(2);
+            	Value value = peek_at(3);
 
             	if (subject_as_value.type != VALUE_OBJECT) {
             		RUNTIME_ERROR("Cannot set key on non-object.");
@@ -1713,9 +1725,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
 					Object* self = set_method->self;
 
 					assert(subject == self);
-					// if (self != subject) {
-					// 	FAIL("Before calling @set_key, subject was different from bound method's self attribute.");
-					// }
 
     				ValueArray arguments;
     				value_array_init(&arguments);
@@ -1723,14 +1732,15 @@ static bool vm_interpret_frame(StackFrame* frame) {
     				value_array_write(&arguments, &value);
 
     				Value throwaway_result;
-    				if (set_method->method->is_native) {
-    					if (!set_method->method->native_function(self, arguments, &throwaway_result)) {
-    						RUNTIME_ERROR("@set_key function failed.");
-    						goto op_set_key_cleanup;
-    					}
-    				} else {
-    					// TODO: user function
-    				}
+					if (call_bound_method_leave_on_stack(set_method, arguments) != CALL_RESULT_SUCCESS) {
+						RUNTIME_ERROR("@set_key function failed.");
+						goto op_access_key_cleanup;
+					}
+
+					pop(); /* The result, doesn't matter to us */
+					pop(); /* The subject */
+					pop(); /* The key */
+					pop(); /* The value */
 
     				op_set_key_cleanup:
     				value_array_free(&arguments);
