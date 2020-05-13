@@ -2,18 +2,19 @@ import graphics
 import math
 sdl = graphics
 
-# print = { | text | }
+print = { | text | }
 
+# Configuration values
 MAX_FPS = 50
+PLAYER_MAX_SPEED = 7
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 800
 
 keyboard = [sdl.SDL_SCANCODE_UP: false,
             sdl.SDL_SCANCODE_DOWN: false,
             sdl.SDL_SCANCODE_LEFT: false,
             sdl.SDL_SCANCODE_RIGHT: false,
             sdl.SDL_SCANCODE_SPACE: false]
-
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 800
 
 Player = class {
     @init = { | x, y, texture |
@@ -60,6 +61,21 @@ Player = class {
         if math.abs(self.dx) <= 0.05 {
             self.dx = 0
         }
+
+        if math.abs(self.dy) >= PLAYER_MAX_SPEED {
+            if self.dy < 0 {
+                self.dy = -PLAYER_MAX_SPEED
+            } else {
+                self.dy = PLAYER_MAX_SPEED
+            }
+        }
+        if math.abs(self.dx) >= PLAYER_MAX_SPEED {
+            if self.dx < 0 {
+                self.dx = -PLAYER_MAX_SPEED
+            } else {
+                self.dx = PLAYER_MAX_SPEED
+            }
+        }
     }
 }
 
@@ -75,8 +91,6 @@ Ball = class {
         sdl.query_texture(texture, details)
         self.width = details["w"] / 10
         self.height = details["h"] / 10
-        
-        self._bounces = 0 # debugging
     }
     
     apply_force = { | fx, fy, dt |
@@ -86,16 +100,14 @@ Ball = class {
 
     update = { | dt |
 
-        self.x = self.x + (self.dx * dt) * MAX_FPS
-        self.y = self.y + (self.dy * dt) * MAX_FPS
+        self.x += (self.dx * dt) * MAX_FPS
+        self.y += (self.dy * dt) * MAX_FPS
         
         floor = SCREEN_HEIGHT - self.height
         
         if self.y >= floor {
             self.y = floor
         
-            self._bounces = self._bounces + 1
-
             self.dy = self.dy * (-1)       
         } else {
             self.apply_force(0, 30, dt)
@@ -132,9 +144,8 @@ Game = class {
     }
     
     spawn_ball = {
-        random_x = math.random_in_range(0, SCREEN_WIDTH - 60)
-        texture = self.ball_texture
-        self.balls[self.balls.length()] = Ball(random_x, 0, texture)
+        random_x = math.random_in_range(0, SCREEN_WIDTH - 220)
+        self.balls.add(Ball(random_x, 0, self.ball_texture))
     }
     
     prepare_scene = {

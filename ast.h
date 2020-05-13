@@ -8,7 +8,7 @@
 typedef enum {
     AST_NODE_CONSTANT,
     AST_NODE_BINARY,
-    AST_NODE_MUTATION,
+    AST_NODE_IN_PLACE_ATTRIBUTE_BINARY,
     AST_NODE_UNARY,
     AST_NODE_VARIABLE,
     AST_NODE_ASSIGNMENT,
@@ -84,10 +84,11 @@ typedef struct {
 typedef struct {
     AstNode base;
     ScannerTokenType operator;
-    const char* name;
-    int name_length;
+    AstNode* subject;
+    const char* attribute;
+    int attribute_length;
     AstNode* value;
-} AstNodeMutation;
+} AstNodeInPlaceAttributeBinary;
 
 typedef struct {
     AstNode base;
@@ -205,7 +206,8 @@ void ast_free_tree(AstNode* node);
 AstNodeConstant* ast_new_node_constant(Value value);
 AstNodeNil* ast_new_node_nil(void);
 AstNodeBinary* ast_new_node_binary(ScannerTokenType operator, AstNode* left_operand, AstNode* right_operand);
-AstNodeMutation* ast_new_node_mutation(ScannerTokenType operator, const char* name, int name_length, AstNode* value);
+AstNodeInPlaceAttributeBinary* ast_new_node_in_place_attribute_binary(
+        ScannerTokenType operator, AstNode* subject, const char* attribute, int attribute_length, AstNode* value);
 AstNodeStatements* ast_new_node_statements(void);
 AstNodeVariable* ast_new_node_variable(const char* name, int length);
 AstNodeAssignment* ast_new_node_assignment(const char* name, int name_length, AstNode* value);

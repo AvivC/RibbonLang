@@ -88,38 +88,35 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             break;
         }
 
-		case AST_NODE_MUTATION: {
-			AstNodeMutation* node_mutation = (AstNodeMutation*) node;
+		case AST_NODE_IN_PLACE_ATTRIBUTE_BINARY: {
+			AstNodeInPlaceAttributeBinary* in_place_node = (AstNodeInPlaceAttributeBinary*) node;
 
-            Value name_constant = MAKE_VALUE_OBJECT(object_string_copy(node_mutation->name, node_mutation->name_length));
-            size_t constant_index = (size_t) bytecode_add_constant(bytecode, &name_constant);
+			compile_tree(in_place_node->subject, bytecode);
+			emit_byte(bytecode, OP_DUP);
 
-            integer_array_write(&bytecode->referenced_names_indices, &constant_index);
-            
-			emit_byte(bytecode, OP_LOAD_VARIABLE);
-            emit_short_as_two_bytes(bytecode, constant_index);
+			Value attr_name_constant = MAKE_VALUE_OBJECT(object_string_copy(in_place_node->attribute, in_place_node->attribute_length));
+			int attr_index = bytecode_add_constant(bytecode, &attr_name_constant);
 
-			compile_tree(node_mutation->value, bytecode);
+            emit_byte_with_short_operand(bytecode, OP_GET_ATTRIBUTE, attr_index);
 
-			/* Using a ScannerTokenType inside the compiler isn't the prettiest solution. But it works well and will probably stay this way. */
-			ScannerTokenType operator = node_mutation->operator;
+			compile_tree(in_place_node->value, bytecode);
 
-			switch (operator) {
+			switch(in_place_node->operator) {
 				case TOKEN_PLUS_EQUALS: emit_byte(bytecode, OP_ADD); break;
 				case TOKEN_MINUS_EQUALS: emit_byte(bytecode, OP_SUBTRACT); break;
 				case TOKEN_STAR_EQUALS: emit_byte(bytecode, OP_MULTIPLY); break;
 				case TOKEN_SLASH_EQUALS: emit_byte(bytecode, OP_DIVIDE); break;
 				case TOKEN_MODULO_EQUALS: emit_byte(bytecode, OP_MODULO); break;
-				default: FAIL("Illegal operator %d found in compiler for AST_NODE_MUTATION, shouldn't happen.", operator);
+				default: FAIL("Illegal operator in AST_NODE_IN_PLACE_ATTRIBUTE_BINARY: %d", in_place_node->operator); break;
 			}
 
-			integer_array_write(&bytecode->assigned_names_indices, &constant_index);
-			emit_byte(bytecode, OP_SET_VARIABLE);
-            emit_short_as_two_bytes(bytecode, constant_index);
+			emit_byte(bytecode, OP_SWAP);
+
+			emit_byte_with_short_operand(bytecode, OP_SET_ATTRIBUTE, attr_index);
 
 			break;
 		}
-        
+
         case AST_NODE_CONSTANT: {
             AstNodeConstant* node_constant = (AstNodeConstant*) node;
             emit_opcode_with_constant_operand(bytecode, OP_CONSTANT, node_constant->value);

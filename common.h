@@ -23,7 +23,7 @@
 /* ****************** */
 
 /* Probably leave this ON most of the time during DEV. Disable for release. */
-#define GC_STRESS_TEST 0 // Run GC every loop iteration. Used to help GC bugs surface. Obviously really bad for performance
+#define GC_STRESS_TEST 1 // Run GC every loop iteration. Used to help GC bugs surface. Obviously really bad for performance
 /* ************** */
 
 /* Always leave these two ON in DEV. Probably disable for release  */

@@ -36,11 +36,15 @@ static Bytecode* current_bytecode(void) {
 }
 
 static void push(Value value) {
+	assert(vm.stack_top - vm.stack <= EVAL_STACK_MAX);
+
 	*vm.stack_top = value;
     vm.stack_top++;
 }
 
 static Value pop(void) {
+	assert(vm.stack_top > vm.stack);
+
 	vm.stack_top--;
     return *vm.stack_top;
 }
@@ -94,7 +98,7 @@ static StackFrame new_stack_frame(
 }
 
 static void push_frame(StackFrame frame) {
-	/* TODO: Not a FAIL, but a boolean indicating success or failure or something */
+	/* TODO: Not a FAIL, but a boolean indicating success or failure or something, in order to present a sensible runtime error. */
 	if (vm.call_stack_top - vm.call_stack == CALL_STACK_MAX) {
 		FAIL("Stack overflow.");
 	}
@@ -109,7 +113,7 @@ static void stack_frame_free(StackFrame* frame) {
 }
 
 static StackFrame pop_frame(void) {
-	/* TODO: Not a FAIL, but a boolean indicating success or failure or something */
+	/* TODO: Not a FAIL, but a boolean indicating success or failure or something, in order to present a sensible runtime error. */
 	if (vm.call_stack_top <= vm.call_stack) {
 		FAIL("Stack underflow.");
 	}
@@ -1450,6 +1454,14 @@ static bool vm_interpret_frame(StackFrame* frame) {
 			case OP_DUP: {
 				Value v = peek();
 				push(v);
+				break;
+			}
+
+			case OP_SWAP: {
+				Value upper = pop();
+				Value lower = pop();
+				push(upper);
+				push(lower);
 				break;
 			}
 

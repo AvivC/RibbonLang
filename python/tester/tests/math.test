@@ -137,7 +137,7 @@ expect
     false
 end
 
-test mutation statements
+test mutation assignment statements
     a = 100
 
     a += 50
@@ -164,4 +164,56 @@ expect
     7.5
     8
     2
+end
+
+test inplace attribute binary
+    C = class {}
+
+    c = C()
+    c.x = 10
+    c.y = 20
+
+    c.x += 5
+    print(c.x)
+    c.x *= 2
+    print(c.x)
+    c.x /= 4
+    print(c.x)
+    c.x -= 4
+    print(c.x)
+    c.x %= 2
+    print(c.x)
+expect
+    15
+    30
+    7.5
+    3.5
+    1.5
+end
+
+test object expression evaluated only once in inplace attribute binary
+    C = class {
+        @init = { | n |
+            self.n = n
+        }
+    }
+
+    o = C(10)
+
+    f = {
+        print("f() called")
+        return o
+    }
+
+    # We're testing that f() only gets called once per assignment
+    f().n *= 2
+    print(o.n)
+
+    f().n -= 5
+    print(o.n)
+expect
+    f() called
+    20
+    f() called
+    15
 end

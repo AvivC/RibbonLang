@@ -94,6 +94,17 @@ static void skip_newlines(void) {
 	while (match(TOKEN_NEWLINE));
 }
 
+static ScannerTokenType mutate_operator_to_binary(ScannerTokenType operator) {
+    switch (operator) {
+        case TOKEN_PLUS_EQUALS: return TOKEN_PLUS;
+        case TOKEN_MINUS_EQUALS: return TOKEN_MINUS;
+        case TOKEN_STAR_EQUALS: return TOKEN_STAR;
+        case TOKEN_SLASH_EQUALS: return TOKEN_SLASH;
+        case TOKEN_MODULO_EQUALS: return TOKEN_MODULO;
+        default: FAIL("Illegal operator in mutation parsing.");
+    }
+}
+
 static AstNode* parse_expression(Precedence precedence, int expression_level);
 static ParseRule get_rule(ScannerTokenType type);
 static AstNode* statements();
@@ -152,7 +163,26 @@ static AstNode* key_access(AstNode* left_node, int expression_level) {
 
 		AstNode* value_node = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
 		return (AstNode*) ast_new_node_key_assignment(key_node, value_node, left_node);
-	} else {
+	} else if (match(TOKEN_PLUS_EQUALS)
+                || match(TOKEN_MINUS_EQUALS)
+                || match(TOKEN_STAR_EQUALS)
+                || match(TOKEN_SLASH_EQUALS)
+                || match(TOKEN_MODULO_EQUALS)) { 
+        if (expression_level != 0) {
+			error("Key assignment illegal inside expression");
+			return NULL;
+		}
+
+        ScannerTokenType mutation_operator = parser.previous.type;
+
+		// Mutate key
+        AstNodeKeyAccess* key_access_node = ast_new_node_key_access(key_node, left_node);
+		AstNode* value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+        ScannerTokenType binary_operator = mutate_operator_to_binary(mutation_operator);
+        AstNodeBinary* binary = ast_new_node_binary(binary_operator, (AstNode*) key_access_node, value);
+
+		return (AstNode*) ast_new_node_key_assignment(key_node, (AstNode*) binary, left_node);
+    } else {
 		// Get key
 		return (AstNode*) ast_new_node_key_access(key_node, left_node);
 	}
@@ -173,7 +203,23 @@ static AstNode* dot(AstNode* left_node, int expression_level) {
 		// Set attribute
 		AstNode* value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
 		return (AstNode*) ast_new_node_attribute_assignment(left_node, attr_name, name_length, value);
-	} else {
+	} else if (match(TOKEN_PLUS_EQUALS)
+                || match(TOKEN_MINUS_EQUALS)
+                || match(TOKEN_STAR_EQUALS)
+                || match(TOKEN_SLASH_EQUALS)
+                || match(TOKEN_MODULO_EQUALS)) { 
+        if (expression_level != 0) {
+			error("Attribute assignment illegal inside expression");
+			return NULL;
+		}
+
+        ScannerTokenType in_place_operator = parser.previous.type;
+
+		// In place binary on attribute
+		AstNode* value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+
+        return (AstNode*) ast_new_node_in_place_attribute_binary(in_place_operator, left_node, attr_name, name_length, value);
+    } else {
 		// Get attribute
 		return (AstNode*) ast_new_node_attribute(left_node, attr_name, name_length);
 	}
@@ -441,23 +487,22 @@ static AstNodeAssignment* assignment_statement(void) {
 }
 
 
-static AstNodeMutation* mutation_statement(void) {
+static AstNodeAssignment* mutation_statement(void) {
     const char* variable_name = parser.previous.start;
     int variable_length = parser.previous.length;
 
     advance();
-
-    ScannerTokenType operator = parser.previous.type;
-
-    assert(operator == TOKEN_PLUS_EQUALS 
-        || operator == TOKEN_SLASH_EQUALS 
-        || operator == TOKEN_STAR_EQUALS 
-        || operator == TOKEN_MINUS_EQUALS
-        || operator == TOKEN_MODULO_EQUALS);
+    ScannerTokenType binary_operator = mutate_operator_to_binary(parser.previous.type);
 
     AstNode* value = parse_expression(PREC_ASSIGNMENT, 1);
 
-    return ast_new_node_mutation(operator, variable_name, variable_length, value);
+    AstNodeVariable* get_variable_node = ast_new_node_variable(variable_name, variable_length);
+
+    AstNodeBinary* binary = ast_new_node_binary(binary_operator, (AstNode*) get_variable_node, value);
+
+    AstNodeAssignment* assignment = ast_new_node_assignment(variable_name, variable_length, (AstNode*) binary);
+
+    return assignment;
 }
 
 static ParseRule get_rule(ScannerTokenType type) {
@@ -483,12 +528,6 @@ static AstNode* statements(void) {
                 || match_next(TOKEN_SLASH_EQUALS)
                 || match_next(TOKEN_MODULO_EQUALS))) {
             child_node = (AstNode*) mutation_statement();
-        } else if (check(TOKEN_IDENTIFIER) && match_next(TOKEN_MINUS_EQUALS)) {
-            child_node = (AstNode*) mutation_statement();
-        } else if (check(TOKEN_IDENTIFIER) && match_next(TOKEN_STAR_EQUALS)) {
-            child_node = (AstNode*) mutation_statement();
-        } else if (check(TOKEN_IDENTIFIER) && match_next(TOKEN_SLASH_EQUALS)) {
-            child_node = (AstNode*) mutation_statement();
         } else if (match(TOKEN_RETURN)) {
         	child_node = (AstNode*) return_statement();
         } else if (match(TOKEN_IF)) {
@@ -502,7 +541,9 @@ static AstNode* statements(void) {
     	} else {
     		AstNode* expr_or_attr_assignment_or_key_assignment = parse_expression(PREC_ASSIGNMENT, 0);
     		AstNodeType node_type = expr_or_attr_assignment_or_key_assignment->type;
-    		if (node_type == AST_NODE_ATTRIBUTE_ASSIGNMENT || node_type == AST_NODE_KEY_ASSIGNMENT) {
+    		if (node_type == AST_NODE_ATTRIBUTE_ASSIGNMENT 
+                || node_type == AST_NODE_KEY_ASSIGNMENT
+                || node_type == AST_NODE_IN_PLACE_ATTRIBUTE_BINARY) {
     			child_node = expr_or_attr_assignment_or_key_assignment;
     		} else {
     			child_node = (AstNode*) ast_new_node_expr_statement(expr_or_attr_assignment_or_key_assignment);

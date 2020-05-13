@@ -8,7 +8,7 @@
 const char* AST_NODE_TYPE_NAMES[] = {
     "AST_NODE_CONSTANT",
     "AST_NODE_BINARY",
-	"AST_NODE_MUTATION",
+	"AST_NODE_IN_PLACE_ATTRIBUTE_BINARY",
     "AST_NODE_UNARY",
     "AST_NODE_VARIABLE",
     "AST_NODE_ASSIGNMENT",
@@ -81,27 +81,32 @@ static void print_node(AstNode* node, int nesting) {
             break;
         }
 
-		case AST_NODE_MUTATION: {
-            AstNodeMutation* node_mutation = (AstNodeMutation*) node;
-            
-            const char* operator = NULL;
-            switch (node_mutation->operator) {
-				case TOKEN_PLUS_EQUALS: operator = "+=";
-				case TOKEN_MINUS_EQUALS: operator = "-=";
-				case TOKEN_STAR_EQUALS: operator = "*=";
-				case TOKEN_SLASH_EQUALS: operator = "/=";
-                default: operator = "Unrecognized";
+		case AST_NODE_IN_PLACE_ATTRIBUTE_BINARY: {
+			AstNodeInPlaceAttributeBinary* in_place_node = (AstNodeInPlaceAttributeBinary*) node;
+
+			const char* operator = NULL;
+            switch (in_place_node->operator) {
+                case TOKEN_PLUS_EQUALS: operator = "+="; break;
+                case TOKEN_MINUS_EQUALS: operator = "-="; break;
+                case TOKEN_STAR_EQUALS: operator = "*="; break;
+                case TOKEN_SLASH_EQUALS: operator = "/="; break;
+                case TOKEN_MODULO_EQUALS: operator = "%="; break;
+                default: FAIL("Unrecognized operator in AST_NODE_IN_PLACE_ATTRIBUTE_BINARY: %d", in_place_node->operator);
             }
             
             print_nesting_string(nesting);
-            printf("MUTATION: %s\n", operator);
+            printf("IN_PLACE_ATTRIBUTE_BINARY: %s\n", operator);
             print_nesting_string(nesting);
-            printf("Variable: %.*s\n", node_mutation->name_length, node_mutation->name);
+            printf("Attribute: %.*s\n", in_place_node->attribute_length, in_place_node->attribute);
+            print_nesting_string(nesting);
+            printf("Of object:\n");
+            print_node(in_place_node->subject, nesting + 1);
 			print_nesting_string(nesting);
-            printf("Value: %.*s\n", node_mutation->name_length, node_mutation->name);
-            print_node(node_mutation->value, nesting + 1);
-            break;
-        }
+            printf("With value:\n");
+			print_node(in_place_node->value, nesting + 1);
+
+			break;
+		}
         
         case AST_NODE_UNARY: {
             AstNodeUnary* nodeUnary = (AstNodeUnary*) node;
@@ -448,12 +453,13 @@ static void node_free(AstNode* node, int nesting) {
             break;
         }
 
-		case AST_NODE_MUTATION: {
-            AstNodeMutation* node_mutation = (AstNodeMutation*) node;
+		case AST_NODE_IN_PLACE_ATTRIBUTE_BINARY: {
+            AstNodeInPlaceAttributeBinary* node_in_place = (AstNodeInPlaceAttributeBinary*) node;
             
-            node_free(node_mutation->value, nesting + 1);
+            node_free(node_in_place->subject, nesting + 1);
+            node_free(node_in_place->value, nesting + 1);
             
-            deallocate(node_mutation, sizeof(AstNodeMutation), deallocationString);
+            deallocate(node_in_place, sizeof(AstNodeInPlaceAttributeBinary), deallocationString);
             
             break;
         }
@@ -652,11 +658,13 @@ AstNodeBinary* ast_new_node_binary(ScannerTokenType operator, AstNode* left_oper
 	return node;
 }
 
-AstNodeMutation* ast_new_node_mutation(ScannerTokenType operator, const char* name, int name_length, AstNode* value) {
-	AstNodeMutation* node = ALLOCATE_AST_NODE(AstNodeMutation, AST_NODE_MUTATION);
+AstNodeInPlaceAttributeBinary* ast_new_node_in_place_attribute_binary(
+        ScannerTokenType operator, AstNode* subject, const char* attribute, int attribute_length, AstNode* value) {
+	AstNodeInPlaceAttributeBinary* node = ALLOCATE_AST_NODE(AstNodeInPlaceAttributeBinary, AST_NODE_IN_PLACE_ATTRIBUTE_BINARY);
 	node->operator = operator;
-	node->name = name;
-	node->name_length = name_length;
+	node->subject = subject;
+	node->attribute = attribute;
+	node->attribute_length = attribute_length;
 	node->value = value;
 	return node;
 }

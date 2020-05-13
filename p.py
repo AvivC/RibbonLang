@@ -1,2 +1,4 @@
-for x in [1, 2, 3]:
-	print(x)
+t = []
+t.x = 10
+t.x += 2
+print(t.x)
