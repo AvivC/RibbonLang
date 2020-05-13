@@ -222,6 +222,19 @@ bool builtin_get_main_file_path(Object* self, ValueArray args, Value* out) {
 	return true;
 }
 
+bool builtin_get_main_file_directory(Object* self, ValueArray args, Value* out) {
+	char* last_slash = strrchr(vm.main_module_path, '\\');
+
+	if (last_slash == NULL) {
+		/* Seems we're working with the file path directly, thus the current directory is the directory */
+		*out = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated("."));
+		return true;
+	}
+
+	*out = MAKE_VALUE_OBJECT(object_string_copy(vm.main_module_path, last_slash - vm.main_module_path));
+	return true;
+}
+
 bool builtin_is_instance(Object* self, ValueArray args, Value* out) {
 	if (!object_value_is(args.values[1], OBJECT_STRING)) {
 		return false;
