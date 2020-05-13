@@ -1336,40 +1336,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
             	break;
             }
 
-            case OP_AND: {
-            	// TODO: AND should be short-circuiting
-
-        		Value b = pop();
-        		Value a = pop();
-
-        		ERROR_IF_NON_BOOLEAN(a, "Right side non-boolean in AND expression.");
-        		ERROR_IF_NON_BOOLEAN(b, "Left side non-boolean in AND expression.");
-
-        		if (a.as.boolean && b.as.boolean) {
-        			push(MAKE_VALUE_BOOLEAN(true));
-        		} else {
-        			push(MAKE_VALUE_BOOLEAN(false));
-        		}
-
-            	break;
-            }
-
-            case OP_OR: {
-        		Value b = pop();
-        		Value a = pop();
-
-        		ERROR_IF_NON_BOOLEAN(a, "Right side non-boolean in OR expression.");
-        		ERROR_IF_NON_BOOLEAN(b, "Left side non-boolean in OR expression.");
-
-        		if (a.as.boolean || b.as.boolean) {
-        			push(MAKE_VALUE_BOOLEAN(true));
-        		} else {
-        			push(MAKE_VALUE_BOOLEAN(false));
-        		}
-
-            	break;
-            }
-
             case OP_MAKE_STRING: {
             	Value constant = READ_CONSTANT();
 				assert(object_value_is(constant, OBJECT_STRING));
@@ -1800,6 +1766,21 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				ERROR_IF_NON_BOOLEAN(condition, "Expected boolean as condition");
 
 				if (!condition.as.boolean) {
+					vm.ip = current_bytecode()->code + address;
+				}
+
+				break;
+			}
+
+			case OP_JUMP_IF_TRUE: {
+            	uint8_t addr_byte1 = READ_BYTE();
+            	uint8_t addr_byte2 = READ_BYTE();
+            	uint16_t address = two_bytes_to_short(addr_byte1, addr_byte2);
+				Value condition = pop();
+
+				ERROR_IF_NON_BOOLEAN(condition, "Expected boolean as condition");
+
+				if (condition.as.boolean) {
 					vm.ip = current_bytecode()->code + address;
 				}
 

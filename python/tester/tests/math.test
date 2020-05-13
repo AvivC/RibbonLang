@@ -137,6 +137,49 @@ expect
     false
 end
 
+test boolean expression short circuiting
+    f1 = {
+        print("Called")
+        return false
+    }
+
+    f2 = {
+        print("Called")
+        return true
+    }
+
+    print(f1() and f1())
+    print(f2() and f2())
+
+    print( 10 < 5 and f2() )
+    print( 10 > 5 and f1() )
+
+    print( (f2() and f1()) or ((10 < 5) or f2()) )
+
+    print(f2() and true and f2() and f1())
+
+    print(f2() and true or f2() and f1())
+expect
+    Called
+    false
+    Called
+    Called
+    true
+    false
+    Called
+    false
+    Called
+    Called
+    Called
+    true
+    Called
+    Called
+    Called
+    false
+    Called
+    true
+end
+
 test mutation assignment statements
     a = 100
 

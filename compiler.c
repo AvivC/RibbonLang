@@ -498,18 +498,30 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
         case AST_NODE_AND: {
         	AstNodeAnd* node_and = (AstNodeAnd*) node;
-        	compile_tree((AstNode*) node_and->left, bytecode);
+        	
+			compile_tree((AstNode*) node_and->left, bytecode);
+			emit_byte(bytecode, OP_DUP);
+
+			size_t jump_address_offset = emit_opcode_with_short_placeholder(bytecode, OP_JUMP_IF_FALSE);
+			emit_byte(bytecode, OP_POP);
+
         	compile_tree((AstNode*) node_and->right, bytecode);
-        	emit_byte(bytecode, OP_AND);
+			backpatch_placeholder_with_current_address(bytecode, jump_address_offset);
 
         	break;
         }
 
         case AST_NODE_OR: {
         	AstNodeOr* node_or = (AstNodeOr*) node;
+
         	compile_tree((AstNode*) node_or->left, bytecode);
+			emit_byte(bytecode, OP_DUP);
+
+			size_t jump_address_offset = emit_opcode_with_short_placeholder(bytecode, OP_JUMP_IF_TRUE);
+			emit_byte(bytecode, OP_POP);
+
         	compile_tree((AstNode*) node_or->right, bytecode);
-        	emit_byte(bytecode, OP_OR);
+			backpatch_placeholder_with_current_address(bytecode, jump_address_offset);
 
         	break;
         }

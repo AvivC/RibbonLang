@@ -108,12 +108,6 @@ int disassembler_do_single_instruction(OP_CODE opcode, Bytecode* chunk, int offs
 		case OP_EQUAL: {
 			return simple_instruction("OP_EQUAL", chunk, offset);
 		}
-		case OP_AND: {
-			return simple_instruction("OP_AND", chunk, offset);
-		}
-		case OP_OR: {
-			return simple_instruction("OP_OR", chunk, offset);
-		}
 		case OP_NEGATE: {
 			return simple_instruction("OP_NEGATE", chunk, offset);
 		}
@@ -161,6 +155,9 @@ int disassembler_do_single_instruction(OP_CODE opcode, Bytecode* chunk, int offs
 		}
 		case OP_JUMP_IF_FALSE: {
 			return short_operand_instruction("OP_JUMP_IF_FALSE", chunk, offset);
+		}
+		case OP_JUMP_IF_TRUE: {
+			return short_operand_instruction("OP_JUMP_IF_TRUE", chunk, offset);
 		}
 		case OP_GET_OFFSET_FROM_TOP: {
 			return short_operand_instruction("OP_GET_OFFSET_FROM_TOP", chunk, offset);
