@@ -4,7 +4,6 @@ sdl = graphics
 
 print = { | text | }
 
-# Configuration values
 MAX_FPS = 50
 PLAYER_MAX_SPEED = 7
 SCREEN_WIDTH = 1000

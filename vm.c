@@ -418,6 +418,7 @@ static void set_builtin_globals(void) {
 	register_builtin_function("time", 0, NULL, builtin_time);
 	register_builtin_function("has_attribute", 2, (char*[]) {"object", "attribute"}, builtin_has_attr);
 	register_builtin_function("random", 0, NULL, builtin_random);
+	register_builtin_function("get_main_file_path", 0, NULL, builtin_get_main_file_path);
 }
 
 static void register_function_on_module(ObjectModule* module, char* name, int num_params, char* params[], NativeFunction func) {

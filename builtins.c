@@ -216,3 +216,8 @@ bool builtin_random(Object* self, ValueArray args, Value* out) {
 	*out = MAKE_VALUE_NUMBER(rand());
 	return true;
 }
+
+bool builtin_get_main_file_path(Object* self, ValueArray args, Value* out) {
+	*out = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(vm.main_module_path));
+	return true;
+}
