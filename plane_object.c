@@ -500,12 +500,14 @@ ObjectCell* object_cell_new_empty(void) {
 }
 
 static ObjectClass* object_class_new_base(
-		ObjectFunction* base_function, char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_func) {
+		ObjectFunction* base_function, ObjectClass* superclass,
+		char* name, size_t instance_size, DeallocationFunction dealloc_func, GcMarkFunction gc_mark_func) {
 
 	ObjectClass* klass = (ObjectClass*) allocate_object(sizeof(ObjectClass), "ObjectClass", OBJECT_CLASS);
 	name = name == NULL ? "<Anonymous class>" : name;
 	klass->name = copy_null_terminated_cstring(name, "Class name");
 	klass->base_function = base_function;
+	klass->superclass = superclass;
 	klass->instance_size = instance_size;
 	klass->dealloc_func = dealloc_func;
 	klass->gc_mark_func = gc_mark_func;
@@ -513,19 +515,16 @@ static ObjectClass* object_class_new_base(
 	return klass;
 }
 
-ObjectClass* object_class_new(ObjectFunction* base_function, char* name) {
-	return object_class_new_base(base_function, name, 0, NULL, NULL);
+ObjectClass* object_class_new(ObjectFunction* base_function, ObjectClass* superclass, char* name) {
+	return object_class_new_base(base_function, superclass, name, 0, NULL, NULL);
 }
 
 ObjectClass* object_class_native_new(
 		char* name, size_t instance_size, DeallocationFunction dealloc_func, 
 		GcMarkFunction gc_mark_func, ObjectFunction* constructor, void* descriptors[][2]) {
 	assert(instance_size > 0);
-	// if (instance_size <= 0) {
-	// 	FAIL("instance_size <= passed for native class.");
-	// }
 
-	ObjectClass* klass = object_class_new_base(NULL, name, instance_size, dealloc_func, gc_mark_func);
+	ObjectClass* klass = object_class_new_base(NULL, NULL, name, instance_size, dealloc_func, gc_mark_func);
 
 	if (constructor != NULL) {
 		object_set_attribute_cstring_key((Object*) klass, "@init", MAKE_VALUE_OBJECT(constructor));
@@ -837,14 +836,18 @@ bool load_attribute_bypass_descriptors(Object* object, ObjectString* name, Value
 		ObjectInstance* instance = (ObjectInstance*) object;
 		ObjectClass* klass = instance->klass;
 
-		if (cell_table_get_value(&instance->klass->base.attributes, name, out)) {
-			if (object_value_is(*out, OBJECT_FUNCTION)) {
-				ObjectFunction* method = (ObjectFunction*) out->as.object;
-				ObjectBoundMethod* bound_method = object_bound_method_new(method, object);
-				*out = MAKE_VALUE_OBJECT(bound_method);
+		while (klass != NULL) {
+			if (cell_table_get_value(&klass->base.attributes, name, out)) {
+				if (object_value_is(*out, OBJECT_FUNCTION)) {
+					ObjectFunction* method = (ObjectFunction*) out->as.object;
+					ObjectBoundMethod* bound_method = object_bound_method_new(method, object);
+					*out = MAKE_VALUE_OBJECT(bound_method);
+				}
+
+				return true;
 			}
 
-			return true;
+			klass = klass->superclass;
 		}
 	}
 
@@ -890,9 +893,6 @@ void object_set_attribute_cstring_key(Object* object, const char* key, Value val
 
 static Value function_value_to_bound_method(Value func_value, Object* self) {
 	assert(object_value_is(func_value, OBJECT_FUNCTION));
-	// if (!object_value_is(func_value, OBJECT_FUNCTION)) {
-	// 	FAIL("Function-to-BoundMethod called with non function.");
-	// }
 
 	ObjectFunction* function = (ObjectFunction*) func_value.as.object;
 	ObjectBoundMethod* bound_method = object_bound_method_new(function, self);
@@ -940,8 +940,13 @@ bool is_instance_of_class(Object* object, char* klass_name) {
 
     ObjectInstance* instance = (ObjectInstance*) object;
 
-    ObjectClass* klass = instance->klass;
-    return (strlen(klass_name) == strlen(klass->name)) && (strcmp(klass_name, klass->name) == 0);;
+	for (ObjectClass* klass = instance->klass; klass != NULL; klass = klass->superclass) {
+		if (strcmp(klass_name, klass->name) == 0) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool is_value_instance_of_class(Value value, char* klass_name) {

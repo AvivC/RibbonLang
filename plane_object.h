@@ -96,6 +96,7 @@ typedef Object** (*GcMarkFunction)(struct ObjectInstance *);
 typedef struct ObjectClass {
 	/* TODO: Make distinction between plane and native classes clearer. Different types? Flag? Union? */
 	Object base;
+	struct ObjectClass* superclass;
 	char* name;
 	ObjectFunction* base_function;
 	size_t instance_size;
@@ -135,7 +136,7 @@ ObjectTable* object_table_new_empty(void);
 ObjectCell* object_cell_new(Value value);
 ObjectCell* object_cell_new_empty(void);
 
-ObjectClass* object_class_new(ObjectFunction* base_function, char* name);
+ObjectClass* object_class_new(ObjectFunction* base_function, ObjectClass* superclass, char* name);
 ObjectClass* object_class_native_new(
 		char* name, size_t instance_size, DeallocationFunction dealloc_func,
 		GcMarkFunction gc_mark_func, ObjectFunction* constructor, void* descriptors[][2]);

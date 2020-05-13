@@ -1386,15 +1386,32 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				ObjectFunction* class_base_function = object_user_function_new(class_body_code, NULL, 0, base_func_free_vars);
 				set_function_name(&MAKE_VALUE_OBJECT(class_base_function), object_string_copy_from_null_terminated("<Class base function>"));
 
-				ObjectClass* class = object_class_new(class_base_function, NULL);
+				Value superclass_value = peek();
+				ObjectClass* superclass;
+				if (superclass_value.type == VALUE_NIL) {
+					superclass = NULL;
+				} else if (object_value_is(superclass_value, OBJECT_CLASS)) {
+					superclass = (ObjectClass*) superclass_value.as.object;
+				} else {
+					RUNTIME_ERROR("Cannot set non-class value as a superclass.");
+					break;
+				}
+
+				ObjectClass* class = object_class_new(class_base_function, superclass, NULL);
 
 				ValueArray args;
 				value_array_init(&args);
 				Value throwaway_result;
-				call_plane_function(class_base_function, NULL, args, (Object*) class, &throwaway_result);
-				value_array_free(&args);
+				if (!call_plane_function(class_base_function, NULL, args, (Object*) class, &throwaway_result)) {
+					RUNTIME_ERROR("Error occured when running class initialization code.");
+					goto op_make_class_cleanup;
+				}
 
+				pop(); /* Superclass value */
 				push(MAKE_VALUE_OBJECT(class));
+
+				op_make_class_cleanup:
+				value_array_free(&args);
 
 				break;
 			}

@@ -243,6 +243,11 @@ bool builtin_is_instance(Object* self, ValueArray args, Value* out) {
 	Value value = args.values[0];
 	ObjectString* type_name = (ObjectString*) args.values[1].as.object;
 
+	if (value.type == VALUE_OBJECT && is_instance_of_class(value.as.object, type_name->chars)) {
+		*out = MAKE_VALUE_BOOLEAN(true);
+		return true;
+	}
+
 	*out = MAKE_VALUE_BOOLEAN(strcmp(value_get_type(value), type_name->chars) == 0);
 	return true;
 }

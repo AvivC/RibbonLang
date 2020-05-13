@@ -407,6 +407,11 @@ static void print_node(AstNode* node, int nesting) {
 			AstNodeClass* node_class = (AstNodeClass*) node;
 			print_nesting_string(nesting);
 			printf("CLASS\n");
+			if (node_class->superclass != NULL) {
+				print_nesting_string(nesting);
+				printf("Inherits from:\n");
+				print_node(node_class->superclass, nesting + 1);
+			}
 			print_nesting_string(nesting);
 			printf("Statements:\n");
             PointerArray* statements = &node_class->body->statements;
@@ -659,6 +664,9 @@ static void node_free(AstNode* node, int nesting) {
 		case AST_NODE_CLASS: {
 			AstNodeClass* node_class = (AstNodeClass*) node;
 			node_free((AstNode*) node_class->body, nesting + 1);
+			if (node_class->superclass != NULL) {
+				node_free((AstNode*) node_class->superclass, nesting + 1);
+			}
 			deallocate(node_class, sizeof(AstNodeClass), deallocationString);
 			break;
 		}
@@ -870,9 +878,10 @@ AstNodeImport* ast_new_node_import(const char* name, int name_length) {
 	return node;
 }
 
-AstNodeClass* ast_new_node_class(AstNodeStatements* body) {
+AstNodeClass* ast_new_node_class(AstNodeStatements* body, AstNode* superclass) {
 	AstNodeClass* node = ALLOCATE_AST_NODE(AstNodeClass, AST_NODE_CLASS);
 	node->body = body;
+	node->superclass = superclass;
 	return node;
 }
 

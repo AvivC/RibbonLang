@@ -295,3 +295,51 @@ expect
     I like a good salad :)
     I'm very tall
 end
+
+test inheritance
+    A = class {
+        method_a1 = {
+            print("a1")
+        }
+
+        method_a2 = {
+            print("a2")
+        }
+
+        method_a3 = { |y|
+            return self.x * y
+        }
+
+        some_other_thing = 8
+    }
+
+    B = class : A {
+        @init = { |x|
+            self.x = x
+        }
+
+        method_b1 = {
+            print("b1")
+        }
+
+        method_a2 = {
+            print("b2")
+        }
+    }
+
+    b = B(5)
+    b.method_a1()
+    b.method_a2()
+    b.method_b1()
+    print(b.method_a3(10))
+    print(b.some_other_thing)
+
+    print(is_instance(b, "A"))
+expect
+    a1
+    b2
+    b1
+    50
+    8
+    true
+end

@@ -325,11 +325,15 @@ static AstNode* boolean(int expression_level) {
 }
 
 static AstNode* klass(int expression_level) {
+    AstNode* superclass = NULL;
+    if (match(TOKEN_COLON)) {
+        superclass = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+    }
     skip_newlines();
     consume(TOKEN_LEFT_BRACE, "Expected '{' to open class definition.");
     AstNodeStatements* body = (AstNodeStatements*) statements();
     consume(TOKEN_RIGHT_BRACE, "Expected '}' to close class definition.");
-    return (AstNode*) ast_new_node_class(body);
+    return (AstNode*) ast_new_node_class(body, superclass);
 }
 
 static void conditioned_clause(AstNodeStatements** body_out, AstNode** condition_out, int expression_level) {

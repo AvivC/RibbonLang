@@ -174,3 +174,18 @@ expect
     Boolean
     Nil
 end
+
+test is_instance function with inheritance
+    A = class { }
+
+    B = class : A { }
+
+    b = B()
+    print(is_instance(b, "B"))
+    print(is_instance(b, "A"))
+    print(is_instance(b, "C"))
+expect
+    true
+    true
+    false
+end

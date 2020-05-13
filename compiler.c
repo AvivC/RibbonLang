@@ -256,6 +256,12 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
             	integer_array_write(&bytecode->referenced_names_indices, &constant_index);
 			}
 
+			if (node_class->superclass == NULL) {
+				emit_byte(bytecode, OP_NIL);
+			} else {
+				compile_tree(node_class->superclass, bytecode);
+			}
+
             Value obj_code_constant = MAKE_VALUE_OBJECT(object_code_new(body_bytecode));
             emit_opcode_with_constant_operand(bytecode, OP_MAKE_CLASS, obj_code_constant);
 

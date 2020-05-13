@@ -128,6 +128,7 @@ typedef struct {
 typedef struct {
     AstNode base;
     AstNodeStatements* body;
+    AstNode* superclass;
 } AstNodeClass;
 
 typedef struct {
@@ -248,7 +249,7 @@ AstNodeKeyAssignment* ast_new_node_key_assignment(AstNode* key, AstNode* value, 
 AstNodeUnary* ast_new_node_unary(AstNode* expression);
 AstNodeTable* ast_new_node_table(AstKeyValuePairArray pairs);
 AstNodeImport* ast_new_node_import(const char* name, int name_length);
-AstNodeClass* ast_new_node_class(AstNodeStatements* body);
+AstNodeClass* ast_new_node_class(AstNodeStatements* body, AstNode* superclass);
 
 AstNodesKeyValuePair ast_new_key_value_pair(AstNode* key, AstNode* value);
 
