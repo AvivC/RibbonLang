@@ -141,7 +141,7 @@ static AstNode* table(int expression_level) {
 			AstNodesKeyValuePair key_value = ast_new_key_value_pair(key, value);
 			ast_key_value_pair_array_write(&pairs, &key_value);
 
-            skip_newlines(); // Reconsider this?
+            skip_newlines();
 		} while (match(TOKEN_COMMA));
 	}
 
@@ -151,6 +151,7 @@ static AstNode* table(int expression_level) {
 
 static AstNode* key_access(AstNode* left_node, int expression_level) {
 	AstNode* key_node = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+    skip_newlines();
 	consume(TOKEN_RIGHT_SQUARE_BRACE, "Expected ']' after key.");
 
 	if (match(TOKEN_EQUAL)) {
@@ -187,6 +188,8 @@ static AstNode* key_access(AstNode* left_node, int expression_level) {
 
 static AstNode* dot(AstNode* left_node, int expression_level) {
 	// TODO: Very possibly not the best solution for attribute setting. Maybe refactor later.
+
+    skip_newlines();
 
 	consume(TOKEN_IDENTIFIER, "Expected attribute name after '.'");
 	const char* attr_name = parser.previous.start;
@@ -288,8 +291,10 @@ static AstNode* call(AstNode* left_node, int expression_level) {
 
 	while (!check(TOKEN_RIGHT_PAREN) && !check(TOKEN_EOF)) {
 		do {
+            skip_newlines();
 			AstNode* argument = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
 			pointer_array_write(&arguments, argument);
+            skip_newlines();
 		} while (match(TOKEN_COMMA));
 	}
 
@@ -386,6 +391,8 @@ static AstNode* for_statement(void) {
     consume(TOKEN_IN, "Expected \"in\" after variable name in for statement.");
 
     AstNode* container = parse_expression(PREC_ASSIGNMENT, 1);
+
+    skip_newlines();
 
     consume(TOKEN_LEFT_BRACE, "Expected '{' to open for loop body.");
 
