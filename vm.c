@@ -1340,9 +1340,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
             case OP_MAKE_STRING: {
             	Value constant = READ_CONSTANT();
 				assert(object_value_is(constant, OBJECT_STRING));
-            	ObjectString* prototype = (ObjectString*) constant.as.object;
-            	ObjectString* new_string = object_string_clone(prototype);
-            	push(MAKE_VALUE_OBJECT(new_string));
+            	push(constant);
             	break;
             }
 
