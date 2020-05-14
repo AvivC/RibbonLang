@@ -75,6 +75,9 @@ ObjectModule* vm_get_module_cstring(char* name);
 void vm_push_object(Object* value);
 Object* vm_pop_object(void);
 
+StackFrame* vm_peek_current_frame(void);
+StackFrame* vm_peek_previous_frame(void);
+
 void vm_gc(void);
 
 void vm_init(void);

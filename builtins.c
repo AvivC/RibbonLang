@@ -256,3 +256,65 @@ bool builtin_get_type(Object* self, ValueArray args, Value* out) {
 	*out = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated(value_get_type(args.values[0])));
 	return true;
 }
+
+bool builtin_super(Object* self, ValueArray args, Value* out) {
+	StackFrame* current_frame = vm_peek_previous_frame();
+	if (current_frame->is_native) {
+		/* Currently calling super() in native methods unsupported. */
+		return false;
+	}
+
+	CellTable* locals = &current_frame->local_variables;
+
+	Value object_val;
+	if (!cell_table_get_value_cstring_key(locals, "self", &object_val)) {
+		return false;
+	}
+
+	assert(object_value_is(object_val, OBJECT_INSTANCE));
+
+	ObjectInstance* object = (ObjectInstance*) object_val.as.object;
+
+	ObjectFunction* running_function = current_frame->function;
+	const char* function_name = running_function->name;
+
+	ObjectClass* superclass = object->klass->superclass;
+	if (superclass == NULL) {
+		return false;
+	}
+
+	Value superclass_function_val;
+	if (!object_load_attribute_cstring_key((Object*) superclass, function_name, &superclass_function_val)) {
+		return false;
+	}
+
+	if (!object_value_is(superclass_function_val, OBJECT_FUNCTION)) {
+		return false;
+	}
+
+	ObjectFunction* superclass_function = (ObjectFunction*) superclass_function_val.as.object;
+
+	if (superclass_function->num_params != running_function->num_params) {
+		return false;
+	}
+
+	ObjectBoundMethod* bound_method = object_bound_method_new(superclass_function, (Object*) object);
+
+	ValueArray args_for_super_function;
+	value_array_init(&args_for_super_function);
+
+	for (int i = 0; i < running_function->num_params; i++) {
+		ObjectString* param = running_function->parameters[i];
+		Value value;
+		if (!cell_table_get_value(locals, param, &value)) {
+			FAIL("In super(), couldn't find parameter in the running function, shouldn't be able to happen.");
+		}
+		value_array_write(&args_for_super_function, &value);
+	}
+
+	CallResult result = vm_call_bound_method(bound_method, args_for_super_function, out);
+
+	value_array_free(&args_for_super_function);
+
+	return result == CALL_RESULT_SUCCESS;
+}

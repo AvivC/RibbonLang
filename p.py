@@ -1,3 +1,9 @@
+class B:
+	def f(self):
+		print("f")
 
-x = 3 or 6
-print(x)
+class C(B):
+	def f(self):
+		print(type(super()))
+
+C().f()

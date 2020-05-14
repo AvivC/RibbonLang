@@ -375,3 +375,25 @@ expect
     8
     true
 end
+
+test inheritance with the super function
+    B = class {
+        f = { |a, b|
+            print(a * b)
+            print("b")
+        }
+    }
+
+    C = class : B {
+        f = { |a, b|
+            super()
+            print("c")
+        }
+    }
+
+    C().f(2, 4)
+expect
+    8
+    b
+    c
+end

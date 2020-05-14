@@ -188,6 +188,8 @@ char* object_get_callable_name(Object* object);
 
 const char* object_get_type_name(Object* object);
 
+ObjectClass* object_get_superclass(Object* object);
+
 #define VALUE_AS_OBJECT(value, object_type, cast) object_value_is(value, object_type) ? (cast*) value.as.object : NULL
 
 #define ASSERT_VALUE_AS_OBJECT(variable, value, object_type, cast, error) \

@@ -996,3 +996,24 @@ const char* object_get_type_name(Object* object) {
 	FAIL("Object type not found in object_get_type_name, should never happen.");
 	return NULL;
 }
+
+ObjectClass* object_get_superclass(Object* object) {
+	if (object->type != OBJECT_INSTANCE) {
+		return NULL;
+	}
+
+	ObjectInstance* instance = (ObjectInstance*) object;
+	return instance->klass->superclass;
+}
+
+// Object* object_clone(Object* object) {
+// 	size_t size;
+// 	if (object->type == OBJECT_INSTANCE) {
+// 		ObjectInstance* instance = (ObjectInstance*) object;
+// 		if (instance->klass->instance_size > 0) {
+// 			/* Native class */
+// 			size = instance->klass->instance_size;
+// 		}
+// 	}
+// 	// Object* clone = allocate_object(sizeof())
+// }

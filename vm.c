@@ -128,11 +128,11 @@ static StackFrame* peek_frame(int offset) {
 	return vm.call_stack_top - offset;
 }
 
-static StackFrame* peek_current_frame(void) {
+StackFrame* vm_peek_current_frame(void) {
 	return peek_frame(1);
 }
 
-static StackFrame* peek_previous_frame(void) {
+StackFrame* vm_peek_previous_frame(void) {
 	return peek_frame(2);
 }
 
@@ -245,6 +245,18 @@ static void gc_mark_object_module(Object* object) {
 	}
 }
 
+static void gc_mark_object_class(Object* object) {
+	ObjectClass* klass = (ObjectClass*) object;
+
+	if (klass->base_function != NULL) {
+		gc_mark_object((Object*) klass->base_function);
+	}
+	
+	if (klass->superclass != NULL) {
+		gc_mark_object((Object*) klass->superclass);
+	}
+}
+
 static void gc_mark_object_instance(Object* object) {
 	ObjectInstance* instance = (ObjectInstance*) object;
 	ObjectClass* klass = instance->klass;
@@ -307,7 +319,7 @@ static void gc_mark_object(Object* object) {
 			return;
 		}
 		case OBJECT_CLASS: {
-			/* Nothing - currently classes don't link to any other object except for their attributes. */
+			gc_mark_object_class(object);
 			return;
 		}
 		case OBJECT_INSTANCE: {
@@ -422,6 +434,7 @@ static void set_builtin_globals(void) {
 	register_builtin_function("get_main_file_directory", 0, NULL, builtin_get_main_file_directory);
 	register_builtin_function("is_instance", 2, (char*[]) {"value", "type_name"}, builtin_is_instance);
 	register_builtin_function("type", 1, (char*[]) {"value"}, builtin_get_type);
+	register_builtin_function("super", 0, NULL, builtin_super);
 }
 
 static void register_function_on_module(ObjectModule* module, char* name, int num_params, char* params[], NativeFunction func) {
@@ -1431,7 +1444,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
             }
 
 			case OP_RETURN: {
-                StackFrame* frame = peek_current_frame(); /* Staying on the stack because is popped and freed after interpreter loop */
+                StackFrame* frame = vm_peek_current_frame(); /* Staying on the stack because is popped and freed after interpreter loop */
 
 				vm.ip = frame->return_address;
 				is_executing = false;
