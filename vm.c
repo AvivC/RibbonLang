@@ -434,7 +434,7 @@ static void set_builtin_globals(void) {
 	register_builtin_function("get_main_file_directory", 0, NULL, builtin_get_main_file_directory);
 	register_builtin_function("is_instance", 2, (char*[]) {"value", "type_name"}, builtin_is_instance);
 	register_builtin_function("type", 1, (char*[]) {"value"}, builtin_get_type);
-	register_builtin_function("super", 0, NULL, builtin_super);
+	register_builtin_function("super", 1, (char*[]) {"args_table"}, builtin_super);
 }
 
 static void register_function_on_module(ObjectModule* module, char* name, int num_params, char* params[], NativeFunction func) {
@@ -513,12 +513,6 @@ static bool call_native_function_args_from_stack(ObjectFunction* function, Objec
 
 	return success;
 }
-
-// static bool call_native_function_discard_return_value(ObjectFunction* function, Object* self) {
-// 	bool result = call_native_function_args_from_stack(function, self);
-// 	pop();
-// 	return result;
-// }
 
 void vm_init(void) {
 	vm.currently_handling_error = false;

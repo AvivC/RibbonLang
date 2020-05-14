@@ -377,23 +377,29 @@ expect
 end
 
 test inheritance with the super function
-    B = class {
-        f = { |a, b|
-            print(a * b)
-            print("b")
+    Entity = class {
+        @init = { |x, y|
+            self.x = x
+            self.y = y
         }
     }
 
-    C = class : B {
-        f = { |a, b|
-            super()
-            print("c")
+    Bullet = class : Entity {
+        @init = {
+            super([50, 60])
+            self.dx = 10
+            self.dy = 20
         }
     }
 
-    C().f(2, 4)
+    b = Bullet()
+    print(b.x)
+    print(b.y)
+    print(b.dx)
+    print(b.dy)
 expect
-    8
-    b
-    c
+    50
+    60
+    10
+    20
 end

@@ -258,16 +258,20 @@ bool builtin_get_type(Object* self, ValueArray args, Value* out) {
 }
 
 bool builtin_super(Object* self, ValueArray args, Value* out) {
+	if (!object_value_is(args.values[0], OBJECT_TABLE)) {
+		return false;
+	}
+
+	ObjectTable* args_table = (ObjectTable*) args.values[0].as.object;
+
 	StackFrame* current_frame = vm_peek_previous_frame();
 	if (current_frame->is_native) {
 		/* Currently calling super() in native methods unsupported. */
 		return false;
 	}
 
-	CellTable* locals = &current_frame->local_variables;
-
 	Value object_val;
-	if (!cell_table_get_value_cstring_key(locals, "self", &object_val)) {
+	if (!cell_table_get_value_cstring_key(&current_frame->local_variables, "self", &object_val)) {
 		return false;
 	}
 
@@ -275,8 +279,7 @@ bool builtin_super(Object* self, ValueArray args, Value* out) {
 
 	ObjectInstance* object = (ObjectInstance*) object_val.as.object;
 
-	ObjectFunction* running_function = current_frame->function;
-	const char* function_name = running_function->name;
+	const char* function_name = current_frame->function->name;
 
 	ObjectClass* superclass = object->klass->superclass;
 	if (superclass == NULL) {
@@ -294,27 +297,43 @@ bool builtin_super(Object* self, ValueArray args, Value* out) {
 
 	ObjectFunction* superclass_function = (ObjectFunction*) superclass_function_val.as.object;
 
-	if (superclass_function->num_params != running_function->num_params) {
-		return false;
+	ObjectBoundMethod* bound_method = object_bound_method_new(superclass_function, (Object*) object);
+
+	bool success = true;
+
+	ValueArray length_args = value_array_make(0, NULL);
+	Value length_val;
+	if (vm_call_attribute_cstring((Object*) args_table, "length", length_args, &length_val) != CALL_RESULT_SUCCESS) {
+		success = false;
+		goto cleanup;
 	}
 
-	ObjectBoundMethod* bound_method = object_bound_method_new(superclass_function, (Object*) object);
+	assert(length_val.type == VALUE_NUMBER);
 
 	ValueArray args_for_super_function;
 	value_array_init(&args_for_super_function);
 
-	for (int i = 0; i < running_function->num_params; i++) {
-		ObjectString* param = running_function->parameters[i];
-		Value value;
-		if (!cell_table_get_value(locals, param, &value)) {
-			FAIL("In super(), couldn't find parameter in the running function, shouldn't be able to happen.");
+	for (int i = 0; i < length_val.as.number; i++) {
+		ValueArray get_key_args = value_array_make(1, (Value[]) {MAKE_VALUE_NUMBER(i)});
+		Value arg;
+		if (vm_call_attribute_cstring((Object*) args_table, "@get_key", get_key_args, &arg) != CALL_RESULT_SUCCESS) {
+			success = false;
 		}
-		value_array_write(&args_for_super_function, &value);
+		value_array_free(&get_key_args);
+
+		if (!success) {
+			goto cleanup;
+		}
+
+		value_array_write(&args_for_super_function, &arg);
 	}
 
 	CallResult result = vm_call_bound_method(bound_method, args_for_super_function, out);
+	success = result == CALL_RESULT_SUCCESS;
 
+	cleanup:
 	value_array_free(&args_for_super_function);
+	value_array_free(&length_args);
 
-	return result == CALL_RESULT_SUCCESS;
+	return success;
 }

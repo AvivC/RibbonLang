@@ -366,11 +366,8 @@ ObjectFunction* make_native_function_with_params(char* name, int num_params, cha
 	/* name must be null terminated. It is copied and ObjectFunction takes ownership over the copy.
 	Can simply be a literal. Otherwise caller must free it later. */
 
-	// char** params_buffer = allocate(sizeof(char*) * num_params, "Parameters list cstrings");
 	ObjectString** params_buffer = allocate(sizeof(ObjectString*) * num_params, "Parameters list strings");
 	for (int i = 0; i < num_params; i++) {
-		// params_buffer[i] = copy_cstring(params[i], strlen(params[i]), "ObjectFunction param cstring");
-		// params_buffer[i] = object_string_copy_from_null_terminated(params[i]);
 		params_buffer[i] = object_string_new_partial_from_null_terminated(params[i]);
 	}
 	ObjectFunction* func = object_native_function_new(function, params_buffer, num_params);
@@ -381,10 +378,6 @@ ObjectFunction* make_native_function_with_params(char* name, int num_params, cha
 
 void object_function_set_name(ObjectFunction* function, char* name) {
 	assert(function->name != NULL);
-
-	// if (function->name == NULL) {
-	// 	FAIL("function->name == NULL in object_function_set_name");
-	// }
 
 	deallocate(function->name, strlen(function->name) + 1, "Function name");
 	function->name = name;
@@ -592,10 +585,6 @@ void object_free(Object* o) {
 			} else {
 				DEBUG_OBJECTS_PRINT("Freeing user ObjectFunction");
 			}
-            // for (int i = 0; i < func->num_params; i++) {
-            // 	char* param = func->parameters[i];
-			// 	deallocate(param, strlen(param) + 1, "ObjectFunction param cstring");
-			// }
             if (func->num_params > 0) {
             	deallocate(func->parameters, sizeof(ObjectString*) * func->num_params, "Parameters list strings");
             }
