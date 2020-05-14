@@ -1,0 +1,111 @@
+import game
+
+import math
+import path
+
+import graphics
+sdl = graphics
+
+Player = class {
+    @init = { | x, y, texture |
+        self.x = x
+        self.y = y
+        self.dx = 0
+        self.dy = 0
+
+        self.texture = texture
+
+        details = []
+        sdl.query_texture(texture, details)
+        self.width = details["w"] / 10
+        self.height = details["h"] / 10
+    }
+
+    apply_force = { | fx, fy, dt |
+        self.dx += fx * dt
+        self.dy += fy * dt
+    }
+
+    apply_breaks = { | dt |
+        self.apply_force(self.dx * -10, self.dy * -10, dt)
+    }
+
+    update = { | dt, game |
+        if keyboard[sdl.SDL_SCANCODE_RIGHT] {
+            self.apply_force(30, 0, dt)
+        } elsif keyboard[sdl.SDL_SCANCODE_LEFT] {
+            self.apply_force(-30, 0, dt)
+        } else {
+            self.apply_breaks(dt)
+        }
+        if keyboard[sdl.SDL_SCANCODE_SPACE] {
+            game.bullets.add()
+        }
+
+        self.x = self.x + (self.dx * dt) * MAX_FPS
+        self.y = self.y + (self.dy * dt) * MAX_FPS
+
+        if math.abs(self.dy) <= 0.05 {
+            self.dy = 0
+        }
+        if math.abs(self.dx) <= 0.05 {
+            self.dx = 0
+        }
+
+        if math.abs(self.dy) >= PLAYER_MAX_SPEED {
+            if self.dy < 0 {
+                self.dy = -PLAYER_MAX_SPEED
+            } else {
+                self.dy = PLAYER_MAX_SPEED
+            }
+        }
+        if math.abs(self.dx) >= PLAYER_MAX_SPEED {
+            if self.dx < 0 {
+                self.dx = -PLAYER_MAX_SPEED
+            } else {
+                self.dx = PLAYER_MAX_SPEED
+            }
+        }
+    }
+}
+
+Ball = class {
+    @init = { | x, y, texture |
+        self.x = x
+        self.y = y
+        self.dx = math.random_in_range(2, 4)
+        if math.random_in_range(0, 1) == 0 {
+            self.dx *= -1
+        }
+        self.dy = 0
+        self.texture = texture
+        
+        details = []
+        sdl.query_texture(texture, details)
+        self.width = details["w"] / 10
+        self.height = details["h"] / 10
+    }
+    
+    apply_force = { | fx, fy, dt |
+        self.dx = self.dx + fx * dt
+        self.dy = self.dy + fy * dt
+    }
+
+    update = { | dt |
+
+        self.x += self.dx * dt * MAX_FPS
+        self.y += self.dy * dt * MAX_FPS
+        
+        floor = SCREEN_HEIGHT - self.height
+        
+        if self.y >= floor {
+            self.y = floor
+        
+            self.dy *= -0.8
+            self.dx *= 0.95
+        } else {
+            self.apply_force(0, 30, dt)
+        }
+        
+    }
+}

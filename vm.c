@@ -1890,6 +1890,26 @@ static bool call_plane_function(
 	return false;
 }
 
+static ObjectString* get_base_module_name(char* main_module_path) {
+	char* main_module_file_name = strrchr(main_module_path, '\\');
+	if (main_module_file_name == NULL) {
+		main_module_file_name = strrchr(main_module_path, '/');
+		if (main_module_file_name == NULL) {
+			main_module_path = main_module_path;
+		}
+	}
+
+	main_module_file_name++;
+
+	char* file_name_dot_location = strchr(main_module_file_name, '.');
+	if (file_name_dot_location == NULL) {
+		file_name_dot_location = strrchr(main_module_file_name, '\0');
+	}
+	int main_module_name_length = file_name_dot_location - main_module_file_name;
+
+	return object_string_copy(main_module_file_name, main_module_name_length);
+}
+
 bool vm_interpret_program(Bytecode* bytecode, char* main_module_path) {
 	vm.main_module_path = main_module_path;
 
@@ -1913,8 +1933,9 @@ bool vm_interpret_program(Bytecode* bytecode, char* main_module_path) {
 	/* Pop the base_function that was pushed before */
 	pop();
 
-	ObjectString* base_module_name = object_string_copy_from_null_terminated("<main>");
+	ObjectString* base_module_name = get_base_module_name(main_module_path);
 	ObjectModule* module = object_module_new(base_module_name, base_function);
+	cell_table_set_value(&vm.imported_modules, base_module_name, MAKE_VALUE_OBJECT(module));
 	StackFrame base_frame = new_stack_frame(NULL, base_function, (Object*) module, true, false, false);
 
 	DEBUG_TRACE("Starting interpreter loop.");
