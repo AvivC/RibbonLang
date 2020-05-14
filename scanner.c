@@ -138,12 +138,16 @@ static Token parse_number() {
 }
 
 static Token parse_string() {
-    while (current() != '"' && !is_end_of_code(current())) {
+    while (current() != '"' && !is_end_of_code(current()) && current() != '\n') {
         advance();
     }
     
     if (is_end_of_code(current())) {
         return error_token("Unterminated string.");
+    }
+
+    if (current() == '\n') {
+        return error_token("Newline in string not allowed.");
     }
     
     advance(); // Skip ending '"'
