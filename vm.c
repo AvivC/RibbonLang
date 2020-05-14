@@ -1382,7 +1382,6 @@ static bool vm_interpret_frame(StackFrame* frame) {
 			}
 
             case OP_MAKE_FUNCTION: {
-				// ObjectCode* object_code = READ_CONSTANT_AS_OBJECT(OBJECT_CODE, ObjectCode);
 				ObjectCode* object_code = (ObjectCode*) READ_CONSTANT().as.object;
 
 				uint8_t num_params_byte1 = READ_BYTE();
@@ -1390,13 +1389,11 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				uint16_t num_params = two_bytes_to_short(num_params_byte1, num_params_byte2);
 
 				/* Build the params array for the created function */
-				// char** params = allocate(sizeof(char*) * num_params, "Parameters list strings");
 				ObjectString** params = allocate(sizeof(ObjectString*) * num_params, "Parameters list strings");
 				for (int i = 0; i < num_params; i++) {
 					Value param_value = READ_CONSTANT();
 					assert(object_value_is(param_value, OBJECT_STRING));
 					ObjectString* param_object_string = (ObjectString*) param_value.as.object;
-					// params[i] = copy_cstring(param_object_string->chars, param_object_string->length, "ObjectFunction param cstring");
 					params[i] = param_object_string;
 				}
 
