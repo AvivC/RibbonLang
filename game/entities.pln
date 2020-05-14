@@ -1,8 +1,7 @@
-import game
-
 import math
 import path
 
+import input
 import graphics
 sdl = graphics
 
@@ -31,14 +30,14 @@ Player = class {
     }
 
     update = { | dt, game |
-        if keyboard[sdl.SDL_SCANCODE_RIGHT] {
+        if input.keyboard[sdl.SDL_SCANCODE_RIGHT] {
             self.apply_force(30, 0, dt)
-        } elsif keyboard[sdl.SDL_SCANCODE_LEFT] {
+        } elsif input.keyboard[sdl.SDL_SCANCODE_LEFT] {
             self.apply_force(-30, 0, dt)
         } else {
             self.apply_breaks(dt)
         }
-        if keyboard[sdl.SDL_SCANCODE_SPACE] {
+        if input.keyboard[sdl.SDL_SCANCODE_SPACE] {
             game.bullets.add()
         }
 

@@ -65,7 +65,7 @@ expect
     20
     40
     An error has occured. Stack trace (most recent call on top):
-        -> <Anonymous function>
+        -> <main>
     Cannot find attribute nonexistent of object.
 end
 
@@ -98,7 +98,7 @@ test unfound module raises error
     print("This will never print")
 expect
     An error has occured. Stack trace (most recent call on top):
-        -> <Anonymous function>
+        -> <main>
     Couldn't find module the_pretty_horse_module.
 end
 

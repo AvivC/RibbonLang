@@ -45,7 +45,7 @@ test modulo with negative numbers unsupported
     10 % -2
 expect
     An error has occured. Stack trace (most recent call on top):
-        -> <Anonymous function>
+        -> <main>
     Modulo with negative numbers not supported.
 end
 

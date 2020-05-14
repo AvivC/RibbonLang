@@ -41,7 +41,7 @@ test illegal to set attribute on string
     text.x = 10
 expect
     An error has occured. Stack trace (most recent call on top):
-        -> <Anonymous function>
+        -> <main>
     Cannot set attribute on strings.
 end
 

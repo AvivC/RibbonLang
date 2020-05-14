@@ -382,7 +382,7 @@ test free variable referenced before assignment raises error
 expect
     An error has occured. Stack trace (most recent call on top):
         -> inner
-        -> <Anonymous function>
+        -> <main>
     Variable x not found.
 end
 

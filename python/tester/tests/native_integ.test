@@ -36,7 +36,7 @@ expect
     An error has occured. Stack trace (most recent call on top):
         -> callback
         -> call_callback_with_args
-        -> <Anonymous function>
+        -> <main>
     @add function failed.
 end
 

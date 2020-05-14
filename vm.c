@@ -599,6 +599,11 @@ static void set_class_name(const Value* class_value, ObjectString* name) {
 static bool call_plane_function(
 		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity, Value* out);
 
+static char* make_base_module_function_name(ObjectString* module_name) {
+	return concat_multi_null_terminated_cstrings(
+		3, (char*[]) {"<module ", module_name->chars, ">"}, "Object string buffer");
+}
+
 static ImportResult load_text_module(ObjectString* module_name, const char* file_name_buffer) {
 	char* source = NULL;
 	size_t source_buffer_size = -1;
@@ -606,7 +611,6 @@ static ImportResult load_text_module(ObjectString* module_name, const char* file
 
 	switch (file_read_result) {
 		case IO_SUCCESS: {
-
 			/* Parse text to AST */
 			AstNode* module_ast = parser_parse(source);
 
@@ -623,8 +627,8 @@ static ImportResult load_text_module(ObjectString* module_name, const char* file
 			ObjectCode* code_object = object_code_new(module_bytecode);
 			ObjectFunction* module_base_function = object_user_function_new(code_object, NULL, 0, cell_table_new_empty());
 
-			/* VERY ugly temporary hack ahead */
-			set_function_name(&MAKE_VALUE_OBJECT(module_base_function), object_string_copy_from_null_terminated("<Module base function>"));
+			char* base_func_name = make_base_module_function_name(module_name);
+			object_function_set_name(module_base_function, base_func_name);
 
 			/* Wrap the ObjectFunction in an ObjectModule */
 			ObjectModule* module = object_module_new(module_name, module_base_function);
@@ -1541,7 +1545,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				CellTable* free_vars = &current_frame()->function->free_vars;
 				ObjectCell* cell = NULL;
 				if (!cell_table_get_cell(free_vars, name, &cell)) {
-					FAIL("In OP_DECLARE_GLOBAL, couldn't find the matching cell in the free variables. Shouldn't happen.");
+					cell = object_cell_new_empty();
 				}
 				cell_table_set_cell(locals_or_module_table(), name, cell);
 
@@ -1934,6 +1938,8 @@ bool vm_interpret_program(Bytecode* bytecode, char* main_module_path) {
 	pop();
 
 	ObjectString* base_module_name = get_base_module_name(main_module_path);
+	object_function_set_name(base_function, copy_cstring("<main>", strlen("<main>"), "Object string buffer"));
+
 	ObjectModule* module = object_module_new(base_module_name, base_function);
 	cell_table_set_value(&vm.imported_modules, base_module_name, MAKE_VALUE_OBJECT(module));
 	StackFrame base_frame = new_stack_frame(NULL, base_function, (Object*) module, true, false, false);

@@ -3,7 +3,7 @@ test empty table
     print(t["something"])
 expect
     An error has occured. Stack trace (most recent call on top):
-        -> <Anonymous function>
+        -> <main>
     @get_key function failed.
 end
 

@@ -335,7 +335,6 @@ bool object_strings_equal(ObjectString* a, ObjectString* b) {
     return (a->length == b->length) && (object_cstrings_equal(a->chars, b->chars, a->length));
 }
 
-// static ObjectFunction* object_function_base_new(bool isNative, char** parameters, int numParams, CellTable free_vars) {
 static ObjectFunction* object_function_base_new(bool isNative, ObjectString** parameters, int numParams, CellTable free_vars) {
     ObjectFunction* objFunc = (ObjectFunction*) allocate_object(sizeof(ObjectFunction), "ObjectFunction", OBJECT_FUNCTION);
     objFunc->name = copy_null_terminated_cstring("<Anonymous function>", "Function name");
@@ -346,7 +345,6 @@ static ObjectFunction* object_function_base_new(bool isNative, ObjectString** pa
     return objFunc;
 }
 
-// ObjectFunction* object_user_function_new(ObjectCode* code, char** parameters, int numParams, CellTable free_vars) {
 ObjectFunction* object_user_function_new(ObjectCode* code, ObjectString** parameters, int numParams, CellTable free_vars) {
     DEBUG_OBJECTS_PRINT("Creating user function object.");
     ObjectFunction* objFunc = object_function_base_new(false, parameters, numParams, free_vars);
@@ -354,7 +352,6 @@ ObjectFunction* object_user_function_new(ObjectCode* code, ObjectString** parame
     return objFunc;
 }
 
-// ObjectFunction* object_native_function_new(NativeFunction nativeFunction, char** parameters, int numParams) {
 ObjectFunction* object_native_function_new(NativeFunction nativeFunction, ObjectString** parameters, int numParams) {
     DEBUG_OBJECTS_PRINT("Creating native function object.");
     ObjectFunction* objFunc = object_function_base_new(true, parameters, numParams, cell_table_new_empty());

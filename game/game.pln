@@ -1,109 +1,91 @@
 import math
 import path
 
+import entities
+import input
 import graphics
 sdl = graphics
-
-import entities
-
-print = { | text | }
 
 MAX_FPS = 50
 PLAYER_MAX_SPEED = 7
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
 
-keyboard = [sdl.SDL_SCANCODE_UP: false,
-            sdl.SDL_SCANCODE_DOWN: false,
-            sdl.SDL_SCANCODE_LEFT: false,
-            sdl.SDL_SCANCODE_RIGHT: false,
-            sdl.SDL_SCANCODE_SPACE: false]
+renderer = nil
+window = nil
 
-Game = class {
-    _init_sdl = { | title |
-        sdl.init(sdl.SDL_INIT_VIDEO)
-        
-        self.window = sdl.create_window(title, sdl.SDL_WINDOWPOS_UNDEFINED, sdl.SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0)
-        
-        sdl.set_hint(sdl.SDL_HINT_RENDER_SCALE_QUALITY, "linear")
-        self.renderer = sdl.create_renderer(self.window, -1, sdl.SDL_RENDERER_ACCELERATED)
-        
-        sdl.img_init(sdl.IMG_INIT_PNG)
-        sdl.show_cursor(1)
-    }
+_init_sdl = { | title |
+    external renderer
+    external window
 
-    @init = { | title |
-        self._init_sdl(title)
-
-        self.ball_texture = sdl.img_load_texture(self.renderer, path.relative_to_main_directory("pictures\ball.png"))
-        self.bullet_texture = sdl.img_load_texture(self.renderer, path.relative_to_main_directory("pictures\bullet.png"))
-        
-        player_texture = sdl.img_load_texture(self.renderer, path.relative_to_main_directory("pictures\kangaroo.png"))
-        self.player = entities.Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 160, player_texture)
-        self.balls = []
-        
-        self.last_ball_drop = time()
-        self.next_ball_drop = 0
-
-        self.running = true
-    }
+    sdl.init(sdl.SDL_INIT_VIDEO)
     
-    spawn_ball = {
-        random_x = math.random_in_range(0, SCREEN_WIDTH - 220)
-        self.balls.add(entities.Ball(random_x, -200, self.ball_texture))
-    }
+    window = sdl.create_window(title, sdl.SDL_WINDOWPOS_UNDEFINED, sdl.SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0)
     
-    prepare_scene = {
-        sdl.set_render_draw_color(self.renderer, 128, 230, 5, 255)
-        sdl.render_clear(self.renderer)
-    }
+    sdl.set_hint(sdl.SDL_HINT_RENDER_SCALE_QUALITY, "linear")
+    renderer = sdl.create_renderer(self.window, -1, sdl.SDL_RENDERER_ACCELERATED)
     
-    present_scene = {
-        sdl.render_present(self.renderer)
+    sdl.img_init(sdl.IMG_INIT_PNG)
+    sdl.show_cursor(1)
+}
+
+init_game = { | title |
+    _init_sdl(title)
+
+    ball_texture = sdl.img_load_texture(self.renderer, path.relative_to_main_directory("pictures\ball.png"))
+    bullet_texture = sdl.img_load_texture(self.renderer, path.relative_to_main_directory("pictures\bullet.png"))
+    
+    player_texture = sdl.img_load_texture(self.renderer, path.relative_to_main_directory("pictures\kangaroo.png"))
+    player = entities.Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 160, player_texture)
+    balls = []
+    
+    last_ball_drop = time()
+    next_ball_drop = 0
+
+    running = true
+}
+
+spawn_ball = {
+    random_x = math.random_in_range(0, SCREEN_WIDTH - 220)
+    balls.add(entities.Ball(random_x, -200, self.ball_texture))
+}
+
+prepare_scene = {
+    sdl.set_render_draw_color(renderer, 128, 230, 5, 255)
+    sdl.render_clear(renderer)
+}
+
+present_scene = {
+    sdl.render_present(renderer)
+}
+
+logic = { | dt |
+    self.player.update(dt, self)
+
+    for ball in self.balls {
+        ball.update(dt)
     }
 
-    logic = { | dt |
-        self.player.update(dt, self)
-
-        for ball in self.balls {
-            ball.update(dt)
-        }
-
-        if time() >= self.next_ball_drop {
-            self.spawn_ball()
-            self.next_ball_drop += math.random_in_range(1000, 2000)
-        }
-    }
-    
-    draw = {
-        player = self.player
-        dest_rect = sdl.Rect(player.x, player.y, player.width, player.height)
-        sdl.render_copy(self.renderer, player.texture, nil, dest_rect)
-
-        for ball in self.balls {
-            dest_rect = sdl.Rect(ball.x, ball.y, ball.width, ball.height)
-            sdl.render_copy(self.renderer, ball.texture, nil, dest_rect)
-        }
-    }
-    
-    input = {
-        event = sdl.poll_event()
-        while (event != nil) {
-            if event.type == sdl.SDL_QUIT {
-                self.running = false
-            } elsif event.type == sdl.SDL_KEYUP and event.repeat == 0 {
-                keyboard[event.scancode] = false
-            } elsif event.type == sdl.SDL_KEYDOWN and event.repeat == 0 {
-                keyboard[event.scancode] = true
-            }
-            
-            event = sdl.poll_event()
-        }
+    if time() >= self.next_ball_drop {
+        self.spawn_ball()
+        self.next_ball_drop += math.random_in_range(1000, 2000)
     }
 }
 
+draw = {
+    player = self.player
+    dest_rect = sdl.Rect(player.x, player.y, player.width, player.height)
+    sdl.render_copy(self.renderer, player.texture, nil, dest_rect)
+
+    for ball in self.balls {
+        dest_rect = sdl.Rect(ball.x, ball.y, ball.width, ball.height)
+        sdl.render_copy(self.renderer, ball.texture, nil, dest_rect)
+    }
+}
+
+
 main = {
-    game = Game("My Plane Game! :D")
+    init_game("My Plane Game! :D")
 
     MAX_DT = 1 / MAX_FPS
     
@@ -117,7 +99,9 @@ main = {
     
         game.prepare_scene()
         
-        game.input()
+        if not input.input() {
+            game.running = false
+        }
     
         prev_time = curr_time
         curr_time = sdl.get_ticks() / 1000

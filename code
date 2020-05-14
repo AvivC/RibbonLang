@@ -1,4 +1,7 @@
-
-if true {
-	print("")
+f = {
+	external x
+	x = 20
 }
+
+f()
+# print(x)

@@ -1,0 +1,20 @@
+keyboard = [sdl.SDL_SCANCODE_UP: false,
+            sdl.SDL_SCANCODE_DOWN: false,
+            sdl.SDL_SCANCODE_LEFT: false,
+            sdl.SDL_SCANCODE_RIGHT: false,
+            sdl.SDL_SCANCODE_SPACE: false]
+
+input = {
+    event = sdl.poll_event()
+    while (event != nil) {
+        if event.type == sdl.SDL_QUIT {
+            return false
+        } elsif event.type == sdl.SDL_KEYUP and event.repeat == 0 {
+            input.keyboard[event.scancode] = false
+        } elsif event.type == sdl.SDL_KEYDOWN and event.repeat == 0 {
+            input.keyboard[event.scancode] = true
+        }
+        
+        event = sdl.poll_event()
+    }
+}
