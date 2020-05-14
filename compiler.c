@@ -48,13 +48,21 @@ static size_t emit_opcode_with_short_placeholder(Bytecode* chunk, OP_CODE opcode
 	return placeholder_offset;
 }
 
-static void backpatch_placeholder(Bytecode* chunk, size_t placeholder_offset, size_t address) {
-	bytecode_set(chunk, placeholder_offset, (address >> 8) & 0xFF);
-	bytecode_set(chunk, placeholder_offset + 1, (address) & 0xFF);
+static void backpatch_placeholder(Bytecode* chunk, size_t placeholder_offset, size_t delta) {
+	if (delta >= 65534) {
+		FAIL("A jump delta in the bytecode cannot exceed 65534 bytes. This likely means "
+			"you have created a huge if, while or for block. Please split the code up into smaller units.");
+	}
+
+	bytecode_set(chunk, placeholder_offset, (delta >> 8) & 0xFF);
+	bytecode_set(chunk, placeholder_offset + 1, (delta) & 0xFF);
 }
 
 static void backpatch_placeholder_with_current_address(Bytecode* chunk, size_t placeholder_offset) {
-	backpatch_placeholder(chunk, placeholder_offset, chunk->count);
+	assert(chunk->count > placeholder_offset);
+	size_t delta = chunk->count - placeholder_offset - 2;
+
+	backpatch_placeholder(chunk, placeholder_offset, delta);
 }
 
 static void emit_binary_opcode_for_in_place_operator(Bytecode* bytecode, ScannerTokenType operator) {
@@ -387,7 +395,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
         	compile_tree((AstNode*) node_if->body, bytecode);
 
-        	size_t jump_to_end_address_offset = emit_opcode_with_short_placeholder(bytecode, OP_JUMP);
+        	size_t jump_to_end_address_offset = emit_opcode_with_short_placeholder(bytecode, OP_JUMP_FORWARD);
 			integer_array_write(&jump_placeholder_offsets, &jump_to_end_address_offset);
 
         	backpatch_placeholder_with_current_address(bytecode, if_condition_jump_address_offset);
@@ -400,7 +408,7 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 				if_condition_jump_address_offset = emit_opcode_with_short_placeholder(bytecode, OP_JUMP_IF_FALSE);
 				compile_tree((AstNode*) body, bytecode);
 
-				jump_to_end_address_offset = emit_opcode_with_short_placeholder(bytecode, OP_JUMP);
+				jump_to_end_address_offset = emit_opcode_with_short_placeholder(bytecode, OP_JUMP_FORWARD);
 				integer_array_write(&jump_placeholder_offsets, &jump_to_end_address_offset);
 
 				backpatch_placeholder_with_current_address(bytecode, if_condition_jump_address_offset);
@@ -413,7 +421,8 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         	size_t end_address = bytecode->count;
         	for (int i = 0; i < jump_placeholder_offsets.count; i++) {
 				size_t placeholder_offset = jump_placeholder_offsets.values[i];
-				backpatch_placeholder(bytecode, placeholder_offset, end_address);
+				// backpatch_placeholder(bytecode, placeholder_offset, end_address);
+				backpatch_placeholder_with_current_address(bytecode, placeholder_offset);
 			}
 
         	integer_array_free(&jump_placeholder_offsets);
@@ -433,13 +442,17 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 
 			compile_tree((AstNode*) node_while->body, bytecode);
 
-			emit_byte(bytecode, OP_JUMP);
-			uint8_t before_condition_addr_bytes[2];
-			short_to_two_bytes(before_condition, before_condition_addr_bytes);
-			emit_two_bytes(bytecode, before_condition_addr_bytes[0], before_condition_addr_bytes[1]);
+			emit_byte(bytecode, OP_JUMP_BACKWARD);
 
-			bytecode_set(bytecode, placeholderOffset, (bytecode->count >> 8) & 0xFF);
-			bytecode_set(bytecode, placeholderOffset + 1, (bytecode->count) & 0xFF);
+			int delta = bytecode->count - before_condition + 2;
+			uint8_t delta_bytes[2];
+			short_to_two_bytes(delta, delta_bytes);
+
+			emit_two_bytes(bytecode, delta_bytes[0], delta_bytes[1]);
+
+			backpatch_placeholder_with_current_address(bytecode, placeholderOffset);
+			// bytecode_set(bytecode, placeholderOffset, (bytecode->count >> 8) & 0xFF);
+			// bytecode_set(bytecode, placeholderOffset + 1, (bytecode->count) & 0xFF);
 
 			break;
 		}
@@ -485,10 +498,11 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 			emit_opcode_with_constant_operand(bytecode, OP_CONSTANT, MAKE_VALUE_NUMBER(1));
 			emit_byte(bytecode, OP_ADD);
 			emit_byte_with_short_operand(bytecode, OP_SET_OFFSET_FROM_TOP, 3);
-			emit_byte_with_short_operand(bytecode, OP_JUMP, top);
+			emit_byte_with_short_operand(bytecode, OP_JUMP_BACKWARD, bytecode->count - top + 3);
 
-			bytecode_set(bytecode, placeholder_offset, (bytecode->count >> 8) & 0xFF);
-			bytecode_set(bytecode, placeholder_offset + 1, (bytecode->count) & 0xFF);
+			backpatch_placeholder_with_current_address(bytecode, placeholder_offset);
+			// bytecode_set(bytecode, placeholder_offset, (bytecode->count >> 8) & 0xFF);
+			// bytecode_set(bytecode, placeholder_offset + 1, (bytecode->count) & 0xFF);
 
 			emit_byte(bytecode, OP_POP);
 			emit_byte(bytecode, OP_POP);

@@ -165,8 +165,11 @@ int disassembler_do_single_instruction(OP_CODE opcode, Bytecode* chunk, int offs
 		case OP_SET_OFFSET_FROM_TOP: {
 			return short_operand_instruction("OP_SET_OFFSET_FROM_TOP", chunk, offset);
 		}
-		case OP_JUMP: {
-			return short_operand_instruction("OP_JUMP", chunk, offset);
+		case OP_JUMP_FORWARD: {
+			return short_operand_instruction("OP_JUMP_FORWARD", chunk, offset);
+		}
+		case OP_JUMP_BACKWARD: {
+			return short_operand_instruction("OP_JUMP_BACKWARD", chunk, offset);
 		}
 		case OP_MAKE_STRING: {
 			return constant_instruction("OP_MAKE_STRING", chunk, offset);

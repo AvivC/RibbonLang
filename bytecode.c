@@ -13,12 +13,6 @@ void bytecode_init(Bytecode* chunk) {
 }
 
 void bytecode_write(Bytecode* chunk, uint8_t byte) {
-    if (chunk->count >= 65534) {
-        // Because jump offsets are currently absolute shorts. We should change them to relative offsets, but it's fine for now.
-        FAIL("One bytecode object cannot have more than 65533 bytes. This likely means you have at least a few thousands"
-                "of lines of code in one file or function. Please split the file or function into multiple ones.");
-    }
-
     if (chunk->count == chunk->capacity) {
         int oldCapacity = chunk->capacity;
         chunk->capacity = GROW_CAPACITY(oldCapacity);

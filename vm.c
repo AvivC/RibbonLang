@@ -967,9 +967,6 @@ ObjectModule* vm_get_module(ObjectString* name) {
 	Value module_value;
 	if (cell_table_get_value(&vm.imported_modules, name, &module_value)) {
 		assert(object_value_is(module_value, OBJECT_MODULE));
-		// if (!object_value_is(module_value, OBJECT_MODULE)) {
-		// 	FAIL("In vm_get_module, found non ObjectModule in vm.imported_modules.");
-		// }
 
 		return (ObjectModule*) module_value.as.object;
 	}
@@ -992,9 +989,6 @@ static CellTable find_free_vars_for_new_function(ObjectCode* func_code) {
 		size_t refd_name_index = names_refd_in_created_func.values[i];
 		Value refd_name_value = func_code->bytecode.constants.values[refd_name_index];
 		assert(object_value_is(refd_name_value, OBJECT_STRING));
-		// if (!object_value_is(refd_name_value, OBJECT_STRING)) {
-		// 	FAIL("Referenced name constant must be an ObjectString*");
-		// }
 		ObjectString* refd_name = (ObjectString*) refd_name_value.as.object;
 
 		/* If the cell for the refd_name exists in our current local scope, we take that cell
@@ -1767,13 +1761,13 @@ static bool vm_interpret_frame(StackFrame* frame) {
             case OP_JUMP_IF_FALSE: {
             	uint8_t addr_byte1 = READ_BYTE();
             	uint8_t addr_byte2 = READ_BYTE();
-            	uint16_t address = two_bytes_to_short(addr_byte1, addr_byte2);
+            	uint16_t delta = two_bytes_to_short(addr_byte1, addr_byte2);
 				Value condition = pop();
 
 				ERROR_IF_NON_BOOLEAN(condition, "Expected boolean as condition");
 
 				if (!condition.as.boolean) {
-					vm.ip = current_bytecode()->code + address;
+					vm.ip += delta;
 				}
 
 				break;
@@ -1782,24 +1776,34 @@ static bool vm_interpret_frame(StackFrame* frame) {
 			case OP_JUMP_IF_TRUE: {
             	uint8_t addr_byte1 = READ_BYTE();
             	uint8_t addr_byte2 = READ_BYTE();
-            	uint16_t address = two_bytes_to_short(addr_byte1, addr_byte2);
+            	uint16_t delta = two_bytes_to_short(addr_byte1, addr_byte2);
 				Value condition = pop();
 
 				ERROR_IF_NON_BOOLEAN(condition, "Expected boolean as condition");
 
 				if (condition.as.boolean) {
-					vm.ip = current_bytecode()->code + address;
+					vm.ip += delta;
 				}
 
 				break;
 			}
 
-            case OP_JUMP: {
+            case OP_JUMP_FORWARD: {
             	uint8_t addr_byte1 = READ_BYTE();
             	uint8_t addr_byte2 = READ_BYTE();
-            	uint16_t address = two_bytes_to_short(addr_byte1, addr_byte2);
+            	uint16_t delta = two_bytes_to_short(addr_byte1, addr_byte2);
 
-            	vm.ip = current_bytecode()->code + address;
+            	vm.ip += delta;
+
+            	break;
+            }
+
+			case OP_JUMP_BACKWARD: {
+            	uint8_t addr_byte1 = READ_BYTE();
+            	uint8_t addr_byte2 = READ_BYTE();
+            	uint16_t delta = two_bytes_to_short(addr_byte1, addr_byte2);
+
+            	vm.ip -= delta;
 
             	break;
             }
