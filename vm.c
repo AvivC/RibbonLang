@@ -612,7 +612,7 @@ static ImportResult load_text_module(ObjectString* module_name, const char* file
 	switch (file_read_result) {
 		case IO_SUCCESS: {
 			/* Parse text to AST */
-			AstNode* module_ast = parser_parse(source);
+			AstNode* module_ast = parser_parse(source, file_name_buffer);
 
 			/* Compile AST to bytecode */
 			Bytecode module_bytecode;

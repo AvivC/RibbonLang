@@ -10,7 +10,7 @@
 typedef struct {
     Token current;
     Token previous;
-    bool had_error;
+    const char* file_path;
 } Parser;
 
 static Parser parser;
@@ -37,9 +37,11 @@ typedef struct {
     Precedence precedence;
 } ParseRule;
 
-static void error(const char* errorMessage) {
-    fprintf(stdout, "On line %d: %s\n", parser.current.lineNumber, errorMessage);
-    parser.had_error = true;
+static void error(const char* error_message) {
+    fprintf(stdout, "Error on file \"%s\", line %d\n\n", parser.file_path, parser.current.lineNumber);
+    printf("    %s\n\n", error_message);
+    printf("Exiting.\n");
+    exit(EXIT_FAILURE);
 }
 
 static bool check(ScannerTokenType type) {
@@ -123,15 +125,17 @@ static AstNode* table(int expression_level) {
 	ast_key_value_pair_array_init(&pairs);
 
     int implicit_numeric_keys_count = 0;
-	while (!match(TOKEN_RIGHT_SQUARE_BRACE)) {
+	while (!match(TOKEN_RIGHT_SQUARE_BRACE) && !check(TOKEN_EOF)) {
 		do {
             AstNode* key = NULL;
             AstNode* value = NULL;
 
+            skip_newlines();
             AstNode* expression = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
 
 			if (match(TOKEN_COLON)) {
                 key = expression;
+                skip_newlines();
                 value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
             } else {
                 key = (AstNode*) ast_new_node_number(implicit_numeric_keys_count++);
@@ -145,11 +149,16 @@ static AstNode* table(int expression_level) {
 		} while (match(TOKEN_COMMA));
 	}
 
+    if (check(TOKEN_EOF)) {
+        error("File ends in the middle of table expression.");
+    }
+
 	return (AstNode*) ast_new_node_table(pairs);
 }
 
 
 static AstNode* key_access(AstNode* left_node, int expression_level) {
+    skip_newlines();
 	AstNode* key_node = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
     skip_newlines();
 	consume(TOKEN_RIGHT_SQUARE_BRACE, "Expected ']' after key.");
@@ -162,6 +171,7 @@ static AstNode* key_access(AstNode* left_node, int expression_level) {
 			return NULL;
 		}
 
+        skip_newlines();
 		AstNode* value_node = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
 		return (AstNode*) ast_new_node_key_assignment(key_node, value_node, left_node);
 	} else if (match(TOKEN_PLUS_EQUALS)
@@ -177,6 +187,7 @@ static AstNode* key_access(AstNode* left_node, int expression_level) {
 		}
 
         ScannerTokenType in_place_operator = parser.previous.type;
+        skip_newlines();
 		AstNode* value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
 
         return (AstNode*) ast_new_node_in_place_key_binary(in_place_operator, left_node, key_node, value);
@@ -201,6 +212,7 @@ static AstNode* dot(AstNode* left_node, int expression_level) {
 			return NULL;
 		}
 		// Set attribute
+        skip_newlines();
 		AstNode* value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
 		return (AstNode*) ast_new_node_attribute_assignment(left_node, attr_name, name_length, value);
 	} else if (match(TOKEN_PLUS_EQUALS)
@@ -216,6 +228,7 @@ static AstNode* dot(AstNode* left_node, int expression_level) {
         ScannerTokenType in_place_operator = parser.previous.type;
 
 		// In place binary on attribute
+        skip_newlines();
 		AstNode* value = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
 
         return (AstNode*) ast_new_node_in_place_attribute_binary(in_place_operator, left_node, attr_name, name_length, value);
@@ -304,7 +317,9 @@ static AstNode* call(AstNode* left_node, int expression_level) {
 }
 
 static AstNode* grouping(int expression_level) {
+    skip_newlines();
     AstNode* node = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
+    skip_newlines();
     consume(TOKEN_RIGHT_PAREN, "Expected closing ')' after grouped expression.");
     return node;
 }
@@ -332,6 +347,7 @@ static AstNode* boolean(int expression_level) {
 static AstNode* klass(int expression_level) {
     AstNode* superclass = NULL;
     if (match(TOKEN_COLON)) {
+        skip_newlines();
         superclass = parse_expression(PREC_ASSIGNMENT, expression_level + 1);
     }
     skip_newlines();
@@ -470,14 +486,14 @@ static ParseRule rules[] = {
 };
 
 static AstNode* parse_expression(Precedence precedence, int expression_level) {
-    skip_newlines(); // Reconsider this?
+    // skip_newlines(); // Reconsider this?
     
     AstNode* node = NULL;
     
     advance(); // always assume the previous token is the "acting operator"
     ParseRule prefix_rule = get_rule(parser.previous.type);
     if (prefix_rule.prefix == NULL) {
-        error("Expecting a prefix operator.");
+        error("Expected an expression.");
         return NULL;
     }
     
@@ -497,6 +513,7 @@ static AstNodeAssignment* assignment_statement(void) {
     int variable_length = parser.previous.length;
 
     consume(TOKEN_EQUAL, "Expected '=' after variable name in assignment.");
+    skip_newlines();
     AstNode* value = parse_expression(PREC_ASSIGNMENT, 1);
 
     return ast_new_node_assignment(variable_name, variable_length, value);
@@ -510,6 +527,7 @@ static AstNodeAssignment* mutation_statement(void) {
     advance();
     ScannerTokenType binary_operator = mutate_operator_to_binary(parser.previous.type);
 
+    skip_newlines();
     AstNode* value = parse_expression(PREC_ASSIGNMENT, 1);
 
     AstNodeVariable* get_variable_node = ast_new_node_variable(variable_name, variable_length);
@@ -577,24 +595,22 @@ static AstNode* statements(void) {
             consume(TOKEN_NEWLINE, "Expected newline after statement.");
         }
         
-        // Checking for errors on statement boundaries
-        if (parser.had_error) {
-            // TODO: Proper compiler error propagations and such
-            fprintf(stdout, "Compiler exits with errors.\n");
-            exit(EXIT_FAILURE);
-        }
     }
     
     return (AstNode*) statements_node;
 }
 
-AstNode* parser_parse(const char* source) {
+AstNode* parser_parse(const char* source, const char* file_path) {
+    /* Note: file_path is owned by the caller - we don't free it */
+
     scanner_init(source);
     
+    parser.file_path = file_path;
     advance();
-    parser.had_error = false;
     
     AstNode* node = statements();
+
+    parser.file_path = NULL;
     
     return node;
 }

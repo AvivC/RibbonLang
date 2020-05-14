@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
 
     Bytecode bytecode;
     bytecode_init(&bytecode);
-    AstNode* ast = parser_parse(source);
+    AstNode* ast = parser_parse(source, abs_main_file_path);
     compiler_compile(ast, &bytecode);
     
 	printStructures(argc, argv, &bytecode, ast);

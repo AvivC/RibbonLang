@@ -175,6 +175,7 @@ Token scanner_peek_token_at_offset(int offset) {
 
     const char* old_start = scanner.start;
     const char* old_current = scanner.current;
+    int old_line_number = scanner.line;
 
     Token token;
     for (int i = 0; i < offset; i++) {
@@ -183,6 +184,7 @@ Token scanner_peek_token_at_offset(int offset) {
 
     scanner.start = old_start;
     scanner.current = old_current;
+    scanner.line = old_line_number;
     return token;
 }
 

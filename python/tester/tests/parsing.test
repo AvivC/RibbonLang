@@ -1,0 +1,129 @@
+test for loop
+    for i in [1, 2, 3] {
+        print(i)
+    }
+
+    for i in [1, 2, 3]
+    {
+        print(i)
+    }
+
+    for i in [1, 2, 3] { print(i) }
+
+expect
+    1
+    2
+    3
+    1
+    2
+    3
+    1
+    2
+    3
+end
+
+test if
+    if true {
+        print("a")
+    }
+
+    if true
+    {
+        print("a")
+    }
+
+    if true { print("a") }
+expect
+    a
+    a
+    a
+end
+
+
+test while
+    i = 0
+    while i < 2 {
+        print("a")
+        i += 1
+    }
+
+    i = 0
+    while i < 2 
+    {
+        print("a")
+        i += 1
+    }
+
+    i = 0
+    while i < 2 { print("a")
+        i += 1
+    }
+expect
+    a
+    a
+    a
+    a
+    a
+    a
+end
+
+test function
+    a = { print("a") }
+    b = {
+        print("a")}
+    c = {
+        print("a")
+    }
+    d = 
+    {
+        print("a")
+    }
+    a()
+    b()
+    c()
+    d()
+expect
+    a
+    a
+    a
+    a
+end
+
+test table
+    t = [1, 2, 3]
+    q = [
+        1
+        ,
+        2,
+        3
+    ]
+    v =
+    [
+        1
+        ,
+        2,
+        3
+    ]
+
+    print(t[0])
+    print(t[1])
+    print(t[2])
+
+    print(q[0])
+    print(q[1])
+    print(q[2])
+
+    print(v[0])
+    print(v[1])
+    print(v[2])
+expect
+    1
+    2
+    3
+    1
+    2
+    3
+    1
+    2
+    3
+end
