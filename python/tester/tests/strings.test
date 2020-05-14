@@ -110,10 +110,36 @@ test string operations
     reversed = ""
     i = text.length() - 1
     while i >= 0 {
-        reversed = reversed + text[i]
-        i = i - 1
+        reversed += text[i]
+        i -= 1
     }
     print(reversed)
 expect
     !dlrow olleh
+end
+
+test string special characters
+    print("abc\ndef")
+    print("abc\\ndef")
+
+    # Note: should add tests for the other special characters, \t, \v and \r. Currently not sure how to test those.
+expect
+    abc
+    def
+    abc\ndef
+end
+
+test multiline strings
+    s = "This is a long, and convoluted, multiline string "
+            "with a long and interesting story to tell.\n"
+        "Actually, the implementation of this is surprisingly pretty cool.\n"
+        "It involves cool recursion stuff both in the parser and in the compiler.\n"
+        "Surprisingly, the scanner is unaware of this delicious feature."
+    
+    print(s)
+expect
+    This is a long, and convoluted, multiline string with a long and interesting story to tell.
+    Actually, the implementation of this is surprisingly pretty cool.
+    It involves cool recursion stuff both in the parser and in the compiler.
+    Surprisingly, the scanner is unaware of this delicious feature.
 end

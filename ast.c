@@ -400,6 +400,11 @@ static void print_node(AstNode* node, int nesting) {
 			AstNodeString* node_string = (AstNodeString*) node;
 			print_nesting_string(nesting);
 			printf("STRING: %.*s\n", node_string->length, node_string->string);
+			if (node_string->concatenated != NULL) {
+				print_nesting_string(nesting);
+				printf("Concatenated with:\n");
+				print_node((AstNode*) node_string->concatenated, nesting + 1);
+			}
 			break;
 		}
 
@@ -657,6 +662,9 @@ static void node_free(AstNode* node, int nesting) {
 
         case AST_NODE_STRING: {
 			AstNodeString* node_string = (AstNodeString*) node;
+			if (node_string->concatenated != NULL) {
+				node_free((AstNode*) node_string->concatenated, nesting + 1);
+			}
 			deallocate(node_string, sizeof(AstNodeString), deallocationString);
 			break;
 		}
@@ -837,10 +845,11 @@ AstNodeAttributeAssignment* ast_new_node_attribute_assignment(AstNode* object, c
 	return node;
 }
 
-AstNodeString* ast_new_node_string(const char* string, int length) {
+AstNodeString* ast_new_node_string(const char* string, int length, AstNodeString* conctenated) {
 	AstNodeString* node = ALLOCATE_AST_NODE(AstNodeString, AST_NODE_STRING);
 	node->string = string;
 	node->length = length;
+	node->concatenated = conctenated;
 	return node;
 }
 

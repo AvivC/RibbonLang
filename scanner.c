@@ -151,7 +151,7 @@ static Token parse_string() {
     }
     
     advance(); // Skip ending '"'
-    
+
     return make_token(TOKEN_STRING);
 }
 
@@ -174,8 +174,6 @@ Token scanner_peek_next_token() {
 
 Token scanner_peek_token_at_offset(int offset) {
     assert(offset >= 1);
-
-    // TODO: This approach is pretty awkward and can cause bugs later. Needs changing.
 
     const char* old_start = scanner.start;
     const char* old_current = scanner.current;

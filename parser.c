@@ -84,6 +84,27 @@ static bool match_next(ScannerTokenType type) {
     return false;
 }
 
+static bool match_after_newlines(ScannerTokenType type) {
+    if (!check(TOKEN_NEWLINE)) {
+        return false;
+    }
+
+    int i = 1;
+    while (scanner_peek_token_at_offset(i).type == TOKEN_NEWLINE) {
+        i++;
+    }
+
+    if (scanner_peek_token_at_offset(i).type == type) {
+        advance();
+        for (int x = 0; x < i; x++) {
+            advance();
+        }
+        return true;
+    }
+
+    return false;
+}
+
 static bool match_at_offset(ScannerTokenType type, int offset) {
 	if (scanner_peek_token_at_offset(offset).type == type) {
 		advance();
@@ -258,7 +279,15 @@ static AstNode* number(int expression_level) {
 }
 
 static AstNode* string(int expression_level) {
-    return (AstNode*) ast_new_node_string(parser.previous.start + 1, parser.previous.length - 2);
+    const char* main_string = parser.previous.start + 1;
+    int main_string_length = parser.previous.length - 2;
+
+    AstNodeString* concatenated = NULL;
+    if (match(TOKEN_STRING) || match_after_newlines(TOKEN_STRING)) {
+        concatenated = (AstNodeString*) string(expression_level);
+    }
+
+    return (AstNode*) ast_new_node_string(main_string, main_string_length, concatenated);
 }
 
 static AstNode* and(AstNode* left_node, int expression_level) {

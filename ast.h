@@ -181,10 +181,11 @@ typedef struct {
 	AstNode* right;
 } AstNodeOr;
 
-typedef struct {
+typedef struct AstNodeString {
 	AstNode base;
 	const char* string;
 	int length;
+    struct AstNodeString* concatenated;
 } AstNodeString;
 
 typedef struct {
@@ -243,7 +244,7 @@ AstNodeAnd* ast_new_node_and(AstNode* left, AstNode* right);
 AstNodeOr* ast_new_node_or(AstNode* left, AstNode* right);
 AstNodeAttribute* ast_new_node_attribute(AstNode* object, const char* name, int length);
 AstNodeAttributeAssignment* ast_new_node_attribute_assignment(AstNode* object, const char* name, int length, AstNode* value);
-AstNodeString* ast_new_node_string(const char* string, int length);
+AstNodeString* ast_new_node_string(const char* string, int length, AstNodeString* conctenated);
 AstNodeKeyAccess* ast_new_node_key_access(AstNode* key, AstNode* subject);
 AstNodeKeyAssignment* ast_new_node_key_assignment(AstNode* key, AstNode* value, AstNode* subject);
 AstNodeUnary* ast_new_node_unary(AstNode* expression);

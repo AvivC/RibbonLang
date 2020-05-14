@@ -127,3 +127,29 @@ expect
     2
     3
 end
+
+test class
+    A = class {
+        f = {print("f")}
+    }
+
+    B = class {
+        f = {print("f")}}
+
+    C = class
+    {
+        f = {print("f")}
+    }
+
+    D = class { f = {print("f")}}
+
+    A().f()
+    B().f()
+    C().f()
+    D().f()
+expect
+    f
+    f
+    f
+    f
+end
