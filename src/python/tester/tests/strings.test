@@ -1,0 +1,145 @@
+test adding strings
+    print("abc" + "abc")
+    print("abc" + " " + "abc")
+    print("abc" + " " + "def")
+
+    a = "abc"
+    b = "def"
+    print(a + " " + b)
+
+    str = ""
+    n = 0
+    while n <= 3 {
+        if n == 0 {
+            x = "0"
+        } elsif n == 1 {
+            x = "1"
+        } elsif n == 2 {
+            x = "2"
+        } elsif n == 3 {
+            x = "3"
+        }
+
+        str = str + x
+        n = n + 1
+    }
+    print(str)
+expect
+    abcabc
+    abc abc
+    abc def
+    abc def
+    0123
+end
+
+test illegal to set attribute on string
+    # this is a fragile test because we rely on the very specific error output, which is very likely to change.
+    # this is why at the time of writing this, we usually don't have tests for specific error conditions (which isn't a great thing).
+    # this case is an exception, and we might have to update this test if and when the error output changes.
+
+    text = "hello world"
+    text.x = 10
+expect
+    An error has occured. Stack trace (most recent call on top):
+        -> <main>
+    Cannot set attribute on strings.
+end
+
+test string length method
+    text = "abc def g"
+    n = text.length()
+    print(n)
+expect
+    9
+end
+
+test string interning
+    import _testing
+
+    same = _testing.same_object
+
+    a = "s1"
+    b = "s2"
+    c = "s1"
+    d = a + b
+    e = "s1" + "s2"
+    f = "" + d
+
+    print(same(a, c))
+    print(same(d, e))
+    print(same(f, d))
+    print(same(f, e))
+
+    print(same(a, b))
+
+    a = "s2"
+    print(same(a, b))
+expect
+    true
+    true
+    true
+    true
+    false
+    true
+end
+
+test advanced string interning
+    # This test uses _testing.gc() in order to try and validate correct string interning and string cleanup behavior.
+    # The GC doesn't only run when invoking _testing.gc(), for this matter it may run at any given time. We use
+    # _testing.gc() to make sure it runs at a particular moment. 
+
+    # TODO: Write this test
+expect
+end
+
+test string key accessor
+    text = "abc def g"
+    print(text[2])
+    print(text[0])
+    print(text[8])
+    print(text[1] + text[3] + text[6])
+expect
+    c
+    a
+    g
+    b f
+end
+
+test string operations
+    text = "hello world!"
+    reversed = ""
+    i = text.length() - 1
+    while i >= 0 {
+        reversed += text[i]
+        i -= 1
+    }
+    print(reversed)
+expect
+    !dlrow olleh
+end
+
+test string special characters
+    print("abc\ndef")
+    print("abc\\ndef")
+
+    # Note: should add tests for the other special characters, \t, \v and \r. Currently not sure how to test those.
+expect
+    abc
+    def
+    abc\ndef
+end
+
+test multiline strings
+    s = "This is a long, and convoluted, multiline string "
+            "with a long and interesting story to tell.\n"
+        "Actually, the implementation of this is surprisingly pretty cool.\n"
+        "It involves pretty cool stuff both in the parser and in the compiler.\n"
+        "Surprisingly, the scanner is unaware of this delicious feature."
+    
+    print(s)
+expect
+    This is a long, and convoluted, multiline string with a long and interesting story to tell.
+    Actually, the implementation of this is surprisingly pretty cool.
+    It involves pretty cool stuff both in the parser and in the compiler.
+    Surprisingly, the scanner is unaware of this delicious feature.
+end

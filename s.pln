@@ -1,0 +1,2 @@
+import path
+print(path.relative_to_main_directory("abc"))

@@ -1,1 +1,1 @@
-plane.exe code.pln -asm -tree
+src\plane.exe src\code.pln -asm -tree
