@@ -43,11 +43,11 @@ fizzbuzz(20)
 
 ### The main traits of Ribbon:
 
-* Everything is an expression - including classes and functions. You can give them names by assigning them to variables
-* Full support for closures
-* Flexible module system, including support for native C extension modules
+* Multi-paradigm: has classes and methods alongside closures and first class functions
+* Everything is an expression - including classes and functions
+* Extensible through the C extension system
 * Minimal syntax, no ceremony or boilerplate
-* 2D graphics programming supported out of the box via a standard library module (wrapping the native SDL library)
+* 2D graphics programming supported out of the box via a standard library module
 * Comprehensive test suite for the interpreter
 
 ### How to install Ribbon:
