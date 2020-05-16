@@ -59,15 +59,14 @@ After building Ribbon, it can be easily distributed and installed as a self cont
 #### Requirements to run Ribbon:
 
 * Ribbon currently only runs on Windows 64 bit
-* A standard Windows C runtime, no other dependencies are mandatory
 
 #### Requirements to build Ribbon:
 
-* Mingw-w64 GCC is required to build the interpreter (other compilers may work as well)
-* Python 3 is required for running the test suite for the interpreter. It should be visible on the `PATH` as `python`
+* Mingw-w64 GCC for building the interpreter (other compilers may work as well)
+* Python 3 for running the test suite of the interpreter. It should be visible on the `PATH` as `python`
 * **Optional:** in order to build the included `graphics` standard library module, we need the SDL2 library installed. More on this later
 
-Steps to build Ribbon:
+#### Steps to build Ribbon:
 
 1. Clone this repository
 
