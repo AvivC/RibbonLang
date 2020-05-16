@@ -6,7 +6,7 @@ setlocal EnableDelayedExpansion
 echo Starting Build and Test
 
 echo Building...
-call build.bat
+call build_dev.bat
 
 if %errorlevel%==0 (
     echo Build successful. Ready to run tests. 

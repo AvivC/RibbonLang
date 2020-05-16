@@ -59,7 +59,6 @@ static void print_memory_diagnostic() {
     if (allocated_memory == 0) {
         DEBUG_IMPORTANT_PRINT("\n*******\nAll memory freed.\n*******\n");
     } else {
-        // DEBUG_IMPORTANT_PRINT("\n*******\nAllocated memory is %d, not 0!\n*******\n", allocated_memory);
         DEBUG_IMPORTANT_PRINT("\n*******\nAllocated memory is %" PRI_SIZET ", not 0!\n*******\n", allocated_memory);
         problem = true;
     }
@@ -68,7 +67,6 @@ static void print_memory_diagnostic() {
     if (num_allocations == 0) {
         DEBUG_IMPORTANT_PRINT("*******\nAll allocations freed.\n*******\n");
     } else {
-        // DEBUG_IMPORTANT_PRINT("*******\nNumber of allocations which have not been freed is %d, not 0!\n*******\n", num_allocations);
         DEBUG_IMPORTANT_PRINT("*******\nNumber of allocations which have not been freed is %" PRI_SIZET ", not 0!\n*******\n", num_allocations);
         problem = true;
     }
@@ -77,8 +75,6 @@ static void print_memory_diagnostic() {
         memory_print_allocated_entries();
     }
 
-    // memory_print_allocated_entries(); // Remove
-    
     printf("*******\n");
     object_print_all_objects();
     printf("*******\n");
@@ -87,6 +83,10 @@ static void print_memory_diagnostic() {
 }
 
 int main(int argc, char* argv[]) {
+    // printf("GC_STRESS_TEST: %d\n", GC_STRESS_TEST);
+    // printf("MEMORY_DIAGNOSTICS: %d\n", MEMORY_DIAGNOSTICS);
+    // printf("DEBUG_IMPORTANT: %d\n", DEBUG_IMPORTANT);
+
     if (argc < 2 || argc > 5) {
         fprintf(stdout, "Usage: ribbon <file> [[-asm] [-tree] [-dry]]");
         return -1;
@@ -139,8 +139,7 @@ int main(int argc, char* argv[]) {
     
     #if DEBUG_IMPORTANT
     if (!dryRun) {
-    	// Dry running does no GC, so some things from the compiler aren't cleaned... So no point in printing diagnostics.
-    	// Not ideal, but leave this for now
+    	// Dry running does no GC, so some objects from the compiler aren't cleaned... So no point in printing diagnostics.
         #if MEMORY_DIAGNOSTICS
     	print_memory_diagnostic();
         #endif

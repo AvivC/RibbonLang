@@ -10,6 +10,7 @@
 #include <assert.h>
 
 /* Generally keep these OFF unless you need them specifically */
+
 #define DISABLE_GC 0 // Only set to 1 for debugging purposes when you need the GC to not run
 
 #define DEBUG 0 // General debug printing
@@ -20,15 +21,32 @@
 #define DEBUG_SCANNER 0 // Show low level lexing output and such
 #define DEBUG_PAUSE_AFTER_OPCODES 0 // Wait for user input after each opcode
 #define DEBUG_TABLE_STATS 0 // Collect statistics on general hash table behavior
+
 /* ****************** */
 
 /* Probably leave this ON most of the time during DEV. Disable for release. */
-#define GC_STRESS_TEST 1 // Run GC every loop iteration. Used to help GC bugs surface. Obviously really bad for performance
+#ifndef GC_STRESS_TEST
+    // Run GC every loop iteration. Used to help GC bugs surface. Obviously really bad for performance
+    #define GC_STRESS_TEST 0 
+#endif
+
 /* ************** */
 
-/* Always leave these two ON in DEV. Probably disable for release  */
-#define MEMORY_DIAGNOSTICS 1 // Usually leave on in dev. Disable for release
-#define DEBUG_IMPORTANT 1 // Pretty much always leave this on, at least in dev - printing critical diagnosis and such
+/* Always leave these two ON in DEV. Disable for release  */
+
+#ifndef MEMORY_DIAGNOSTICS
+    #define MEMORY_DIAGNOSTICS 0 // Usually leave on in dev. Disable for release
+#endif
+
+#ifndef DEBUG_IMPORTANT
+    #if MEMORY_DIAGNOSTICS
+    // Pretty much always leave this on, at least in dev - printing critical diagnosis and such
+        #define DEBUG_IMPORTANT 1 
+    #else
+        #define DEBUG_IMPORTANT 0
+    #endif
+#endif
+
 /* **************** */
 
 #if DEBUG

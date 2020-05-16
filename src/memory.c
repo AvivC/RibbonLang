@@ -29,7 +29,6 @@ static bool is_same_allocation(size_t size, const char* what, Allocation allocat
 
 void* allocate(size_t size, const char* what) {
     #if MEMORY_DIAGNOSTICS
-
     return reallocate(NULL, 0, size, what);
 
     #else

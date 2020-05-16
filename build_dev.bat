@@ -1,0 +1,1 @@
+gcc -DGC_STRESS_TEST=1 -DMEMORY_DIAGNOSTICS=1 -DDEBUG_IMPORTANT=1 -I%RIBBON_BUILD_INCLUDE% src/*.c -o src/ribbon.exe -g -Wall -Wno-unused -L%RIBBON_BUILD_LIB% -lShlwapi

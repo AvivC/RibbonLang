@@ -1,1 +1,1 @@
-gcc -DNDEBUG -I%RIBBON_BUILD_INCLUDE% src/*.c -o src/ribbon.exe -g -pg -Wall -Wno-unused -L%RIBBON_BUILD_LIB% -lShlwapi
+gcc -DNDEBUG -DGC_STRESS_TEST=0 -DMEMORY_DIAGNOSTICS=0 -DDEBUG_IMPORTANT=0 -I%RIBBON_BUILD_INCLUDE% src/*.c -o src/ribbon.exe -g -pg -Wall -Wno-unused -L%RIBBON_BUILD_LIB% -lShlwapi
