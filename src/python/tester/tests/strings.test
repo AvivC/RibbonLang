@@ -131,8 +131,8 @@ end
 
 test multiline strings
     s = "This is a long, and convoluted, multiline string "
-            "with a long and interesting story to tell.\n"
-        "Actually, the implementation of this is surprisingly pretty cool.\n"
+            "with a long and interesting story to tell.\n"    "Actually, the implementation "
+        "of this is surprisingly pretty cool.\n"
         "It involves pretty cool stuff both in the parser and in the compiler.\n"
         "Surprisingly, the scanner is unaware of this delicious feature."
     
