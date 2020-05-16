@@ -16,9 +16,9 @@ init = { |renderer|
     external bullet_texture
     external player_texture
 
-    ball_texture = sdl.img_load_texture(renderer, path.relative_to_main_directory("pictures\ball.png"))
+    ball_texture = sdl.img_load_texture(renderer, path.relative_to_main_directory("pictures\\ball.png"))
 
-    bullet_texture = sdl.img_load_texture(renderer, path.relative_to_main_directory("pictures\bullet.png"))
+    bullet_texture = sdl.img_load_texture(renderer, path.relative_to_main_directory("pictures\\bullet.png"))
 
-    player_texture = sdl.img_load_texture(renderer, path.relative_to_main_directory("pictures\kangaroo.png"))
+    player_texture = sdl.img_load_texture(renderer, path.relative_to_main_directory("pictures\\kangaroo.png"))
 }

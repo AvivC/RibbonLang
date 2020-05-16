@@ -11,7 +11,7 @@
 #include "bytecode.h"
 #include "disassembler.h"
 #include "value.h"
-#include "plane_object.h"
+#include "ribbon_object.h"
 #include "vm.h"
 #include "memory.h"
 
@@ -87,22 +87,8 @@ static void print_memory_diagnostic() {
 }
 
 int main(int argc, char* argv[]) {
-    /* Generally this will always be false. Only set to true when experimenting during development */
-    #define TRYING_THINGS false
-
-	if (TRYING_THINGS) {
-		printf("--- Experimentation mode. ---\n");
-
-        printf("\n%" PRI_SIZET "\n", sizeof(Value));
-        printf("\n%" PRI_SIZET "\n", sizeof(Bytecode));
-        printf("\n%" PRI_SIZET "\n", sizeof(RawString));
-        printf("\n%" PRI_SIZET "\n", sizeof(Value) - sizeof(Bytecode));
-
-		return 0;
-	}
-
     if (argc < 2 || argc > 5) {
-        fprintf(stdout, "Usage: plane <file> [[-asm] [-tree] [-dry]]");
+        fprintf(stdout, "Usage: ribbon <file> [[-asm] [-tree] [-dry]]");
         return -1;
     }
 
@@ -130,7 +116,7 @@ int main(int argc, char* argv[]) {
     	return -1;
     }
 
-    DEBUG_PRINT("Starting CPlane!\n\n");
+    DEBUG_PRINT("Starting Ribbon\n\n");
 
     /* Must first init the VM because some parts of the compiler depend on it */
     vm_init();

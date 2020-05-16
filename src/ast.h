@@ -1,5 +1,5 @@
-#ifndef plane_ast_h
-#define plane_ast_h
+#ifndef ribbon_ast_h
+#define ribbon_ast_h
 
 #include "scanner.h"
 #include "value.h"

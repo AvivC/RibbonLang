@@ -1,16 +1,16 @@
-#ifndef plane_vm_h
-#define plane_vm_h
+#ifndef ribbon_vm_h
+#define ribbon_vm_h
 
 #include "bytecode.h"
 #include "table.h"
 #include "cell_table.h"
-#include "plane_object.h"
+#include "ribbon_object.h"
 #include "value.h"
 
 typedef enum {
     CALL_RESULT_SUCCESS,
     CALL_RESULT_INVALID_ARGUMENT_COUNT,
-    CALL_RESULT_PLANE_CODE_EXECUTION_FAILED,
+    CALL_RESULT_RIBBON_CODE_EXECUTION_FAILED,
     CALL_RESULT_NATIVE_EXECUTION_FAILED,
     CALL_RESULT_CLASS_INIT_NOT_METHOD,
     CALL_RESULT_INVALID_CALLABLE,

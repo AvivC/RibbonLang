@@ -1,5 +1,5 @@
-#ifndef plane_value_h
-#define plane_value_h
+#ifndef ribbon_value_h
+#define ribbon_value_h
 
 #include "bytecode.h"
 #include "common.h"

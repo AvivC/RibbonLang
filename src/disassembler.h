@@ -1,5 +1,5 @@
-#ifndef plane_disassembler_h
-#define plane_disassembler_h
+#ifndef ribbon_disassembler_h
+#define ribbon_disassembler_h
 
 #include "bytecode.h"
 #include "common.h"

@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#include <plane.h>
+#include <ribbon_api.h>
 
 #ifdef MYEXTENSION_EXPORTS
     #define MYEXTENSIONAPI __declspec(dllexport)
@@ -8,4 +8,4 @@
     #define MYEXTENSIONAPI __declspec(dllimport)
 #endif
 
-MYEXTENSIONAPI bool plane_module_init(PlaneApi api, ObjectModule* module);
+MYEXTENSIONAPI bool ribbon_module_init(RibbonApi api, ObjectModule* module);

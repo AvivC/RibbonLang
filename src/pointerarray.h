@@ -1,5 +1,5 @@
-#ifndef plane_pointerarray_h
-#define plane_pointerarray_h
+#ifndef ribbon_pointerarray_h
+#define ribbon_pointerarray_h
 
 typedef struct {
     int count;

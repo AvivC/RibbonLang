@@ -2,8 +2,8 @@
 #include <math.h>
 
 #include "common.h"
-#include "plane_utils.h"
-#include "plane_object.h"
+#include "ribbon_utils.h"
+#include "ribbon_object.h"
 #include "vm.h"
 #include "value.h"
 #include "memory.h"
@@ -638,7 +638,7 @@ void object_free(Object* o) {
 				}
 				deallocate(instance, klass->instance_size, "ObjectInstance");
 			} else {
-				/* Plane class */
+				/* Ribbon class */
 				deallocate(instance, sizeof(ObjectInstance), "ObjectInstance");
 			}
 

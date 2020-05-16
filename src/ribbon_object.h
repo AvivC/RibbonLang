@@ -1,5 +1,5 @@
-#ifndef plane_object_h
-#define plane_object_h
+#ifndef ribbon_object_h
+#define ribbon_object_h
 
 #include <Windows.h>
 
@@ -94,7 +94,7 @@ typedef void (*DeallocationFunction)(struct ObjectInstance *);
 typedef Object** (*GcMarkFunction)(struct ObjectInstance *);
 
 typedef struct ObjectClass {
-	/* TODO: Make distinction between plane and native classes clearer. Different types? Flag? Union? */
+	/* TODO: Make distinction between ribbon and native classes clearer. Different types? Flag? Union? */
 	Object base;
 	struct ObjectClass* superclass;
 	char* name;

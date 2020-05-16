@@ -1,5 +1,5 @@
-#ifndef plane_value_array_h
-#define plane_value_array_h
+#ifndef ribbon_value_array_h
+#define ribbon_value_array_h
 
 #include "dynamic_array.h"
 

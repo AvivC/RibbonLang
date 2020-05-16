@@ -4,16 +4,16 @@
 #include <time.h>
 
 #include "vm.h"
-#include "plane.h"
+#include "ribbon_api.h"
 #include "common.h"
 #include "value.h"
-#include "plane_object.h"
+#include "ribbon_object.h"
 #include "memory.h"
 #include "table.h"
 #include "builtins.h"
 #include "bytecode.h"
 #include "disassembler.h"
-#include "plane_utils.h"
+#include "ribbon_utils.h"
 #include "pointerarray.h"
 #include "io.h"
 #include "ast.h"
@@ -596,7 +596,7 @@ static void set_class_name(const Value* class_value, ObjectString* name) {
 	object_class_set_name(klass, new_cstring_name);
 }
 
-static bool call_plane_function(
+static bool call_ribbon_function(
 		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity, Value* out);
 
 static char* make_base_module_function_name(ObjectString* module_name) {
@@ -637,7 +637,7 @@ static ImportResult load_text_module(ObjectString* module_name, const char* file
 			ValueArray args;
 			value_array_init(&args);
 			Value throwaway_result;
-			call_plane_function(module_base_function, NULL, args, (Object*) module, &throwaway_result);
+			call_ribbon_function(module_base_function, NULL, args, (Object*) module, &throwaway_result);
 			value_array_free(&args);
 
 			cell_table_set_value(locals_or_module_table(), module_name, MAKE_VALUE_OBJECT(module));
@@ -670,7 +670,7 @@ static ImportResult load_text_module(ObjectString* module_name, const char* file
 	return IMPORT_RESULT_READ_FAILED;
 }
 
-static bool call_plane_function_leave_on_stack(
+static bool call_ribbon_function_leave_on_stack(
 		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity);
 
 static CallResult call_function_leave_on_stack(ObjectFunction* function, ValueArray args) {
@@ -688,10 +688,10 @@ static CallResult call_function_leave_on_stack(ObjectFunction* function, ValueAr
 		return CALL_RESULT_NATIVE_EXECUTION_FAILED;
 	}
 
-	if (call_plane_function_leave_on_stack(function, NULL, args, NULL)) {
+	if (call_ribbon_function_leave_on_stack(function, NULL, args, NULL)) {
 		return CALL_RESULT_SUCCESS;
 	}
-	return CALL_RESULT_PLANE_CODE_EXECUTION_FAILED;
+	return CALL_RESULT_RIBBON_CODE_EXECUTION_FAILED;
 }
 
 CallResult vm_call_function(ObjectFunction* function, ValueArray args, Value* out) {
@@ -718,10 +718,10 @@ static CallResult call_bound_method_leave_on_stack(ObjectBoundMethod* bound_meth
 		return CALL_RESULT_NATIVE_EXECUTION_FAILED;
 	}
 
-	if (call_plane_function_leave_on_stack(method, bound_method->self, args, NULL)) {
+	if (call_ribbon_function_leave_on_stack(method, bound_method->self, args, NULL)) {
 		return CALL_RESULT_SUCCESS;
 	}
-	return CALL_RESULT_PLANE_CODE_EXECUTION_FAILED;
+	return CALL_RESULT_RIBBON_CODE_EXECUTION_FAILED;
 }
 
 CallResult vm_call_bound_method(ObjectBoundMethod* bound_method, ValueArray args, Value* out) {
@@ -828,7 +828,7 @@ static ImportResult load_extension_module(ObjectString* module_name, char* path)
 		return IMPORT_RESULT_OPEN_FAILED;
 	}
 
-	ExtensionInitFunction init_function = (ExtensionInitFunction) GetProcAddress(handle, "plane_module_init");
+	ExtensionInitFunction init_function = (ExtensionInitFunction) GetProcAddress(handle, "ribbon_module_init");
 
 	if (init_function == NULL) {
 		FreeLibrary(handle);
@@ -1371,7 +1371,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				ValueArray args;
 				value_array_init(&args);
 				Value throwaway_result;
-				if (!call_plane_function(class_base_function, NULL, args, (Object*) class, &throwaway_result)) {
+				if (!call_ribbon_function(class_base_function, NULL, args, (Object*) class, &throwaway_result)) {
 					RUNTIME_ERROR("Error occured when running class initialization code.");
 					goto op_make_class_cleanup;
 				}
@@ -1594,7 +1594,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
 						RUNTIME_ERROR("Native function %s failed.", callable_name);
 						break;
 					}
-					case CALL_RESULT_PLANE_CODE_EXECUTION_FAILED: {
+					case CALL_RESULT_RIBBON_CODE_EXECUTION_FAILED: {
 						RUNTIME_ERROR("Function %s failed.", callable_name);
 						break;
 					}
@@ -1862,7 +1862,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
     return !runtime_error_occured;
 }
 
-static bool call_plane_function_leave_on_stack(
+static bool call_ribbon_function_leave_on_stack(
 		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity) {
 	bool is_entity_base = base_entity != NULL;
 	StackFrame frame = new_stack_frame(vm.ip, function, base_entity, is_entity_base, false, false);
@@ -1885,9 +1885,9 @@ static bool call_plane_function_leave_on_stack(
 	return false;
 }
 
-static bool call_plane_function(
+static bool call_ribbon_function(
 		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity, Value* out) {
-	if (call_plane_function_leave_on_stack(function, self, args, base_entity)) {
+	if (call_ribbon_function_leave_on_stack(function, self, args, base_entity)) {
 		*out = pop();
 		return true;
 	}

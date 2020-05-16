@@ -1,5 +1,5 @@
-#ifndef plane_plane_h
-#define plane_plane_h
+#ifndef ribbon_ribbon_api_h
+#define ribbon_ribbon_api_h
 
 /* Declaring an interface passed in extension modules */
 
@@ -7,7 +7,7 @@
 #include "common.h"
 #include "vm.h"
 #include "memory.h"
-#include "plane_object.h"
+#include "ribbon_object.h"
 #include "value.h"
 #include "table.h"
 #include "value_array.h"
@@ -84,10 +84,10 @@ typedef struct {
     ObjectInstance* (*object_descriptor_new_native) (NativeFunction get, NativeFunction set);
 
     bool (*arguments_valid) (ValueArray args, const char* string);
-} PlaneApi;
+} RibbonApi;
 
-extern PlaneApi API;
+extern RibbonApi API;
 
-typedef bool (*ExtensionInitFunction) (PlaneApi, ObjectModule*);
+typedef bool (*ExtensionInitFunction) (RibbonApi, ObjectModule*);
 
 #endif

@@ -1,5 +1,5 @@
 #include "table.h"
-#include "plane_object.h"
+#include "ribbon_object.h"
 
 #define TABLE_LOAD_FACTOR 0.75
 

@@ -1,5 +1,5 @@
-#ifndef plane_table_h
-#define plane_table_h
+#ifndef ribbon_table_h
+#define ribbon_table_h
 
 #include "common.h"
 #include "value.h"

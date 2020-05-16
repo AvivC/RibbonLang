@@ -5,7 +5,7 @@
 #include "builtins.h"
 #include "value.h"
 #include "memory.h"
-#include "plane_object.h"
+#include "ribbon_object.h"
 #include "io.h"
 
 bool builtin_print(Object* self, ValueArray args, Value* out) {

@@ -1,5 +1,5 @@
-#ifndef plane_parser_h
-#define plane_parser_h
+#ifndef ribbon_parser_h
+#define ribbon_parser_h
 
 #include "ast.h"
 #include "bytecode.h"

@@ -2,7 +2,7 @@
 
 #include "ast.h"
 #include "memory.h"
-#include "plane_object.h"
+#include "ribbon_object.h"
 #include "value.h"
 
 const char* AST_NODE_TYPE_NAMES[] = {

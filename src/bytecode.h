@@ -1,9 +1,9 @@
-#ifndef plane_bytecode_h
-#define plane_bytecode_h
+#ifndef ribbon_bytecode_h
+#define ribbon_bytecode_h
 
 #include "common.h"
 #include "value_array.h"
-#include "plane_utils.h"
+#include "ribbon_utils.h"
 
 typedef enum {
     OP_CONSTANT,

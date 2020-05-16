@@ -2,7 +2,7 @@
 
 /* Note: currently no argument validations here. TODO to write helpers in main code for it to be easier to do. */
 
-static PlaneApi plane;
+static RibbonApi ribbon;
 static ObjectModule* this;
 
 static ObjectClass* texture_class;
@@ -48,11 +48,11 @@ typedef struct ObjectInstanceEvent {
 } ObjectInstanceEvent;
 
 static bool window_init(Object* self, ValueArray args, Value* out) {
-    assert(plane.is_instance_of_class(self, "Window"));
+    assert(ribbon.is_instance_of_class(self, "Window"));
 
     ObjectInstanceWindow* instance = (ObjectInstanceWindow*) self;
 
-    if (!plane.arguments_valid(args, "oString n n n n n")) {
+    if (!ribbon.arguments_valid(args, "oString n n n n n")) {
         return false;
     }
 
@@ -63,11 +63,11 @@ static bool window_init(Object* self, ValueArray args, Value* out) {
     double h_arg = args.values[4].as.number;
     double flags_arg = args.values[5].as.number;
 
-    char* title = plane.copy_cstring(title_arg->chars, title_arg->length, plane.EXTENSION_ALLOC_STRING_CSTRING);
+    char* title = ribbon.copy_cstring(title_arg->chars, title_arg->length, ribbon.EXTENSION_ALLOC_STRING_CSTRING);
     SDL_Window* window = SDL_CreateWindow(title, x_arg, y_arg, w_arg, h_arg, flags_arg);
 
     if (window == NULL) {
-        plane.deallocate(title, strlen(title) + 1, plane.EXTENSION_ALLOC_STRING_CSTRING);
+        ribbon.deallocate(title, strlen(title) + 1, ribbon.EXTENSION_ALLOC_STRING_CSTRING);
         *out = MAKE_VALUE_NIL();
         return false;
     }
@@ -80,11 +80,11 @@ static bool window_init(Object* self, ValueArray args, Value* out) {
 }
 
 static bool renderer_init(Object* self, ValueArray args, Value* out) {
-    assert(plane.is_instance_of_class(self, "Renderer"));
+    assert(ribbon.is_instance_of_class(self, "Renderer"));
 
     ObjectInstanceRenderer* instance = (ObjectInstanceRenderer*) self;
 
-    if (!plane.arguments_valid(args, "oWindow n n")) {
+    if (!ribbon.arguments_valid(args, "oWindow n n")) {
         return false;
     }
 
@@ -110,7 +110,7 @@ static bool renderer_init(Object* self, ValueArray args, Value* out) {
 static bool rect_init(Object* self, ValueArray args, Value* out) {
     ObjectInstanceRect* instance = (ObjectInstanceRect*) self;
     
-    if (!plane.arguments_valid(args, "n n n n")) {
+    if (!ribbon.arguments_valid(args, "n n n n")) {
         return false;
     }
 
@@ -127,30 +127,30 @@ static bool rect_init(Object* self, ValueArray args, Value* out) {
 }
 
 static bool rect_descriptor_get(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oRect oString")) {
+    if (!ribbon.arguments_valid(args, "oRect oString")) {
         return false;
     }
 
     Object* object = args.values[0].as.object;
 
-    assert(plane.is_instance_of_class(object, "Rect"));
+    assert(ribbon.is_instance_of_class(object, "Rect"));
 
     ObjectInstanceRect* rect = (ObjectInstanceRect*) object;
 
-    assert(plane.object_value_is(args.values[1], OBJECT_STRING));
+    assert(ribbon.object_value_is(args.values[1], OBJECT_STRING));
 
     ObjectString* attr_name = (ObjectString*) args.values[1].as.object;
 
     char* attr_name_cstring = attr_name->chars;
     int attr_name_length = attr_name->length;
 
-    if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "x", 1)) {
+    if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "x", 1)) {
         *out = MAKE_VALUE_NUMBER(rect->rect.x);
-    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "y", 1)) {
+    } else if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "y", 1)) {
         *out = MAKE_VALUE_NUMBER(rect->rect.y);
-    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "w", 1)) {
+    } else if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "w", 1)) {
         *out = MAKE_VALUE_NUMBER(rect->rect.w);
-    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "h", 1)) {
+    } else if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "h", 1)) {
         *out = MAKE_VALUE_NUMBER(rect->rect.h);
     } else {
         FAIL("Rect descriptor get method received attr name other than x, y, w, h");
@@ -160,17 +160,17 @@ static bool rect_descriptor_get(Object* self, ValueArray args, Value* out) {
 }
 
 static bool rect_descriptor_set(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oRect oString n")) {
+    if (!ribbon.arguments_valid(args, "oRect oString n")) {
         return false;
     }
 
     Object* object = args.values[0].as.object;
 
-    assert(plane.is_instance_of_class(object, "Rect"));
+    assert(ribbon.is_instance_of_class(object, "Rect"));
 
     ObjectInstanceRect* rect = (ObjectInstanceRect*) object;
 
-    assert(plane.object_value_is(args.values[1], OBJECT_STRING));
+    assert(ribbon.object_value_is(args.values[1], OBJECT_STRING));
 
     assert(args.values[2].type == VALUE_NUMBER);
 
@@ -180,13 +180,13 @@ static bool rect_descriptor_set(Object* self, ValueArray args, Value* out) {
     char* attr_name_cstring = attr_name->chars;
     int attr_name_length = attr_name->length;
 
-    if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "x", 1)) {
+    if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "x", 1)) {
         rect->rect.x = value;
-    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "y", 1)) {
+    } else if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "y", 1)) {
         rect->rect.y = value;
-    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "w", 1)) {
+    } else if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "w", 1)) {
         rect->rect.w = value;
-    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "h", 1)) {
+    } else if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "h", 1)) {
         rect->rect.h = value;
     } else {
         FAIL("Rect descriptor set method received attr name other than x, y, w, h");
@@ -197,7 +197,7 @@ static bool rect_descriptor_set(Object* self, ValueArray args, Value* out) {
 }
 
 static bool event_descriptor_get(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oEvent oString")) {
+    if (!ribbon.arguments_valid(args, "oEvent oString")) {
         return false;
     }
 
@@ -205,7 +205,7 @@ static bool event_descriptor_get(Object* self, ValueArray args, Value* out) {
 
     Object* object = args.values[0].as.object;
 
-    assert(plane.is_instance_of_class(object, "Event"));
+    assert(ribbon.is_instance_of_class(object, "Event"));
 
     ObjectInstanceEvent* event = (ObjectInstanceEvent*) object;
 
@@ -214,11 +214,11 @@ static bool event_descriptor_get(Object* self, ValueArray args, Value* out) {
     char* attr_name_cstring = attr_name->chars;
     int attr_name_length = attr_name->length;
 
-    if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "type", 4)) {
+    if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "type", 4)) {
         *out = MAKE_VALUE_NUMBER(event->type);
-    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "scancode", 8)) {
+    } else if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "scancode", 8)) {
         *out = MAKE_VALUE_NUMBER(event->scancode);
-    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "repeat", 6)) {
+    } else if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "repeat", 6)) {
         *out = MAKE_VALUE_NUMBER(event->repeat);
     } else {
         FAIL("Event descriptor @get method received attr name other than type or scancode");
@@ -228,7 +228,7 @@ static bool event_descriptor_get(Object* self, ValueArray args, Value* out) {
 }
 
 static bool event_descriptor_set(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oEvent oString n")) {
+    if (!ribbon.arguments_valid(args, "oEvent oString n")) {
         return false;
     }
 
@@ -236,7 +236,7 @@ static bool event_descriptor_set(Object* self, ValueArray args, Value* out) {
 
     Object* object = args.values[0].as.object;
 
-    assert(plane.is_instance_of_class(object, "Event"));
+    assert(ribbon.is_instance_of_class(object, "Event"));
 
     ObjectInstanceEvent* event = (ObjectInstanceEvent*) object;
 
@@ -246,11 +246,11 @@ static bool event_descriptor_set(Object* self, ValueArray args, Value* out) {
     char* attr_name_cstring = attr_name->chars;
     int attr_name_length = attr_name->length;
 
-    if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "type", 4)) {
+    if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "type", 4)) {
         event->type = value;
-    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "scancode", 8)) {
+    } else if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "scancode", 8)) {
         event->scancode = value;
-    } else if (plane.cstrings_equal(attr_name_cstring, attr_name_length, "repeat", 6)) {
+    } else if (ribbon.cstrings_equal(attr_name_cstring, attr_name_length, "repeat", 6)) {
         *out = MAKE_VALUE_NUMBER(event->repeat);
     } else {
         FAIL("Event descriptor @set method received attr name other than type or scancode");
@@ -261,11 +261,11 @@ static bool event_descriptor_set(Object* self, ValueArray args, Value* out) {
 }
 
 static bool texture_init(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oRenderer oString")) {
+    if (!ribbon.arguments_valid(args, "oRenderer oString")) {
         return false;
     }
 
-    assert(plane.is_instance_of_class(self, "Texture"));
+    assert(ribbon.is_instance_of_class(self, "Texture"));
 
     ObjectInstanceTexture* texture_instance = (ObjectInstanceTexture*) self;
 
@@ -273,8 +273,8 @@ static bool texture_init(Object* self, ValueArray args, Value* out) {
     ObjectString* filename = (ObjectString*) args.values[1].as.object;
 
     /* Cloning makes sure it's null delimited */
-    ObjectString* file_null_delimited = plane.object_string_clone(filename);
-    plane.table_set(&owned_strings->table, MAKE_VALUE_NUMBER(owned_string_counter++), MAKE_VALUE_OBJECT(file_null_delimited));
+    ObjectString* file_null_delimited = ribbon.object_string_clone(filename);
+    ribbon.table_set(&owned_strings->table, MAKE_VALUE_NUMBER(owned_string_counter++), MAKE_VALUE_OBJECT(file_null_delimited));
 
     SDL_Texture* texture = IMG_LoadTexture(renderer->renderer, file_null_delimited->chars);
     
@@ -290,11 +290,11 @@ static bool texture_init(Object* self, ValueArray args, Value* out) {
 }
 
 static bool event_init(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "n n n")) {
+    if (!ribbon.arguments_valid(args, "n n n")) {
         return false;
     }
 
-    assert(plane.is_instance_of_class(self, "Event"));
+    assert(ribbon.is_instance_of_class(self, "Event"));
 
     ObjectInstanceEvent* instance = (ObjectInstanceEvent*) self;
 
@@ -311,7 +311,7 @@ static bool event_init(Object* self, ValueArray args, Value* out) {
 }
 
 static bool init(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "n")) {
+    if (!ribbon.arguments_valid(args, "n")) {
         return false;
     }
 
@@ -322,7 +322,7 @@ static bool init(Object* self, ValueArray args, Value* out) {
 }
 
 static bool create_window(Object* self, ValueArray args, Value* out) {
-    if (plane.vm_instantiate_class(window_class, args, out) != CALL_RESULT_SUCCESS) {
+    if (ribbon.vm_instantiate_class(window_class, args, out) != CALL_RESULT_SUCCESS) {
         *out = MAKE_VALUE_NIL();
         return true;
     }
@@ -331,7 +331,7 @@ static bool create_window(Object* self, ValueArray args, Value* out) {
 }
 
 static bool set_hint(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oString oString")) {
+    if (!ribbon.arguments_valid(args, "oString oString")) {
         return false;
     }
 
@@ -339,11 +339,11 @@ static bool set_hint(Object* self, ValueArray args, Value* out) {
     ObjectString* value_arg = (ObjectString*) args.values[1].as.object;
 
     /* cloning makes them null delimited */
-    ObjectString* name = plane.object_string_clone(name_arg);
-    ObjectString* value = plane.object_string_clone(value_arg);
+    ObjectString* name = ribbon.object_string_clone(name_arg);
+    ObjectString* value = ribbon.object_string_clone(value_arg);
 
-    plane.table_set(&owned_strings->table, MAKE_VALUE_NUMBER(owned_string_counter++), MAKE_VALUE_OBJECT(name));
-    plane.table_set(&owned_strings->table, MAKE_VALUE_NUMBER(owned_string_counter++), MAKE_VALUE_OBJECT(value));
+    ribbon.table_set(&owned_strings->table, MAKE_VALUE_NUMBER(owned_string_counter++), MAKE_VALUE_OBJECT(name));
+    ribbon.table_set(&owned_strings->table, MAKE_VALUE_NUMBER(owned_string_counter++), MAKE_VALUE_OBJECT(value));
 
     bool result = SDL_SetHint(name->chars, value->chars);
     *out = MAKE_VALUE_BOOLEAN(result);
@@ -351,7 +351,7 @@ static bool set_hint(Object* self, ValueArray args, Value* out) {
 }
 
 static bool create_renderer(Object* self, ValueArray args, Value* out) {
-    if (plane.vm_instantiate_class(renderer_class, args, out) != CALL_RESULT_SUCCESS) {
+    if (ribbon.vm_instantiate_class(renderer_class, args, out) != CALL_RESULT_SUCCESS) {
         *out = MAKE_VALUE_NIL();
         return true;
     }
@@ -360,7 +360,7 @@ static bool create_renderer(Object* self, ValueArray args, Value* out) {
 }
 
 static bool img_init(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "n")) {
+    if (!ribbon.arguments_valid(args, "n")) {
         return false;
     }
 
@@ -371,7 +371,7 @@ static bool img_init(Object* self, ValueArray args, Value* out) {
 }
 
 static bool show_cursor(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "n")) {
+    if (!ribbon.arguments_valid(args, "n")) {
         return false;
     }
 
@@ -382,7 +382,7 @@ static bool show_cursor(Object* self, ValueArray args, Value* out) {
 }
 
 static bool destroy_renderer(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oRenderer")) {
+    if (!ribbon.arguments_valid(args, "oRenderer")) {
         return false;
     }
 
@@ -396,7 +396,7 @@ static bool destroy_renderer(Object* self, ValueArray args, Value* out) {
 }
 
 static bool destroy_window(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oWindow")) {
+    if (!ribbon.arguments_valid(args, "oWindow")) {
         return false;
     }
 
@@ -435,7 +435,7 @@ static void event_class_deallocate(ObjectInstance* instance) {
 
 static Object** renderer_class_gc_mark(ObjectInstance* instance) {
     ObjectInstanceRenderer* renderer = (ObjectInstanceRenderer*) instance;
-    Object** leefs = plane.allocate(sizeof(Object*) * 2, plane.EXTENSION_ALLOC_STRING_GC_LEEFS);
+    Object** leefs = ribbon.allocate(sizeof(Object*) * 2, ribbon.EXTENSION_ALLOC_STRING_GC_LEEFS);
     leefs[0] = (Object*) renderer->window;
     leefs[1] = NULL;
     return leefs;
@@ -447,7 +447,7 @@ static void window_class_deallocate(ObjectInstance* instance) {
         SDL_DestroyWindow(window->window);
         window->window = NULL;
     }
-    plane.deallocate(window->title, strlen(window->title) + 1, plane.EXTENSION_ALLOC_STRING_CSTRING);
+    ribbon.deallocate(window->title, strlen(window->title) + 1, ribbon.EXTENSION_ALLOC_STRING_CSTRING);
 }
 
 static void renderer_class_deallocate(ObjectInstance* instance) {
@@ -459,7 +459,7 @@ static void renderer_class_deallocate(ObjectInstance* instance) {
 }
 
 static bool log_message(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "n n oString")) {
+    if (!ribbon.arguments_valid(args, "n n oString")) {
         return false;
     }
 
@@ -470,12 +470,12 @@ static bool log_message(Object* self, ValueArray args, Value* out) {
     ObjectString* message_to_print;
 
     Value cached_val;
-    if (plane.table_get(&cached_strings->table, MAKE_VALUE_OBJECT(message), &cached_val)) {
+    if (ribbon.table_get(&cached_strings->table, MAKE_VALUE_OBJECT(message), &cached_val)) {
         message_to_print = (ObjectString*) cached_val.as.object;
     } else {
-        ObjectString* null_delimited_message = plane.object_string_clone(message);
+        ObjectString* null_delimited_message = ribbon.object_string_clone(message);
         message_to_print = null_delimited_message;
-        plane.table_set(&cached_strings->table, MAKE_VALUE_OBJECT(null_delimited_message), MAKE_VALUE_OBJECT(null_delimited_message));
+        ribbon.table_set(&cached_strings->table, MAKE_VALUE_OBJECT(null_delimited_message), MAKE_VALUE_OBJECT(null_delimited_message));
     }
 
     SDL_LogMessage(category, priority, message_to_print->chars);
@@ -484,7 +484,7 @@ static bool log_message(Object* self, ValueArray args, Value* out) {
 }
 
 static bool query_texture(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oTexture oTable")) {
+    if (!ribbon.arguments_valid(args, "oTexture oTable")) {
         return false;
     }
 
@@ -495,17 +495,17 @@ static bool query_texture(Object* self, ValueArray args, Value* out) {
     int access, width, height;
     int result = SDL_QueryTexture(texture->texture, &format, &access, &width, &height);
 
-    plane.table_set_cstring_key(&out_table->table, "format", MAKE_VALUE_NUMBER(format));
-    plane.table_set_cstring_key(&out_table->table, "access", MAKE_VALUE_NUMBER(access));
-    plane.table_set_cstring_key(&out_table->table, "w", MAKE_VALUE_NUMBER(width));
-    plane.table_set_cstring_key(&out_table->table, "h", MAKE_VALUE_NUMBER(height));
+    ribbon.table_set_cstring_key(&out_table->table, "format", MAKE_VALUE_NUMBER(format));
+    ribbon.table_set_cstring_key(&out_table->table, "access", MAKE_VALUE_NUMBER(access));
+    ribbon.table_set_cstring_key(&out_table->table, "w", MAKE_VALUE_NUMBER(width));
+    ribbon.table_set_cstring_key(&out_table->table, "h", MAKE_VALUE_NUMBER(height));
 
     *out = MAKE_VALUE_NUMBER(result);
     return true;   
 }
 
 static bool set_render_draw_color(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oRenderer n n n n")) {
+    if (!ribbon.arguments_valid(args, "oRenderer n n n n")) {
         return false;
     }
 
@@ -520,7 +520,7 @@ static bool set_render_draw_color(Object* self, ValueArray args, Value* out) {
 }
 
 static bool render_clear(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oRenderer")) {
+    if (!ribbon.arguments_valid(args, "oRenderer")) {
         return false;
     }
 
@@ -530,7 +530,7 @@ static bool render_clear(Object* self, ValueArray args, Value* out) {
 }
 
 static bool render_present(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oRenderer")) {
+    if (!ribbon.arguments_valid(args, "oRenderer")) {
         return false;
     }
 
@@ -541,7 +541,7 @@ static bool render_present(Object* self, ValueArray args, Value* out) {
 }
 
 static bool render_copy(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oRenderer oTexture i|oRect oRect|i")) {
+    if (!ribbon.arguments_valid(args, "oRenderer oTexture i|oRect oRect|i")) {
         return false;
     }
 
@@ -569,7 +569,7 @@ static bool render_copy(Object* self, ValueArray args, Value* out) {
 }
 
 static bool img_load_texture(Object* self, ValueArray args, Value* out) {
-    if (plane.vm_instantiate_class(texture_class, args, out) != CALL_RESULT_SUCCESS) {
+    if (ribbon.vm_instantiate_class(texture_class, args, out) != CALL_RESULT_SUCCESS) {
         FAIL("Temp fail: couldn't instantiate texture class");
     }
 
@@ -591,11 +591,11 @@ static bool poll_event(Object* self, ValueArray args, Value* out) {
 
     if (result == 1) {
         ValueArray event_args = 
-            plane.value_array_make(3, (Value[]) {MAKE_VALUE_NUMBER(event.type), MAKE_VALUE_NUMBER(scancode), MAKE_VALUE_NUMBER(repeat)});
-        if (plane.vm_instantiate_class(event_class, event_args, out) != CALL_RESULT_SUCCESS) {
+            ribbon.value_array_make(3, (Value[]) {MAKE_VALUE_NUMBER(event.type), MAKE_VALUE_NUMBER(scancode), MAKE_VALUE_NUMBER(repeat)});
+        if (ribbon.vm_instantiate_class(event_class, event_args, out) != CALL_RESULT_SUCCESS) {
             FAIL("Failed to instantiate event class for some reason.");
         }
-        plane.value_array_free(&event_args);
+        ribbon.value_array_free(&event_args);
     } else {
         *out = MAKE_VALUE_NIL();
     }
@@ -609,7 +609,7 @@ static bool get_ticks(Object* self, ValueArray args, Value* out) {
 }
 
 static bool delay(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "n")) {
+    if (!ribbon.arguments_valid(args, "n")) {
         return false;
     }
 
@@ -620,7 +620,7 @@ static bool delay(Object* self, ValueArray args, Value* out) {
 }
 
 static bool render_draw_line(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oRenderer n n n n")) {
+    if (!ribbon.arguments_valid(args, "oRenderer n n n n")) {
         return false;
     }
 
@@ -635,7 +635,7 @@ static bool render_draw_line(Object* self, ValueArray args, Value* out) {
 }
 
 static bool set_render_draw_blend_mode(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oRenderer n")) {
+    if (!ribbon.arguments_valid(args, "oRenderer n")) {
         return false;
     }
 
@@ -647,7 +647,7 @@ static bool set_render_draw_blend_mode(Object* self, ValueArray args, Value* out
 }
 
 static bool set_texture_blend_mode(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oTexture n")) {
+    if (!ribbon.arguments_valid(args, "oTexture n")) {
         return false;
     }
 
@@ -659,7 +659,7 @@ static bool set_texture_blend_mode(Object* self, ValueArray args, Value* out) {
 }
 
 static bool set_texture_color_mod(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oTexture n n n")) {
+    if (!ribbon.arguments_valid(args, "oTexture n n n")) {
         return false;
     }
 
@@ -673,7 +673,7 @@ static bool set_texture_color_mod(Object* self, ValueArray args, Value* out) {
 }
 
 static bool set_texture_alpha_mod(Object* self, ValueArray args, Value* out) {
-    if (!plane.arguments_valid(args, "oTexture n")) {
+    if (!ribbon.arguments_valid(args, "oTexture n")) {
         return false;
     }
 
@@ -685,8 +685,8 @@ static bool set_texture_alpha_mod(Object* self, ValueArray args, Value* out) {
 }
 
 static void expose_function(char* name, int num_params, char** params, NativeFunction function) {
-    Value value = MAKE_VALUE_OBJECT(plane.make_native_function_with_params(name, num_params, params, function));
-    plane.object_set_attribute_cstring_key((Object*) this, name, value);
+    Value value = MAKE_VALUE_OBJECT(ribbon.make_native_function_with_params(name, num_params, params, function));
+    ribbon.object_set_attribute_cstring_key((Object*) this, name, value);
 }
 
 
@@ -694,49 +694,49 @@ static ObjectClass* expose_class(
     char* name, size_t instance_size, DeallocationFunction dealloc_func,
     GcMarkFunction gc_mark_func, ObjectFunction* init_func, void* descriptors[][2]) {
 
-    ObjectClass* klass = plane.object_class_native_new(name, instance_size, dealloc_func, gc_mark_func, init_func, descriptors);
-    plane.object_set_attribute_cstring_key((Object*) this, name, MAKE_VALUE_OBJECT(klass));
+    ObjectClass* klass = ribbon.object_class_native_new(name, instance_size, dealloc_func, gc_mark_func, init_func, descriptors);
+    ribbon.object_set_attribute_cstring_key((Object*) this, name, MAKE_VALUE_OBJECT(klass));
     return klass;
 }
 
-__declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module) {
-    plane = api;
+__declspec(dllexport) bool ribbon_module_init(RibbonApi api, ObjectModule* module) {
+    ribbon = api;
     this = module;
 
     /* Init internal stuff */
     
     owned_string_counter = 0;
-    owned_strings = plane.object_table_new_empty();
-    plane.object_set_attribute_cstring_key((Object*) this, "_owned_strings", MAKE_VALUE_OBJECT(owned_strings));
+    owned_strings = ribbon.object_table_new_empty();
+    ribbon.object_set_attribute_cstring_key((Object*) this, "_owned_strings", MAKE_VALUE_OBJECT(owned_strings));
 
     cached_strings_counter = 0;
-    cached_strings = plane.object_table_new_empty();
-    plane.object_set_attribute_cstring_key((Object*) this, "_cached_strings", MAKE_VALUE_OBJECT(cached_strings));
+    cached_strings = ribbon.object_table_new_empty();
+    ribbon.object_set_attribute_cstring_key((Object*) this, "_cached_strings", MAKE_VALUE_OBJECT(cached_strings));
 
     /* Init and expose classes */
 
     texture_class = expose_class("Texture", sizeof(ObjectInstanceTexture), texture_class_deallocate, NULL,
-                plane.object_make_constructor(2, (char*[]) {"renderer", "filename"}, texture_init), NULL);
+                ribbon.object_make_constructor(2, (char*[]) {"renderer", "filename"}, texture_init), NULL);
     window_class = expose_class("Window", sizeof(ObjectInstanceWindow), window_class_deallocate, NULL, 
-                plane.object_make_constructor(6, (char*[]) {"title", "x", "y", "w", "h", "flags"}, window_init), NULL);
+                ribbon.object_make_constructor(6, (char*[]) {"title", "x", "y", "w", "h", "flags"}, window_init), NULL);
     renderer_class = expose_class("Renderer", sizeof(ObjectInstanceRenderer), renderer_class_deallocate, renderer_class_gc_mark,
-                plane.object_make_constructor(3, (char*[]) {"window", "index", "flags"}, renderer_init), NULL);
+                ribbon.object_make_constructor(3, (char*[]) {"window", "index", "flags"}, renderer_init), NULL);
 
-    ObjectInstance* rect_descriptor = plane.object_descriptor_new_native(rect_descriptor_get, rect_descriptor_set);
+    ObjectInstance* rect_descriptor = ribbon.object_descriptor_new_native(rect_descriptor_get, rect_descriptor_set);
     void* rect_descriptors[][2] = {
         {"x", rect_descriptor}, {"y", rect_descriptor}, {"w", rect_descriptor}, {"h", rect_descriptor}, {NULL, NULL}
     };
 
     rect_class = expose_class("Rect", sizeof(ObjectInstanceRect), rect_class_deallocate, NULL, 
-                plane.object_make_constructor(4, (char*[]) {"x", "y", "w", "h"}, rect_init), rect_descriptors);
+                ribbon.object_make_constructor(4, (char*[]) {"x", "y", "w", "h"}, rect_init), rect_descriptors);
 
-    ObjectInstance* event_descriptor = plane.object_descriptor_new_native(event_descriptor_get, event_descriptor_set);
+    ObjectInstance* event_descriptor = ribbon.object_descriptor_new_native(event_descriptor_get, event_descriptor_set);
     void* event_descriptors[][2] = {
         {"type", event_descriptor}, {"scancode", event_descriptor}, {"repeat", event_descriptor}, {NULL, NULL}
     };
 
     event_class = expose_class("Event", sizeof(ObjectInstanceEvent), event_class_deallocate,
-        NULL, plane.object_make_constructor(3, (char*[]) {"type", "scancode", "repeat"}, event_init), event_descriptors);
+        NULL, ribbon.object_make_constructor(3, (char*[]) {"type", "scancode", "repeat"}, event_init), event_descriptors);
 
     /* Init and explose function */
 
@@ -767,25 +767,25 @@ __declspec(dllexport) bool plane_module_init(PlaneApi api, ObjectModule* module)
 
     /* Init and expose constants */
 
-    plane.object_set_attribute_cstring_key((Object*) this, "SDL_WINDOWPOS_UNDEFINED", MAKE_VALUE_NUMBER(SDL_WINDOWPOS_UNDEFINED));
-    plane.object_set_attribute_cstring_key((Object*) this, "SDL_INIT_VIDEO", MAKE_VALUE_NUMBER(SDL_INIT_VIDEO));
-    plane.object_set_attribute_cstring_key((Object*) this, 
+    ribbon.object_set_attribute_cstring_key((Object*) this, "SDL_WINDOWPOS_UNDEFINED", MAKE_VALUE_NUMBER(SDL_WINDOWPOS_UNDEFINED));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "SDL_INIT_VIDEO", MAKE_VALUE_NUMBER(SDL_INIT_VIDEO));
+    ribbon.object_set_attribute_cstring_key((Object*) this, 
                         "SDL_HINT_RENDER_SCALE_QUALITY",
-                        MAKE_VALUE_OBJECT(plane.object_string_copy_from_null_terminated(SDL_HINT_RENDER_SCALE_QUALITY)));
-    plane.object_set_attribute_cstring_key((Object*) this, "SDL_RENDERER_ACCELERATED", MAKE_VALUE_NUMBER(SDL_RENDERER_ACCELERATED));
-    plane.object_set_attribute_cstring_key((Object*) this, "IMG_INIT_PNG", MAKE_VALUE_NUMBER(IMG_INIT_PNG));
-    plane.object_set_attribute_cstring_key((Object*) this, "IMG_INIT_JPG", MAKE_VALUE_NUMBER(IMG_INIT_JPG));
-    plane.object_set_attribute_cstring_key((Object*) this, "SDL_LOG_CATEGORY_APPLICATION", MAKE_VALUE_NUMBER(SDL_LOG_CATEGORY_APPLICATION));
-    plane.object_set_attribute_cstring_key((Object*) this, "SDL_LOG_PRIORITY_INFO", MAKE_VALUE_NUMBER(SDL_LOG_PRIORITY_INFO));
+                        MAKE_VALUE_OBJECT(ribbon.object_string_copy_from_null_terminated(SDL_HINT_RENDER_SCALE_QUALITY)));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "SDL_RENDERER_ACCELERATED", MAKE_VALUE_NUMBER(SDL_RENDERER_ACCELERATED));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "IMG_INIT_PNG", MAKE_VALUE_NUMBER(IMG_INIT_PNG));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "IMG_INIT_JPG", MAKE_VALUE_NUMBER(IMG_INIT_JPG));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "SDL_LOG_CATEGORY_APPLICATION", MAKE_VALUE_NUMBER(SDL_LOG_CATEGORY_APPLICATION));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "SDL_LOG_PRIORITY_INFO", MAKE_VALUE_NUMBER(SDL_LOG_PRIORITY_INFO));
 
-    plane.object_set_attribute_cstring_key((Object*) this, "SDL_QUIT", MAKE_VALUE_NUMBER(SDL_QUIT));
-    plane.object_set_attribute_cstring_key((Object*) this, "SDL_KEYUP", MAKE_VALUE_NUMBER(SDL_KEYUP));
-    plane.object_set_attribute_cstring_key((Object*) this, "SDL_KEYDOWN", MAKE_VALUE_NUMBER(SDL_KEYDOWN));
-    plane.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_UP", MAKE_VALUE_NUMBER(SDL_SCANCODE_UP));
-    plane.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_DOWN", MAKE_VALUE_NUMBER(SDL_SCANCODE_DOWN));
-    plane.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_LEFT", MAKE_VALUE_NUMBER(SDL_SCANCODE_LEFT));
-    plane.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_RIGHT", MAKE_VALUE_NUMBER(SDL_SCANCODE_RIGHT));
-    plane.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_SPACE", MAKE_VALUE_NUMBER(SDL_SCANCODE_SPACE));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "SDL_QUIT", MAKE_VALUE_NUMBER(SDL_QUIT));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "SDL_KEYUP", MAKE_VALUE_NUMBER(SDL_KEYUP));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "SDL_KEYDOWN", MAKE_VALUE_NUMBER(SDL_KEYDOWN));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_UP", MAKE_VALUE_NUMBER(SDL_SCANCODE_UP));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_DOWN", MAKE_VALUE_NUMBER(SDL_SCANCODE_DOWN));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_LEFT", MAKE_VALUE_NUMBER(SDL_SCANCODE_LEFT));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_RIGHT", MAKE_VALUE_NUMBER(SDL_SCANCODE_RIGHT));
+    ribbon.object_set_attribute_cstring_key((Object*) this, "SDL_SCANCODE_SPACE", MAKE_VALUE_NUMBER(SDL_SCANCODE_SPACE));
 
     return true;
 }

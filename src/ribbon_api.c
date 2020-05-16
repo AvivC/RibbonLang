@@ -1,6 +1,6 @@
-#include "plane.h"
+#include "ribbon_api.h"
 
-PlaneApi API = {
+RibbonApi API = {
     .EXTENSION_ALLOC_STRING_CSTRING = "extension cstring",
     .EXTENSION_ALLOC_STRING_GC_LEEFS = "extension gc leefs",
     .EXTENSION_ALLOC_STRING_MISC = "extension memory allocation",

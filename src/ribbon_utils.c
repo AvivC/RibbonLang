@@ -1,10 +1,10 @@
 #include <string.h>
 #include <windows.h>
 
-#include "plane_utils.h"
+#include "ribbon_utils.h"
 #include "memory.h"
 #include "value.h"
-#include "plane_object.h"
+#include "ribbon_object.h"
 
 uint16_t two_bytes_to_short(uint8_t a, uint8_t b) {
 	return (a << 8) + b;

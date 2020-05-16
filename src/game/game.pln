@@ -89,7 +89,7 @@ draw = {
 main = {
     external running
 
-    init_game("My Plane Game! :D")
+    init_game("My Game in Ribbon! :D")
 
     MAX_DT = 1 / res.MAX_FPS
     

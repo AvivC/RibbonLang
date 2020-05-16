@@ -1,5 +1,5 @@
-#ifndef plane_common_h
-#define plane_common_h
+#ifndef ribbon_common_h
+#define ribbon_common_h
 
 #include <stdlib.h>
 #include <stddef.h>

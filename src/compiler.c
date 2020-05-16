@@ -1,12 +1,12 @@
 #include "string.h"
 #include "compiler.h"
 #include "parser.h"
-#include "plane_object.h"
+#include "ribbon_object.h"
 #include "ast.h"
 #include "bytecode.h"
 #include "value.h"
 #include "memory.h"
-#include "plane_utils.h"
+#include "ribbon_utils.h"
 
 static void emit_byte(Bytecode* chunk, uint8_t byte) {
 	bytecode_write(chunk, byte);

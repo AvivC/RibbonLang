@@ -164,7 +164,7 @@ expect
     49
 end
 
-test more extension communication and also importing plane module from extension
+test more extension communication and also importing ribbon module from extension
     # Description of the native function my_second_user_extension.more_talk_with_other_extension():
     #
     # It utilizes vm_call_bound_method, vm_instantiate_class, vm_call_attribute_cstring and object_load_attribute

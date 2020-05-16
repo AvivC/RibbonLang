@@ -1,9 +1,9 @@
 #include "disassembler.h"
 
 #include <stdio.h>
-#include "plane_object.h"
+#include "ribbon_object.h"
 #include "value.h"
-#include "plane_utils.h"
+#include "ribbon_utils.h"
 
 // TODO: Add tests maybe?
 

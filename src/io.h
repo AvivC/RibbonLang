@@ -1,5 +1,5 @@
-#ifndef plane_io_h
-#define plane_io_h
+#ifndef ribbon_io_h
+#define ribbon_io_h
 
 #include <windows.h>
 #include "common.h"

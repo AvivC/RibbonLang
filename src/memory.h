@@ -1,5 +1,5 @@
-#ifndef plane_memory_h
-#define plane_memory_h
+#ifndef ribbon_memory_h
+#define ribbon_memory_h
 
 #include "common.h"
 

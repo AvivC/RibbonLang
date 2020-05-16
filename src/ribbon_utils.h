@@ -1,5 +1,5 @@
-#ifndef plane_plane_utils_h
-#define plane_plane_utils_h
+#ifndef ribbon_ribbon_utils_h
+#define ribbon_ribbon_utils_h
 
 #include "common.h"
 #include "dynamic_array.h"

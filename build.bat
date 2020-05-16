@@ -1,2 +1,2 @@
-gcc -IC:/msys64_new/mingw64/include src/*.c -o src/plane.exe -g -Wall -Wno-unused -LC:/msys64_new/mingw64/lib -lShlwapi
+gcc -I%RIBBON_BUILD_INCLUDE% src/*.c -o src/ribbon.exe -g -Wall -Wno-unused -L%RIBBON_BUILD_LIB% -lShlwapi
 

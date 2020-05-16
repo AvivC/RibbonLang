@@ -1,1 +1,1 @@
-plane.exe code.pln -dry -asm -tree
+ribbon.exe code.pln -dry -asm -tree

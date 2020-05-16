@@ -1,6 +1,6 @@
 #include "builtin_test_module.h"
 #include "common.h"
-#include "plane_object.h"
+#include "ribbon_object.h"
 #include "vm.h"
 
 /* Functions for the _testing module, only for use in tests. Consider not creating _testing module in release build. */

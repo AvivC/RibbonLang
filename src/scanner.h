@@ -1,5 +1,5 @@
-#ifndef plane_scanner_h
-#define plane_scanner_h
+#ifndef ribbon_scanner_h
+#define ribbon_scanner_h
 
 typedef enum {
     // Token types

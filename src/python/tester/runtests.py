@@ -7,7 +7,7 @@ import itertools
 
 TEST_FILE_SUFFIX = '.test'
 DEFAULT_TESTS_DIR = 'tests'
-INTERPRETER_NAME = 'plane.exe'
+INTERPRETER_NAME = 'ribbon.exe'
 INTERPRETER_ARGS = ''
 
 
