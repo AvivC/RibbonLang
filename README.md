@@ -58,7 +58,8 @@ After building Ribbon, it can be easily distributed and installed as a self cont
 
 #### Requirements to run Ribbon:
 
-* Ribbon is currently only supported on Windows 64 bit
+* Ribbon currently only runs on Windows 64 bit
+* A standard Windows C runtime, no other dependencies are mandatory
 
 #### Requirements to build Ribbon:
 
