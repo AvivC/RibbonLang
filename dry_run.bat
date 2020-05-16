@@ -1,1 +1,1 @@
-ribbon.exe code.pln -dry -asm -tree
+ribbon.exe code.rib -dry -asm -tree

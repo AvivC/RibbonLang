@@ -854,7 +854,7 @@ ImportResult vm_import_module(ObjectString* module_name) {
 	table and that has no effect. 
 	*/
 
-	char* user_module_file_suffix = ".pln";
+	char* user_module_file_suffix = ".rib";
 	char* extension_module_file_suffix = ".dll";
 
 	char* main_module_dir = NULL;

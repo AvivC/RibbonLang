@@ -12,7 +12,7 @@ INTERPRETER_ARGS = ''
 
 
 def _run_on_interpreter(interpreter_path, input_text, additional_files):
-    input_file_name = _relative_path_to_abs(os.path.join('..', '..', f'{str(uuid.uuid4())}.pln'))
+    input_file_name = _relative_path_to_abs(os.path.join('..', '..', f'{str(uuid.uuid4())}.rib'))
     with open(input_file_name, 'w') as f:
         f.write(input_text)
 

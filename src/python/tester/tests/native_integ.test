@@ -98,7 +98,7 @@ test cross module
     print("Starting")
     retval = _testing.call_callback_with_args(mymodule.callback1, 6, 8)
     print(retval)
-file mymodule.pln
+file mymodule.rib
     outer_var1 = 10
     outer_var2 = 20
 

@@ -1,6 +1,6 @@
 test basic import
     import testmodule
-file testmodule.pln
+file testmodule.rib
     print("Importing testmodule")
 expect
     Importing testmodule
@@ -9,10 +9,10 @@ end
 test nested imports
     import testmodule1
     print("main")
-file testmodule1.pln
+file testmodule1.rib
     import testmodule2
     print("1")
-file testmodule2.pln
+file testmodule2.rib
     print("2")
 expect
     2
@@ -26,9 +26,9 @@ test module caching
     import testmodule2
     import testmodule1
     import testmodule2
-file testmodule1.pln
+file testmodule1.rib
     print("I'm testmodule1")
-file testmodule2.pln
+file testmodule2.rib
     print("I'm testmodule2")
 expect
     I'm testmodule1
@@ -50,7 +50,7 @@ test module attributes
     print(testmodule1.func2(2))
 
     testmodule1.nonexistent # this will crash the program with an error
-file testmodule1.pln
+file testmodule1.rib
     attr1 = "I'm an attribute"
     func1 = { | x |
         return x * 2
@@ -81,11 +81,11 @@ test user module takes precedence over stdlib module
     print(math.user_module_variable)
     import math  # won't print anything because module is already cached
     print(math.user_module_variable)
-file math.pln
-    print("I'm the math.pln user module")
+file math.rib
+    print("I'm the math.rib user module")
     user_module_variable = 10
 expect
-    I'm the math.pln user module
+    I'm the math.rib user module
     10
     10
 end

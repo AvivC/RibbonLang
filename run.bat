@@ -1,1 +1,1 @@
-src\ribbon.exe src\code.pln -asm -tree
+src\ribbon.exe src\code.rib -asm -tree
