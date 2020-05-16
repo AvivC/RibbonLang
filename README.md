@@ -98,13 +98,17 @@ After building Ribbon, it can be easily distributed and installed as a self cont
 
         > ribbon your_program.rib
         
-8. **Optional:** Ribbon comes with a standard library `graphics` for 2D graphics programming. It's a wrapper around the SDL2 C library. The steps to build it:
+8. **Optional:** Ribbon comes with a standard library `graphics` module for 2D graphics programming. It's a wrapper around the SDL2 C library. The steps to build it:
     1. Acquire the SDL2 official binaries: `SDL2.dll` and `SDL2_image.dll`, with their corresponding headers and static libraries.
     2. Place the SDL2 `.a` files under `%RIBBON_BUILD_LIB%` (among the other binaries of the C libraries on your system)
     3. Place the SDL2 header files under `%RIBBON_BUILD_INCLUDE%/SDL2`
     4. During runtime, our `graphics` module needs to find SDL2. Place the `SDL2.dll` and `SDL2_image.dll` under `<ribbon_installation_directory>\stdlib\`. For example, under: `release\ribbon\stdlib\`.
     4. Build the `graphics` module like so:
   
-          > src\sdl_extension\bdeploy_optimized.bat
+            > src\sdl_extension\bdeploy_optimized.bat
           
-    5. You should now see the `graphics.dll` module in the `stdlib` directory.
+    5. You should now see the `graphics.dll` module in the `stdlib` directory. It is now available to `import`.
+
+### Ribbon programming guide
+
+A guide to programming in Ribbon is on it's way.
