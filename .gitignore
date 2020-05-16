@@ -1,4 +1,8 @@
 code.rib
+bdry_run.bat
+brun.bat
+dry_run.bat
+run.bat
 *.exe
 *.pyc
 *.dll
