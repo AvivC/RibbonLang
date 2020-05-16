@@ -1,1 +1,0 @@
-src\ribbon.exe src\code.rib -asm -tree
