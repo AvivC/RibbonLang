@@ -50,15 +50,21 @@ fizzbuzz(20)
 * 2D graphics programming supported out of the box via a standard library module (wrapping the native SDL library)
 * Comprehensive test suite for the interpreter
 
-### How to get Ribbon:
+### How to install Ribbon:
 
-In order to use Ribbon we need to build it from source.
+In order to install Ribbon we first need to build it from source.
 
-Necessary tools:
+After building Ribbon, it can be easily distributed and installed as a self contained directory, containing the interpreter `ribbon.exe` with the standard library `stdlib/` next to it.
 
-* Mingw-w64 GCC (other compilers may work as well)
-* Currently only supported on Windows
-* **Optional:** in order to build the included `graphics` standard library module, we need the SDL2 DLLs and corresponding headers. More on this later
+#### Requirements to run Ribbon:
+
+* Ribbon is currently only supported on Windows 64 bit
+
+#### Requirements to build Ribbon:
+
+* Mingw-w64 GCC is required to build the interpreter (other compilers may work as well)
+* Python 3 is required for running the test suite for the interpreter. It should be visible on the `PATH` as `python`
+* **Optional:** in order to build the included `graphics` standard library module, we need the SDL2 library installed. More on this later
 
 Steps to build Ribbon:
 
@@ -78,7 +84,7 @@ Steps to build Ribbon:
 
         > src\sample_extension\bdeploy.bat
           
-6. Run the test suite for the Ribbon:
+6. Run the test suite for the Ribbon interpreter:
 
         > test.bat
         
