@@ -1,0 +1,3 @@
+SETLOCAL
+set y=hi
+ENDLOCAL

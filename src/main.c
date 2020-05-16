@@ -83,10 +83,6 @@ static void print_memory_diagnostic() {
 }
 
 int main(int argc, char* argv[]) {
-    // printf("GC_STRESS_TEST: %d\n", GC_STRESS_TEST);
-    // printf("MEMORY_DIAGNOSTICS: %d\n", MEMORY_DIAGNOSTICS);
-    // printf("DEBUG_IMPORTANT: %d\n", DEBUG_IMPORTANT);
-
     if (argc < 2 || argc > 5) {
         fprintf(stdout, "Usage: ribbon <file> [[-asm] [-tree] [-dry]]");
         return -1;
