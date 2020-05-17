@@ -9,13 +9,13 @@ The code examples use Python syntax highlighting, since Ribbon syntax is influen
 ### Table of contents
 
 * [Datatypes](#datatypes)
-* [User input](#user-input)
+* [Standard IO](#standard-io)
+* [Boolean and arithmetic expressions](#boolean-and-arithmetic-expressions)
 * [Control flow](#control-flow)
 * [Functions](#functions)
 * [Classes](#classes)
 * [Polymorphism](#polymorphism)
 * [Modules](#modules)
-* [Boolean and arithmetic expressions](#boolean-and-arithmetic-expressions)
 * [The extension system](#the-extension-system)
 * [Miscellaneous](#miscellaneous)
 
@@ -88,7 +88,7 @@ dictionary = ["python": "elegant", "javascript": "nice", "ribbon": "great"]
 print(dictionary["ribbon"])  # > great
 ```
 
-### User input
+### Standard IO
 
 Ribbon comes with a variety of builtin functions (along with a few standard library modules - more on this later).
 
@@ -101,6 +101,41 @@ and returns it as a string.
 print("What is your name?")
 name = input()
 print("Hello, " + name)
+```
+
+### Boolean and arithmetic expressions
+
+The arithmetic operators are:
+
+```python
+Addition         +
+Subtraction      -
+Multiplicaiton   *
+Division         /
+Modulo           %
+```
+
+The comparison operators are:
+
+```python
+Less than            <
+Less than equals     <=
+Greater than         >
+Greater than equals  >=
+Equals               ==
+```
+
+And the boolean relation operators are `and` and `or`. These are *short circuiting*.
+
+For example:
+
+```python
+a = 10
+b = 20
+
+if a * b > 100 or b % 2 == 0 {
+    # Do something
+}
 ```
 
 ### Control flow
@@ -316,41 +351,6 @@ For example:
 import math
 
 print(math.sqrt(25))  # 5
-```
-
-### Boolean and arithmetic expressions
-
-The arithmetic operators are:
-
-```python
-Addition         +
-Subtraction      -
-Multiplicaiton   *
-Division         /
-Modulo           %
-```
-
-The comparison operators are:
-
-```python
-Less than            <
-Less than equals     <=
-Greater than         >
-Greater than equals  >=
-Equals               ==
-```
-
-And the boolean relation operators are `and` and `or`. These are *short circuiting*.
-
-For example:
-
-```python
-a = 10
-b = 20
-
-if a * b > 100 or b % 2 == 0 {
-    # Do something
-}
 ```
 
 ### The extension system
