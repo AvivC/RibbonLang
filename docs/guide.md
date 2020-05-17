@@ -49,7 +49,7 @@ longer_string = string + " Some more words"
 
 #### Table
 
-In Ribbon, Tables are used both as list-style structures or and as dictionary containers. It is a hashtable under the hood.
+In Ribbon, Tables are used both as list-style structures and as dictionary containers. It is a hashtable under the hood.
 
 Table used as a list:
 
