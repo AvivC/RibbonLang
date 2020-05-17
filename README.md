@@ -58,7 +58,7 @@ The Ribbon language guide can be found [here](docs/guide.md).
 
 In order to install Ribbon we first need to build it from source.
 
-After building Ribbon, it can be easily distributed and installed as a self contained directory, containing the interpreter `ribbon.exe` with the standard library `stdlib/` next to it.
+After building Ribbon, it can be easily distributed and installed as a self contained directory, containing the interpreter `ribbon.exe` with the standard library `stdlib\` next to it.
 
 #### Requirements to run Ribbon:
 
@@ -81,7 +81,7 @@ After building Ribbon, it can be easily distributed and installed as a self cont
     * Point `RIBBON_BUILD_LIB` to the directory of the C libraries binaries (For example: `C:/msys64/mingw64/lib`)
 
 4. Run `build_dev.bat` in order to build in development mode. This turns on several diagnostics, and is necessary for the tests to pass.
-   After building, the output binary `ribbon.exe` will be located at `src/ribbon.exe`.
+   After building, the development output binary `ribbon.exe` will be located at `src\ribbon.exe`.
 
         > build_dev.bat
   
@@ -112,12 +112,21 @@ After building Ribbon, it can be easily distributed and installed as a self cont
     1. Acquire the SDL2 official binaries: `SDL2.dll` and `SDL2_image.dll`, with their corresponding headers and static libraries.
     2. Place the SDL2 `.a` files under `%RIBBON_BUILD_LIB%` (among the other binaries of the C libraries on your system)
     3. Place the SDL2 header files under `%RIBBON_BUILD_INCLUDE%/SDL2`
-    4. During runtime, our `graphics` module will need to find the SDL2 `.dll` files. Place the `SDL2.dll` and `SDL2_image.dll` under `<installation directory>\stdlib\`. For example, under: `release\ribbon\stdlib\`.
+    4. During runtime, our `graphics` module will need to find the SDL2 `.dll` files. Place `SDL2.dll` and `SDL2_image.dll` under `src\stdlib\`, next to the other standard library files.
     4. Build the `graphics` module like so:
   
             > src\sdl_extension\bdeploy_optimized.bat
           
-    5. You should now see the `graphics.dll` module in the `stdlib` directory. It is now available to `import`.
+    5. You should now see the `graphics.dll` module in the `src\stdlib` directory.
+    
+    6. To include `graphics` in the release build of Ribbon, build Ribbon in release mode again:
+    
+            > build_release.bat [<installation directory>]
+            
+    7. Under `<installation_directory>\stdlib`, you should now be able to find `graphics.dll` and the SDL `.dll` files,
+       among the other standard library files.
+       
+    8. The module `graphics` is now available to `import`.
 
 -----
 
