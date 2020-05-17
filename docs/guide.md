@@ -4,7 +4,9 @@ This page is a general guide for writing code in Ribbon. Please go through the [
 
 To see an example of a real use of Ribbon, please check out [the source code for this 2D game written entirely in Ribbon](../src/game).
 
-#### Table of contents
+The code examples use Python syntax highlighting, since Ribbon syntax is influenced by that of Python.
+
+### Table of contents
 
 * [Datatypes](#datatypes)
 * [User input](#user-input)
@@ -40,7 +42,7 @@ Builtin object types:
 
 #### Number, Boolean and Nil
 
-```
+```python
 # This is a comment
 
 number = 30.5  # Can be an integer or a floating point
@@ -53,7 +55,7 @@ my_nil = nil  # represents no value
 Strings are immutable objects. We can perform different operations on them, among concatenation and accessing individual characters.
 Every string operation returns a new string.
 
-```
+```python
 string = "Hello Ribbon!"
 second_char = string[1]
 string_length = string.length()
@@ -66,7 +68,7 @@ In Ribbon, Tables are used both as list-style structures and as dictionary conta
 
 Table used as a list:
 
-```
+```python
 list = ["these", "are", "some", "items"]
 
 print(list[1])  # prints "are"
@@ -81,7 +83,7 @@ for item in list {
 
 Table used as a dictionary
 
-```
+```python
 dictionary = ["python": "elegant", "javascript": "nice", "ribbon": "great"]
 print(dictionary["ribbon"])  # > great
 ```
@@ -95,7 +97,7 @@ We will not cover all of them here. Please take a look at the source code in `vm
 The `print()` builtin function, well, prints a string to the terminal. The `input()` builtin takes input from the user
 and returns it as a string.
 
-```
+```python
 print("What is your name?")
 name = input()
 print("Hello, " + name)
@@ -107,7 +109,7 @@ Ribbon has the classic `if`, `while` and `for` statements that we know and love.
 
 #### If, Elsif and Else
 
-```
+```python
 if some_condition() {
     # ...
 } elsif other_condition() {
@@ -119,7 +121,7 @@ if some_condition() {
 
 #### While
 
-```
+```python
 while some_condition() {
    # ...
 }
@@ -132,7 +134,7 @@ That includes the methods `length` and `@get_key` (the `[]` accessor).
 
 Table objects are an example of an iterable object:
 
-```
+```python
 numbers = [10, 20, 30]
 
 sum = 0
@@ -147,7 +149,7 @@ print("The sum is: " + to_string(sum))
 
 In Ribbon, all functions are basically lambdas. We can assign a function to a variable in order to give it a name.
 
-```
+```python
 empty_function = {}  # No need to specify a parameter list if there aren't any
 
 multiply = { | x, y |
@@ -157,7 +159,7 @@ multiply = { | x, y |
 
 Like most things in Ribbon, functions are first class - we can pass them into other functions, in a functional programming style.
 
-```
+```python
 # Example of a higher order function
 map = { | list, func |
     result = []
@@ -176,7 +178,7 @@ map([1, 2, 3], { | n |
 Functions in Ribbon are **closures** - they can remember the surrounding variables from the scope they were defined in.
 This allows neat things such as:
 
-```
+```python
 greet_maker = { | name |
     return {
         return "Hello, " + name + "!"
@@ -191,7 +193,7 @@ my_greet()  # "Hello, Ribbon!"
 
 Class declarations, like functions, are simply anonymous expressions. Like all expressions, they can be assigned to variables.
 
-```
+```python
 Dog = class {
     # constructor is optional
     @init = { | name |
@@ -211,7 +213,7 @@ brown.bark()  # "brown: Woof!"
 
 Ribbon has single inheritance:
 
-```
+```python
 Labrador = class : Dog {
     bark = {
         # Override superclass bark()
@@ -249,7 +251,7 @@ Polymorphism in Ribbon is based on "duck typing" - if it quacks like a duck, it'
 Meaning, a method call on an object is resolved at runtime. If it has a matching method, that method is invoked.
 Inheritance isn't needed to acheive polymorphism.
 
-```
+```python
 Wolf = class {
     bark = {
         print("Wolf: ahoooo")
@@ -274,7 +276,7 @@ exposed for use in the importing module.
 
 File `program.rib`:
 
-```
+```python
 import myutils
 
 my_string = "Hello Ribbon"
@@ -285,7 +287,7 @@ print(tripple)
 
 File `myutils.rib`:
 
-```
+```python
 multiply_string = { | string, n |
     result = ""
     i = 0
@@ -310,7 +312,7 @@ The standard library is currently very minimal. It consists of `math`, `path` an
 
 For example:
 
-```
+```python
 import math
 
 print(math.sqrt(25))  # 5
@@ -320,7 +322,7 @@ print(math.sqrt(25))  # 5
 
 The arithmetic operators are:
 
-```
+```python
 Addition         +
 Subtraction      -
 Multiplicaiton   *
@@ -330,7 +332,7 @@ Modulo           %
 
 The comparison operators are:
 
-```
+```python
 Less than            <
 Less than equals     <=
 Greater than         >
@@ -342,7 +344,7 @@ And the boolean relation operators are `and` and `or`. These are *short circuiti
 
 For example:
 
-```
+```python
 a = 10
 b = 20
 
@@ -370,7 +372,7 @@ in the scope it was defined in.
 
 By default, setting a variable always shadows any outer scope that happens to have a variable of that name. For example:
 
-```
+```python
 x = 10
 
 f = {
@@ -384,7 +386,7 @@ print(x)  # Prints 10
 
 In case you do need to set an outer variable inside a function, use the `external` keyword:
 
-```
+```python
 x = 10
 
 f = {
