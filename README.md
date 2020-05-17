@@ -1,6 +1,6 @@
 # The Ribbon programming language
 
-Ribbon is an interpreted dynamic programming language. It's inspired by the likes of Python, Javascript and a little bit of Lua.
+Ribbon is a dynamic interpreted programming language. It's inspired by the likes of Python, Javascript and a little bit of Lua.
 
 [Here you can find a 2D game written in Ribbon](src/game).
 
