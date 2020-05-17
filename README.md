@@ -1,8 +1,10 @@
 # The Ribbon programming language
 
-Ribbon is a dynamic interpreted programming language. It's inspired by the likes of Python, Javascript and a little bit of Lua.
+Ribbon is a dynamic interpreted scripting language. It's inspired by the likes of Python, Javascript and a little bit of Lua.
 
-[Here you can find a 2D game written in Ribbon](src/game).
+### A glimpse of Ribbon
+
+[Here is a 2D game written entirely in Ribbon](src/game).
 
 And here is a Fizzbuzz implementation to get a look and feel for Ribbon:
 
@@ -80,7 +82,7 @@ After building Ribbon, it can be easily distributed and installed as a self cont
 
 4. Run `build_dev.bat` in order to build in development mode. This turns on several diagnostics, and is necessary for the tests to pass.
 
-        build_dev.bat
+        > build_dev.bat
   
 5. Ribbon comes with a dummy C module which is used in the test suite for the extension system. Build it from the current directory by running
 
