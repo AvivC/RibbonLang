@@ -97,7 +97,7 @@ After building Ribbon, it can be easily distributed and installed as a self cont
     
 7. Now we can build Ribbon for release. After building, this copies `ribbon.exe` and the adjacent `stdlib` directory, from `src` to a specified installation directory. If unspecified, the default is `release\ribbon`.
 
-        > build_release.bat [installation directory]      
+        > build_release.bat [<installation directory>]
 
 8. Add the installation directory containing `ribbon.exe` to your `PATH`, so `ribbon` can be easily launched
   from the command line.
@@ -112,7 +112,7 @@ After building Ribbon, it can be easily distributed and installed as a self cont
     1. Acquire the SDL2 official binaries: `SDL2.dll` and `SDL2_image.dll`, with their corresponding headers and static libraries.
     2. Place the SDL2 `.a` files under `%RIBBON_BUILD_LIB%` (among the other binaries of the C libraries on your system)
     3. Place the SDL2 header files under `%RIBBON_BUILD_INCLUDE%/SDL2`
-    4. During runtime, our `graphics` module needs to find SDL2. Place the `SDL2.dll` and `SDL2_image.dll` under `<ribbon_installation_directory>\stdlib\`. For example, under: `release\ribbon\stdlib\`.
+    4. During runtime, our `graphics` module will need to find the SDL2 `.dll` files. Place the `SDL2.dll` and `SDL2_image.dll` under `<installation directory>\stdlib\`. For example, under: `release\ribbon\stdlib\`.
     4. Build the `graphics` module like so:
   
             > src\sdl_extension\bdeploy_optimized.bat
