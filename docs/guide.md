@@ -338,6 +338,16 @@ if a * b > 100 or b % 2 == 0 {
 }
 ```
 
+### The extension system
+
+The Ribbon interpreter is extensible through writing custom extension modules in C.
+
+An extension module is visible to Ribbon code the same way as a normal module. And since it is written in C, it can access resources
+and OS functions which may not be available directly to Ribbon code.
+
+Ribbon includes an extension module named `graphics` in its standard library. [Its source code can be found here](../src/sdl_extension).
+This guide doesn't go into detail on developing extension modules. Learning this can be done by studying the source code.
+
 ### Miscellaneous
 
 #### Scopes
