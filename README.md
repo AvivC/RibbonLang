@@ -81,6 +81,7 @@ After building Ribbon, it can be easily distributed and installed as a self cont
     * Point `RIBBON_BUILD_LIB` to the directory of the C libraries binaries (For example: `C:/msys64/mingw64/lib`)
 
 4. Run `build_dev.bat` in order to build in development mode. This turns on several diagnostics, and is necessary for the tests to pass.
+   After building, the output binary `ribbon.exe` will be found under the `src/` folder.
 
         > build_dev.bat
   
