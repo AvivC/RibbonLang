@@ -4,6 +4,19 @@ This page is a general guide for writing code in Ribbon. Please go through the [
 
 To see an example of a real use of Ribbon, please check out [the source code for this 2D game written entirely in Ribbon](../src/game).
 
+#### Table of contents
+
+* [Datatypes](#datatypes)
+* [User input](#user-input)
+* [Control flow](#control-flow)
+* [Functions](#functions)
+* [Classes](#classes)
+* [Polymorphism](#polymorphism)
+* [Modules](#modules)
+* [Boolean and arithmetic expressions](#boolean-and-arithmetic-expressions)
+* [The extension system](#the-extension-system)
+* [Miscellaneous](#miscellaneous)
+
 ### Datatypes
 
 Ribbon has two types of data types - values and objects. Values are immutable and live on the stack. Objects are often mutable,
@@ -384,7 +397,7 @@ f()
 print(x)  # Prints 20. f() changed the value of x
 ```
 
------
+*****
 
 This concludes this guide for programming in Ribbon. There are additional builtin functions and corners of the language. Please
 explore the source code to learn more.
