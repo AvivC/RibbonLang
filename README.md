@@ -123,7 +123,7 @@ After building Ribbon, it can be easily distributed and installed as a self cont
     
             > build_release.bat [<installation directory>]
             
-    7. Under `<installation_directory>\stdlib`, you should now be able to find `graphics.dll` and the SDL `.dll` files,
+       Under `<installation_directory>\stdlib`, you should now be able to find `graphics.dll` and the SDL `.dll` files,
        among the other standard library files.
        
     8. The module `graphics` is now available to `import`.
