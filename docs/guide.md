@@ -1,5 +1,9 @@
 # Programming in Ribbon
 
+This page is a general guide for writing code in Ribbon.
+
+To see an example of a real use of Ribbon, please check out [the source code for this 2D game written entirely in Ribbon](../src/game).
+
 ### Datatypes
 
 Ribbon has two types of data types - values and objects. Values are immutable and live on the stack. Objects are often mutable,
@@ -33,7 +37,7 @@ my_nil = nil  # represents no value
 
 #### String
 
-Strings are immutable objects. We can perform different operations on them, among concatenetaion and accessing individual characters.
+Strings are immutable objects. We can perform different operations on them, among concatenation and accessing individual characters.
 Every string operation returns a new string.
 
 ```
@@ -65,18 +69,18 @@ for item in list {
 Table used as a dictionary
 
 ```
-dictionary = ["python": "good", "javascript": "meh", "ribbon": "great"]
+dictionary = ["python": "elegant", "javascript": "nice", "ribbon": "great"]
 print(dictionary["ribbon"])  # > great
 ```
 
 ### User input
 
-Ribbon comes with a variety of builtin functions (along with a few builtin modules - more on this later).
+Ribbon comes with a variety of builtin functions (along with a few standard library modules - more on this later).
 
-We will not cover all of them here, please take a look at the source code in `vm.c` and `builtins.c` to learn more.
+We will not cover all of them here. Please take a look at the source code in `vm.c` and `builtins.c` to learn more.
 
-The `print()` builtin function, well, prints a string to the terminal. The `input()` builtin takes a string input from the user
-and returns it.
+The `print()` builtin function, well, prints a string to the terminal. The `input()` builtin takes input from the user
+and returns it as a string.
 
 ```
 print("What is your name?")
@@ -110,7 +114,7 @@ while some_condition() {
 
 #### For
 
-`for` takes any object that implements - borrowing terminology from Python - the sequence protocol.
+`for` takes any object that implements (borrowing the terminology from Python) the sequence protocol.
 That includes the methods `length` and `@get_key` (the `[]` accessor).
 
 Table objects are an example of an iterable object:
@@ -131,14 +135,14 @@ print("The sum is: " + to_string(sum))
 In Ribbon, all functions are basically lambdas. We can assign a function to a variable in order to give it a name.
 
 ```
-empty_function = {  }  # No need to specify a parameter list if there aren't any
+empty_function = {}  # No need to specify a parameter list if there aren't any
 
 multiply = { | x, y |
     return x * y
 }
 ```
 
-Like most things in Ribbon, functions are first class - we can also pass them into other functions, in a functional programming style.
+Like most things in Ribbon, functions are first class - we can pass them into other functions, in a functional programming style.
 
 ```
 # Example of a higher order function
@@ -150,20 +154,19 @@ map = { | list, func |
     return result
 }
 
-# Passing an anonymous function into map
+# Passing an anonymous function into map. This returns [1, 4, 9]
 map([1, 2, 3], { | n |
     return n * n
 })
-# Returns [1, 4, 9]
 ```
 
-Functions in Ribbon are **closures** - they remember surrounding variables from the scope they were defined in.
-This can allow neat things such as:
+Functions in Ribbon are **closures** - they can remember the surrounding variables from the scope they were defined in.
+This allows neat things such as:
 
 ```
 greet_maker = { | name |
     return {
-        "Hello, " + name + "!"
+        return "Hello, " + name + "!"
     }
 }
 
@@ -253,21 +256,21 @@ for dog in dogs {
 
 ### Modules
 
-Ribbon modules are other `.rib` code files that you can import into your file. After a module is imported, its global variables are
+Ribbon modules are other `.rib` code files that you can access from your file. After a module is imported, its global variables are
 exposed for use in the importing module.
 
 File `program.rib`:
 
 ```
-import myutilities
+import myutils
 
 my_string = "Hello Ribbon"
-tripple = myutilities.multiply_string(my_string, 3)
+tripple = myutils.multiply_string(my_string, 3)
 
 print(tripple)
 ```
 
-File `myutilities.rib`:
+File `myutils.rib`:
 
 ```
 multiply_string = { | string, n |
@@ -373,7 +376,5 @@ print(x)  # Prints 20. f() changed the value of x
 
 -----
 
-This concludes this guide of programming in Ribbon. There are additional builtin functions and corners of the language. Please
+This concludes this guide for programming in Ribbon. There are additional builtin functions and corners of the language. Please
 explore the source code to learn more.
-
-As an example of a real use of Ribbon, I invite you to check out [the source code for this 2D game written entirely in Ribbon](../src/game).
