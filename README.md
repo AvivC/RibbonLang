@@ -95,15 +95,18 @@ After building Ribbon, it can be easily distributed and installed as a self cont
         
     You should see all of the tests passing.
     
-6. Now we can build Ribbon for release. After building, this copies `ribbon.exe` and the adjacent `stdlib` directory, from `src` to a specified output directory. If unspecified, the default is `release\ribbon`.
+6. Now we can build Ribbon for release. After building, this copies `ribbon.exe` and the adjacent `stdlib` directory, from `src` to a specified installation directory. If unspecified, the default is `release\ribbon`.
 
-        > build_release.bat [optional installation directory]
+        > build_release.bat [installation directory]
         
-7. Now that we have built the interpreter, we can run Ribbon programs like so:
+7. **Optional:** You can add the installation directory containing `ribbon.exe` to your `PATH`, so it can be easily launched
+   from the command line.
+        
+8. Now that we have built the interpreter, we can run Ribbon programs like so:
 
         > ribbon your_program.rib
-        
-8. **Optional:** Ribbon comes with a standard library `graphics` module for 2D graphics programming. It's a wrapper around the SDL2 C library. The steps to build it:
+
+9. **Optional:** Ribbon comes with a standard library `graphics` module for 2D graphics programming. It's a wrapper around the SDL2 C library. The steps to build it:
     1. Acquire the SDL2 official binaries: `SDL2.dll` and `SDL2_image.dll`, with their corresponding headers and static libraries.
     2. Place the SDL2 `.a` files under `%RIBBON_BUILD_LIB%` (among the other binaries of the C libraries on your system)
     3. Place the SDL2 header files under `%RIBBON_BUILD_INCLUDE%/SDL2`
