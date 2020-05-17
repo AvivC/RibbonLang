@@ -66,8 +66,8 @@ After building Ribbon, it can be easily distributed and installed as a self cont
 
 #### Requirements to build Ribbon:
 
-* Mingw-w64 GCC for building the interpreter (other compilers may work as well)
-* Python 3 for running the test suite of the interpreter. It should be visible on the `PATH` as `python`
+* Mingw-w64 GCC for building the interpreter, visible on `PATH` as `gcc`
+* Python 3 for running the test suite of the interpreter, visible on `PATH` as `python`
 * **Optional:** in order to build the included `graphics` standard library module, we need the SDL2 library installed. More on this later
 
 #### Steps to build Ribbon:
