@@ -76,41 +76,6 @@ static void emit_binary_opcode_for_in_place_operator(Bytecode* bytecode, Scanner
 	}
 }
 
-// static void process_string_node(AstNodeString* node, CharacterArray* char_array) {
-// 	const char* string = node->string;
-// 	int length = node->length;
-// 	for (const char* ch = string; ch - string < length; ch++) {
-// 		if (*ch == '\\')  {
-// 			ch++;
-// 			if (*ch == 'n') {
-// 				char cast = '\n';
-// 				character_array_write(char_array, &cast);
-// 			} else if (*ch == 't') {
-// 				char cast = '\t';
-// 				character_array_write(char_array, &cast);
-// 			} else if (*ch == 'r') {
-// 				char cast = '\t';
-// 				character_array_write(char_array, &cast);
-// 			} else if (*ch == 'v') {
-// 				char cast = '\t';
-// 				character_array_write(char_array, &cast);
-// 			} else if (*ch == '\\') {
-// 				char cast = '\\';
-// 				character_array_write(char_array, &cast);
-// 			} else {
-// 				char cast = '\\';
-// 				character_array_write(char_array, &cast);
-// 				character_array_write(char_array, (char*) ch);
-// 			}
-
-// 			continue;
-// 		}
-
-// 		character_array_write(char_array, (char*) ch);
-// 	}
-
-// }
-
 static void compile_tree(AstNode* node, Bytecode* bytecode) {
     AstNodeType node_type = node->type;
     
@@ -486,8 +451,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 			emit_two_bytes(bytecode, delta_bytes[0], delta_bytes[1]);
 
 			backpatch_placeholder_with_current_address(bytecode, placeholderOffset);
-			// bytecode_set(bytecode, placeholderOffset, (bytecode->count >> 8) & 0xFF);
-			// bytecode_set(bytecode, placeholderOffset + 1, (bytecode->count) & 0xFF);
 
 			break;
 		}
@@ -536,8 +499,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
 			emit_byte_with_short_operand(bytecode, OP_JUMP_BACKWARD, bytecode->count - top + 3);
 
 			backpatch_placeholder_with_current_address(bytecode, placeholder_offset);
-			// bytecode_set(bytecode, placeholder_offset, (bytecode->count >> 8) & 0xFF);
-			// bytecode_set(bytecode, placeholder_offset + 1, (bytecode->count) & 0xFF);
 
 			emit_byte(bytecode, OP_POP);
 			emit_byte(bytecode, OP_POP);
@@ -579,10 +540,6 @@ static void compile_tree(AstNode* node, Bytecode* bytecode) {
         	AstNodeString* node_string = (AstNodeString*) node;
 
 			Value string_constant = MAKE_VALUE_OBJECT(object_string_copy(node_string->string.values, node_string->string.count));			
-
-			// process_string_node(node_string, &char_array);
-
-        	// Value string_constant = MAKE_VALUE_OBJECT(object_string_copy(char_array.values, char_array.count));
 
         	emit_opcode_with_constant_operand(bytecode, OP_MAKE_STRING, string_constant);
 

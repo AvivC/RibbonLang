@@ -146,6 +146,10 @@ void* reallocate(void* pointer, size_t old_size, size_t new_size, const char* wh
 }
 
 void* allocate_no_tracking(size_t size) {
+    if (size <= 0) {
+        FAIL("allocate_no_tracking :: size <= 0");
+    }
+
     return malloc(size);
 }
 
@@ -154,6 +158,10 @@ void deallocate_no_tracking(void* pointer) {
 }
 
 void* reallocate_no_tracking(void* pointer, size_t new_size) {
+    if (new_size <= 0) {
+        FAIL("reallocate_no_tracking :: new_size <= 0");
+    }
+
     return realloc(pointer, new_size);
 }
 

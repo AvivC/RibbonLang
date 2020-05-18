@@ -584,6 +584,8 @@ static void print_stack_trace(void) {
 }
 
 static void set_function_name(const Value* function_value, ObjectString* name) {
+	assert(object_value_is(*function_value, OBJECT_FUNCTION));
+
 	ObjectFunction* function = (ObjectFunction*) function_value->as.object;
 	char* new_cstring_name = copy_null_terminated_cstring(name->chars, "Function name");
 	object_function_set_name(function, new_cstring_name);
@@ -1353,7 +1355,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				CellTable base_func_free_vars = find_free_vars_for_new_function(class_body_code);
 
 				ObjectFunction* class_base_function = object_user_function_new(class_body_code, NULL, 0, base_func_free_vars);
-				set_function_name(&MAKE_VALUE_OBJECT(class_base_function), object_string_copy_from_null_terminated("<Class base function>"));
+				object_function_set_name(class_base_function, copy_null_terminated_cstring("<Class base function>", "Function name"));
 
 				Value superclass_value = peek();
 				ObjectClass* superclass;
