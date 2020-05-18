@@ -45,7 +45,7 @@ The Ribbon language guide can be found [here](docs/guide.md).
 
 ![Ribbon architecture](docs/ribbon_architecture.png "Ribbon architecture")
 
-As illustrated above, the processing of a Ribbon program generally goes through the following main modules of the interpreter:
+As illustrated above, the processing of a Ribbon program goes through the following main modules of the interpreter:
 
 * **Scanner**: converts the user's source code into a stream of meaningful tokens
 * **Parser**: parses the stream of tokens into an Abstract Syntax Tree - a hierarchical tree representing the program structure
