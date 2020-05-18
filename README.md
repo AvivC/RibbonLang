@@ -1,6 +1,6 @@
 # The Ribbon programming language
 
-Ribbon is a dynamic interpreted scripting language. It's inspired by the likes of Python, Javascript and a little bit of Lua.
+Ribbon is a dynamic interpreted programming language. It's inspired by the likes of Python, Javascript and a little bit of Lua.
 
 Here is a Fizzbuzz implementation to get a look and feel for Ribbon:
 
