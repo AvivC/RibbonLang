@@ -41,9 +41,19 @@ fizzbuzz(20)
 
 The Ribbon language guide can be found [here](docs/guide.md).
 
-### Ribbon interpreter architecture
+### Ribbon high level architecture
 
-![alt text](docs/ribbon_architecture.png "Ribbon Architecture")
+![Ribbon architecture](docs/ribbon_architecture.png "Ribbon architecture")
+
+As illustrated above, the processing of a Ribbon program generally goes through the following main modules of the interpreter:
+
+* Scanner: converts the user's source code into a stream of meaningful tokens
+* Parser: parses the stream of tokens into an Abstract Syntax Tree: a hierarchical tree representing the program structure
+* Compiler: compiles the AST into a linear sequence of bytecode instructions 
+* VM: iterates over the bytecode instructions and executes them one by one. The VM also includes the garbage collector, among additional
+      facilities of the interpreter.
+  
+There are additional modules at play which are mainly used by the primary modules. To list one example example would be the Memory module, which is responsible to wrap the calls to the system allocator in order to alert on memory leaks. 
 
 ### The main traits of Ribbon:
 
