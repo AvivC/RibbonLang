@@ -43,7 +43,7 @@ The Ribbon language guide can be found [here](docs/guide.md).
 
 ### Ribbon interpreter architecture
 
-![alt text](docs/ribbon_architecture/.png "Ribbon Architecture")
+![alt text](docs/ribbon_architecture.png "Ribbon Architecture")
 
 ### The main traits of Ribbon:
 
