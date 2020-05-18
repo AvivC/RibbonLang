@@ -223,15 +223,12 @@ bool builtin_get_main_file_path(Object* self, ValueArray args, Value* out) {
 }
 
 bool builtin_get_main_file_directory(Object* self, ValueArray args, Value* out) {
-	char* last_slash = strrchr(vm.main_module_path, '\\');
+	char* directory = directory_from_path(vm.main_module_path);
 
-	if (last_slash == NULL) {
-		/* Seems we're working with the file path directly, thus the current directory is the directory */
-		*out = MAKE_VALUE_OBJECT(object_string_copy_from_null_terminated("."));
-		return true;
-	}
+	*out = MAKE_VALUE_OBJECT(object_string_copy(directory, strlen(directory)));
 
-	*out = MAKE_VALUE_OBJECT(object_string_copy(vm.main_module_path, last_slash - vm.main_module_path));
+	deallocate(directory, strlen(directory) + 1, "directory path");
+
 	return true;
 }
 
