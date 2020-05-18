@@ -1557,11 +1557,16 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				Value callee_value = pop();
 
 				if (callee_value.type != VALUE_OBJECT) {
-					RUNTIME_ERROR("Cannot call non callable.");
+					RUNTIME_ERROR("Cannot call non object.");
 					break;
 				}
 
 				Object* callee = callee_value.as.object;
+
+				if (!object_is_callable(callee)) {
+					RUNTIME_ERROR("Cannot call non callable.");
+					break;
+				}
 
 				ValueArray args = collect_values(arg_count);
 

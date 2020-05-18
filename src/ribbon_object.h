@@ -184,6 +184,7 @@ bool is_value_instance_of_class(Value value, char* klass_name);
 
 ObjectFunction* object_make_constructor(int num_params, char** params, NativeFunction function);
 
+bool object_is_callable(Object* object);
 char* object_get_callable_name(Object* object);
 
 const char* object_get_type_name(Object* object);

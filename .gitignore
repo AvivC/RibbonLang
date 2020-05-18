@@ -17,4 +17,4 @@ CMakeLists.txt.user
 .settings/
 .project
 .cproject
-build_dev2.bat
+build_dev_no_gc_stress_test.bat

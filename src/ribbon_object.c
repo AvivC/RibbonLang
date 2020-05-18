@@ -947,6 +947,10 @@ ObjectFunction* object_make_constructor(int num_params, char** params, NativeFun
     return make_native_function_with_params("@init", num_params, params, function);
 }
 
+bool object_is_callable(Object* object) {
+	return object->type == OBJECT_FUNCTION || object->type == OBJECT_BOUND_METHOD || object->type == OBJECT_CLASS;
+}
+
 char* object_get_callable_name(Object* object) {
 	switch (object->type) {
 		case OBJECT_FUNCTION: {
