@@ -17,7 +17,7 @@ void short_to_two_bytes(uint16_t num, uint8_t* bytes_out) {
 
 char* copy_cstring(const char* string, int length, const char* what) {
 	// argument length should not include the null-terminator
-	DEBUG_OBJECTS_PRINT("Allocating string buffer '%.*s' of length %d.", length, string, length);
+	DEBUG_OBJECTS_PRINT("Allocating string buffer '%.*s' of length %d, tag: %s.", length, string, length, what);
 
     char* chars = allocate(sizeof(char) * length + 1, what);
     memcpy(chars, string, length);

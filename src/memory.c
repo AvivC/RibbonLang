@@ -28,6 +28,10 @@ static bool is_same_allocation(size_t size, const char* what, Allocation allocat
 }
 
 void* allocate(size_t size, const char* what) {
+    if (size <= 0) {
+        FAIL("allocate :: size <= 0");
+    }
+
     #if MEMORY_DIAGNOSTICS
     return reallocate(NULL, 0, size, what);
 
@@ -59,7 +63,7 @@ static void* do_deallocation(void* pointer, size_t old_size, const char* what) {
         }
     }
     
-    DEBUG_MEMORY("Freeing '%s' ('%p') and %d bytes.", what, pointer, old_size);
+    DEBUG_MEMORY("Freeing '%s' ('%p') and %" PRI_SIZET " bytes.", what, pointer, old_size);
     free(pointer); /* If pointer == NULL, free on NULL is a legal noop */
     allocated_memory -= old_size;
 
@@ -67,7 +71,7 @@ static void* do_deallocation(void* pointer, size_t old_size, const char* what) {
 }
 
 static void* do_reallocation(void* pointer, size_t old_size, size_t new_size, const char* what) {
-    DEBUG_MEMORY("Attempting to reallocate for '%s' %d bytes instead of %d bytes.", what, new_size, old_size);
+    DEBUG_MEMORY("Attempting to reallocate for '%s' %" PRI_SIZET " bytes instead of %" PRI_SIZET " bytes.", what, new_size, old_size);
     void* newpointer = realloc(pointer, new_size);
     
     if (newpointer == NULL) {
@@ -102,7 +106,7 @@ static void* do_reallocation(void* pointer, size_t old_size, size_t new_size, co
 }
 
 static void* do_allocation(void* pointer, size_t new_size, const char* what) {
-    DEBUG_MEMORY("Allocating for '%s' %d bytes.", what, new_size);
+    DEBUG_MEMORY("Allocating for '%s' %" PRI_SIZET " bytes.", what, new_size);
 
     pointer = realloc(pointer, new_size); // realloc() with NULL is equal to malloc()
 
@@ -130,6 +134,11 @@ void* reallocate(void* pointer, size_t old_size, size_t new_size, const char* wh
     return do_reallocation(pointer, old_size, new_size, what);
 
     #else
+
+    if (new_size == 0) {
+        deallocate_no_tracking(pointer);
+        return NULL;
+    }
 
     return reallocate_no_tracking(pointer, new_size);
 

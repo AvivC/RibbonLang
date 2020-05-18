@@ -36,7 +36,7 @@ static Bytecode* current_bytecode(void) {
 }
 
 static void push(Value value) {
-	assert(vm.stack_top - vm.stack <= EVAL_STACK_MAX);
+	assert(vm.stack_top - vm.stack < EVAL_STACK_MAX);
 
 	*vm.stack_top = value;
     vm.stack_top++;
@@ -1392,13 +1392,17 @@ static bool vm_interpret_frame(StackFrame* frame) {
 				uint8_t num_params_byte2 = READ_BYTE();
 				uint16_t num_params = two_bytes_to_short(num_params_byte1, num_params_byte2);
 
-				/* Build the params array for the created function */
-				ObjectString** params = allocate(sizeof(ObjectString*) * num_params, "Parameters list strings");
-				for (int i = 0; i < num_params; i++) {
-					Value param_value = READ_CONSTANT();
-					assert(object_value_is(param_value, OBJECT_STRING));
-					ObjectString* param_object_string = (ObjectString*) param_value.as.object;
-					params[i] = param_object_string;
+				ObjectString** params = NULL;
+
+				if (num_params > 0) {
+					/* Build the params array for the created function */
+					params = allocate(sizeof(ObjectString*) * num_params, "Parameters list strings");
+					for (int i = 0; i < num_params; i++) {
+						Value param_value = READ_CONSTANT();
+						assert(object_value_is(param_value, OBJECT_STRING));
+						ObjectString* param_object_string = (ObjectString*) param_value.as.object;
+						params[i] = param_object_string;
+					}
 				}
 
 				CellTable new_function_free_vars = find_free_vars_for_new_function(object_code);

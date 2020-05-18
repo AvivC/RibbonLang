@@ -12,7 +12,7 @@
 static ObjectClass* descriptor_class = NULL;
 
 static Object* allocate_object(size_t size, const char* what, ObjectType type) {
-	DEBUG_OBJECTS_PRINT("Allocating object '%s' of size %d and type %d.", what, size, type);
+	DEBUG_OBJECTS_PRINT("Allocating object '%s' of size %" PRI_SIZET " and type %d.", what, size, type);
 
     Object* object = allocate(size, what);
     object->type = type;    
@@ -22,7 +22,7 @@ static Object* allocate_object(size_t size, const char* what, ObjectType type) {
     cell_table_init(&object->attributes);
     
     vm.num_objects++;
-    DEBUG_OBJECTS_PRINT("Incremented num_objects to %d", vm.numObjects);
+    DEBUG_OBJECTS_PRINT("Incremented num_objects to %d", vm.num_objects);
 
     return object;
 }
@@ -107,6 +107,8 @@ static bool object_table_add(Object* self, ValueArray args, Value* result) {
 
 	cleanup:
 	value_array_free(&length_args);
+
+	*result = MAKE_VALUE_NIL();
 	return success;
 }
 
@@ -133,6 +135,8 @@ static bool object_table_pop(Object* self, ValueArray args, Value* result) {
 
 	cleanup:
 	value_array_free(&length_args);
+
+	*result = MAKE_VALUE_NIL();
 	return success;
 }
 
@@ -363,10 +367,16 @@ ObjectFunction* make_native_function_with_params(char* name, int num_params, cha
 	/* name must be null terminated. It is copied and ObjectFunction takes ownership over the copy.
 	Can simply be a literal. Otherwise caller must free it later. */
 
-	ObjectString** params_buffer = allocate(sizeof(ObjectString*) * num_params, "Parameters list strings");
-	for (int i = 0; i < num_params; i++) {
-		params_buffer[i] = object_string_new_partial_from_null_terminated(params[i]);
+
+	ObjectString** params_buffer = NULL;
+	
+	if (num_params > 0) {
+		params_buffer = allocate(sizeof(ObjectString*) * num_params, "Parameters list strings");
+		for (int i = 0; i < num_params; i++) {
+			params_buffer[i] = object_string_new_partial_from_null_terminated(params[i]);
+		}
 	}
+	
 	ObjectFunction* func = object_native_function_new(function, params_buffer, num_params);
 	name = copy_null_terminated_cstring(name, "Function name");
 	object_function_set_name(func, name);
@@ -612,7 +622,7 @@ void object_free(Object* o) {
         }
         case OBJECT_MODULE: {
         	ObjectModule* module = (ObjectModule*) o;
-			DEBUG_OBJECTS_PRINT("Freeing ObjectModule at '%p'", cell);
+			DEBUG_OBJECTS_PRINT("Freeing ObjectModule at '%p'", module);
 			if (module->dll != NULL) {
 				FreeLibrary(module->dll);
 			}
@@ -646,14 +656,14 @@ void object_free(Object* o) {
 		}
 		case OBJECT_BOUND_METHOD: {
 			ObjectBoundMethod* bound_method = (ObjectBoundMethod*) o;
-			DEBUG_OBJECTS_PRINT("Freeing ObjectBoundMethod at '%p'", instance);
+			DEBUG_OBJECTS_PRINT("Freeing ObjectBoundMethod at '%p'", bound_method);
 			deallocate(bound_method, sizeof(ObjectBoundMethod), "ObjectBoundMethod");
 			break;
 		}
     }
     
     vm.num_objects--;
-    DEBUG_OBJECTS_PRINT("Decremented numObjects to %d", vm.numObjects);
+    DEBUG_OBJECTS_PRINT("Decremented numObjects to %d", vm.num_objects);
 }
 
 static void print_function(ObjectFunction* function) {
