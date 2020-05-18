@@ -41,6 +41,10 @@ fizzbuzz(20)
 
 The Ribbon language guide can be found [here](docs/guide.md).
 
+### Ribbon interpreter architecture
+
+![alt text](docs/ribbon_architecture/.png "Ribbon Architecture")
+
 ### The main traits of Ribbon:
 
 * Multi-paradigm: has classes and methods alongside closures and first class functions
