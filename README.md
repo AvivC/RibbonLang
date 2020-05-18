@@ -47,13 +47,12 @@ The Ribbon language guide can be found [here](docs/guide.md).
 
 As illustrated above, the processing of a Ribbon program generally goes through the following main modules of the interpreter:
 
-* Scanner: converts the user's source code into a stream of meaningful tokens
-* Parser: parses the stream of tokens into an Abstract Syntax Tree: a hierarchical tree representing the program structure
-* Compiler: compiles the AST into a linear sequence of bytecode instructions 
-* VM: iterates over the bytecode instructions and executes them one by one. The VM also includes the garbage collector, among additional
-      facilities of the interpreter.
+* **Scanner**: converts the user's source code into a stream of meaningful tokens
+* **Parser**: parses the stream of tokens into an Abstract Syntax Tree - a hierarchical tree representing the program structure
+* **Compiler**: compiles the AST into a linear sequence of bytecode instructions 
+* **VM**: iterates over the bytecode instructions and executes them one by one. The VM also includes the garbage collector, among additional facilities of the interpreter.
   
-There are additional modules at play which are mainly used by the primary modules. To list one example example would be the Memory module, which is responsible to wrap the calls to the system allocator in order to alert on memory leaks. 
+There are additional modules at play which are mainly used by the primary modules. One such example example would be the **Memory** module. It manages memory allocations and may alert in case of a native memory leak. 
 
 ### The main traits of Ribbon:
 
