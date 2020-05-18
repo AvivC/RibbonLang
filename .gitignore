@@ -1,4 +1,3 @@
-src/game/pictures
 code.rib
 bdry_run.bat
 brun.bat
@@ -7,8 +6,6 @@ run.bat
 *.exe
 *.pyc
 *.dll
-.pytest_cache/
-python/tester/venv/
 python/tester/.idea/
 python/tester/__pycache__/
 Debug/
