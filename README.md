@@ -2,11 +2,7 @@
 
 Ribbon is a dynamic interpreted scripting language. It's inspired by the likes of Python, Javascript and a little bit of Lua.
 
-### A glimpse of Ribbon
-
-[Here is a 2D game written entirely in Ribbon](src/game).
-
-And here is a Fizzbuzz implementation to get a look and feel for Ribbon:
+Here is a Fizzbuzz implementation to get a look and feel for Ribbon:
 
 ```Python
 Numbers = class {

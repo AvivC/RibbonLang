@@ -2,9 +2,7 @@
 
 This page is a general guide for writing code in Ribbon. Please go through the [README](../README.md) before reading this guide.
 
-To see an example of a real use of Ribbon, please check out [the source code for this 2D game written entirely in Ribbon](../src/game).
-
-The code examples use Python syntax highlighting, since Ribbon syntax is influenced by that of Python.
+The code examples use Python syntax highlighting, since the syntax of Ribbon is similar to Python's.
 
 ### Table of contents
 
