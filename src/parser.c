@@ -402,7 +402,7 @@ static AstNode* boolean(int expression_level) {
 	} else if (parser.previous.type == TOKEN_FALSE) {
 		boolean_value = false;
 	} else {
-		FAIL("Illegal literal identified as boolean.");
+		FAIL("Illegal literal identified as boolean. Token type: %d", parser.previous.type);
 	}
 	return (AstNode*) ast_new_node_constant(MAKE_VALUE_BOOLEAN(boolean_value));
 }
@@ -527,8 +527,6 @@ static ParseRule rules[] = {
     {NULL, binary, PREC_COMPARISON},     // TOKEN_BANG_EQUAL
     {NULL, binary, PREC_COMPARISON},     // TOKEN_GREATER_EQUAL
     {NULL, binary, PREC_COMPARISON},     // TOKEN_LESS_EQUAL
-    {NULL, NULL, PREC_NONE},     // TOKEN_PRINT
-    {NULL, NULL, PREC_NONE},     // TOKEN_END
     {NULL, NULL, PREC_NONE},     // TOKEN_IF
     {NULL, NULL, PREC_NONE},     // TOKEN_ELSE
     {NULL, NULL, PREC_NONE},     // TOKEN_ELSIF

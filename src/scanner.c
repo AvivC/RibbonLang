@@ -83,9 +83,7 @@ static Token parse_identifier() {
         advance();
     }
 
-    if (check_token("end")) {
-        return make_token(TOKEN_END);
-    } else if (check_token("if")) {
+    if (check_token("if")) {
         return make_token(TOKEN_IF);
     } else if (check_token("else")) {
         return make_token(TOKEN_ELSE);
