@@ -1174,7 +1174,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
             		Object* subject = subject_val.as.object;
             		Value add_method;
             		if (!object_load_attribute_cstring_key(subject, "@add", &add_method)) {
-            			RUNTIME_ERROR("Object doesn't support @add method.");
+            			RUNTIME_ERROR("Object of type %s doesn't support @add method.", object_get_type_name(subject));
             			break;
             		}
 
