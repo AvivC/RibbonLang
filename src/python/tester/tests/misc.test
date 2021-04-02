@@ -486,3 +486,59 @@ expect
         -> [... 215 lower frames truncated ...]
     Stack overflow
 end
+
+test temporaries are popped off the stack when function returns in the middle
+    
+    # Test explanation:
+    #
+    # We had a bug where when a function returns in the middle, some temporaries may
+    # be left on the evaluation stack. In specific circumstances, this would surface to the script level and ruin the logic.
+    # The code triggering the bug used a for-loop, which behind the scenes stores temporaries on the stack.
+    #
+    # We fixed the bug in the VM by (at the time of writing this), when calling a function, storing the current
+    # eval-stack offset on the stackframe, and re-setting the stack top to that offset (+ 1 for the return value) on OP_RETURN.
+    # 
+    # This test used to fail when the bug existed, and should help guard against its return.
+    # The way it used to fail is it assinged one of the arguments of func() to be the object list_has_value,
+    # which has been forgotten on the stack from earlier. It should have been popped, being the "callee" of an earlier invocation,
+    # but a left-over temporary has been popped instead, leaving it on the stack.
+    # It would get assigned to the argument variable instead of the correct passed in value.
+    # The test validates that the correct passed-in values are printed out.
+
+    list_has_value = { | list, value |
+        # This function will return in the middle.
+        # At that point, some temporary values will be present on the stack.
+        # The VM should correctly pop all of them.
+        
+        for item in list {
+            if item == value {
+                return true
+            }
+        }
+        
+        return false
+    }
+
+    as_string = { | object |
+        builtin_supported_types = ["Number"]
+
+        if list_has_value(builtin_supported_types, type(object)) {
+            return to_string(object)
+        }
+        
+        return "<unrecognized>"
+        
+    }
+
+    func = { | a, b |
+        print("func called on:")
+        print(a)
+        print(b)
+    }
+
+    func(as_string(10), as_string(20))
+expect
+    func called on:
+    10
+    20
+end

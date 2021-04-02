@@ -79,13 +79,13 @@ static void init_stack_frame(StackFrame* frame) {
 	frame->base_entity = NULL;
 	frame->is_entity_base = false;
 	frame->is_native = false;
-	frame->discard_return_value = false;
+	frame->eval_stack_frame_base_offset = 0;
 	cell_table_init(&frame->local_variables);
 }
 
 static StackFrame new_stack_frame(
 		uint8_t* return_address, ObjectFunction* function, 
-		Object* base_entity, bool is_entity_base, bool is_native, bool discard_return_value) {
+		Object* base_entity, bool is_entity_base, bool is_native) {
 	StackFrame frame;
 	init_stack_frame(&frame);
 	frame.return_address = return_address;
@@ -93,7 +93,8 @@ static StackFrame new_stack_frame(
 	frame.base_entity = base_entity;
 	frame.is_entity_base = is_entity_base;
 	frame.is_native = is_native;
-	frame.discard_return_value = discard_return_value;
+	assert(vm.stack_top - vm.stack >= 0);
+	frame.eval_stack_frame_base_offset = vm.stack_top - vm.stack;
 	return frame;
 }
 
@@ -473,7 +474,7 @@ static bool call_native_function(ObjectFunction* function, Object* self, ValueAr
 	Specifically, for the use case where a native function calls a user function.
 	Without this "native frame", OP_RETURN in the user function will make control jump
 	back to the point where the caller _native_ function was called. */
-	StackFrame native_frame = new_stack_frame(NULL, function, NULL, false, true, false);
+	StackFrame native_frame = new_stack_frame(NULL, function, NULL, false, true);
 	if (!push_frame(native_frame)) {
 		return false;
 	}
@@ -1440,6 +1441,14 @@ static bool vm_interpret_frame(StackFrame* frame) {
                 StackFrame* frame = vm_peek_current_frame(); /* Staying on the stack because is popped and freed after interpreter loop */
 
 				vm.ip = frame->return_address;
+
+				Value return_value = pop();
+
+				assert(vm.stack_top - vm.stack >= frame->eval_stack_frame_base_offset);
+				vm.stack_top = vm.stack + frame->eval_stack_frame_base_offset;
+
+				push(return_value);
+
 				is_executing = false;
 
                 break;
@@ -1876,7 +1885,7 @@ static bool vm_interpret_frame(StackFrame* frame) {
 static bool call_ribbon_function_leave_on_stack(
 		ObjectFunction* function, Object* self, ValueArray args, Object* base_entity) {
 	bool is_entity_base = base_entity != NULL;
-	StackFrame frame = new_stack_frame(vm.ip, function, base_entity, is_entity_base, false, false);
+	StackFrame frame = new_stack_frame(vm.ip, function, base_entity, is_entity_base, false);
 
 	assert(args.count == function->num_params);
 
@@ -1953,7 +1962,9 @@ bool vm_interpret_program(Bytecode* bytecode, char* main_module_path) {
 
 	ObjectModule* module = object_module_new(base_module_name, base_function);
 	cell_table_set_value(&vm.imported_modules, base_module_name, MAKE_VALUE_OBJECT(module));
-	StackFrame base_frame = new_stack_frame(NULL, base_function, (Object*) module, true, false, false);
+
+	assert(vm.stack_top - vm.stack == 0);
+	StackFrame base_frame = new_stack_frame(NULL, base_function, (Object*) module, true, false);
 
 	DEBUG_TRACE("Starting interpreter loop.");
 	return vm_interpret_frame(&base_frame);

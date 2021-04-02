@@ -86,7 +86,7 @@ typedef struct {
 	CellTable local_variables;
 	bool is_entity_base;
 	bool is_native;
-	bool discard_return_value;
+	unsigned int eval_stack_frame_base_offset;
 } StackFrame;
 
 typedef struct ObjectInstance ObjectInstance;
