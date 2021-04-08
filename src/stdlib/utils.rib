@@ -1,0 +1,187 @@
+substring = { | string, start, end | 
+    result = ""
+    for i in range(start, end) {
+        result += string[i]
+    }
+    return result
+}
+
+range = { | min, max |
+    result = []
+    i = min
+    while i < max {
+        result.add(i)
+        i += 1
+    }
+    return result
+}
+
+range_reverse = { | max, min |
+    result = []
+    i = max
+    while i >= min {
+        result.add(i)
+        i -= 1
+    }
+    return result
+}
+
+reverse_string = { | string |
+    result = ""
+    for i in range_reverse(string.length() - 1, 0) {
+        result += string[i]
+    }
+    return result
+}
+
+left_trim_string = { | string, unwanted_char |
+    result = ""
+    passed_starting_unwanted_chars = false
+
+    for current_char in string {
+        if current_char != unwanted_char or passed_starting_unwanted_chars {
+            result += current_char
+            passed_starting_unwanted_chars = true
+        }
+    }
+
+    return result
+}
+
+right_trim_string = { | string, unwanted_char |
+    return reverse_string(left_trim_string(reverse_string(string), unwanted_char))
+}
+
+trim_string = { | string, unwanted_char |
+    return left_trim_string(right_trim_string(string, unwanted_char), unwanted_char)
+}
+
+split_string = { | string, separator |
+    # currently assuming separator.length() == 1
+
+    result = []
+    prev_location = 0
+
+    for i in range(0, string.length() + 1) {
+        if i == string.length() or string[i] == separator {
+            segment = substring(string, prev_location, i)
+            if segment != "" {
+                result.add(segment)
+            }
+            prev_location = i + 1
+        }
+    }
+
+    return result
+}
+
+multiply_string = { | string, times |
+    result = ""
+    for i in range(0, times) {
+        result += string
+    }
+    return result
+}
+
+list_has_value = { | list, value |
+    for item in list {
+        if item == value {
+            return true
+        }
+    }
+    return false
+}
+
+as_string = { | object |
+    # The builtin to_string function is very lacking... we try to make up for it using this function
+
+    object_type = type(object)
+    builtin_supported_types = ["Number"]  # currently only number conversion is supported in builtin to_string
+
+    if list_has_value(builtin_supported_types, object_type) {
+        return to_string(object)
+    }
+
+    if object_type == "Number" {
+        return to_string(object)
+    } elsif object_type == "String" {
+        return object
+    } elsif object_type == "Boolean" {
+        if object {
+            return "true"
+        } else {
+            return "false"
+        }
+    } elsif object_type == "Table" {
+        # Assuming a list-table... not very robust
+        result = ""
+        for item in object {
+            stringed = as_string(item)
+            result += "[" + as_string(item) + "]"
+        }
+        return result
+    } else {
+        return "<Unrecognized>"
+    }
+}
+
+_assert = { | test_description, actual, expected |
+    objects_equal = { | o1, o2 |
+        # the builtin-in "equals" support in the interpreter for objects is very lacking:
+        # currently only compares identity (or logically for strings, which are always unique in the heap).
+        # we try to make up for it by comparing their textual representation
+        
+        return o1 == o2 or as_string(o1) == as_string(o2)
+    }
+
+    cosmetic_space_length = 45 - test_description.length()
+    cosmetic_space = multiply_string(" ", cosmetic_space_length)
+    text = "Test " + test_description + ":" + cosmetic_space
+
+    if objects_equal(actual, expected) {
+        text += "[ PASSED ]"
+    } else {
+        text += "[ FAILED ]"
+        text += "\n"
+        text += "    Expected: " + as_string(expected) + "\n"
+        text += "    Actual: " + as_string(actual) + "\n"
+    }
+
+    print(text)
+}
+
+_test = {
+    _assert("split_string 1", split_string("a b c", " "), ["a", "b", "c"])
+    _assert("split_string 2", split_string("aaa bbb ccc", " "), ["aaa", "bbb", "ccc"])
+    _assert("split_string 3", split_string(" aaa bbb ccc", " "), ["aaa", "bbb", "ccc"])
+    _assert("split_string 4", split_string("   aaa bbb ccc ", " "), ["aaa", "bbb", "ccc"])
+
+    _assert("substring 1", substring("abcdefg", 2, 5), "cde")
+    _assert("substring 2", substring("abcdefg", 4, 7), "efg")
+    _assert("substring 3", substring("a b c", 4, 5), "c")
+
+    _assert("as_string on number 1", as_string(100), "100")
+
+    _assert("range 1", range(0, 5), [0, 1, 2, 3, 4])
+    _assert("range 2", range(3, 5), [3, 4])
+    _assert("range 3", range(2, 2), [])
+
+    _assert("range_reverse 1", range_reverse(5, 0), [5, 4, 3, 2, 1, 0])
+    _assert("range_reverse 1", range_reverse(5, 1), [5, 4, 3, 2, 1])
+
+    _assert("reverse_string 1", reverse_string("abcde fg"), "gf edcba")
+
+    _assert("left_trim_string 1", left_trim_string("abcde", "x"), "abcde")
+    _assert("left_trim_string 2", left_trim_string("  abcde   ", "x"), "  abcde   ")
+    _assert("left_trim_string 3", left_trim_string("xabcde", "x"), "abcde")
+    _assert("left_trim_string 4", left_trim_string("xxxabcde", "x"), "abcde")
+    _assert("left_trim_string 5", left_trim_string("xxxabcdexxx", "x"), "abcdexxx")
+
+    _assert("right_trim_string 1", right_trim_string("xxxabcdexxx", "x"), "xxxabcde")
+    _assert("right_trim_string 2", right_trim_string("xxxabcde", "x"), "xxxabcde")
+    _assert("right_trim_string 3", right_trim_string("xxxabcde   ", "x"), "xxxabcde   ")
+    _assert("right_trim_string 4", right_trim_string("xxxabcde   ", " "), "xxxabcde")
+    _assert("right_trim_string 5", right_trim_string("    xxxabcde   ", " "), "    xxxabcde")
+
+    _assert("trim_string 1", trim_string("    xxxabcde   ", " "), "xxxabcde")
+}
