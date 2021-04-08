@@ -27,7 +27,7 @@ typedef enum {
 } ImportResult;
 
 #define CALL_STACK_MAX 255
-#define EVAL_STACK_MAX 255
+#define EVAL_STACK_MAX (CALL_STACK_MAX * 5)
 
 typedef struct {
 	Object* objects;

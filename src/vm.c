@@ -36,7 +36,9 @@ static Bytecode* current_bytecode(void) {
 }
 
 static void push(Value value) {
-	assert(vm.stack_top - vm.stack < EVAL_STACK_MAX);
+	// assert(vm.stack_top - vm.stack < EVAL_STACK_MAX);
+	RIBBON_ASSERT(vm.stack_top - vm.stack < EVAL_STACK_MAX, 
+		"Overflow of *evaluation* stack. Number of frames in *call* stack: %" PRI_SIZET, vm.call_stack_top - vm.call_stack);
 
 	*vm.stack_top = value;
     vm.stack_top++;

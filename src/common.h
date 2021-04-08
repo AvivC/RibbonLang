@@ -129,6 +129,13 @@
     exit(EXIT_FAILURE); \
 } while(false)
 
+// TODO: Consider disabling in release build
+#define RIBBON_ASSERT(condition, message, ...) do { \
+    if (!(condition)) { \
+        FAIL(message, ##__VA_ARGS__); \
+    } \
+} while(false)
+
 #endif
 
 #define PRINTLN(str) do { \
