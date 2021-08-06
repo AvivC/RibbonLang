@@ -68,3 +68,7 @@ sqrt = { | x |
 random_in_range = { | min, max |
 	return random() % (max - min + 1) + min
 }
+
+sin = { | radians | 
+	return __sin(radians)
+}

@@ -1,0 +1,18 @@
+test sin function
+    import math
+    print(math.sin(10))
+    print(math.sin(-10))
+    print(math.sin(3))
+    print(math.sin(0.2))
+    print(math.sin(18654))
+    print(math.sin(-1000))
+    print(math.sin(0.003))
+expect
+    -0.544021
+    0.544021
+    0.14112
+    0.198669
+    -0.70127
+    -0.82688
+    0.003
+end

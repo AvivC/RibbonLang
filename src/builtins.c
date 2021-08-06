@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include <time.h>
 
 #include "vm.h"
@@ -6,6 +7,7 @@
 #include "value.h"
 #include "memory.h"
 #include "ribbon_object.h"
+#include "ribbon_utils.h"
 #include "io.h"
 
 bool builtin_print(Object* self, ValueArray args, Value* out) {
@@ -401,4 +403,14 @@ bool builtin_super(Object* self, ValueArray args, Value* out) {
 	value_array_free(&length_args);
 
 	return success;
+}
+
+bool builtin_sin(Object* self, ValueArray args, Value* out) {
+	if (!arguments_valid(args, "n")) {
+		return false;
+	}
+
+	const double input = args.values[0].as.number;
+	*out = MAKE_VALUE_NUMBER(sin(input));
+	return true;
 }

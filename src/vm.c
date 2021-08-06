@@ -440,6 +440,10 @@ static void set_builtin_globals(void) {
 	register_builtin_function("is_instance", 2, (char*[]) {"value", "type_name"}, builtin_is_instance);
 	register_builtin_function("type", 1, (char*[]) {"value"}, builtin_get_type);
 	register_builtin_function("super", 1, (char*[]) {"args_table"}, builtin_super);
+
+	// TODO: For consistency, this should probably be a native member (somehow) of the math stdlib module.
+	// For now it's simply a global prefixed with '__' to mark as "internal", and exposed through the math module sin() function.
+	register_builtin_function("__sin", 1, (char*[]) {"radians"}, builtin_sin);
 }
 
 static void register_function_on_module(ObjectModule* module, char* name, int num_params, char* params[], NativeFunction func) {
