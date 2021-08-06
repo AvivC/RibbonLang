@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
         abs_main_file_path = copy_null_terminated_cstring(main_file_path, abs_path_alloc_string);
     }
 
-    if (io_read_file(abs_main_file_path, "Source file content", &source, &text_length) != IO_SUCCESS) {
+    if (io_read_text_file(abs_main_file_path, "Source file content", &source, &text_length) != IO_SUCCESS) {
         printf("Failed to open file.\n");
     	return -1;
     }

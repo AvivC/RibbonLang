@@ -424,8 +424,10 @@ static void register_builtin_function(char* name, int num_params, char** params,
 static void set_builtin_globals(void) {
 	register_builtin_function("print", 1, (char*[]) {"text"}, builtin_print);
 	register_builtin_function("input", 0, NULL, builtin_input);
-	register_builtin_function("read_file", 1, (char*[]) {"path"}, builtin_read_file);
-	register_builtin_function("write_file", 2, (char*[]) {"path", "text"}, builtin_write_file);
+	register_builtin_function("read_text_file", 1, (char*[]) {"path"}, builtin_read_text_file);
+	register_builtin_function("read_binary_file", 1, (char*[]) {"path"}, builtin_read_binary_file);
+	register_builtin_function("write_text_file", 2, (char*[]) {"path", "text"}, builtin_write_text_file);
+	register_builtin_function("write_binary_file", 2, (char*[]) {"path", "data"}, builtin_write_binary_file);
 	register_builtin_function("delete_file", 1, (char*[]) {"path"}, builtin_delete_file);
 	register_builtin_function("file_exists", 1, (char*[]) {"path"}, builtin_file_exists);
 	register_builtin_function("to_number", 1, (char*[]) {"value"}, builtin_to_number);
@@ -612,7 +614,7 @@ static char* make_base_module_function_name(ObjectString* module_name) {
 static ImportResult load_text_module(ObjectString* module_name, const char* file_name_buffer) {
 	char* source = NULL;
 	size_t source_buffer_size = -1;
-	IOResult file_read_result = io_read_file(file_name_buffer, "File content buffer", &source, &source_buffer_size);
+	IOResult file_read_result = io_read_text_file(file_name_buffer, "File content buffer", &source, &source_buffer_size);
 
 	switch (file_read_result) {
 		case IO_SUCCESS: {
