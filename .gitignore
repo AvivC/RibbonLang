@@ -16,3 +16,4 @@ CMakeLists.txt.user
 .project
 .cproject
 build_dev_no_gc_stress_test.bat
+release/
