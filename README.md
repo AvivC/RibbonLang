@@ -121,7 +121,7 @@ After building Ribbon, it can be easily distributed and installed as a self cont
     1. Acquire the SDL2 official binaries: `SDL2.dll` and `SDL2_image.dll`, with their corresponding headers and static libraries.
     2. Place the SDL2 `.a` files under `%RIBBON_BUILD_LIB%` (among the other binaries of the C libraries on your system)
     3. Place the SDL2 header files under `%RIBBON_BUILD_INCLUDE%/SDL2`
-    4. During runtime, our `graphics` module will need to find the SDL2 `.dll` files. Place `SDL2.dll` and `SDL2_image.dll` under `src\stdlib\`, next to the other standard library files.
+    4. During runtime, our `graphics` module will need to find the SDL2 `.dll` files. Place `SDL2.dll` and `SDL2_image.dll` under `src\stdlib\`, next to the other standard library files. Be sure to also copy other DLLs required by SDL2, for example: libpng and zlib.
     5. Build the `graphics` module like so:
   
             > src\sdl_extension\bdeploy_optimized.bat
