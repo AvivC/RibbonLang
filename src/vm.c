@@ -523,6 +523,52 @@ static bool call_native_function_args_from_stack(ObjectFunction* function, Objec
 	return success;
 }
 
+static char* get_stdlib_path() {
+	/* TODO: Why is this not allocated once? */
+	return concat_null_terminated_paths(vm.interpreter_dir_path, VM_STDLIB_RELATIVE_PATH, "stdlib path");
+}
+
+static void configure_library_loading() {	
+	/* 
+	   Extension modules may have their own dependencies, which in turn may call LoadLibrary themselves on other dependencies.
+	   SDL2_image seems to be doing something like this.
+	   In this case, the LoadLibrary called by the dependnecy of the extension module (SDL2_image in this example),
+	   may fail if said dependency is not on PATH.
+	   We want the system to only require that all recursive dependencies of extension modules are located
+	   in the stdlib directory, and not necessarily on PATH.
+	   The following configurations hopefully achieve this.
+	*/
+
+	char* stdlib_path = get_stdlib_path();
+	const size_t stdlib_path_length = strlen(stdlib_path);
+
+	if (SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS) == 0) {
+		FAIL("Could not set up DLL loading settings.");
+	}
+	if (SetDllDirectoryA(stdlib_path) == 0) {
+		FAIL("Could not add standard library path to DLL search path.");
+	}
+
+	// Just allocating times 100 the original string... Let's hope nothing overflows here. Oh Windows API.
+	WCHAR* wide_stdlib_path = allocate(stdlib_path_length * 100, "stdlib path wide");
+
+	// Mark the last byte in some way, so we can try to validate we haven't overflown the buffer
+	char* wide_stdlib_path_last_byte_ptr = ((char*)wide_stdlib_path) + (stdlib_path_length * 100 - 1);
+	*wide_stdlib_path_last_byte_ptr = '!';
+
+	const int written_wide_chars = mbstowcs(wide_stdlib_path, stdlib_path, stdlib_path_length + 1);
+	if (written_wide_chars != stdlib_path_length) {
+		FAIL("Could not convert standard library path to wide representation.");
+	}
+	if (*wide_stdlib_path_last_byte_ptr != '!') {
+		FAIL("Seems we may have overflown the stdlib path wide buffer.");
+	}
+
+	AddDllDirectory(wide_stdlib_path);
+	deallocate(stdlib_path, stdlib_path_length + 1, "stdlib path");
+	deallocate(wide_stdlib_path, stdlib_path_length * 100, "stdlib path wide");
+}
+
 void vm_init(void) {
 	vm.currently_handling_error = false;
 
@@ -544,6 +590,8 @@ void vm_init(void) {
 	vm.interpreter_dir_path = find_interpreter_directory();
 
 	srand(time(NULL)); /* Our builtin random() function needs the randomizer seeded */
+
+	configure_library_loading();
 }
 
 void vm_free(void) {
@@ -922,7 +970,7 @@ ImportResult vm_import_module(ObjectString* module_name) {
 		goto import_module_cleanup;
 	}
 
-	stdlib_path = concat_null_terminated_paths(vm.interpreter_dir_path, VM_STDLIB_RELATIVE_PATH, "stdlib path");
+	stdlib_path = get_stdlib_path();
 	stdlib_module_path = concat_null_terminated_paths(stdlib_path, user_module_file_name, "stdlib module path");
 
 	if (io_file_exists(stdlib_module_path)) {

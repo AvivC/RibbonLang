@@ -370,6 +370,13 @@ static bool img_init(Object* self, ValueArray args, Value* out) {
     return true;
 }
 
+static bool img_get_error(Object* self, ValueArray args, Value* out) {
+    const char* error = IMG_GetError();
+    // Is this memory safe? Pretty sure it is.
+    *out = MAKE_VALUE_OBJECT(ribbon.object_string_copy_from_null_terminated(error));
+    return true;
+}
+
 static bool show_cursor(Object* self, ValueArray args, Value* out) {
     if (!ribbon.arguments_valid(args, "n")) {
         return false;
@@ -745,6 +752,7 @@ __declspec(dllexport) bool ribbon_module_init(RibbonApi api, ObjectModule* modul
     expose_function("create_renderer", 3, (char*[]) {"window", "index", "flags"}, create_renderer);
     expose_function("create_window", 6, (char*[]) {"title", "x", "y", "w", "h", "flags"}, create_window);
     expose_function("img_init", 1, (char*[]) {"flags"}, img_init);
+    expose_function("img_get_error", 0, NULL, img_get_error);
     expose_function("show_cursor", 1, (char*[]) {"toggle"}, show_cursor);
     expose_function("destroy_renderer", 1, (char*[]) {"renderer"}, destroy_renderer);
     expose_function("destroy_window", 1, (char*[]) {"window"}, destroy_window);
